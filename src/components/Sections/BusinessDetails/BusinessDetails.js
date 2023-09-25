@@ -692,6 +692,10 @@ const BusinessDetails = props => {
 					companyRocData?.DateOfIncorporation ||
 					sectionData?.business_details?.businessstartdate ||
 					'',
+				customer_id:
+					sectionData?.business_details?.additional_cust_id ||
+					sectionData?.business_details?.customer_id ||
+					'',
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
@@ -1100,8 +1104,7 @@ const BusinessDetails = props => {
 															onChangeFormStateField={onChangeFormStateField}
 															clearErrorFormState={clearErrorFormState}
 															isDisabled={
-																isEditOrViewLoan ||
-																completedSections?.includes(selectedSectionId)
+																!!completedSections?.includes(selectedSectionId)
 															}
 															setCompanyRocData={setCompanyRocData}
 															completedSections={completedSections}
@@ -1215,8 +1218,6 @@ const BusinessDetails = props => {
 											customFieldPropsSubFields.loading = loading;
 											customFieldProps.disabled =
 												loading ||
-												isViewLoan ||
-												isEditLoan ||
 												!!completedSections?.includes(selectedSectionId);
 											customFieldPropsSubFields.disabled =
 												loading ||

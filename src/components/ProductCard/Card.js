@@ -25,6 +25,7 @@ import CustomerVerificationOTPModal from './CustomerVerificationOTPModal';
 import * as UI from './ui';
 import { useEffect } from 'react';
 import { resetEditOrViewLoan } from 'store/appSlice';
+import * as CONST from './const';
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
@@ -184,6 +185,13 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						loan_product_details_id:
 							productModalData?.id || product?.id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
+						type_name:
+							`${productModalData?.loan_request_type ||
+								product?.loan_request_type}` === '2'
+								? 'Applicant'
+								: CONST.TYPE_NAME_MAPPING[
+										(customerDetailsFormData?.businesstype)
+								  ] || '',
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,

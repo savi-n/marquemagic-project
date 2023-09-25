@@ -129,6 +129,12 @@ const CustomerDetailsFormModal = props => {
 					isApplicant: true, //implemented based on savitha's changes - bad practice
 					customer_id: formState?.values['customer_id'],
 					loan_product_details_id: productForModal?.id || undefined,
+					type_name:
+						`${productForModal?.loan_request_type ||
+							product?.loan_request_type}` === '2'
+							? 'Applicant'
+							: CONST.TYPE_NAME_MAPPING[(formState?.values['businesstype'])] ||
+							  '',
 				} || {};
 
 			setCustomerDetailsFormData(formState?.values || {});

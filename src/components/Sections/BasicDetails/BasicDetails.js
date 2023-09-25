@@ -821,6 +821,7 @@ const BasicDetails = props => {
 				loan_id: loanId,
 				business_id: businessId,
 				isApplicant,
+				type_name: addNewDirectorKey,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -949,6 +950,10 @@ const BasicDetails = props => {
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
+				customer_id:
+					sectionData?.director_details?.additional_cust_id ||
+					sectionData?.director_details?.customer_id ||
+					'',
 				contactno:
 					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
 				businesspancardnumber:
