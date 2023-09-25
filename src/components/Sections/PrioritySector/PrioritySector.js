@@ -128,7 +128,6 @@ const PrioritySectorDetails = props => {
 						isDynamicFlow === sub_section?.is_dynamic &&
 							setDynamicFlow(sub_section?.is_dynamic);
 						if (!isDynamicFlow) {
-							console.log("running")
 							return (
 								<>
 									{sub_section?.name ? (

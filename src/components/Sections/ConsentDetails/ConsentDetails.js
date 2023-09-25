@@ -27,6 +27,7 @@ const ConsentDetails = props => {
 		// isEditLoan,
 		// isEditOrViewLoan,
 		clientToken,
+		selectedProduct,
 	} = app;
 	const completedSections = application?.sections;
 
@@ -48,6 +49,10 @@ const ConsentDetails = props => {
 					business_id: businessId,
 					loan_id: loanId,
 					loan_ref_id: loanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+					isSelectedProductTypeSalaried:
+						selectedProduct.isSelectedProductTypeSalaried,
 				},
 				{
 					headers: {
