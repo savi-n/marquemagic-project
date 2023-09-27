@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useLayoutEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
@@ -11,33 +11,29 @@ import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-//import { decryptViewDocumentUrl } from 'utils/encrypt';
+
 import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
 } from 'utils/formatData';
-// import { scrollToTopRootElement } from 'utils/helper';
+
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
-// import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+
 import * as CONST from './const';
-// import * as CONST_SECTIONS from 'components/Sections/const';
-const PrioritySector = () => {
+import { useEffect } from 'react';
+const PrioritySectorDetails = () => {
 	const { app, application } = useSelector(state => state);
-	// const { directors, selectedDirectorOptions } = useSelector(
-	// 	state => state.directors
-	// );
-	// const selectedDirector = directors?.[selectedDirectorId] || {};
+
 	const {
 		isViewLoan,
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
 		isTestMode,
-		// isEditOrViewLoan,
-		// selectedProduct,
 	} = app;
+
 	// const { loanId, cacheDocuments, businessId } = application;
 
 	const dispatch = useDispatch();
@@ -45,51 +41,21 @@ const PrioritySector = () => {
 	const [loading, setLoading] = useState(false);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	const [formId, setFormId] = useState('');
 
 	const { handleSubmit, register, formState } = useForm();
 
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
-			// try {
-			// 	const validateLoanAmountRes = await axios.get(
-			// 		`${API.API_END_POINT}/loan_amount_validate`,
-			// 		{
-			// 			params: {
-			// 				business_id: businessId,
-			// 				loan_amount: formState?.values?.['loan_amount'],
-			// 				isSelectedProductTypeSalaried:
-			// 					selectedProduct?.isSelectedProductTypeSalaried,
-			// 				isSelectedProductTypeBusiness:
-			// 					selectedProduct?.isSelectedProductTypeBusiness,
-			// 			},
-			// 		}
-			// 	);
-			// 	if (
-			// 		validateLoanAmountRes?.data?.status === 'ok' &&
-			// 		validateLoanAmountRes?.data?.approval_status === false
-			// 	) {
-			// 		addToast({
-			// 			message:
-			// 				validateLoanAmountRes?.data?.message ||
-			// 				'Loan amount should match the Industry type selected.',
-			// 			type: 'error',
-			// 		});
-			// 		return;
-			// 	}
-			// 	// console.log({ validateLoanAmountRes });
-			// } catch (err) {
-			// 	console.error(err.message);
-			// }
-
 			const prioritySectorReqBody = formatSectionReqBody({
 				app,
 				application,
 				values: formState.values,
 			});
-
+			prioritySectorReqBody.data.priority_sector_details.id = formId || '';
 			await axios.post(
-				`${API.API_END_POINT}/priority_sector`,
+				`${API.API_END_POINT}/priority_sector_details`,
 				prioritySectorReqBody
 			);
 
@@ -146,8 +112,8 @@ const PrioritySector = () => {
 					}
 				)}`
 			);
-			// console.log('fetchRes-', fetchRes)
-			setSectionData(fetchRes?.data?.data || {});
+			setFormId(fetchRes?.data?.data?.priority_sector_details?.[0]?.id || '');
+			setSectionData(fetchRes?.data?.data?.priority_sector_details?.[0] || {});
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
 			setSectionData({});
@@ -156,7 +122,7 @@ const PrioritySector = () => {
 		}
 	};
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -180,6 +146,7 @@ const PrioritySector = () => {
 										const newField = _.cloneDeep(field);
 										const customFieldProps = {};
 										const customFieldPropsSubfields = {};
+
 										if (!newField.visibility) return null;
 										if (newField?.for_type_name) {
 											if (
@@ -193,6 +160,12 @@ const PrioritySector = () => {
 										let newPrefilledValue = prefilledValues(newField);
 										let newValueSelectField;
 
+										if (
+											formState?.values?.priority_sector_loan !== 'true' &&
+											newField.name !== CONST.PRIORITY_SECTOR_LOAN_CHECKBOX
+										) {
+											customFieldProps.disabled = true;
+										}
 										if (!!field?.sub_fields) {
 											newValueSelectField = prefilledValues(
 												field?.sub_fields?.[0]
@@ -269,4 +242,4 @@ const PrioritySector = () => {
 	);
 };
 
-export default PrioritySector;
+export default PrioritySectorDetails;
