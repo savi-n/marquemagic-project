@@ -1,2 +1,2 @@
-import PrioritySectorDetails from "./PrioritySector";
+import PrioritySectorDetails from './PrioritySector';
 export default PrioritySectorDetails;

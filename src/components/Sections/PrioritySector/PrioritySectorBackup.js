@@ -9,7 +9,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
+import { formatGetSectionReqBody } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
@@ -19,33 +19,34 @@ import { API_END_POINT } from '_config/app.config';
 import { scrollToTopRootElement } from 'utils/helper';
 // import selectedSection from './sample.json';
 
-const AssetsDetails = props => {
+const PrioritySectorDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorOptions } = useSelector(state => state.directors);
+	// const { selectedDirectorOptions } = useSelector(state => state.directors);
 	const {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
 		selectedSection,
-		selectedProduct,
+		// selectedProduct,
 	} = app;
-	const { businessName } = application;
+	// const { businessName } = application;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	const [isDynamicFlow, setDynamicFlow] = useState(false);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
-	// console.log({ sectionData });
-	const business = {
-		name: businessName || 'Company/Business',
-		value: '0',
-	}; // TODO: need to optimize business/applicant details here
-	let newselectedDirectorOptions;
-	if (selectedProduct?.isSelectedProductTypeBusiness)
-		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
-	else newselectedDirectorOptions = selectedDirectorOptions;
+
+	// const business = {
+	// 	name: businessName || 'Company/Business',
+	// 	value: '0',
+	// }; // TODO: need to optimize business/applicant details here
+	// let newselectedDirectorOptions;
+	// if (selectedProduct?.isSelectedProductTypeBusiness)
+	// 	newselectedDirectorOptions = [business, ...selectedDirectorOptions];
+	// else newselectedDirectorOptions = selectedDirectorOptions;
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
@@ -55,17 +56,46 @@ const AssetsDetails = props => {
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
-			const fetchRes = await axios.get(
-				`${API_END_POINT}/assets_details?${formatGetSectionReqBody({
-					application,
-				})}`
-			);
+			// const fetchRes = await axios.get(
+			// 	`${API_END_POINT}/priority_sector_details?${formatGetSectionReqBody({
+			// 		application,
+			// 	})}`
+			// );
+			const fetchRes = {
+				status: 'ok',
+				message: 'Data Fetched Successfully!',
+				data: {
+					priority_sector_details: [
+						{
+							priority_sector_loan: 'true',
+							direct_agri: 'Agriculturist',
+							land_acres: '3 to 5',
+							specify_acres: '545',
+							location: 'sad',
+							pincode: '560064',
+							indirect_agri: 'Trader',
+							manufacturing_enterprises:
+								'Manufacturing unit with investment in plant & machinery upto 5 Lakh',
+							value_investment: '52522',
+							cc_limit: '252',
+							service_enterprise: 'true',
+							service_investment_2lakh: 'true',
+							service_investment_2_to_10lakh: 'true',
+							service_investment_10_to_2cr: 'true',
+							value_investment_service: '1000',
+							khadi_village_industries: '',
+							id: 101,
+						},
+					],
+				},
+			};
 			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.loanassets_records?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.loanassets_records);
+			if (fetchRes?.data?.priority_sector_details?.length > 0) {
+				setSectionData(fetchRes?.data?.priority_sector_details);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
+				openCreateForm();
 			} else {
 				setSectionData([]);
 				openCreateForm();
@@ -117,7 +147,6 @@ const AssetsDetails = props => {
 	// 	isCreateFormOpen,
 	// 	editSectionId,
 	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -125,7 +154,58 @@ const AssetsDetails = props => {
 			) : (
 				<>
 					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
-						if (!sub_section?.is_dynamic) return null;
+						// isDynamicFlow === sub_section?.is_dynamic &&
+						// 	setDynamicFlow(sub_section?.is_dynamic);
+						const isDynamicFlow = sub_section?.is_dynamic
+							? sub_section?.is_dynamic
+							: false;
+						const prefillData = sectionData?.[0]
+							? {
+									...sectionData?.[0],
+									director_id:
+										sectionData?.[0]?.director_id === 0
+											? '0'
+											: `${sectionData?.[0]?.director_id}`,
+									...(sectionData?.[0]?.loan_json || {}),
+							  }
+							: {};
+						// console.log({
+						// 	isDynamicFlow,
+						// 	selectedSection,
+						// 	sub_section,
+						// 	sectionData,
+						// });
+						if (!isDynamicFlow) {
+							return (
+								<>
+									{sub_section?.name ? (
+										<UI_SECTIONS.SubSectionHeader>
+											{sub_section.name}
+										</UI_SECTIONS.SubSectionHeader>
+									) : null}
+									<UI_SECTIONS.AccordianWrapper isOpen={true}>
+										<UI_SECTIONS.AccordianBody isOpen={true}>
+											{isCreateFormOpen && (
+												<DynamicForm
+													fields={sub_section?.fields || []}
+													prefillData={prefillData}
+													onSaveOrUpdateSuccessCallback={
+														onSaveOrUpdateSuccessCallback
+													}
+													onCancelCallback={onCancelCallback}
+													// isEditLoan={isEditLoan}
+													editSectionId={editSectionId}
+													isCreateFormOpen={isCreateFormOpen}
+												/>
+											)}
+											{/* {isResetFormComplete ? (
+											<DynamicForm fields={sub_section?.fields || []} />
+										) : null} */}
+										</UI_SECTIONS.AccordianBody>
+									</UI_SECTIONS.AccordianWrapper>
+								</>
+							);
+						}
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -135,7 +215,6 @@ const AssetsDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
-									// console.log({ section });
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
@@ -149,6 +228,7 @@ const AssetsDetails = props => {
 												...(section?.loan_json || {}),
 										  }
 										: {};
+
 									return (
 										<UI_SECTIONS.AccordianWrapper>
 											<UI_SECTIONS.AccordianHeader
@@ -157,26 +237,12 @@ const AssetsDetails = props => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Assets For:</span>
-															<strong>
-																{
-																	newselectedDirectorOptions?.filter(
-																		director =>
-																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
-																	)?.[0]?.name
-																}
-															</strong>
+															<span>Location:</span>
+															<strong>{prefillData?.location}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Type of Assets:</span>
-															<strong>
-																{prefillData?.loan_asset_type_id?.typename}
-															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Amount:</span>
-															<strong>{formatINR(prefillData?.value)}</strong>
+															<span>Acres:</span>
+															<strong>{prefillData?.specify_acres}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
@@ -283,6 +349,7 @@ const AssetsDetails = props => {
 					<UI_SECTIONS.AddDynamicSectionWrapper>
 						{isCreateFormOpen ||
 						isViewLoan ||
+						!isDynamicFlow ||
 						sectionData?.length >= MAX_ADD_COUNT ||
 						!!editSectionId ? null : (
 							<>
@@ -290,7 +357,7 @@ const AssetsDetails = props => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional assets</span>
+								<span>Click to add priority sector loans</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
@@ -313,4 +380,4 @@ const AssetsDetails = props => {
 	);
 };
 
-export default AssetsDetails;
+export default PrioritySectorDetails;
