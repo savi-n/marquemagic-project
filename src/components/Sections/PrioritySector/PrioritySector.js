@@ -1,163 +1,143 @@
-import React, { useLayoutEffect } from 'react';
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import _ from 'lodash';
 
 import Button from 'components/Button';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 
-import { useSelector, useDispatch } from 'react-redux';
+import useForm from 'hooks/useFormIndividual';
+import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import { formatGetSectionReqBody } from 'utils/formatData';
-import * as UI_SECTIONS from 'components/Sections/ui';
-import editIcon from 'assets/icons/edit-icon.png';
-import expandIcon from 'assets/icons/right_arrow_active.png';
-import plusRoundIcon from 'assets/icons/plus_icon_round.png';
-import DynamicForm from './DynamicForm';
-import { API_END_POINT } from '_config/app.config';
-import { scrollToTopRootElement } from 'utils/helper';
-// import selectedSection from './sample.json';
 
-const PrioritySectorDetails = props => {
+import {
+	formatGetSectionReqBody,
+	formatSectionReqBody,
+	getApiErrorMessage,
+	getAllCompletedSections,
+} from 'utils/formatData';
+
+import * as API from '_config/app.config';
+import * as UI_SECTIONS from 'components/Sections/ui';
+
+import * as CONST from './const';
+import { useEffect } from 'react';
+const PrioritySectorDetails = () => {
 	const { app, application } = useSelector(state => state);
-	// const { selectedDirectorOptions } = useSelector(state => state.directors);
+
 	const {
 		isViewLoan,
 		selectedSectionId,
-		nextSectionId,
 		selectedSection,
-		// selectedProduct,
+		nextSectionId,
+		isTestMode,
+		selectedProduct,
 	} = app;
-	// const { businessName } = application;
-	const dispatch = useDispatch();
-	const [openAccordianId, setOpenAccordianId] = useState('');
-	const [editSectionId, setEditSectionId] = useState('');
-	const [fetchingSectionData, setFetchingSectionData] = useState(false);
-	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
-	const [sectionData, setSectionData] = useState([]);
-	const [isDynamicFlow, setDynamicFlow] = useState(false);
-	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
-	// const business = {
-	// 	name: businessName || 'Company/Business',
-	// 	value: '0',
-	// }; // TODO: need to optimize business/applicant details here
-	// let newselectedDirectorOptions;
-	// if (selectedProduct?.isSelectedProductTypeBusiness)
-	// 	newselectedDirectorOptions = [business, ...selectedDirectorOptions];
-	// else newselectedDirectorOptions = selectedDirectorOptions;
-	const openCreateForm = () => {
-		setEditSectionId('');
-		setOpenAccordianId('');
-		setIsCreateFormOpen(true);
+	// const { loanId, cacheDocuments, businessId } = application;
+
+	const dispatch = useDispatch();
+	const { addToast } = useToasts();
+	const [loading, setLoading] = useState(false);
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [sectionData, setSectionData] = useState([]);
+	const [formId, setFormId] = useState('');
+
+	const { handleSubmit, register, formState } = useForm();
+
+	const completedSections = application?.sections;
+
+	const onSaveAndProceed = async () => {
+		try {
+			setLoading(true);
+			const prioritySectorReqBody = formatSectionReqBody({
+				app,
+				application,
+				values: formState.values,
+			});
+			prioritySectorReqBody.data.priority_sector_details.id = formId || '';
+			await axios.post(
+				`${API.API_END_POINT}/priority_sector_details`,
+				prioritySectorReqBody
+			);
+
+			dispatch(setCompletedApplicationSection(selectedSectionId));
+			dispatch(setSelectedSectionId(nextSectionId));
+		} catch (error) {
+			console.error('error-LoanDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const prefilledValues = field => {
+		try {
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+
+			if (isFormStateUpdated) {
+				return formState?.values?.[field.name];
+			}
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+
+			const preData = {
+				...sectionData,
+			};
+			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
+
+			return field?.value || '';
+		} catch (error) {
+			return {};
+		}
 	};
 
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/priority_sector_details?${formatGetSectionReqBody({
-					application,
-				})}`
+				`${API.API_END_POINT}/priority_sector_details?${formatGetSectionReqBody(
+					{
+						application,
+					}
+				)}`
 			);
-			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.loanassets_records?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.loanassets_records);
-				setEditSectionId('');
-				setOpenAccordianId('');
-				setIsCreateFormOpen(false);
-			} else {
-				setSectionData([]);
-				openCreateForm();
-			}
+			setFormId(fetchRes?.data?.data?.priority_sector_details?.[0]?.id || '');
+			setSectionData(fetchRes?.data?.data?.priority_sector_details?.[0] || {});
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
-			setSectionData([]);
-			openCreateForm();
+			setSectionData({});
 		} finally {
 			setFetchingSectionData(false);
 		}
 	};
 
-	const onSaveAndProceed = () => {
-		dispatch(setCompletedApplicationSection(selectedSectionId));
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
-	const toggleAccordian = (id, openOrClose) => {
-		if (openOrClose === 'open') return setOpenAccordianId(id);
-		if (openOrClose === 'close') return setOpenAccordianId('');
-		return openAccordianId === id
-			? setOpenAccordianId('')
-			: setOpenAccordianId(id);
-	};
-
-	const onSaveOrUpdateSuccessCallback = () => {
-		fetchSectionDetails();
-	};
-
-	const onCancelCallback = deleteEditSectionId => {
-		if (deleteEditSectionId) {
-			setEditSectionId('');
-		} else {
-			setIsCreateFormOpen(false);
-		}
-		setOpenAccordianId('');
-	};
-
-	useLayoutEffect(() => {
-		scrollToTopRootElement();
+	useEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('AssetsDetails-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	isCreateFormOpen,
-	// 	editSectionId,
-	// });
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
 				<Loading />
 			) : (
 				<>
-					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
-						isDynamicFlow === sub_section?.is_dynamic &&
-							setDynamicFlow(sub_section?.is_dynamic);
-						if (!isDynamicFlow) {
-							return (
-								<>
-									{sub_section?.name ? (
-										<UI_SECTIONS.SubSectionHeader>
-											{sub_section.name}
-										</UI_SECTIONS.SubSectionHeader>
-									) : null}
-									<UI_SECTIONS.AccordianWrapper isOpen={true}>
-										<UI_SECTIONS.AccordianBody isOpen={true}>
-											{isCreateFormOpen && (
-												<DynamicForm
-													fields={sub_section?.fields || []}
-													// prefillData={prefillData}
-													onSaveOrUpdateSuccessCallback={
-														onSaveOrUpdateSuccessCallback
-													}
-													onCancelCallback={onCancelCallback}
-													// isEditLoan={isEditLoan}
-													editSectionId={editSectionId}
-													isCreateFormOpen={isCreateFormOpen}
-												/>
-											)}
-											{/* {isResetFormComplete ? (
-											<DynamicForm fields={sub_section?.fields || []} />
-										) : null} */}
-										</UI_SECTIONS.AccordianBody>
-									</UI_SECTIONS.AccordianWrapper>
-								</>
-							);
-						}
+					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -165,162 +145,104 @@ const PrioritySectorDetails = props => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
-								{/* combine local + db array */}
-								{sectionData.map((section, sectionIndex) => {
-									const sectionId = section?.id;
-									const isAccordianOpen = sectionId === openAccordianId;
-									const isEditLoan = editSectionId === sectionId;
-									const prefillData = section
-										? {
-												...section,
-												director_id:
-													section?.director_id === 0
-														? '0'
-														: `${section?.director_id}`,
-												...(section?.loan_json || {}),
-										  }
-										: {};
+								<UI_SECTIONS.FormWrapGrid>
+									{sub_section?.fields?.map((field, fieldIndex) => {
+										const newField = _.cloneDeep(field);
+										const customFieldProps = {};
+										const customFieldPropsSubfields = {};
 
-									return (
-										<UI_SECTIONS.AccordianWrapper>
-											<UI_SECTIONS.AccordianHeader
-												key={`accordian-${sectionIndex}`}
+										if (!newField.visibility) return null;
+										if (newField?.for_type_name) {
+											if (
+												!newField?.for_type.includes(
+													formState?.values?.[newField?.for_type_name]
+												)
+											)
+												return null;
+										}
+
+										let newPrefilledValue = prefilledValues(newField);
+										let newValueSelectField;
+
+										if (
+											formState?.values?.priority_sector_loan !== 'true' &&
+											newField.name !== CONST.PRIORITY_SECTOR_LOAN_CHECKBOX
+										) {
+											customFieldProps.disabled = true;
+										}
+
+										if (
+											newField.name === CONST.PRIORITY_SECTOR_LOAN_CHECKBOX &&
+											completedSections?.includes(selectedSectionId)
+										) {
+											customFieldProps.disabled = true;
+										}
+
+										if (!!field?.sub_fields) {
+											newValueSelectField = prefilledValues(
+												field?.sub_fields?.[0]
+											);
+										}
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+										}
+
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${fieldIndex}-${newField.name}`}
 											>
-												{isAccordianOpen ? null : (
-													<>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Location:</span>
-															<strong>{prefillData?.location}</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Acres:</span>
-															<strong>{prefillData?.specify_acres}</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-													</>
-												)}
-												<UI_SECTIONS.AccordianHeaderData
-													style={
-														isAccordianOpen
-															? {
-																	marginLeft: 'auto',
-																	flex: 'none',
-															  }
-															: { flex: 'none' }
-													}
-												>
-													{isViewLoan ? null : (
-														<UI_SECTIONS.AccordianIcon
-															src={editIcon}
-															alt='edit'
-															onClick={() => {
-																if (isCreateFormOpen || isEditLoan) return;
-																toggleAccordian(sectionId, 'open');
-																setTimeout(() => {
-																	setEditSectionId(sectionId);
-																}, 200);
-															}}
-															style={
-																isCreateFormOpen || isEditLoan
-																	? {
-																			cursor: 'not-allowed',
-																			visibility: 'hidden',
-																	  }
-																	: {}
-															}
-														/>
-													)}
-													<UI_SECTIONS.AccordianIcon
-														src={expandIcon}
-														alt='toggle'
-														onClick={() => {
-															openAccordianId !== sectionId &&
-																onCancelCallback(openAccordianId);
-															if (isCreateFormOpen || isEditLoan) return;
-															toggleAccordian(sectionId);
-														}}
-														style={{
-															transform: isAccordianOpen
-																? 'rotate(270deg)'
-																: 'rotate(90deg)',
-															...(isCreateFormOpen || isEditLoan
-																? {
-																		cursor: 'not-allowed',
-																		visibility: 'hidden',
-																  }
-																: {}),
-														}}
-													/>
-												</UI_SECTIONS.AccordianHeaderData>
-											</UI_SECTIONS.AccordianHeader>
-											<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
-												{isAccordianOpen && !isCreateFormOpen && (
-													<DynamicForm
-														fields={sub_section?.fields || []}
-														prefillData={prefillData}
-														onSaveOrUpdateSuccessCallback={
-															onSaveOrUpdateSuccessCallback
-														}
-														onCancelCallback={onCancelCallback}
-														isEditLoan={isEditLoan}
-														editSectionId={editSectionId}
-														isCreateFormOpen={isCreateFormOpen}
-													/>
-												)}
-												{/* {isResetFormComplete ? (
-											<DynamicForm fields={sub_section?.fields || []} />
-										) : null} */}
-											</UI_SECTIONS.AccordianBody>
-										</UI_SECTIONS.AccordianWrapper>
-									);
-								})}
-								<div style={{ marginTop: 30 }} />
-								{isCreateFormOpen && (
-									<UI_SECTIONS.AccordianWrapper>
-										<UI_SECTIONS.AccordianBody
-											isOpen={true}
-											style={{ padding: 30 }}
-										>
-											<UI_SECTIONS.DynamicFormWrapper>
-												<DynamicForm
-													fields={sub_section?.fields || []}
-													onSaveOrUpdateSuccessCallback={
-														onSaveOrUpdateSuccessCallback
-													}
-													onCancelCallback={onCancelCallback}
-													submitCTAName='Save'
-													hideCancelCTA={!(sectionData?.length > 0)}
-													isEditLoan={true}
-												/>
-											</UI_SECTIONS.DynamicFormWrapper>
-										</UI_SECTIONS.AccordianBody>
-									</UI_SECTIONS.AccordianWrapper>
-								)}
+												<div>
+													{field?.sub_fields &&
+														field?.sub_fields[0].is_prefix &&
+														register({
+															...field.sub_fields[0],
+															value: newValueSelectField,
+															visibility: 'visible',
+															// ...customFieldProps,
+															...customFieldPropsSubfields,
+														})}
+													<div>
+														{register({
+															...newField,
+															value: newPrefilledValue,
+															...customFieldProps,
+															visibility: 'visible',
+														})}
+														{(formState?.submit?.isSubmited ||
+															formState?.touched?.[newField.name]) &&
+															formState?.error?.[newField.name] && (
+																<UI_SECTIONS.ErrorMessage>
+																	{formState?.error?.[newField.name]}
+																</UI_SECTIONS.ErrorMessage>
+															)}
+														{field?.sub_fields &&
+															!field?.sub_fields[0].is_prefix &&
+															register({
+																...field.sub_fields[0],
+																value: newValueSelectField,
+																visibility: 'visible',
+																// ...customFieldProps,
+																...customFieldPropsSubfields,
+															})}
+													</div>
+												</div>
+											</UI_SECTIONS.FieldWrapGrid>
+										);
+									})}
+								</UI_SECTIONS.FormWrapGrid>
 							</Fragment>
 						);
 					})}
-					<UI_SECTIONS.AddDynamicSectionWrapper>
-						{isCreateFormOpen ||
-						isViewLoan ||
-						!isDynamicFlow ||
-						sectionData?.length >= MAX_ADD_COUNT ||
-						!!editSectionId ? null : (
-							<>
-								<UI_SECTIONS.PlusRoundButton
-									src={plusRoundIcon}
-									onClick={openCreateForm}
-								/>
-								<span>Click to add priority sector loans</span>
-							</>
-						)}
-					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
 							<Button
 								fill
 								name='Save and Proceed'
-								// isLoader={!!editSectionId}
-								disabled={isCreateFormOpen || !!editSectionId}
-								onClick={onSaveAndProceed}
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									onSaveAndProceed();
+								})}
 							/>
 						)}
 

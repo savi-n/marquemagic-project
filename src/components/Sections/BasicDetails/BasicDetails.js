@@ -170,6 +170,7 @@ const BasicDetails = props => {
 		selectedDirector,
 		isApplicant,
 	});
+
 	// console.log({ selectedDirector, selectedProduct, isEditOrViewLoan });
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
