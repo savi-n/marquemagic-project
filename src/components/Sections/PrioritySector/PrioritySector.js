@@ -16,6 +16,7 @@ import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
+	getAllCompletedSections,
 } from 'utils/formatData';
 
 import * as API from '_config/app.config';
@@ -32,6 +33,7 @@ const PrioritySectorDetails = () => {
 		selectedSection,
 		nextSectionId,
 		isTestMode,
+		selectedProduct,
 	} = app;
 
 	// const { loanId, cacheDocuments, businessId } = application;
@@ -44,6 +46,8 @@ const PrioritySectorDetails = () => {
 	const [formId, setFormId] = useState('');
 
 	const { handleSubmit, register, formState } = useForm();
+
+	const completedSections = application?.sections;
 
 	const onSaveAndProceed = async () => {
 		try {
@@ -166,6 +170,14 @@ const PrioritySectorDetails = () => {
 										) {
 											customFieldProps.disabled = true;
 										}
+
+										if (
+											newField.name === CONST.PRIORITY_SECTOR_LOAN_CHECKBOX &&
+											completedSections?.includes(selectedSectionId)
+										) {
+											customFieldProps.disabled = true;
+										}
+
 										if (!!field?.sub_fields) {
 											newValueSelectField = prefilledValues(
 												field?.sub_fields?.[0]

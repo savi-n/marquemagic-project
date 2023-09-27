@@ -89,7 +89,6 @@ const PrioritySectorDetails = props => {
 					],
 				},
 			};
-			console.log('fetchRes-', fetchRes);
 			// console.log('fetchRes-', fetchRes);
 			if (fetchRes?.data?.priority_sector_details?.length > 0) {
 				setSectionData(fetchRes?.data?.priority_sector_details);
@@ -170,12 +169,12 @@ const PrioritySectorDetails = props => {
 									...(sectionData?.[0]?.loan_json || {}),
 							  }
 							: {};
-						console.log({
-							isDynamicFlow,
-							selectedSection,
-							sub_section,
-							sectionData,
-						});
+						// console.log({
+						// 	isDynamicFlow,
+						// 	selectedSection,
+						// 	sub_section,
+						// 	sectionData,
+						// });
 						if (!isDynamicFlow) {
 							return (
 								<>
@@ -184,7 +183,6 @@ const PrioritySectorDetails = props => {
 											{sub_section.name}
 										</UI_SECTIONS.SubSectionHeader>
 									) : null}
-									{console.log('here')}
 									<UI_SECTIONS.AccordianWrapper isOpen={true}>
 										<UI_SECTIONS.AccordianBody isOpen={true}>
 											{isCreateFormOpen && (

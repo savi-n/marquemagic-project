@@ -37,7 +37,7 @@ const AssetsDetails = props => {
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
-	console.log({ sectionData });
+	// console.log({ sectionData });
 	const business = {
 		name: businessName || 'Company/Business',
 		value: '0',
@@ -135,7 +135,7 @@ const AssetsDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
-									console.log({ section });
+									// console.log({ section });
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
