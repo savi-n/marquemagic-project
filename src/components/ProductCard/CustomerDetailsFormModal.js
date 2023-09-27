@@ -146,9 +146,8 @@ const CustomerDetailsFormModal = props => {
 				// console.log('ddupeRes-', ddupeRes);
 
 				if (
-					formState?.values?.[
-						CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY
-					] === CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
+					formState?.values?.[CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY] ===
+					CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
 				) {
 					// console.log({ ddupeRes }, ' fetch-called ---- if part');
 					if (ddupeRes?.data?.status === 'nok') {
