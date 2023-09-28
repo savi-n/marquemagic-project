@@ -8,7 +8,12 @@ import DedupeMatchTable from './DedupeMatchTable';
 import * as UI from './ui';
 
 const DedupeAccordian = props => {
-	const { data = [], fetchDedupeCheckData, dedupedata } = props;
+	const {
+		data = [],
+		// fetchDedupeCheckData,
+		dedupedata,
+		selectedProduct,
+	} = props;
 	console.log(
 		'🚀 ~ file: DedupeAccordian.js:12 ~ DedupeAccordian ~ data:',
 		data,
@@ -60,7 +65,10 @@ const DedupeAccordian = props => {
 						src={imgClose}
 						alt='close'
 					/>
-					<DedupeMatchTable data={currentLevelData} />
+					<DedupeMatchTable
+						data={currentLevelData}
+						selectedProduct={selectedProduct}
+					/>
 					{/* <DedupeMatchTable data={dedupedata} /> */}
 				</section>
 			</Modal>

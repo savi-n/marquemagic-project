@@ -1182,6 +1182,7 @@ const BusinessDetails = props => {
 								<Loading />
 							) : (
 								<DedupeAccordian
+									selectedProduct={selectedProduct}
 									dedupedata={dedupeModalData}
 									data={response}
 									fetchDedupeCheckData={fetchDedupeCheckData}
