@@ -122,7 +122,7 @@ const CustomerDetailsFormModal = props => {
 					white_label_id: whiteLabelId,
 					id_no: formState?.values?.['pan_no'],
 					customer_type: formState?.values['customer_type'],
-					pan_number: formState?.values['pan_number'],
+					pan_number: formState?.values['pan_number'].toUpperCase(),
 					mobile_num: formState?.values['mobile_no'],
 					dob: formState?.values['ddob'],
 					businesstype: formState?.values['businesstype'],
@@ -146,9 +146,8 @@ const CustomerDetailsFormModal = props => {
 				// console.log('ddupeRes-', ddupeRes);
 
 				if (
-					formState?.values?.[
-						CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY
-					] === CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
+					formState?.values?.[CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY] ===
+					CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
 				) {
 					// console.log({ ddupeRes }, ' fetch-called ---- if part');
 					if (ddupeRes?.data?.status === 'nok') {

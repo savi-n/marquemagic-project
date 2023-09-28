@@ -944,10 +944,19 @@ const BusinessDetails = props => {
 					// console.log({ tempCompletedSections });
 				}
 
-				const panToGstRes = await axios.post(API.PAN_TO_GST, {
-					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
-				});
-				setGstin(panToGstRes);
+				// const panToGstRes = await axios.post(API.PAN_TO_GST, {
+				// 	pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
+				// });
+				// only call panToGst if pan is present and since pan number has a proper format and length of 10
+				if (
+					fetchRes?.data?.data?.business_details?.businesspancardnumber
+						?.length >= 10
+				) {
+					const panToGstRes = await axios.post(API.PAN_TO_GST, {
+						pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
+					});
+					setGstin(panToGstRes);
+				}
 			} else {
 				setSectionData({});
 			}
@@ -1052,17 +1061,18 @@ const BusinessDetails = props => {
 	useEffect(
 		() => {
 			// console.log(subComponentOptions);
-			clearDependentFields({
-				formState,
-				field_name: CONST.SUB_INDUSTRY_TYPE_FIELD_NAME,
-				subComponentOptions,
-				onChangeFormStateField,
-			});
+			if (formState?.values[CONST.SUB_INDUSTRY_TYPE_FIELD_NAME]?.length > 0) {
+				clearDependentFields({
+					formState,
+					field_name: CONST.SUB_INDUSTRY_TYPE_FIELD_NAME,
+					subComponentOptions,
+					onChangeFormStateField,
+				});
+			}
 		},
 		//eslint-disable-next-line
 		[JSON.stringify(subComponentOptions)]
 	);
-
 	// console.log({
 	// 	allIndustriesOption,
 	// 	mainComponentOptions,

@@ -1246,7 +1246,8 @@ const AddressDetails = props => {
 
 											// in all the scenario this fields will be always disabled
 											if (
-												field.name.includes('city') ||
+												(field.name.includes('city') &&
+													!field.name.includes('current_city')) ||
 												field.name.includes('state')
 											) {
 												customFieldProps.disabled = true;
