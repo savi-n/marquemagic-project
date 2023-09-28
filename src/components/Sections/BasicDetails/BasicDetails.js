@@ -14,7 +14,7 @@ import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard
 import NavigateCTA from 'components/Sections/NavigateCTA';
 import { encryptReq } from 'utils/encrypt';
 import { isInvalidPan } from 'utils/validation';
-
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import {
@@ -64,6 +64,8 @@ import {
 	getGeoLocation,
 	getTotalYearsCompleted,
 } from 'utils/helper';
+import Modal from 'components/Modal';
+import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -131,11 +133,88 @@ const BasicDetails = props => {
 		// resetForm,
 	} = useForm();
 
+	// ------------------------------------------------sample json -----------------------------------------------------------------------------------------
+	const response = [
+		{
+			headerName: 'Identification',
+			id: 'Identification',
+			matchLevel: [
+				{
+					name: 'Application Match',
+					data: [
+						{
+							loan_ref_id: 'LKKR00019297',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'RUGA00019298',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'CPRM00019299',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: {
+								id: 179622,
+								bank: 'Muthoot Fincorp Ltd',
+								ifsc: 'S0031-SULB',
+								branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
+							},
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'GUMG00019313',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'gjdgs@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '75%',
+						},
+					],
+				},
+			],
+		},
+	];
+
+	//--------------------------------------------------------------------------------------------------------------
+
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [fetchingGeoLocation, setFetchingGeoLocation] = useState(false);
 
 	const [sectionData, setSectionData] = useState({});
+
+	const [isDedupeCheckModalOpen, setIsDedupeCheckModalOpen] = useState(false);
+	const [isDedupeCheckModalLoading, setIsDedupeCheckModalLoading] = useState(
+		false
+	);
+	const [dedupeModalData, setDedupeModalData] = useState([]);
+
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
@@ -170,6 +249,7 @@ const BasicDetails = props => {
 		selectedDirector,
 		isApplicant,
 	});
+
 	// console.log({ selectedDirector, selectedProduct, isEditOrViewLoan });
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
@@ -783,6 +863,11 @@ const BasicDetails = props => {
 
 	// }
 
+	// const performDedupeCheck = async data => {
+	// 	setIsDedupeCheckModalOpen(true);
+	// 	console.log('Hello Modal');
+	// };
+
 	const addCacheDocumentTemp = async file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
@@ -896,6 +981,44 @@ const BasicDetails = props => {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
+		}
+	};
+
+	const fetchDedupeCheckData = async () => {
+		try {
+			setIsDedupeCheckModalLoading(true);
+			const dedupeReqBody = {
+				isSelectedProductTypeBusiness:
+					`${selectedProduct?.loan_request_type}` === '1',
+				isSelectedProductTypeSalaried: false,
+				object: {
+					pan_no: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME] || '',
+					date_of_birth: formState?.values?.[CONST.DOB_FIELD_NAME] || '',
+					email_id: formState?.values?.[CONST.EMAIL_ID_FIELD_NAME] || '',
+					mobile_number:
+						formState?.values?.[CONST.MOBILE_NUMBER_FIELD_NAME] || '',
+				},
+				white_label_id: whiteLabelId,
+			};
+
+			const fetchDedupeRes = await axios.post(
+				`${API.API_END_POINT}/dedupe_check`,
+				dedupeReqBody
+			);
+			console.log(fetchDedupeRes, 'fetch dedupe res');
+			if (fetchDedupeRes?.data?.status === 'ok') {
+				// console.log('ok data');
+				setDedupeModalData(fetchDedupeRes?.data?.data);
+				// setDedupeModalData(prev => (prev = [{ ...fetchDedupeRes?.data }]));
+			}
+		} catch (error) {
+			console.error('Error fetching Dedupe Data', error);
+			addToast({
+				message: 'Dedupe Data Fetch Failed',
+				type: 'error',
+			});
+		} finally {
+			setIsDedupeCheckModalLoading(false);
 		}
 	};
 
@@ -1778,6 +1901,37 @@ const BasicDetails = props => {
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
 					/>
+					<Modal
+						show={isDedupeCheckModalOpen}
+						onClose={() => {
+							setIsDedupeCheckModalOpen(false);
+						}}
+						customStyle={{
+							width: '85%',
+							minWidth: '65%',
+							minHeight: 'auto',
+						}}
+					>
+						{console.log(dedupeModalData)}
+						<section>
+							<UI.ImgClose
+								onClick={() => {
+									setIsDedupeCheckModalOpen(false);
+								}}
+								src={imgClose}
+								alt='close'
+							/>
+							{isDedupeCheckModalLoading ? (
+								<Loading />
+							) : (
+								<DedupeAccordian
+									dedupedata={dedupeModalData}
+									data={response}
+									fetchDedupeCheckData={fetchDedupeCheckData}
+								/>
+							)}
+						</section>
+					</Modal>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2172,6 +2326,18 @@ const BasicDetails = props => {
 									setIsIncomeTypeConfirmModalOpen(true);
 								})}
 							/>
+						)}
+						{selectedSection?.show_dedupe_button && (
+							<>
+								<Button
+									name='Open Dedupe'
+									onClick={() => {
+										setIsDedupeCheckModalOpen(true);
+										fetchDedupeCheckData();
+									}}
+									fill
+								/>
+							</>
 						)}
 						<NavigateCTA previous={false} directorSelected={selectedDirector} />
 						{displayAddCoApplicantCTA && (

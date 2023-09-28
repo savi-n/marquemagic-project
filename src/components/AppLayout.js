@@ -113,6 +113,10 @@ const AppLayout = () => {
 
 			// set the values for new flow
 			dispatch(setUserToken(decryptedToken?.token));
+			if (!decryptedToken?.token) {
+				window.history.go(-1);
+				return;
+			}
 
 			if (decryptedToken?.loan_ref_id) {
 				dispatch(

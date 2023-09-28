@@ -1150,6 +1150,40 @@ const DocumentUpload = props => {
 				// );
 			}
 
+			if (selectedProduct?.product_details?.sme_final_api) {
+				// TODO from config
+				// directors
+				const selected = Object.values(directors).filter(
+					item =>
+						item.type_name !== 'Co-applicant' &&
+						item.type_name !== 'Applicant' &&
+						item.type_name !== 'Guarantor'
+				);
+
+				if (selected?.length > 0) {
+					try {
+						const payload = {
+							customer_id:
+								selected[0]?.customer_id || selected[0]?.additional_cust_id,
+							mobile_no: selected[0]?.dcontact,
+							pan_no: selected[0]?.dpancard,
+						};
+
+						const customerVerifyRes = await axios.post(
+							API.DDUPE_VERIFY_OTP,
+							payload
+						);
+
+						if (customerVerifyRes.status === 200) {
+						} else
+							return addToast({ message: 'SME API failure!', type: 'error' });
+					} catch (error) {
+						console.log(error, 'sme api error');
+						return addToast({ message: error.message, type: 'error' });
+					}
+				}
+			}
+
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
@@ -1216,7 +1250,7 @@ const DocumentUpload = props => {
 			>
 				Document Submitted :
 				<UI.StyledButton width={'auto'} fillColor>
-					{uploaded>total?total:uploaded}
+					{uploaded > total ? total : uploaded}
 					{total ? ` of ${total}` : ''}
 				</UI.StyledButton>
 			</div>
