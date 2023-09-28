@@ -122,7 +122,7 @@ const CustomerDetailsFormModal = props => {
 					white_label_id: whiteLabelId,
 					id_no: formState?.values?.['pan_no'],
 					customer_type: formState?.values['customer_type'],
-					pan_number: formState?.values['pan_number'],
+					pan_number: formState?.values['pan_number'].toUpperCase(),
 					mobile_num: formState?.values['mobile_no'],
 					dob: formState?.values['ddob'],
 					businesstype: formState?.values['businesstype'],
