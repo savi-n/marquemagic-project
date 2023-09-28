@@ -91,6 +91,8 @@ const ApplicationSubmitted = props => {
 					loan_id: loanId,
 					section_id: APPLICATION_SUBMITTED_SECTION_ID,
 					doc_section_id: DOCUMENT_UPLOAD_SECTION_ID,
+					sme_final_api:
+						selectedProduct?.product_details?.sme_final_api || false,
 				};
 
 				if (isDocumentUploadMandatory) {
