@@ -202,35 +202,37 @@ const LoanDetails = () => {
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
-			try {
-				const validateLoanAmountRes = await axios.get(
-					`${API.API_END_POINT}/loan_amount_validate`,
-					{
-						params: {
-							business_id: businessId,
-							loan_amount: formState?.values?.['loan_amount'],
-							isSelectedProductTypeSalaried:
-								selectedProduct?.isSelectedProductTypeSalaried,
-							isSelectedProductTypeBusiness:
-								selectedProduct?.isSelectedProductTypeBusiness,
-						},
+			if (selectedSection?.validate_loan_amount) {
+				try {
+					const validateLoanAmountRes = await axios.get(
+						`${API.API_END_POINT}/loan_amount_validate`,
+						{
+							params: {
+								business_id: businessId,
+								loan_amount: formState?.values?.['loan_amount'],
+								isSelectedProductTypeSalaried:
+									selectedProduct?.isSelectedProductTypeSalaried,
+								isSelectedProductTypeBusiness:
+									selectedProduct?.isSelectedProductTypeBusiness,
+							},
+						}
+					);
+					if (
+						validateLoanAmountRes?.data?.status === 'ok' &&
+						validateLoanAmountRes?.data?.approval_status === false
+					) {
+						addToast({
+							message:
+								validateLoanAmountRes?.data?.message ||
+								'Loan amount should match the Industry type selected.',
+							type: 'error',
+						});
+						return;
 					}
-				);
-				if (
-					validateLoanAmountRes?.data?.status === 'ok' &&
-					validateLoanAmountRes?.data?.approval_status === false
-				) {
-					addToast({
-						message:
-							validateLoanAmountRes?.data?.message ||
-							'Loan amount should match the Industry type selected.',
-						type: 'error',
-					});
-					return;
+					// console.log({ validateLoanAmountRes });
+				} catch (err) {
+					console.error(err.message);
 				}
-				// console.log({ validateLoanAmountRes });
-			} catch (err) {
-				console.error(err.message);
 			}
 
 			const loanDetailsReqBody = formatSectionReqBody({
