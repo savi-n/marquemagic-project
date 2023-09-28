@@ -172,11 +172,20 @@ const LiabilitysDetails = props => {
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
 															<strong>
-																{formatINR(
-																	prefillData?.liability_amount ||
-																		prefillData?.outstanding_balance ||
-																		prefillData?.emi_amount
-																)}
+																{/* {console.log(
+																	prefillData?.liability_amount,
+																	prefillData?.outstanding_balance,
+																	prefillData?.emi_amount
+																)} */}
+																{!prefillData?.liability_amount &&
+																!prefillData?.outstanding_balance &&
+																!prefillData?.emi_amount
+																	? '---'
+																	: formatINR(
+																			prefillData?.liability_amount ||
+																				prefillData?.outstanding_balance ||
+																				prefillData?.emi_amount
+																	  )}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
