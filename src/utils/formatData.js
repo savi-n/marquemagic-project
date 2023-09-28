@@ -243,11 +243,10 @@ export const formatCompanyRocData = (data, panNum) => {
 		}
 	}
 
-	const [
-		date,
-		month,
-		year,
-	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
+	const doiData =
+		data.company_master_data.DateOfIncorporation ||
+		data.company_master_data.date_of_incorporation;
+	const [date, month, year] = doiData?.split(/\/|-/);
 	return {
 		BusinessName: data.company_master_data.company_name,
 		BusinessType: businesType,
