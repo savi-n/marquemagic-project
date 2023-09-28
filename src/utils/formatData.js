@@ -711,7 +711,7 @@ export const getEditLoanDocuments = data => {
 
 export const parseJSON = data => {
 	try {
-		return JSON.parse(data);
+		return data && JSON.parse(data);
 	} catch (error) {
 		console.error('error-parseJSON-', { error, data });
 		return {};

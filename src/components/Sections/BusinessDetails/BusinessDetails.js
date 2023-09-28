@@ -258,6 +258,13 @@ const BusinessDetails = props => {
 	};
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
+		if (formState?.values?.['business_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Business Type',
+			});
+			return;
+		}
 		try {
 			setLoading(true);
 			const reqBody = {
@@ -1457,8 +1464,7 @@ const BusinessDetails = props => {
 
 										if (
 											field?.name === CONST.BUSINESS_TYPE_FIELD_NAME &&
-											(isEditOrViewLoan ||
-												completedSections?.includes(selectedSectionId))
+											completedSections?.includes(selectedSectionId)
 										) {
 											customFieldProps.disabled = true;
 										}

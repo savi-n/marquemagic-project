@@ -894,6 +894,13 @@ const BasicDetails = props => {
 	// console.log({ isApplicant });
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
+		if (formState?.values?.['income_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Income Type',
+			});
+			return;
+		}
 		try {
 			setLoading(true);
 			const reqBody = {
@@ -906,7 +913,7 @@ const BasicDetails = props => {
 				loan_id: loanId,
 				business_id: businessId,
 				isApplicant,
-				type_name: addNewDirectorKey,
+				type_name: addNewDirectorKey || selectedDirector?.type_name,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
