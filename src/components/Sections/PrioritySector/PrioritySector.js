@@ -1,3 +1,7 @@
+// config changes required - Priority sector
+// 1. one of the consent to be made type: checkbox
+// 2.
+
 import React, { Fragment, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
@@ -11,12 +15,12 @@ import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import Divider from 'components/Divider';
 
 import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getAllCompletedSections,
 } from 'utils/formatData';
 
 import * as API from '_config/app.config';
@@ -33,7 +37,6 @@ const PrioritySectorDetails = () => {
 		selectedSection,
 		nextSectionId,
 		isTestMode,
-		selectedProduct,
 	} = app;
 
 	// const { loanId, cacheDocuments, businessId } = application;
@@ -165,24 +168,34 @@ const PrioritySectorDetails = () => {
 										let newValueSelectField;
 
 										if (
-											formState?.values?.priority_sector_loan !== 'true' &&
-											newField.name !== CONST.PRIORITY_SECTOR_LOAN_CHECKBOX
+											formState?.values?.priority_sector_loan !== 'Yes' &&
+											![
+												CONST.PRIORITY_SECTOR_LOAN_FIELD_NAME,
+												CONST.KHADI_VILLAGE_INDUSTRIES_FIELD_NAME,
+											].includes(newField.name)
 										) {
 											customFieldProps.disabled = true;
 										}
 
 										if (
-											newField.name === CONST.PRIORITY_SECTOR_LOAN_CHECKBOX &&
+											newField.name === CONST.PRIORITY_SECTOR_LOAN_FIELD_NAME &&
 											completedSections?.includes(selectedSectionId)
 										) {
 											customFieldProps.disabled = true;
 										}
 
-										if (!!field?.sub_fields) {
+										if (!!newField?.sub_fields) {
 											newValueSelectField = prefilledValues(
-												field?.sub_fields?.[0]
+												newField?.sub_fields?.[0]
 											);
 										}
+										// if (
+										// 	newField.name ===
+										// 	CONST.KHADI_VILLAGE_INDUSTRIES_FIELD_NAME
+										// ) {
+										// 	// newField.type = 'divider';
+										// 	return <Divider />;
+										// }
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
@@ -192,6 +205,10 @@ const PrioritySectorDetails = () => {
 												key={`field-${fieldIndex}-${newField.name}`}
 											>
 												<div>
+													{newField.name ===
+														CONST.KHADI_VILLAGE_INDUSTRIES_FIELD_NAME && (
+														<Divider />
+													)}
 													{field?.sub_fields &&
 														field?.sub_fields[0].is_prefix &&
 														register({
