@@ -157,20 +157,12 @@ export const applicationSlice = createSlice({
 		},
 
 		removeCacheDocument: (state, action) => {
-			const {
-				doc_type_id,
-				directorId,
-				fileId,
-				id,
-				doctype,
-			} = action.payload;
+			const { doc_type_id, directorId, fileId } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			const newDocuments = oldDocuments.filter(doc => {
-				if ((fileId && doc?.id === fileId) || (id && doc?.id === id))
-					return false;
+				if (fileId && doc?.id === fileId) return false;
 				if (
-					(doc?.doc_type_id === doc_type_id ||
-						doc?.doctype === doctype) &&
+					doc?.doc_type_id === doc_type_id &&
 					doc?.directorId === directorId
 				) {
 					return false;
