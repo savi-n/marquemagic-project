@@ -161,7 +161,7 @@ const ProfileUpload = props => {
 			await axios.post(endPoint, reqBody);
 			// console.log({ file, field });
 			removeCacheDocumentTemp(field.name);
-			// dispatch(removeCacheDocument(file));
+			dispatch(removeCacheDocument(file));
 			if (isGeoTaggingEnabled) {
 				dispatch(removeDocumentSelfieGeoLocation());
 				dispatch(removeOnSiteSelfieGeoLocation());
