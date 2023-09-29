@@ -20,6 +20,7 @@ import { UDYAM_REGEX } from '_config/app.config';
 import SearchSelectMainComponent from 'components/inputs/Individual/SearchSelectMainComponent';
 import SearchSelectSubComponent from 'components/inputs/Individual/SearchSelectSubComponent';
 import CheckBox from 'components/inputs/CheckBox';
+import Divider from 'components/Divider';
 
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -762,12 +763,11 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				/>
 			);
 		}
-		case 'checkbox':{
-			return(
-				<CheckBox
-				{...{...field,...fieldProps}}
-				/>
-			)
+		case 'checkbox': {
+			return <CheckBox {...{ ...field, ...fieldProps }} />;
+		}
+		case 'divider': {
+			return <Divider {...{ ...field, ...fieldProps }} />;
 		}
 		default: {
 			return (
