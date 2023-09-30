@@ -280,7 +280,12 @@ const BusinessDetails = props => {
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
-				reqBody
+				reqBody,
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
 			);
 			if (fetchDataRes?.data?.status === 'ok') {
 				addToast({

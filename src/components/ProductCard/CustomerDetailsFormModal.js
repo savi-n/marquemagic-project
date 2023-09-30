@@ -142,7 +142,11 @@ const CustomerDetailsFormModal = props => {
 			// const apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK || '';
 
 			if (apiUrl) {
-				const ddupeRes = await axios.post(apiUrl, reqBody);
+				const ddupeRes = await axios.post(apiUrl, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
 				// console.log('ddupeRes-', ddupeRes);
 
 				if (
