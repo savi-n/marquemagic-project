@@ -382,11 +382,11 @@ const LoanDetails = () => {
 				: loanDetails?.loan_usage_type?.id,
 			scheme_category: loanDetails?.scheme_category_code,
 			credit_insurance: loanDetails?.credit_linked_insurance,
-			businessname: loanDetails?.businessname,
+			// businessname: loanDetails?.businessname,
 			// savitha should take accountability if the response is changed later - bad practice
 			// this code will only take the option if it is available at last
 			loan_source: loanDetails?.loan_origin?.split('_')?.slice(-1)?.[0],
-			connector_name: loanDetails?.connector_user_id,
+			connector_name: loanDetails?.businessname,
 			connector_code: loanDetails?.connector_user_id,
 			...imdDetails,
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
