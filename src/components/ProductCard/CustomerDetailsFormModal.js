@@ -81,6 +81,7 @@ const CustomerDetailsFormModal = props => {
 	const handleProceed = async () => {
 		// step 1 - Api call for search api for dedupe
 		try {
+			setFetchingCustomerDetails(true);
 			dispatch(setDedupePrefilledValues(formState?.values));
 			const geoRes = await fetchGeoLocation({
 				geoAPI: API.GEO_LOCATION,
@@ -88,7 +89,6 @@ const CustomerDetailsFormModal = props => {
 			});
 			dispatch(setGeoLocation(geoRes));
 			// setProceedAsNewCustomer(false);
-			setFetchingCustomerDetails(true);
 
 			// console.log(
 			// 	'🚀 ~ file: CustomerDetailsFormModal.js:81 ~ handleProceed ~ productForModal:',
@@ -142,7 +142,11 @@ const CustomerDetailsFormModal = props => {
 			// const apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK || '';
 
 			if (apiUrl) {
-				const ddupeRes = await axios.post(apiUrl, reqBody);
+				const ddupeRes = await axios.post(apiUrl, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
 				// console.log('ddupeRes-', ddupeRes);
 
 				if (
