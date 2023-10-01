@@ -382,6 +382,7 @@ const LoanDetails = () => {
 				: loanDetails?.loan_usage_type?.id,
 			scheme_category: loanDetails?.scheme_category_code,
 			credit_insurance: loanDetails?.credit_linked_insurance,
+			businessname: loanDetails?.businessname,
 			// savitha should take accountability if the response is changed later - bad practice
 			// this code will only take the option if it is available at last
 			loan_source: loanDetails?.loan_origin?.split('_')?.slice(-1)?.[0],
