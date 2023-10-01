@@ -385,7 +385,7 @@ const LoanDetails = () => {
 			// savitha should take accountability if the response is changed later - bad practice
 			// this code will only take the option if it is available at last
 			loan_source: loanDetails?.loan_origin?.split('_')?.slice(-1)?.[0],
-			connector_name: loanDetails?.businessName,
+			connector_name: loanDetails?.connector_user_id,
 			connector_code: loanDetails?.connector_user_id,
 			...imdDetails,
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
