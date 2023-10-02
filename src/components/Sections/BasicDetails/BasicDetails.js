@@ -271,7 +271,7 @@ const BasicDetails = props => {
 					`${doc?.directorId}` === `${selectedDirectorId}`
 		  )?.[0]
 		: null;
-
+	console.log({ selectedDirector });
 	const selectedProfileField = getSelectedField({
 		fieldName: CONST.PROFILE_UPLOAD_FIELD_NAME,
 		selectedSection,
@@ -2328,7 +2328,10 @@ const BasicDetails = props => {
 									// so avoid opening income type popup at below condition
 									if (isEditOrViewLoan || !!selectedDirector?.directorId) {
 										// if in edit loan, adding a coapplicant since the selected director will be empty, this popup will trigger
-										if (!selectedDirector?.directorId) {
+										if (
+											!selectedDirector?.directorId ||
+											!selectedDirector?.sections?.includes(selectedSectionId)
+										) {
 											setIsIncomeTypeConfirmModalOpen(true);
 											return;
 										}
