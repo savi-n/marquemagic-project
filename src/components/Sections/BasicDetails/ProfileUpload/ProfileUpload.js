@@ -178,6 +178,7 @@ const ProfileUpload = props => {
 
 		onDrop: async acceptedFiles => {
 			let coordinates = {};
+			setLoading(true);
 			if (!uploadedFile || !selfiePreview) {
 				if (isGeoTaggingEnabled && field?.geo_tagging) {
 					try {
@@ -197,7 +198,6 @@ const ProfileUpload = props => {
 				try {
 					const formData = new FormData();
 					// const newFile = {};
-					setLoading(true);
 
 					const validatedResp = validateFileUpload(acceptedFiles);
 					const finalFilesToUpload = validatedResp
