@@ -148,6 +148,11 @@ const PrioritySectorDetails = () => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
+								{sub_section?.text_description ? (
+									<UI_SECTIONS.SubSectionDescription>
+										{sub_section.text_description}
+									</UI_SECTIONS.SubSectionDescription>
+								) : null}
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((field, fieldIndex) => {
 										const newField = _.cloneDeep(field);
@@ -203,12 +208,13 @@ const PrioritySectorDetails = () => {
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${newField.name}`}
+												type={field?.type}
 											>
 												<div>
-													{newField.name ===
+													{/* {newField.name ===
 														CONST.KHADI_VILLAGE_INDUSTRIES_FIELD_NAME && (
 														<Divider />
-													)}
+													)} */}
 													{field?.sub_fields &&
 														field?.sub_fields[0].is_prefix &&
 														register({

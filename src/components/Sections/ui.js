@@ -10,6 +10,12 @@ export const SubSectionHeader = styled.h2`
 	margin: 20px 0;
 `;
 
+export const SubSectionDescription = styled.div`
+	font-size: 1.2em;
+	font-weight: 300;
+	margin: 10px 0;
+`;
+
 export const FormWrapGrid = styled.div`
 	margin: 20px 0;
 	display: grid;
@@ -27,6 +33,13 @@ export const FormWrapGrid = styled.div`
 
 export const FieldWrapGrid = styled.div`
 	width: 100%;
+	${({ type }) =>
+		(type === 'checkbox' || type === 'divider') &&
+		`
+		display : block;
+		grid-column : span 2;
+	`}
+
 	${({ isSubFields }) =>
 		isSubFields &&
 		`
@@ -36,6 +49,7 @@ export const FieldWrapGrid = styled.div`
 	`}
 	@media (max-width: 700px) {
 		width: 100%;
+		grid-column: span 1;
 	}
 `;
 
@@ -89,8 +103,7 @@ export const ErrorMessage = styled.div`
 	font-weight: 500;
 	display: inline;
 	margin-right: 30px;
-	${({ borderColorCode }) =>
-		borderColorCode && `color: ${borderColorCode};`}
+	${({ borderColorCode }) => borderColorCode && `color: ${borderColorCode};`}
 `;
 
 export const Footer = styled.div`
