@@ -157,13 +157,12 @@ export const applicationSlice = createSlice({
 		},
 
 		removeCacheDocument: (state, action) => {
-			const { doc_type_id, directorId, fileId } = action.payload;
-			const file = action.payload;
+			const { doc_type_id, directorId, fileId, document_id } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			const newDocuments = oldDocuments.filter(doc => {
 				if (fileId && doc?.id === fileId) return false;
 				// for imd doc deletion,
-				if (file?.document_id && file?.document_id === doc?.document_id) {
+				if (document_id && document_id === doc?.document_id) {
 					return false;
 				}
 				if (
