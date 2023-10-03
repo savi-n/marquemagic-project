@@ -17,7 +17,10 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
-import { setCompletedApplicationSection } from 'store/applicationSlice';
+import {
+	setCompletedApplicationSection,
+	removeCacheDocument,
+} from 'store/applicationSlice';
 //import { decryptViewDocumentUrl } from 'utils/encrypt';
 import {
 	formatGetSectionReqBody,
@@ -49,8 +52,15 @@ const LoanDetails = () => {
 		isEditOrViewLoan,
 		selectedProduct,
 		permission,
+		userDetails,
 	} = app;
-	const { loanId, cacheDocuments, businessType, businessId } = application;
+	const {
+		loanId,
+		cacheDocuments,
+		businessType,
+		businessId,
+		userId,
+	} = application;
 
 	const applicant =
 		Object.values(directors)?.filter(
@@ -69,6 +79,10 @@ const LoanDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	//const [loadingFile, setLoadingFile] = useState(false);
+
+	//default logged in user's branch id can be taken from session storage userDetails
+	const loggedUserBranch = userDetails?.branch_id;
+
 	const branchField =
 		selectedSection?.sub_sections
 			?.filter(item => {
@@ -123,7 +137,7 @@ const LoanDetails = () => {
 		  }
 		: null;
 
-	const selectedImdDocumentFile = ImdDocumentFileOnUpload.name
+	let selectedImdDocumentFile = ImdDocumentFileOnUpload.name
 		? ImdDocumentFileOnUpload
 		: selectedImdDocument;
 
@@ -148,7 +162,9 @@ const LoanDetails = () => {
 		}
 		//setLoading(true);
 		if (sectionData?.imd_details?.imd_document?.uploaded_doc_name)
-			fetchSectionDetails();
+			// fetchSectionDetails();
+			// since we are displaying imd file directly from API data, once we delete just set to null
+			sectionData.imd_details.imd_document = null;
 		//setLoading(false);
 	};
 	const getBranchOptions = async () => {
@@ -253,6 +269,15 @@ const LoanDetails = () => {
 			// loanDetailsReqBody.data.source_details.businessname = cloneSelectedValue;
 
 			// loanDetailsReqBody.data.source_details.connector_user_id = +cloneSelectedValue;
+
+			// DOS-4810 : for imd yes/no changes
+			if (formState.values[CONST.IMD_COLLECTED_FIELD_NAME] === 'No') {
+				deleteImdDoc(selectedImdDocument);
+				loanDetailsReqBody.data.imd_details.transaction_reference = '';
+				loanDetailsReqBody.data.imd_details.amount_paid = '';
+				loanDetailsReqBody.data.imd_details.imd_paid_by = '';
+				loanDetailsReqBody.data.imd_details.payment_mode = '';
+			}
 
 			let imd_Details_doc_id = '';
 			if (cacheDocumentsTemp.length > 0) {
@@ -514,6 +539,40 @@ const LoanDetails = () => {
 	// 	selectedSection,
 	// });
 	//console.log(sectionData?.imd_details?.imd_document?.uploaded_doc_name);
+
+	const deleteImdDoc = async file => {
+		try {
+			if (!file?.document_id)
+				return removeCacheDocumentTemp(CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME);
+			setLoading(true);
+			const reqBody = {
+				loan_doc_id: file?.document_id || '',
+				business_id: businessId,
+				loan_id: loanId,
+				userid: userId,
+			};
+			// console.log('reqBody-', reqBody);
+			// return;
+			await axios.post(API.DELETE_DOCUMENT, reqBody);
+			removeCacheDocumentTemp(CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME);
+			sectionData.imd_details.imd_document = null;
+			dispatch(removeCacheDocument(file));
+		} catch (error) {
+			console.error('error-deleteDocument-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (formState?.values?.[CONST.LOAN_SOURCE] === 'Branch') {
+			onChangeFormStateField({
+				name: CONST.BRANCH_FIELD_NAME,
+				value: loggedUserBranch || '',
+			});
+		}
+		//eslint-disable-next-line
+	}, [formState.values[CONST.LOAN_SOURCE]]);
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
