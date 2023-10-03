@@ -75,7 +75,7 @@ const BusinessAddressDetailsEdi = props => {
 		selectedDirector,
 		isApplicant,
 	});
-	const [preferredMAilingAddress, setPreferredMAilingAddress] = useState(null);
+	const [preferredMailingAddress, setPreferredMailingAddress] = useState(null);
 	const [
 		isPreferredMailingAddressMandatory,
 		setPrefferedMailingAddressMandatory,
@@ -105,7 +105,7 @@ const BusinessAddressDetailsEdi = props => {
 			if (
 				sectionRequired &&
 				isPreferredMailingAddressMandatory &&
-				!preferredMAilingAddress
+				!preferredMailingAddress
 			) {
 				return addToast({
 					message: 'Please select the preffered mailing address',
@@ -132,14 +132,14 @@ const BusinessAddressDetailsEdi = props => {
 					state: formState?.values?.operating_state || '',
 					residential_type: formState?.values?.operating_residential_type || '',
 					preferred_mailing_address:
-						preferredMAilingAddress ===
+						preferredMailingAddress ===
 						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
 							? 'Yes'
 							: 'No',
 				},
 				{
 					preferred_mailing_address:
-						preferredMAilingAddress ===
+						preferredMailingAddress ===
 						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
 							? 'Yes'
 							: 'No',
@@ -236,12 +236,12 @@ const BusinessAddressDetailsEdi = props => {
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
 			}
-			const registeredAddress=sectionData?.address?.filter((item)=>{
-				return item.aid===2
-			})
-			const prefferedAddress=sectionData?.address?.filter((item)=>{
-				return item.aid===1
-			})
+			const registeredAddress = sectionData?.address?.filter(item => {
+				return item.aid === 2;
+			});
+			const prefferedAddress = sectionData?.address?.filter(item => {
+				return item.aid === 1;
+			});
 			// -- TEST MODE
 			// Baas!
 			const preData = {
@@ -251,8 +251,7 @@ const BusinessAddressDetailsEdi = props => {
 				registered_pin_code: registeredAddress?.[0]?.pincode,
 				registered_city: registeredAddress?.[0]?.city,
 				registered_state: registeredAddress?.[0]?.state,
-				registered_residential_type:
-					registeredAddress?.[0]?.residential_type,
+				registered_residential_type: registeredAddress?.[0]?.residential_type,
 
 				operating_address1: prefferedAddress?.[0]?.line1,
 				operating_address2: prefferedAddress?.[0]?.line2,
@@ -297,21 +296,19 @@ const BusinessAddressDetailsEdi = props => {
 				});
 
 				if (
-				fetchRes?.data?.data?.address?.filter(
+					fetchRes?.data?.data?.address?.filter(
 						address => address.aid === 1
-					)?.[0]?.preferred_mailing_address ===
-					'Yes'
+					)?.[0]?.preferred_mailing_address === 'Yes'
 				) {
-					setPreferredMAilingAddress(
+					setPreferredMailingAddress(
 						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
 					);
 				} else if (
 					fetchRes?.data?.data?.address?.filter(
 						address => address.aid === 2
-					)?.[0]?.preferred_mailing_address ===
-					'Yes'
+					)?.[0]?.preferred_mailing_address === 'Yes'
 				) {
-					setPreferredMAilingAddress(
+					setPreferredMailingAddress(
 						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
 					);
 				}
@@ -470,11 +467,16 @@ const BusinessAddressDetailsEdi = props => {
 																? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
 																: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
 														}
-														checked={field.name === preferredMAilingAddress}
+														disabled={
+															preferredMailingAddress
+																? field.name !== preferredMailingAddress
+																: false
+														}
+														checked={field.name === preferredMailingAddress}
 														onChange={() => {
-															field.name !== preferredMAilingAddress
-																? setPreferredMAilingAddress(field.name)
-																: setPreferredMAilingAddress(null);
+															field.name !== preferredMailingAddress
+																? setPreferredMailingAddress(field.name)
+																: setPreferredMailingAddress(null);
 														}}
 													/>
 													<label
@@ -498,9 +500,9 @@ const BusinessAddressDetailsEdi = props => {
 										//       <UI.CheckboxSameAs
 										//       type="checkbox"
 										//       id={CONST.CHECKBOX_SAME_AS_ID}
-										//       checked={field.name===preferredMAilingAddress}
+										//       checked={field.name===preferredMailingAddress}
 										// onChange={()=>{
-										//  field.name!==preferredMAilingAddress?setPreferredMAilingAddress(field.name):setPreferredMAilingAddress(null)
+										//  field.name!==preferredMailingAddress?setPreferredMailingAddress(field.name):setPreferredMailingAddress(null)
 										// }}
 										// />
 										//       <label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
