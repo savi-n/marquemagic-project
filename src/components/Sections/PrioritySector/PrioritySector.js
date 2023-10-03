@@ -16,7 +16,6 @@ import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getAllCompletedSections,
 } from 'utils/formatData';
 
 import * as API from '_config/app.config';
@@ -33,7 +32,6 @@ const PrioritySectorDetails = () => {
 		selectedSection,
 		nextSectionId,
 		isTestMode,
-		selectedProduct,
 	} = app;
 
 	// const { loanId, cacheDocuments, businessId } = application;

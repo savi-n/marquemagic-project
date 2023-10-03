@@ -52,6 +52,7 @@ const LoanDetails = () => {
 		isEditOrViewLoan,
 		selectedProduct,
 		permission,
+		userDetails,
 	} = app;
 	const {
 		loanId,
@@ -78,6 +79,10 @@ const LoanDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	//const [loadingFile, setLoadingFile] = useState(false);
+
+	//default logged in user's branch id can be taken from session storage userDetails
+	const loggedUserBranch = userDetails?.branch_id;
+
 	const branchField =
 		selectedSection?.sub_sections
 			?.filter(item => {
@@ -558,6 +563,16 @@ const LoanDetails = () => {
 			setLoading(false);
 		}
 	};
+
+	useEffect(() => {
+		if (formState?.values?.[CONST.LOAN_SOURCE] === 'Branch') {
+			onChangeFormStateField({
+				name: CONST.BRANCH_FIELD_NAME,
+				value: loggedUserBranch || '',
+			});
+		}
+		//eslint-disable-next-line
+	}, [formState.values[CONST.LOAN_SOURCE]]);
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
