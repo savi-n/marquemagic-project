@@ -60,6 +60,21 @@ const PrioritySectorDetails = () => {
 				application,
 				values: formState.values,
 			});
+
+			prioritySectorReqBody.data.priority_sector_details = {
+				...prioritySectorReqBody?.data?.declaration_details,
+				...prioritySectorReqBody?.data?.direct_agri_details,
+				...prioritySectorReqBody?.data?.indirect_agri_details,
+				...prioritySectorReqBody?.data?.khadi_villageindustries__details,
+				...prioritySectorReqBody?.data?.manufacturing_details,
+				...prioritySectorReqBody?.data?.service_enterprise_details,
+			};
+			delete prioritySectorReqBody.data.declaration_details;
+			delete prioritySectorReqBody.data.direct_agri_details;
+			delete prioritySectorReqBody.data.indirect_agri_details;
+			delete prioritySectorReqBody.data.khadi_villageindustries__details;
+			delete prioritySectorReqBody.data.manufacturing_details;
+			delete prioritySectorReqBody.data.service_enterprise_details;
 			prioritySectorReqBody.data.priority_sector_details.id = formId || '';
 			await axios.post(
 				`${API.API_END_POINT}/priority_sector_details`,
