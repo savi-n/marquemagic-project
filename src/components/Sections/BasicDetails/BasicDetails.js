@@ -917,7 +917,12 @@ const BasicDetails = props => {
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
-				reqBody
+				reqBody,
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
 			);
 
 			if (fetchDataRes?.data?.status === 'nok') {

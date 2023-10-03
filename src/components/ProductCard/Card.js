@@ -150,6 +150,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						selectedDedupeData?.generate_otp,
 						{
 							customer_id: customerId,
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
 						}
 					);
 
@@ -195,7 +200,12 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
-						reqBody
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
 					);
 					// console.log(
 					// 	'🚀 ~ file: Card.js:193 ~ onProceedSelectCustomer ~ verifyData:',

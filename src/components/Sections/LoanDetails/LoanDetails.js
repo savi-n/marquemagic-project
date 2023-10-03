@@ -368,7 +368,7 @@ const LoanDetails = () => {
 			loan_amount: loanDetails?.loan_amount,
 			tenure: loanDetails?.applied_tenure,
 			// this is specifically for housing loan , where the branch field is coming inside loan details sub section
-			branch_id: loanDetails?.branch_id?.id
+			branch_id: loanDetails?.branch_id?.id //todo
 				? `${loanDetails?.branch_id?.id}`
 				: '',
 			loan_usage_type_id: ['string', 'number'].includes(
