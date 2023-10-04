@@ -467,11 +467,6 @@ const BusinessAddressDetailsEdi = props => {
 																? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
 																: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
 														}
-														disabled={
-															preferredMailingAddress
-																? field.name !== preferredMailingAddress
-																: false
-														}
 														checked={field.name === preferredMailingAddress}
 														onChange={() => {
 															field.name !== preferredMailingAddress
