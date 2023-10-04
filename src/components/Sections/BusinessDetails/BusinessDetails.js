@@ -278,6 +278,7 @@ const BusinessDetails = props => {
 				loan_id: loanId,
 				business_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
+				origin: API.ORIGIN,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
