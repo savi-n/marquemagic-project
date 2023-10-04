@@ -198,6 +198,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								: CONST.TYPE_NAME_MAPPING[
 										(customerDetailsFormData?.businesstype)
 								  ] || '',
+						origin: API.ORIGIN,
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
