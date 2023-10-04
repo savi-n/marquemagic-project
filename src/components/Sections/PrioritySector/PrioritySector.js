@@ -1,3 +1,7 @@
+// config changes required - Priority sector
+// 1. one of the consent to be made type: checkbox
+// 2.
+
 import React, { Fragment, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
@@ -11,6 +15,7 @@ import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+// import Divider from 'components/Divider';
 
 import {
 	formatGetSectionReqBody,
@@ -55,6 +60,29 @@ const PrioritySectorDetails = () => {
 				application,
 				values: formState.values,
 			});
+
+			selectedSection?.sub_sections?.map(sub_section => {
+				prioritySectorReqBody.data.priority_sector_details = {
+					...prioritySectorReqBody?.data?.priority_sector_details,
+					...prioritySectorReqBody?.data?.[sub_section?.id],
+				};
+				delete prioritySectorReqBody?.data?.[sub_section?.id];
+			});
+
+			// prioritySectorReqBody.data.priority_sector_details = {
+			// 	...prioritySectorReqBody?.data?.declaration_details,
+			// 	...prioritySectorReqBody?.data?.direct_agri_details,
+			// 	...prioritySectorReqBody?.data?.indirect_agri_details,
+			// 	...prioritySectorReqBody?.data?.khadi_villageindustries__details,
+			// 	...prioritySectorReqBody?.data?.manufacturing_details,
+			// 	...prioritySectorReqBody?.data?.service_enterprise_details,
+			// };
+			// delete prioritySectorReqBody.data.declaration_details;
+			// delete prioritySectorReqBody.data.direct_agri_details;
+			// delete prioritySectorReqBody.data.indirect_agri_details;
+			// delete prioritySectorReqBody.data.khadi_villageindustries__details;
+			// delete prioritySectorReqBody.data.manufacturing_details;
+			// delete prioritySectorReqBody.data.service_enterprise_details;
 			prioritySectorReqBody.data.priority_sector_details.id = formId || '';
 			await axios.post(
 				`${API.API_END_POINT}/priority_sector_details`,
@@ -143,6 +171,11 @@ const PrioritySectorDetails = () => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
+								{sub_section?.text_description ? (
+									<UI_SECTIONS.SubSectionDescription>
+										{sub_section.text_description}
+									</UI_SECTIONS.SubSectionDescription>
+								) : null}
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((field, fieldIndex) => {
 										const newField = _.cloneDeep(field);
@@ -163,24 +196,34 @@ const PrioritySectorDetails = () => {
 										let newValueSelectField;
 
 										if (
-											formState?.values?.priority_sector_loan !== 'true' &&
-											newField.name !== CONST.PRIORITY_SECTOR_LOAN_CHECKBOX
+											formState?.values?.priority_sector_loan !== 'Yes' &&
+											![
+												CONST.PRIORITY_SECTOR_LOAN_FIELD_NAME,
+												CONST.KHADI_VILLAGE_INDUSTRIES_FIELD_NAME,
+											].includes(newField.name)
 										) {
 											customFieldProps.disabled = true;
 										}
 
 										if (
-											newField.name === CONST.PRIORITY_SECTOR_LOAN_CHECKBOX &&
+											newField.name === CONST.PRIORITY_SECTOR_LOAN_FIELD_NAME &&
 											completedSections?.includes(selectedSectionId)
 										) {
 											customFieldProps.disabled = true;
 										}
 
-										if (!!field?.sub_fields) {
+										if (!!newField?.sub_fields) {
 											newValueSelectField = prefilledValues(
-												field?.sub_fields?.[0]
+												newField?.sub_fields?.[0]
 											);
 										}
+										// if (
+										// 	newField.name ===
+										// 	CONST.KHADI_VILLAGE_INDUSTRIES_FIELD_NAME
+										// ) {
+										// 	// newField.type = 'divider';
+										// 	return <Divider />;
+										// }
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
@@ -188,8 +231,13 @@ const PrioritySectorDetails = () => {
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${newField.name}`}
+												type={field?.type}
 											>
 												<div>
+													{/* {newField.name ===
+														CONST.KHADI_VILLAGE_INDUSTRIES_FIELD_NAME && (
+														<Divider />
+													)} */}
 													{field?.sub_fields &&
 														field?.sub_fields[0].is_prefix &&
 														register({

@@ -112,31 +112,30 @@ const CustomerDetailsFormModal = props => {
 			// 		? selectedDedupeData?.search_api
 			// 		: selectedDedupeData?.verify;
 
-			const reqBody =
-				{
-					...formState?.values,
-					loan_product_id:
-						productForModal?.product_id?.[
-							formState?.values?.['businesstype']
-						] || '',
-					white_label_id: whiteLabelId,
-					id_no: formState?.values?.['pan_no'],
-					customer_type: formState?.values['customer_type'],
-					pan_number: formState?.values['pan_number']?.toUpperCase(),
-					mobile_num: formState?.values['mobile_no'],
-					dob: formState?.values['ddob'],
-					businesstype: formState?.values['businesstype'],
-					isApplicant: true, //implemented based on savitha's changes - bad practice
-					customer_id: formState?.values['customer_id'],
-					loan_product_details_id: productForModal?.id || undefined,
-					parent_product_id: productForModal?.parent_id || undefined,
-					type_name:
-						`${productForModal?.loan_request_type ||
-							product?.loan_request_type}` === '2'
-							? 'Applicant'
-							: CONST.TYPE_NAME_MAPPING[(formState?.values['businesstype'])] ||
-							  '',
-				} || {};
+			const reqBody = {
+				...formState?.values,
+				loan_product_id:
+					productForModal?.product_id?.[formState?.values?.['businesstype']] ||
+					'',
+				white_label_id: whiteLabelId,
+				id_no: formState?.values?.['pan_no'] || '',
+				customer_type: formState?.values['customer_type'] || '',
+				pan_number: formState?.values['pan_number']?.toUpperCase() || '',
+				mobile_num: formState?.values['mobile_no'] || '',
+				dob: formState?.values['ddob'] || '',
+				businesstype: formState?.values['businesstype'] || '',
+				isApplicant: true, //implemented based on savitha's changes - bad practice
+				customer_id: formState?.values['customer_id'] || '',
+				loan_product_details_id: productForModal?.id || undefined,
+				parent_product_id: productForModal?.parent_id || undefined,
+				type_name:
+					`${productForModal?.loan_request_type ||
+						product?.loan_request_type}` === '2'
+						? 'Applicant'
+						: CONST.TYPE_NAME_MAPPING[(formState?.values['businesstype'])] ||
+						  '',
+				origin: API.ORIGIN,
+			};
 
 			setCustomerDetailsFormData(formState?.values || {});
 			// const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
