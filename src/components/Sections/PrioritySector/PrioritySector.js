@@ -15,7 +15,7 @@ import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import Divider from 'components/Divider';
+// import Divider from 'components/Divider';
 
 import {
 	formatGetSectionReqBody,
