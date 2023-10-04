@@ -274,6 +274,7 @@ const BusinessDetails = props => {
 				loan_product_id:
 					selectedProduct?.product_id?.[formState?.values?.['business_type']],
 				loan_product_details_id: selectedProduct?.id || undefined,
+				parent_product_id: selectedProduct?.parent_id || undefined,
 				loan_id: loanId,
 				business_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
@@ -809,8 +810,20 @@ const BusinessDetails = props => {
 				businesspancardnumber:
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
-				contact:
-					sectionData?.business_details?.contactno || dedupeData?.mobile_no,
+
+				// userdata - (Savitha confirmed about the below prefilling data)
+				// fieldName : business mobile number - dbKey: contact  || prefillData : userData.contact
+				contact: sectionData?.user_data?.contact || dedupeData?.mobile_no,
+
+				// businessdata - (Savitha confirmed about the below prefilling data)
+				// fieldName: mobile_no - dbKey: contactno || prefillData : prefilData: businessDetails.contactno
+				contactno: sectionData?.business_details?.contactno,
+
+				// old code starts
+				// contact:
+				// 	sectionData?.business_details?.contactno || dedupeData?.mobile_no,
+				// old code ends
+
 				businesstype:
 					sectionData?.business_details?.businesstype ||
 					dedupeData?.businesstype ||
@@ -1375,8 +1388,9 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										}
 										// TODO: check for casedos
-										if (!isPanUploadMandatory)
-											customFieldProps.disabled = false;
+										// below code from vikram was breaking for all the fields.
+										// if (!isPanUploadMandatory)
+										// 	customFieldProps.disabled = false;
 										// if (field?.name === 'pan_number')
 										// 	if (field?.sub_fields?.[0]?.name === 'Fetch') {
 										// 		customFieldProps.loading = loading;
