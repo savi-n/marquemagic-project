@@ -5,13 +5,13 @@ import styled from 'styled-components';
 import React from 'react';
 
 const InputCheckBox = styled.input`
-padding:10px ;
-${({ disabled }) => disabled && `cursor: not-allowed;`}
+	padding: 10px;
+	${({ disabled }) => disabled && `cursor: not-allowed;`}
 `;
-const Div=styled.div`
-display: flex;
-gap: 10px;
-`
+const Div = styled.div`
+	display: flex;
+	gap: 10px;
+`;
 export default function CheckBox(props) {
 	const { onChange, round, disabled, bg, fg, placeholder, name } = props;
 	const id = uuidv4();

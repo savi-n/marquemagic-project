@@ -6,4 +6,6 @@ export const initialFormState = {
 	state: 'BIHAR',
 };
 
-export const PRIORITY_SECTOR_LOAN_CHECKBOX='priority_sector_loan'
+// export const PRIORITY_SECTOR_LOAN_CHECKBOX='priority_sector_loan'
+export const PRIORITY_SECTOR_LOAN_FIELD_NAME = 'priority_sector_loan';
+export const KHADI_VILLAGE_INDUSTRIES_FIELD_NAME = 'khadi_village_industries';
