@@ -320,7 +320,6 @@ export default function Products() {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
 	const { userToken } = useSelector(state => state.app);
-
 	const { response: products } = useFetch({
 		url: PRODUCT_LIST_URL({ whiteLabelId }),
 		headers: { Authorization: `Bearer ${userToken}` },

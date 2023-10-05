@@ -16,7 +16,8 @@ import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
-import _ from 'lodash';
+// import _ from 'lodash';
+import * as CONST from './const';
 
 const CollateralDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -145,11 +146,23 @@ const CollateralDetails = () => {
 	}, []);
 
 	///TODO: COLLATERAL ADD ASSET
-	const collats_from_asset =
+	const filteredAssets =
 		assets &&
 		assets.filter(asset => {
-			return asset.loan_asset_type_id && asset.loan_asset_type_id === 71;
+			return (
+				(asset.loan_asset_type_id &&
+					`${asset.loan_asset_type_id}` ===
+						CONST.LOAN_ASSET_TYPE_ID_LAND_AND_BUILDINGS) ||
+				(asset.loan_asset_type_id &&
+					`${asset.loan_asset_type_id}` ===
+						CONST.LOAN_ASSET_TYPE_ID_PERFORMA_CV) ||
+				(asset.loan_asset_type_id &&
+					`${asset.loan_asset_type_id}` ===
+						CONST.LOAN_ASSET_TYPE_ID_PERFORMA_CEQ)
+			);
 		});
+	// 75 and 76
+	// const newOptions = [];
 	const newOptions = [
 		{
 			name: 'Add New',
@@ -168,39 +181,39 @@ const CollateralDetails = () => {
 			)
 		);
 
-	collats_from_asset &&
-		collats_from_asset.map(collats =>
+	filteredAssets &&
+		filteredAssets.map(collats =>
 			isCreateFormOpen
 				? !exclude_ids.includes(`${collats.id}`) &&
 				  newOptions.push({
-						value: `${collats.id}`,
+						value: `${collats?.id}`,
 						name: `${
 							collats?.director_id === 0
 								? businessName
 								: directors?.[collats?.director_id]?.fullName
-						} - Survey # ${collats.survey_no}`,
+						} - Survey # ${collats?.survey_no}`,
 				  })
 				: // !exclude_ids.includes(`${collats.id}`) &&
 				  newOptions.push({
-						value: `${collats.id}`,
+						value: `${collats?.id}`,
 						name: `${
 							collats?.director_id === 0
 								? businessName
 								: directors?.[collats?.director_id]?.fullName
-						} - Survey # ${collats.survey_no}`,
+						} - Survey # ${collats?.survey_no}`,
 				  })
 		);
 
-	const newSectons = _.cloneDeep(selectedSection);
-	newSectons?.sub_sections?.filter(section => {
-		if (section.id === 'collateral_details') {
-			section.fields?.map(
-				sec =>
-					sec.name === 'select_collateral' && sec.options.push(...newOptions)
-			);
-		}
-		return null;
-	});
+	// const newSectons = _.cloneDeep(selectedSection);
+	// newSectons?.sub_sections?.filter(section => {
+	// 	if (section.id === 'collateral_details') {
+	// 		section.fields?.map(
+	// 			sec =>
+	// 				sec.name === 'select_collateral' && sec.options.push(...newOptions)
+	// 		);
+	// 	}
+	// 	return null;
+	// });
 	//END TODO: COLLATERAL
 
 	// console.log('CollateralDetails-allstates-', { selectedSection });
@@ -220,6 +233,7 @@ const CollateralDetails = () => {
 							const sectionId = section?.id;
 							const isAccordianOpen = sectionId === openAccordianId;
 							const isEditLoan = editSectionId === sectionId;
+
 							const collateralData =
 								section?.modified_collateral?.collateral_details ||
 								section?.initial_collateral?.collateral_details ||
@@ -274,6 +288,7 @@ const CollateralDetails = () => {
 									newCollateralData?.current_occupant ||
 									'',
 							};
+
 							// console.log('prefilldata-', prefillData);
 							return (
 								<UI_SECTIONS.AccordianWrapper key={`accordian-${sectionIndex}`}>
@@ -348,7 +363,7 @@ const CollateralDetails = () => {
 									<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
 										{isAccordianOpen && !isCreateFormOpen && (
 											<DynamicForm
-												subSections={newSectons?.sub_sections || []}
+												subSections={selectedSection?.sub_sections || []}
 												// subSections={selectedSection?.sub_sections || []}
 												prefillData={prefillData}
 												onSaveOrUpdateSuccessCallback={
@@ -360,6 +375,7 @@ const CollateralDetails = () => {
 												isEditLoan={isEditLoan}
 												editSectionId={editSectionId}
 												isCreateFormOpen={isCreateFormOpen}
+												selectCollateralFieldOptions={newOptions}
 											/>
 										)}
 										{/* {isResetFormComplete ? (
@@ -378,7 +394,7 @@ const CollateralDetails = () => {
 								>
 									<UI_SECTIONS.DynamicFormWrapper>
 										<DynamicForm
-											subSections={newSectons?.sub_sections || []}
+											subSections={selectedSection?.sub_sections || []}
 											onSaveOrUpdateSuccessCallback={
 												onSaveOrUpdateSuccessCallback
 											}
@@ -388,6 +404,7 @@ const CollateralDetails = () => {
 											hideCancelCTA={!(sectionData?.length > 0)}
 											isEditLoan={true}
 											isCreateFormOpen={isCreateFormOpen}
+											selectCollateralFieldOptions={newOptions}
 										/>
 									</UI_SECTIONS.DynamicFormWrapper>
 								</UI_SECTIONS.AccordianBody>
