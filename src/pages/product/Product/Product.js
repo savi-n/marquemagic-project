@@ -61,8 +61,12 @@ const Product = props => {
 		isEditOrViewLoan,
 	} = app;
 	const { response } = useFetch({
-		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
+		url: `${PRODUCT_DETAILS_URL({
+			whiteLabelId,
+			productId: atob(product),
+		})}`,
 		options: { method: 'GET' },
+		headers: { Authorization: `Bearer ${userToken}` },
 	});
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
