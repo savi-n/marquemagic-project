@@ -26,6 +26,7 @@ import axios from 'axios';
 import { useToasts } from 'components/Toast/ToastProvider';
 import Loading from 'components/Loading';
 import searchIcon from 'assets/icons/search-icon.png';
+import { useSelector } from 'react-redux';
 
 // import InputField from 'components/inputs/InputField';
 const Wrapper = styled.div`
@@ -318,9 +319,10 @@ export default function Products() {
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
-
+	const { userToken } = useSelector(state => state.app);
 	const { response: products } = useFetch({
 		url: PRODUCT_LIST_URL({ whiteLabelId }),
+		headers: { Authorization: `Bearer ${userToken}` },
 	});
 	const history = useHistory();
 	const [addedProduct, setAddedProduct] = useState(null);
