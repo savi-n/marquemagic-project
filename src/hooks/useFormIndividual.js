@@ -563,7 +563,12 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				value: value || '',
 			});
 		}
-
+		if (field?.name === 'pan_number') {
+			onChange({
+				name: field?.name,
+				value: value?.trim().toUpperCase() || '',
+			});
+		}
 		// eslint-disable-next-line
 	}, [value]);
 
