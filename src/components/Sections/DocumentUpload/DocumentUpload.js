@@ -286,9 +286,20 @@ const DocumentUpload = props => {
 									? JSON.parse(selectedEvalData?.assigned_document_list)
 									: []
 								: [];
+							// here it's updating directorId undefined for entity - (fixed and to be monitored)
 							newSelectedDocCheckList.map(doc => {
+								let tempDirectorId = doc?.directorId;
+								if (
+									`${selectedProduct?.loan_request_type}` === '1' &&
+									(!doc?.directorId ||
+										`${doc?.directorId}` ===
+											CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY)
+								) {
+									doc.directorId = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
+									tempDirectorId = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
+								}
 								externalUserAllowedToViewDocTypeIds.push(
-									`${doc?.director_id}${doc?.doc_type_id}`
+									`${tempDirectorId}${doc?.doc_type_id}`
 								);
 								return null;
 							});
@@ -598,12 +609,17 @@ const DocumentUpload = props => {
 											// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
 											// this is to overwrite assignment document checklist
 											// DOS-3031
+											let directorIdOfApplicant = applicantDirectorId;
+											if (`${selectedProduct?.loan_request_type}` === '1') {
+												directorIdOfApplicant =
+													CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
+											}
 											if (
 												userDetails.is_other &&
 												lenderDoc.uploaded_by === userDetails.id
 											) {
 												externalUserAllowedToViewDocTypeIds.push(
-													`${applicantDirectorId}${doc_type_id}`
+													`${directorIdOfApplicant}${doc_type_id}`
 												);
 											}
 
