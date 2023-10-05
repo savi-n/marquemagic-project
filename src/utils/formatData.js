@@ -936,6 +936,38 @@ export const validateEmploymentDetails = data => {
 		};
 	}
 };
+
+// Special validation for UCIC Co-Applicant Fetch
+export const validateAllTheDirectors = data => {
+	const { directors } = data;
+	const incompleteDirectors = [];
+	Object.values(directors)?.map(dir => {
+		// console.log({ sections: dir?.sections });
+		if (!dir?.sections || dir?.sections?.length < 3) {
+			incompleteDirectors.push(dir);
+		}
+		return null;
+	});
+
+	if (incompleteDirectors?.length > 0) {
+		// console.log('if-condition');
+		return {
+			allowProceed: false,
+			directorName:
+				incompleteDirectors?.length > 0
+					? `${incompleteDirectors?.[0]?.type_name} ${
+							incompleteDirectors?.[0]?.fullName
+					  }`
+					: null,
+		};
+	} else {
+		// console.log('else-condition');
+		return {
+			allowProceed: true,
+		};
+	}
+};
+
 // Special case for SME Flow. Used only when clicked on any of the sections in the side nav.
 export const validateDirectorForSme = directors => {
 	if (
