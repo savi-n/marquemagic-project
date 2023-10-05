@@ -67,6 +67,7 @@ const PrioritySectorDetails = () => {
 					...prioritySectorReqBody?.data?.[sub_section?.id],
 				};
 				delete prioritySectorReqBody?.data?.[sub_section?.id];
+				return null;
 			});
 
 			// prioritySectorReqBody.data.priority_sector_details = {
