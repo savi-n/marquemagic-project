@@ -20,6 +20,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
+import * as CONST from './const';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, application } = useSelector(state => state);
@@ -92,6 +93,41 @@ const ApplicantCoApplicantHeader = props => {
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
+	const isEntityMandatoryUploaded = () => {
+		let isEntityMandatoryDocsSubmitted = true;
+		if (isDocumentUploadMandatory) {
+			const entityMandatoryDocIds = [];
+			allDocumentTypes?.map(
+				docType =>
+					`${docType?.directorId}` === `${CONST.ENTITY_DIRECTOR_ID}` &&
+					docType?.isMandatory &&
+					entityMandatoryDocIds.push(
+						`${CONST.ENTITY_DIRECTOR_ID}${docType?.doc_type_id}`
+					)
+			);
+			// console.log(allDocumentTypes, 'alldocument types');
+			const entityUploadedDocumentsIds = [];
+			cacheDocuments?.map(doc =>
+				entityUploadedDocumentsIds.push(
+					`${CONST.ENTITY_DIRECTOR_ID}${doc?.doc_type_id}`
+				)
+			);
+			// console.log(
+			// 	'🚀 ~ file: ApplicantCoApplicantHeader.js:107 ~ isEntityMandatoryUploaded ~ entityUploadedDocumentsIds:',
+			// 	entityUploadedDocumentsIds,
+			// 	entityMandatoryDocIds
+			// );
+
+			entityMandatoryDocIds?.map(docId => {
+				if (!entityUploadedDocumentsIds.includes(docId)) {
+					isEntityMandatoryDocsSubmitted = false;
+				}
+				return null;
+			});
+		}
+		return isEntityMandatoryDocsSubmitted;
+	};
+
 	return (
 		<UI.Wrapper>
 			{fetchingDirectors ? (
@@ -125,6 +161,9 @@ const ApplicantCoApplicantHeader = props => {
 										alt='Avatar'
 										onClick={() => onClickDirectorAvatar('')}
 									/>
+									{selectedSectionId ===
+										CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
+										!isEntityMandatoryUploaded() && <UI.BadgeInvalid />}
 									<UI.AvatarName>Entity</UI.AvatarName>
 									<UI.HoverBadge title={businessName}>
 										{businessName}
