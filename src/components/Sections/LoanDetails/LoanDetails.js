@@ -636,10 +636,22 @@ const LoanDetails = () => {
 
 										if (
 											newField?.name === CONST.BRANCH_FIELD_NAME &&
-											formState?.values?.['loan_source'] === 'Branch'
+											!CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
+												formState?.values?.['loan_source']
+											)
+										) {
+											customFieldProps.disabled = false;
+										}
+
+										if (
+											newField?.name === CONST.BRANCH_FIELD_NAME &&
+											CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
+												formState?.values?.['loan_source']
+											)
 										) {
 											customFieldProps.disabled = true;
 										}
+
 										if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
 											customFieldProps.disabled = true;
 										}
