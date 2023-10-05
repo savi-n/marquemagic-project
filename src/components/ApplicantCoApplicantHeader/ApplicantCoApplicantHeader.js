@@ -99,24 +99,24 @@ const ApplicantCoApplicantHeader = props => {
 			const entityMandatoryDocIds = [];
 			allDocumentTypes?.map(
 				docType =>
-					`${docType?.directorId}` === `${0}` &&
+					`${docType?.directorId}` === `${CONST.ENTITY_DIRECTOR_ID}` &&
 					docType?.isMandatory &&
 					entityMandatoryDocIds.push(
 						`${CONST.ENTITY_DIRECTOR_ID}${docType?.doc_type_id}`
 					)
 			);
-			console.log(allDocumentTypes, 'alldocument types');
+			// console.log(allDocumentTypes, 'alldocument types');
 			const entityUploadedDocumentsIds = [];
 			cacheDocuments?.map(doc =>
 				entityUploadedDocumentsIds.push(
 					`${CONST.ENTITY_DIRECTOR_ID}${doc?.doc_type_id}`
 				)
 			);
-			console.log(
-				'🚀 ~ file: ApplicantCoApplicantHeader.js:107 ~ isEntityMandatoryUploaded ~ entityUploadedDocumentsIds:',
-				entityUploadedDocumentsIds,
-				entityMandatoryDocIds
-			);
+			// console.log(
+			// 	'🚀 ~ file: ApplicantCoApplicantHeader.js:107 ~ isEntityMandatoryUploaded ~ entityUploadedDocumentsIds:',
+			// 	entityUploadedDocumentsIds,
+			// 	entityMandatoryDocIds
+			// );
 
 			entityMandatoryDocIds?.map(docId => {
 				if (!entityUploadedDocumentsIds.includes(docId)) {
