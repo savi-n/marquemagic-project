@@ -544,7 +544,6 @@ const LoanDetails = () => {
 		try {
 			if (!file?.document_id)
 				return removeCacheDocumentTemp(CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME);
-			setLoading(true);
 			const reqBody = {
 				loan_doc_id: file?.document_id || '',
 				business_id: businessId,
@@ -559,12 +558,10 @@ const LoanDetails = () => {
 			dispatch(removeCacheDocument(file));
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
-		} finally {
-			setLoading(false);
 		}
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (formState?.values?.[CONST.LOAN_SOURCE] === 'Branch') {
 			onChangeFormStateField({
 				name: CONST.BRANCH_FIELD_NAME,
