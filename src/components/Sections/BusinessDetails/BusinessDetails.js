@@ -1490,6 +1490,7 @@ const BusinessDetails = props => {
 										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubFields.disabled = true;
 										}
 										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
 											// console.log("Contact")
