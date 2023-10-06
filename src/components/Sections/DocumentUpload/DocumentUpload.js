@@ -288,14 +288,14 @@ const DocumentUpload = props => {
 								: [];
 							// here it's updating directorId undefined for entity - (fixed and to be monitored)
 							newSelectedDocCheckList.map(doc => {
-								let tempDirectorId = doc?.directorId;
+								let tempDirectorId = doc?.director_id;
 								if (
 									`${selectedProduct?.loan_request_type}` === '1' &&
-									(!doc?.directorId ||
-										`${doc?.directorId}` ===
+									(!doc?.director_id ||
+										`${doc?.director_id}` ===
 											CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY)
 								) {
-									doc.directorId = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
+									doc.director_id = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
 									tempDirectorId = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
 								}
 								externalUserAllowedToViewDocTypeIds.push(
