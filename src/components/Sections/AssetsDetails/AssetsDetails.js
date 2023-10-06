@@ -176,7 +176,12 @@ const AssetsDetails = props => {
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
-															<strong>{formatINR(prefillData?.value)}</strong>
+															<strong>
+																{formatINR(
+																	prefillData?.value ||
+																		prefillData?.total_amount
+																)}
+															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
