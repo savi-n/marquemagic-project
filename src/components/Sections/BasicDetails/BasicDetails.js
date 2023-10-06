@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import queryString from 'query-string';
 import _ from 'lodash';
-
+import moment from 'moment';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import ProfileUpload from './ProfileUpload';
@@ -12,7 +12,9 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import NavigateCTA from 'components/Sections/NavigateCTA';
-
+import { encryptReq } from 'utils/encrypt';
+import { isInvalidPan } from 'utils/validation';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import {
@@ -29,6 +31,7 @@ import {
 	setLoanIds,
 	setGeoLocation,
 	setNewCompletedSections,
+	setDedupePrefilledValues,
 } from 'store/applicationSlice';
 import {
 	getDirectors,
@@ -44,6 +47,7 @@ import {
 	isDirectorApplicant,
 	isFieldValid,
 	parseJSON,
+	validateAllTheDirectors,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -59,17 +63,16 @@ import {
 	scrollToTopRootElement,
 	isNullFunction,
 	getGeoLocation,
+	getTotalYearsCompleted,
 } from 'utils/helper';
+import Modal from 'components/Modal';
+import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
 		state => state.directors
 	);
-	// console.log(
-	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ directors:',
-	// 	directorSlice
-	// );
 
 	// const { smeType } = directors;
 	// console.log({ smeType });
@@ -104,6 +107,9 @@ const BasicDetails = props => {
 		geoLocation,
 		loanRefId,
 		businessType,
+		loanId,
+		businessId,
+		dedupePrefilledValues,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -128,11 +134,100 @@ const BasicDetails = props => {
 		// resetForm,
 	} = useForm();
 
+	// ------------------------------------------------sample json -----------------------------------------------------------------------------------------
+	const response = [
+		{
+			headerName: 'Identification',
+			id: 'Identification',
+			matchLevel: [
+				{
+					name: 'Application Match',
+					data: [
+						{
+							loan_ref_id: 'LKKR00019297',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'RUGA00019298',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'CPRM00019299',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: {
+								id: 179622,
+								bank: 'Muthoot Fincorp Ltd',
+								ifsc: 'S0031-SULB',
+								branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
+							},
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'GUMG00019313',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'gjdgs@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '75%',
+						},
+					],
+				},
+			],
+		},
+	];
+
+	//--------------------------------------------------------------------------------------------------------------
+
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [fetchingGeoLocation, setFetchingGeoLocation] = useState(false);
 
 	const [sectionData, setSectionData] = useState({});
+
+	const [isDedupeCheckModalOpen, setIsDedupeCheckModalOpen] = useState(false);
+	const [isDedupeCheckModalLoading, setIsDedupeCheckModalLoading] = useState(
+		false
+	);
+	const [dedupeModalData, setDedupeModalData] = useState([]);
+
+	// console.log(
+	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
+	// 	selectedProduct
+	// );
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const selectedDedupeData =
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(selectedProduct?.id);
+			  })?.[0] || {}
+			: {};
 	const passportData =
 		!!sectionData &&
 		Object.keys(sectionData)?.length > 0 &&
@@ -155,6 +250,7 @@ const BasicDetails = props => {
 		selectedDirector,
 		isApplicant,
 	});
+
 	// console.log({ selectedDirector, selectedProduct, isEditOrViewLoan });
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
@@ -176,7 +272,6 @@ const BasicDetails = props => {
 					`${doc?.directorId}` === `${selectedDirectorId}`
 		  )?.[0]
 		: null;
-
 	const selectedProfileField = getSelectedField({
 		fieldName: CONST.PROFILE_UPLOAD_FIELD_NAME,
 		selectedSection,
@@ -444,11 +539,61 @@ const BasicDetails = props => {
 		} finally {
 			setLoading(false);
 		}
-		// dispatch(setSelectedDirectorId(''));
-		// dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
-		// dispatch(setAddNewDirectorKey(key));
 	};
+	const onPanEnter = async pan => {
+		try {
+			const panErrorMessage = isInvalidPan(pan);
+			if (panErrorMessage) {
+				return addToast({
+					message: 'Please enter valid PAN number',
+					type: 'error',
+				});
+			}
+			setLoading(true);
+			// 1.VERIFY PAN
+			const panExtractionApiRes = await axios.post(
+				API.VERIFY_KYC,
+				{ req_type: 'pan', number: pan, name: 'XXX' },
+				{ headers: { Authorization: clientToken } }
+			);
+			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
+			// IF PAN NAME
+			if (panExtractionMsg?.upstreamName) {
+				let name = panExtractionMsg?.upstreamName;
+				let firstName = '';
+				let lastName = '';
+				if (name) {
+					const nameSplit = name.split(' ');
+					if (nameSplit.length > 1) {
+						lastName = nameSplit[nameSplit.length - 1];
+						nameSplit.pop();
+					}
+					firstName = nameSplit.join(' ');
+				}
+
+				onChangeFormStateField({
+					name: CONST.FIRST_NAME_FIELD_NAME,
+					value: firstName || '',
+				});
+				onChangeFormStateField({
+					name: CONST.LAST_NAME_FIELD_NAME,
+					value: lastName || '',
+				});
+				// 	//END IF PAN NAME
+			}
+		} catch (err) {
+			console.error(err);
+			addToast({
+				message: 'Something went wrong, please try again with valid PAN number',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const onSaveAndProceed = async () => {
+		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
 			const isTokenValid = await validateToken();
@@ -718,6 +863,11 @@ const BasicDetails = props => {
 
 	// }
 
+	// const performDedupeCheck = async data => {
+	// 	setIsDedupeCheckModalOpen(true);
+	// 	console.log('Hello Modal');
+	// };
+
 	const addCacheDocumentTemp = async file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
@@ -741,6 +891,117 @@ const BasicDetails = props => {
 		}
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
+	// console.log({ isApplicant });
+	const onFetchFromCustomerId = async () => {
+		// console.log('on-fetch-customer-id');
+		try {
+			if (formState?.values?.['income_type']?.length === 0) {
+				addToast({
+					type: 'error',
+					message: 'Please select Income Type',
+				});
+				return;
+			}
+
+			if (!isApplicant) {
+				const validateDirectors = validateAllTheDirectors({
+					directors,
+				});
+				// console.log({ validateDirectors });
+
+				if (validateDirectors?.allowProceed === false) {
+					addToast({
+						message: `Please fill all the details in ${
+							validateDirectors?.directorName
+						}`,
+						type: 'error',
+					});
+					return false;
+				}
+			}
+
+			setLoading(true);
+			const reqBody = {
+				customer_id: formState?.values?.['customer_id'],
+				white_label_id: whiteLabelId,
+				businesstype: formState?.values?.['income_type'],
+				loan_product_id:
+					selectedProduct?.product_id?.[formState?.values?.['income_type']],
+				loan_product_details_id: selectedProduct?.id || undefined,
+				parent_product_id: selectedProduct?.parent_id || undefined,
+				loan_id: loanId,
+				business_id: businessId,
+				isApplicant,
+				type_name: addNewDirectorKey || selectedDirector?.type_name,
+				origin: API.ORIGIN,
+			};
+			const fetchDataRes = await axios.post(
+				selectedDedupeData?.verify,
+				reqBody,
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
+			);
+
+			if (fetchDataRes?.data?.status === 'nok') {
+				addToast({
+					message:
+						fetchDataRes?.data?.message ||
+						'No Customer Data Found Against The Provided Customer ID',
+					type: 'error',
+				});
+			}
+			if (fetchDataRes?.data?.status === 'ok') {
+				addToast({
+					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
+					type: 'success',
+				});
+				redirectToProductPageInEditMode(fetchDataRes?.data);
+			}
+			// console.log({ fetchDataRes });
+		} catch (err) {
+			console.error(err.message);
+			addToast({
+				message:
+					err?.response?.data?.message ||
+					err?.response?.data?.Message ||
+					err.message ||
+					'Something went wrong. Please try again later!',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const redirectToProductPageInEditMode = loanData => {
+		if (!loanData?.data?.loan_data?.loan_ref_id) {
+			addToast({
+				message: 'Something went wrong, try after sometimes',
+				type: 'error',
+			});
+			return;
+		}
+		// sessionStorage.clear();
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
+			token: userToken,
+			edit: true,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			selectedProduct?.id
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		// console.log('redirectToProductPageInEditMode-obj-', {
+		// 	editLoanRedirectObject,
+		// 	redirectURL,
+		// 	loanData,
+		// 	product,
+		// });
+		window.open(redirectURL, '_self');
+	};
 
 	const removeCacheDocumentTemp = fieldName => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
@@ -752,6 +1013,43 @@ const BasicDetails = props => {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
+		}
+	};
+
+	const fetchDedupeCheckData = async () => {
+		try {
+			setIsDedupeCheckModalLoading(true);
+			const dedupeReqBody = {
+				isSelectedProductTypeBusiness:
+					`${selectedProduct?.loan_request_type}` === '1',
+				isSelectedProductTypeSalaried: false,
+				object: {
+					pan_no: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME] || '',
+					date_of_birth: formState?.values?.[CONST.DOB_FIELD_NAME] || '',
+					email_id: formState?.values?.[CONST.EMAIL_ID_FIELD_NAME] || '',
+					mobile_number:
+						formState?.values?.[CONST.MOBILE_NUMBER_FIELD_NAME] || '',
+				},
+				white_label_id: whiteLabelId,
+			};
+
+			const fetchDedupeRes = await axios.post(
+				`${API.API_END_POINT}/dedupe_check`,
+				dedupeReqBody
+			);
+			if (fetchDedupeRes?.data?.status === 'ok') {
+				// console.log('ok data');
+				setDedupeModalData(fetchDedupeRes?.data?.data);
+				// setDedupeModalData(prev => (prev = [{ ...fetchDedupeRes?.data }]));
+			}
+		} catch (error) {
+			console.error('Error fetching Dedupe Data', error);
+			addToast({
+				message: 'Dedupe Data Fetch Failed',
+				type: 'error',
+			});
+		} finally {
+			setIsDedupeCheckModalLoading(false);
 		}
 	};
 
@@ -785,6 +1083,11 @@ const BasicDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
+			const dedupeData =
+				!completedSections?.includes(selectedSectionId) &&
+				!!dedupePrefilledValues
+					? dedupePrefilledValues
+					: null;
 			// console.log(sectionData);
 			// console.log({
 			// 	sectionData,
@@ -795,13 +1098,22 @@ const BasicDetails = props => {
 				...passportData,
 				passport_expiry_date:
 					passportData?.valid_till || passportData?.passport_expiry_date || '',
-				title: sectionData?.business_data?.title,
+				title:
+					sectionData?.director_details?.title ||
+					sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
-				contactno: sectionData?.director_details?.dcontact,
+				customer_id:
+					sectionData?.director_details?.additional_cust_id ||
+					sectionData?.director_details?.customer_id ||
+					'',
+				contactno:
+					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
 				businesspancardnumber:
-					sectionData?.business_data?.businesspancardnumber,
+					sectionData?.business_data?.businesspancardnumber ||
+					sectionData?.business_details?.businesspancardnumber ||
+					dedupeData?.pan_number,
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
@@ -809,10 +1121,25 @@ const BasicDetails = props => {
 				residence_status: isNullFunction(
 					sectionData?.director_details?.residence_status
 				),
+				// businesstype:
+				// 	sectionData?.director_details?.income_type === 0
+				// 		? '0'
+				// 		: `${sectionData?.director_details?.income_type || ''}` ||
+				// 		  dedupeData?.businesstype === 0
+				// 		? '0'
+				// 		: `${dedupeApiData?.businesstype}`, //to be removed if madhuri changes in the configuration
 				businesstype:
 					sectionData?.director_details?.income_type === 0
 						? '0'
-						: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
+						: sectionData?.director_details?.income_type
+						? `${sectionData?.director_details?.income_type}`
+						: dedupeData?.businesstype === 0
+						? '0'
+						: dedupeData?.businesstype
+						? `${dedupeData?.businesstype}`
+						: '',
+
+				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
 
 			// TEST MODE
@@ -1256,8 +1583,9 @@ const BasicDetails = props => {
 							loanDoc?.doctype
 				)?.[0]?.id;
 
-				fetchedProfilePicData.doc_id =
-					fetchedProfilePicData?.doc_id || profileId;
+				if (fetchedProfilePicData)
+					fetchedProfilePicData.doc_id =
+						fetchedProfilePicData?.doc_id || profileId;
 
 				if (
 					fetchedProfilePicData &&
@@ -1585,7 +1913,7 @@ const BasicDetails = props => {
 		/>
 	);
 
-	console.log(formState.values, 'form state');
+	// console.log(formState.values, 'form state');
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
@@ -1604,6 +1932,36 @@ const BasicDetails = props => {
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
 					/>
+					<Modal
+						show={isDedupeCheckModalOpen}
+						onClose={() => {
+							setIsDedupeCheckModalOpen(false);
+						}}
+						customStyle={{
+							width: '85%',
+							minWidth: '65%',
+							minHeight: 'auto',
+						}}
+					>
+						<section>
+							<UI.ImgClose
+								onClick={() => {
+									setIsDedupeCheckModalOpen(false);
+								}}
+								src={imgClose}
+								alt='close'
+							/>
+							{isDedupeCheckModalLoading ? (
+								<Loading />
+							) : (
+								<DedupeAccordian
+									dedupedata={dedupeModalData}
+									data={response}
+									fetchDedupeCheckData={fetchDedupeCheckData}
+								/>
+							)}
+						</section>
+					</Modal>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -1620,7 +1978,8 @@ const BasicDetails = props => {
 									/>
 								) : null}
 								<UI_SECTIONS.FormWrapGrid>
-									{sub_section?.fields?.map((field, fieldIndex) => {
+									{sub_section?.fields?.map((eachField, fieldIndex) => {
+										const field = _.cloneDeep(eachField);
 										if (
 											!isFieldValid({
 												field,
@@ -1766,6 +2125,8 @@ const BasicDetails = props => {
 										}
 
 										const customFieldProps = {};
+										const customFieldPropsSubfields = {};
+
 										// customFieldProps.onClick = basicDetailsFunc;
 										if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
 											customFieldProps.rules = {
@@ -1778,24 +2139,78 @@ const BasicDetails = props => {
 											isPanUploadMandatory &&
 											!isPanNumberExist &&
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
-										)
+										) {
 											customFieldProps.disabled = true;
+										}
 										if (
 											isPanUploadMandatory &&
 											isPanNumberExist &&
 											field.name === CONST.PAN_NUMBER_FIELD_NAME
-										)
+										) {
 											customFieldProps.disabled = true;
+										}
 										if (
 											selectedDirector?.directorId &&
 											selectedDirector?.sections?.includes(
 												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
 											) &&
 											field.name === CONST.INCOME_TYPE_FIELD_NAME
-										)
+										) {
 											customFieldProps.disabled = true;
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
+										}
+
+										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
+											customFieldPropsSubfields.loading = loading;
+											customFieldProps.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubfields.onClick = event => {
+												onPanEnter(formState.values?.['pan_number']);
+											};
+											customFieldPropsSubfields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+										}
+
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubfields.loading = loading;
+											customFieldPropsSubfields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldProps.disabled = !!completedSections?.includes(
+												selectedSectionId
+											);
+										}
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											field.type = 'input_field_with_info';
+											customFieldProps.infoIcon = true;
+											customFieldProps.infoMessage =
+												'Select the income type to fetch the data from Customer ID.';
+										}
+										if (field?.name === CONST.DOB_FIELD_NAME) {
+											customFieldPropsSubfields.value =
+												getTotalYearsCompleted(
+													moment(
+														formState?.values?.[CONST.DOB_FIELD_NAME]
+													).format('YYYY-MM-DD')
+												) || '';
+										}
+
+										// console.log({
+										// 	formState,
+										// 	selectedProduct,
+										// 	selectedDedupeData,
+										// });
+										// To be verified once the config changes are done
+										if (`${formState?.values?.['income_type']}`?.length === 0) {
+											if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+												field.disabled = true;
+											}
 										}
 										return (
 											<UI_SECTIONS.FieldWrapGrid
@@ -1814,7 +2229,8 @@ const BasicDetails = props => {
 															...field.sub_fields[0],
 															value: newValueSelectField,
 															visibility: 'visible',
-															...customFieldProps,
+															// ...customFieldProps,
+															...customFieldPropsSubfields,
 														})}
 													<div
 														style={{
@@ -1834,7 +2250,8 @@ const BasicDetails = props => {
 															...field.sub_fields[0],
 															value: newValueSelectField,
 															visibility: 'visible',
-															...customFieldProps,
+															// ...customFieldProps,
+															...customFieldPropsSubfields,
 														})}
 												</div>
 												{(formState?.submit?.isSubmited ||
@@ -1930,7 +2347,10 @@ const BasicDetails = props => {
 									// so avoid opening income type popup at below condition
 									if (isEditOrViewLoan || !!selectedDirector?.directorId) {
 										// if in edit loan, adding a coapplicant since the selected director will be empty, this popup will trigger
-										if (!selectedDirector?.directorId) {
+										if (
+											!selectedDirector?.directorId ||
+											!selectedDirector?.sections?.includes(selectedSectionId)
+										) {
 											setIsIncomeTypeConfirmModalOpen(true);
 											return;
 										}
@@ -1940,6 +2360,18 @@ const BasicDetails = props => {
 									setIsIncomeTypeConfirmModalOpen(true);
 								})}
 							/>
+						)}
+						{selectedSection?.show_dedupe_button && (
+							<>
+								<Button
+									name='Open Dedupe'
+									onClick={() => {
+										setIsDedupeCheckModalOpen(true);
+										fetchDedupeCheckData();
+									}}
+									fill
+								/>
+							</>
 						)}
 						<NavigateCTA previous={false} directorSelected={selectedDirector} />
 						{displayAddCoApplicantCTA && (

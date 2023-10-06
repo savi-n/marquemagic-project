@@ -28,3 +28,10 @@ export const initialFormState = {
 	nature_of_ownership: 'Inherited',
 	property_occupant: 'Mortgagor',
 };
+
+export const SELECT_COLLATERAL_FIELD_NAME = 'select_collateral';
+
+// 71, 75 and 76 - Used for the prepopulation of data from asset details in collateral section
+export const LOAN_ASSET_TYPE_ID_LAND_AND_BUILDINGS = '71';
+export const LOAN_ASSET_TYPE_ID_PERFORMA_CV = '75';
+export const LOAN_ASSET_TYPE_ID_PERFORMA_CEQ = '76';

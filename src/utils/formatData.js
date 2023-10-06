@@ -225,8 +225,8 @@ export const formatCompanyRocData = (data, panNum) => {
 			[`ddin_no${i}`]: dir['din/pan'],
 		};
 		directorsForShow.push({
-			Name: dir.assosiate_company_details?.director_data.name,
-			Din: dir.assosiate_company_details?.director_data.din,
+			Name: dir.assosiate_company_details?.director_data.name || dir?.name,
+			Din: dir.assosiate_company_details?.director_data.din || dir?.['din/pan'],
 		});
 	}
 
@@ -243,12 +243,8 @@ export const formatCompanyRocData = (data, panNum) => {
 		}
 	}
 
-	const [
-		date,
-		month,
-		year,
-	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
-
+	const doiData = data.company_master_data.date_of_incorporation;
+	const [date, month, year] = doiData?.split(/\/|-/);
 	return {
 		BusinessName: data.company_master_data.company_name,
 		BusinessType: businesType,
@@ -263,6 +259,7 @@ export const formatCompanyRocData = (data, panNum) => {
 		DirectorDetails: directors,
 		directorsForShow,
 		unformatedData: data,
+		DateOfIncorporation: data?.company_master_data?.DateOfIncorporation,
 	};
 };
 
@@ -712,7 +709,7 @@ export const getEditLoanDocuments = data => {
 
 export const parseJSON = data => {
 	try {
-		return JSON.parse(data);
+		return data && JSON.parse(data);
 	} catch (error) {
 		console.error('error-parseJSON-', { error, data });
 		return {};
@@ -939,6 +936,38 @@ export const validateEmploymentDetails = data => {
 		};
 	}
 };
+
+// Special validation for UCIC Co-Applicant Fetch
+export const validateAllTheDirectors = data => {
+	const { directors } = data;
+	const incompleteDirectors = [];
+	Object.values(directors)?.map(dir => {
+		// console.log({ sections: dir?.sections });
+		if (!dir?.sections || dir?.sections?.length < 3) {
+			incompleteDirectors.push(dir);
+		}
+		return null;
+	});
+
+	if (incompleteDirectors?.length > 0) {
+		// console.log('if-condition');
+		return {
+			allowProceed: false,
+			directorName:
+				incompleteDirectors?.length > 0
+					? `${incompleteDirectors?.[0]?.type_name} ${
+							incompleteDirectors?.[0]?.fullName
+					  }`
+					: null,
+		};
+	} else {
+		// console.log('else-condition');
+		return {
+			allowProceed: true,
+		};
+	}
+};
+
 // Special case for SME Flow. Used only when clicked on any of the sections in the side nav.
 export const validateDirectorForSme = directors => {
 	if (

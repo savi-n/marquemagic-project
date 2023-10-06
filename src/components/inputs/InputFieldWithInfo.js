@@ -1,0 +1,154 @@
+/* Input field for Input type */
+
+import styled from 'styled-components';
+import HoverPopover from '../Popover/HoverPopover';
+
+const Input = styled.input`
+	height: 50px;
+	padding: 10px;
+	width: 100%;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+	${({ disabled }) => disabled && `cursor: not-allowed;`}
+	/* Chrome, Safari, Edge, Opera */
+	::-webkit-outer-spin-button,
+	::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		-moz-appearance: textfield;
+		margin: 0;
+	}
+	@media (max-width: 700px) {
+		:focus {
+			::placeholder {
+				color: white;
+			}
+		}
+	}
+`;
+
+const Div = styled.div`
+	position: relative;
+	width: 100%;
+`;
+
+const Label = styled.label`
+	position: absolute;
+	/* display: none; */
+	z-index: 9;
+	display: flex;
+	align-items: center;
+	background: white;
+	overflow: hidden;
+	transition: 0.2s;
+	/* @media (max-width: 700px) {
+		${({ isLargeTextLable }) =>
+			isLargeTextLable &&
+			`
+    width:150%;
+  `}
+	} */
+	${Input}:focus ~ & {
+		top: -15%;
+		left: 2%;
+		font-size: 10px;
+		color: black;
+		height: 20px;
+		padding: 0 5px;
+		line-height: 1;
+		width: fit-content;
+		/* border: 1px solid red; */
+	}
+	${({ value }) =>
+		value
+			? `
+      top: -15%;
+      left: 2%;
+      font-size: 10px;
+      color: black;
+      height: 20px;
+      padding: 0 5px;
+			line-height: 1;
+			width: fit-content;
+  `
+			: `
+      top: 4%;
+      left: 1%;
+      height: 45px;
+      width: 98%;
+      color: lightgray;
+      padding: 0 10px;
+  `}
+
+	${({ disabled }) =>
+		disabled &&
+		`
+    background: #fafafa;
+		cursor: not-allowed;
+  `}
+`;
+
+const Asteris = styled.span`
+  margin-top: 50%;
+	color: red;
+`;
+
+const IconWrapper = styled.div`
+	margin-top: 30%;
+	&:hover {
+		cursor: pointer;
+	}
+`;
+
+const Span = styled.span`
+	max-width: 100%;
+	max-height: 100%;
+`;
+
+const FieldPostfixIcon = styled.span`
+	position: absolute;
+	right: 0;
+	top: 0;
+	font-size: 12px;
+	color: grey;
+	line-height: 50px;
+	margin-right: 3%;
+	z-index: 10;
+`;
+
+export default function InputFieldWithInfo(props) {
+	const {infoMessage } = props;
+	const isLargeTextLable = props?.name?.length > 15;
+	// console.log(props.onblur)
+	return (
+		<Div>
+			<Input
+				id={props?.name}
+				type={props?.type}
+				{...props}
+				onWheel={() => document.activeElement.blur()}
+				onBlur={e => (props.onblur ? props.onblur(e) : null)}
+				disabled={props?.disabled}
+			/>
+			<Label
+				isLargeTextLable={isLargeTextLable}
+				value={props?.value}
+				htmlFor={props?.name}
+				disabled={props?.disabled}
+			>
+				<Span>
+					{props.placeholder}{' '}
+					{props?.rules?.minValue && `(min : ${props?.rules?.minValue})`}
+					{props?.rules?.minValue && props?.rules?.maxValue ? ' - ' : ' '}
+					{props?.rules?.maxValue && `(max : ${props?.rules?.maxValue})`}
+					{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
+				</Span>
+			</Label>
+			<FieldPostfixIcon>
+				<IconWrapper>
+					<HoverPopover message={infoMessage} />
+				</IconWrapper>
+			</FieldPostfixIcon>
+			{props.inrupees && <FieldPostfixIcon>(In ₹)</FieldPostfixIcon>}
+		</Div>
+	);
+}

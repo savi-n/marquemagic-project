@@ -135,7 +135,6 @@ export default function InputField(props) {
 					{props?.rules?.maxValue && `(max : ${props?.rules?.maxValue})`}
 					{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
 				</Span>
-				{/* {props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>} */}
 			</Label>
 			{props.inrupees && <FieldPostfixIcon>(In ₹)</FieldPostfixIcon>}
 		</Div>

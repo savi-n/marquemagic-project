@@ -34,7 +34,8 @@ const Header = props => {
 	const [backToDashboard, setBackToDashboard] = useState(false);
 	const [loanRefId, setLoanRefId] = useState('');
 	const dispatch = useDispatch();
-	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
+
+	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 
 	useEffect(() => {
 		const params = queryString.parse(window.location.search);

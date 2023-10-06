@@ -188,6 +188,7 @@ const ProfileUpload = props => {
 		},
 		onDrop: async acceptedFiles => {
 			let coordinates = {};
+			setLoading(true);
 			if (isGeoTaggingEnabled) {
 				try {
 					coordinates = await getGeoLocation();
@@ -230,7 +231,7 @@ const ProfileUpload = props => {
 				}
 
 				const formData = new FormData();
-				setLoading(true);
+
 				// const newFile = {};
 
 				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper

@@ -170,7 +170,7 @@ const EMIDetails = props => {
 	const createForm = subSection => {
 		let sections = [];
 		const filledCount =
-			Object.keys(sectionData)?.length > count
+			!!sectionData && Object.keys(sectionData)?.length > count
 				? Object.keys(sectionData)?.length
 				: count;
 		// old starts

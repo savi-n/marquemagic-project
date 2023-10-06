@@ -121,7 +121,7 @@ const AddressDetails = props => {
 	const [
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
-	] = useState(false);
+	] = useState(null);
 	const [
 		setIsPermanentAddressIsPresentAddress,
 		setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress,
@@ -608,7 +608,7 @@ const AddressDetails = props => {
 	const prefilledValues = field => {
 		try {
 			// custom prefill only for this section
-			if (isSameAsAboveAddressChecked) {
+			if (!!isSameAsAboveAddressChecked) {
 				return formState?.values?.[
 					field?.name?.replace(CONST.PREFIX_PRESENT, CONST.PREFIX_PERMANENT)
 				];
@@ -815,6 +815,17 @@ const AddressDetails = props => {
 	};
 	// fetch section data ends
 
+	const clearPresentAddressState = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+			if (!!isSameAsAboveAddressChecked) return null;
+			onChangeFormStateField({
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
+				value: '',
+			});
+			return null;
+		});
+	};
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		if (
@@ -827,8 +838,14 @@ const AddressDetails = props => {
 	}, []);
 
 	useEffect(() => {
-		if (isSameAsAboveAddressChecked && presentCacheDocumentsTemp?.length > 0) {
+		if (
+			!!isSameAsAboveAddressChecked &&
+			presentCacheDocumentsTemp?.length > 0
+		) {
 			setPresentCacheDocumentsTemp([]);
+		}
+		if (!isSameAsAboveAddressChecked && isSameAsAboveAddressChecked === false) {
+			clearPresentAddressState();
 		}
 		// eslint-disable-next-line
 	}, [isSameAsAboveAddressChecked]);
@@ -1054,7 +1071,7 @@ const AddressDetails = props => {
 
 											if (
 												sub_section.aid === CONST.AID_PRESENT &&
-												isSameAsAboveAddressChecked
+												!!isSameAsAboveAddressChecked
 											) {
 												if (
 													CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name)
@@ -1196,7 +1213,7 @@ const AddressDetails = props => {
 											}
 
 											if (
-												isSameAsAboveAddressChecked &&
+												!!isSameAsAboveAddressChecked &&
 												field.name.includes(CONST.PREFIX_PRESENT)
 											) {
 												customFieldProps.disabled = true;
@@ -1229,7 +1246,8 @@ const AddressDetails = props => {
 
 											// in all the scenario this fields will be always disabled
 											if (
-												field.name.includes('city') ||
+												(field.name.includes('city') &&
+													!field.name.includes('current_city')) ||
 												field.name.includes('state')
 											) {
 												customFieldProps.disabled = true;

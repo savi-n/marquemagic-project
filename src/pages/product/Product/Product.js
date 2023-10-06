@@ -37,10 +37,13 @@ import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 import ConsentDetails from 'components/Sections/ConsentDetails';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
+// import AddressDetailsEDI from 'components/Sections/BusinessAddressDetailsEEDI';
+
 import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
-
+import BusinessAddressDetailsEdi from 'components/Sections/BusinessAddressDetailsEDI';
+import PrioritySectorDetails from 'components/Sections/PrioritySector';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
@@ -58,8 +61,12 @@ const Product = props => {
 		isEditOrViewLoan,
 	} = app;
 	const { response } = useFetch({
-		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
+		url: `${PRODUCT_DETAILS_URL({
+			whiteLabelId,
+			productId: atob(product),
+		})}`,
 		options: { method: 'GET' },
+		headers: { Authorization: `Bearer ${userToken}` },
 	});
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
@@ -68,6 +75,8 @@ const Product = props => {
 		//TODO Bikash & Akshat - change to the respective components
 		business_details: BusinessDetails, // change to the respective components
 		business_address_details: BusinessAddressDetails, // change to the respective components
+		business_address_details_edi: BusinessAddressDetailsEdi,
+		priority_sector_details: PrioritySectorDetails,
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,

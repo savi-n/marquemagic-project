@@ -28,8 +28,14 @@ import {
 	validateDirectorForSme,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
-import { API_END_POINT } from '_config/app.config';
+import {
+	API_END_POINT,
+	INDUSTRY_LIST_FETCH,
+	// SUB_INDUSTRY_FETCH,
+} from '_config/app.config';
 import Loading from 'components/Loading';
+
+import { fetchOptions, clearDependentFields } from 'utils/helperFunctions';
 
 const EmploymentDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -52,9 +58,19 @@ const EmploymentDetails = () => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
-	const { handleSubmit, register, formState } = useForm();
+	const {
+		handleSubmit,
+		register,
+		formState,
+		onChangeFormStateField,
+	} = useForm();
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
+	const [mainComponentOptions, setMainComponentOptions] = useState([]);
+	const [subComponentOptions, setSubComponentOptions] = useState([]);
+	const [allIndustriesOption, setAllIndustriesOption] = useState([]);
+	const [isSubIndustryMandatory, setIsSubIndustryMandatory] = useState(true);
+
 	const editSectionId = sectionData?.income_data?.employment_id || '';
 	// const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
 	// 	? checkInitialDirectorsUpdated(directors)
@@ -97,10 +113,111 @@ const EmploymentDetails = () => {
 		return true;
 	};
 
+	useEffect(() => {
+		const fetchMainCompOptions = async () => {
+			try {
+				const allIndustriesOption = await fetchOptions({
+					fetchOptionsURL: INDUSTRY_LIST_FETCH,
+					sectionId: selectedSectionId,
+					setOriginalOptions: setAllIndustriesOption,
+				});
+
+				const sortedOptions =
+					(allIndustriesOption &&
+						allIndustriesOption.length > 0 &&
+						allIndustriesOption.sort((a, b) => {
+							return a.name.localeCompare(b.name);
+						})) ||
+					[];
+
+				setMainComponentOptions(sortedOptions);
+			} catch (err) {
+				console.error(err, 'Industry-Fetch-Error');
+			}
+		};
+		fetchMainCompOptions();
+	}, [selectedSectionId]);
+	// console.log(mainComponentOptions, 'main component options');
+
+	const extractAndFormatSubOption = () => {
+		const extractedSubOptn = allIndustriesOption?.filter(industry => {
+			return (
+				`${industry.id}` ===
+				`${formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]}`
+			);
+		})?.[0]?.subindustry;
+
+		let newOptionsList = [];
+		extractedSubOptn?.length === 0
+			? (newOptionsList = [{ value: '', name: '' }])
+			: extractedSubOptn?.map(item => {
+					newOptionsList.push({
+						value: `${item.id}`,
+						name: `${item.subindustry}`,
+					});
+					return null;
+			  });
+		const sortedOptions =
+			(newOptionsList &&
+				newOptionsList.length > 0 &&
+				newOptionsList.sort((a, b) => {
+					return a.name.localeCompare(b.name);
+				})) ||
+			[];
+		return sortedOptions;
+	};
+
+	const selectedIndustryFromGetResp = () => {
+		const industryName =
+			sectionData?.employment_details?.industry_typeid?.IndustryName;
+		// console.log(allIndustriesOption);
+		return allIndustriesOption.filter(
+			item => item?.IndustryName === industryName
+		)?.[0]?.id;
+	};
+
+	useEffect(() => {
+		const res = extractAndFormatSubOption();
+		setSubComponentOptions(res);
+		if ((res?.length === 1 && res?.[0]?.value === '') || res.length === 0) {
+			setIsSubIndustryMandatory(false);
+		} else {
+			setIsSubIndustryMandatory(true);
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]]);
+
+	useEffect(
+		() => {
+			// console.log(subComponentOptions);
+			clearDependentFields({
+				formState,
+				field_name: CONST.SUB_INDUSTRY_TYPE_FIELD_NAME,
+				subComponentOptions,
+				onChangeFormStateField,
+			});
+		},
+		//eslint-disable-next-line
+		[JSON.stringify(subComponentOptions)]
+	);
+
 	const submitEmploymentDetails = async () => {
 		try {
 			setLoading(true);
 			// console.log('submitEmploymentDetails-', { formState });
+
+			if (
+				isSubIndustryMandatory &&
+				formState.values[CONST.SUB_INDUSTRY_TYPE_FIELD_NAME] === ''
+			) {
+				addToast({
+					message: 'Please Select Any Sub Industry Option And Proceed',
+					type: 'error',
+				});
+				return;
+			}
+
 			const employmentDetailsReqBody = formatSectionReqBody({
 				app,
 				selectedDirector,
@@ -108,6 +225,9 @@ const EmploymentDetails = () => {
 				values: formState.values,
 			});
 
+			employmentDetailsReqBody.data.employment_details.industry_typeid =
+				formState.values[CONST.SUB_INDUSTRY_TYPE_FIELD_NAME] ||
+				formState.values[CONST.INDUSTRY_TYPE_FIELD_NAME];
 			if (editSectionId) {
 				employmentDetailsReqBody.employment_id = editSectionId;
 			}
@@ -311,6 +431,9 @@ const EmploymentDetails = () => {
 			const preData = {
 				...sectionData?.employment_details,
 				...sectionData?.income_data,
+				sub_industry_type:
+					sectionData?.employment_details?.industry_typeid?.id || '',
+				industry_type: selectedIndustryFromGetResp() || '',
 			};
 			return preData?.[field?.db_key];
 		} catch (err) {
@@ -357,6 +480,7 @@ const EmploymentDetails = () => {
 
 	let displayProceedCTA = true;
 	let displayAddCoApplicantCTA = true;
+	let displayAddGuarantorCTA = true;
 	if (selectedProduct?.product_details?.is_coapplicant_mandatory) {
 		const coApplicants = Object.values(directors)?.filter(dir => {
 			return dir?.type_name === CONST_SECTIONS.CO_APPLICANT_TYPE_NAME;
@@ -367,15 +491,35 @@ const EmploymentDetails = () => {
 		}
 	}
 
+	if (selectedProduct?.product_details?.is_guarantor_mandatory) {
+		const guarantors = Object.values(directors)?.filter(dir => {
+			return dir?.type_name === CONST_SECTIONS.CO_APPLICANT_TYPE_NAME;
+		});
+
+		if (isViewLoan || guarantors?.length <= 0) {
+			displayProceedCTA = false;
+		}
+	}
+
 	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
 		displayAddCoApplicantCTA = false;
 	}
 
+	if (selectedSection?.add_guarantor_visibility === false || isViewLoan) {
+		displayAddGuarantorCTA = false;
+	}
 	// TODO: update draft validation logic
 	// if (isDraftLoan && !isLastApplicantIsSelected) {
 	// 	displayAddCoApplicantCTA = false;
 	// }
-
+	// console.log({
+	// 	allIndustriesOption,
+	// 	mainComponentOptions,
+	// 	subComponentOptions,
+	// 	formValues: formState.values,
+	// 	isSubIndustryMandatory,
+	// 	random: selectedIndustryFromGetResp(),
+	// });
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData ? (
@@ -436,6 +580,24 @@ const EmploymentDetails = () => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
+
+										/* Starts : Here we will pass all the required props for the main and the sub-components */
+										if (field?.name === CONST.INDUSTRY_TYPE_FIELD_NAME) {
+											// customFieldProps.apiURL = SUB_INDUSTRY_FETCH;
+											customFieldProps.mainComponentOptions = mainComponentOptions;
+											// customFieldProps.setSubComponentOptions = setSubComponentOptions;
+											customFieldProps.sectionId = selectedSectionId;
+											customFieldProps.errMessage =
+												'No Industry Name Matches Your Search.';
+										}
+
+										if (field?.name === CONST.SUB_INDUSTRY_TYPE_FIELD_NAME) {
+											customFieldProps.type = 'subIndustryType';
+											customFieldProps.subComponentOptions = subComponentOptions;
+											customFieldProps.errMessage =
+												'No Sub-industry Name Matches Your Search';
+										}
+
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
@@ -498,6 +660,19 @@ const EmploymentDetails = () => {
 									})}
 								/>
 							)}
+						{/* displayAddGuarantorCTA */}
+						{displayAddGuarantorCTA && (
+							<Button
+								fill
+								name='Add Guarantor'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									// dispatch(setAddNewDirectorKey('Co-applicant'));
+									onAddDirector('Guarantor');
+								})}
+							/>
+						)}
 						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
 							<Button
 								fill

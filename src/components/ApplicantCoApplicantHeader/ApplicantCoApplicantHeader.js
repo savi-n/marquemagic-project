@@ -20,6 +20,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
+import * as CONST from './const';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, application } = useSelector(state => state);
@@ -84,77 +85,47 @@ const ApplicantCoApplicantHeader = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('ApplicantCoApplicantHeader-allstates-', {
-	// 	props,
-	// 	refListWrapper,
-	// });
-
 	const onClickDirectorAvatar = id => {
-		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
-		// 	return setIsDeleteDirectorModalOpen(id);
-		// }
-
-		// if (selectedDirectorId === `${id}`) {
-		// 	return;
-		// }
-		// if (directors[selectedDirectorId]['sections'].length > 2) {
-		// 	return;
-		// }
-
-		// TODO: varun validation for navigation in draft mode
-		// if (isDraftLoan) {
-		// 	const {
-		// 		nextApplicantDirectorId,
-		// 		isEmploymentDetailsSubmited,
-		// 		lastIncompleteDirectorId,
-		// 		lastIncompleteDirectorIndex,
-		// 	} = getApplicantNavigationDetails({
-		// 		applicant: selectedDirector,
-		// 		coApplicants: directors,
-		// 		selectedApplicant: selectedDirector,
-		// 	});
-
-		// 	if (
-		// 		isEmploymentDetailsSubmited &&
-		// 		`${nextApplicantDirectorId}` === `${id}`
-		// 	) {
-		// 		// allowed to move
-		// 	} else {
-		// 		const tempSelectedApplicant =
-		// 			id === CONST_SECTIONS.APPLICANT ? applicant : coApplicants[id];
-		// 		if (
-		// 			!(
-		// 				Object.keys(
-		// 					tempSelectedApplicant?.[
-		// 						CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID
-		// 					] || {}
-		// 				)?.length > 0
-		// 			)
-		// 		) {
-		// 			// if last director is applicant
-		// 			dispatch(setSelectedSectionId(firstSectionId));
-		// 			if (`${lastIncompleteDirectorId}` === `${applicant?.directorId}`) {
-		// 				dispatch(setSelectedDirector(applicant?.directorId));
-		// 			} else {
-		// 				dispatch(setSelectedDirector(lastIncompleteDirectorId));
-		// 			}
-		// 		}
-		// 	}
-		// 	return addToast({
-		// 		message: `Please fill all the details of ${
-		// 			lastIncompleteDirectorIndex === 0
-		// 				? 'applicant'
-		// 				: `co-applicant ${lastIncompleteDirectorIndex}`
-		// 		}`,
-		// 		type: 'error',
-		// 	});
-		// }
-
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
 		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
+	};
+
+	const isEntityMandatoryUploaded = () => {
+		let isEntityMandatoryDocsSubmitted = true;
+		if (isDocumentUploadMandatory) {
+			const entityMandatoryDocIds = [];
+			allDocumentTypes?.map(
+				docType =>
+					`${docType?.directorId}` === `${CONST.ENTITY_DIRECTOR_ID}` &&
+					docType?.isMandatory &&
+					entityMandatoryDocIds.push(
+						`${CONST.ENTITY_DIRECTOR_ID}${docType?.doc_type_id}`
+					)
+			);
+			// console.log(allDocumentTypes, 'alldocument types');
+			const entityUploadedDocumentsIds = [];
+			cacheDocuments?.map(doc =>
+				entityUploadedDocumentsIds.push(
+					`${CONST.ENTITY_DIRECTOR_ID}${doc?.doc_type_id}`
+				)
+			);
+			// console.log(
+			// 	'🚀 ~ file: ApplicantCoApplicantHeader.js:107 ~ isEntityMandatoryUploaded ~ entityUploadedDocumentsIds:',
+			// 	entityUploadedDocumentsIds,
+			// 	entityMandatoryDocIds
+			// );
+
+			entityMandatoryDocIds?.map(docId => {
+				if (!entityUploadedDocumentsIds.includes(docId)) {
+					isEntityMandatoryDocsSubmitted = false;
+				}
+				return null;
+			});
+		}
+		return isEntityMandatoryDocsSubmitted;
 	};
 
 	return (
@@ -190,6 +161,9 @@ const ApplicantCoApplicantHeader = props => {
 										alt='Avatar'
 										onClick={() => onClickDirectorAvatar('')}
 									/>
+									{selectedSectionId ===
+										CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
+										!isEntityMandatoryUploaded() && <UI.BadgeInvalid />}
 									<UI.AvatarName>Entity</UI.AvatarName>
 									<UI.HoverBadge title={businessName}>
 										{businessName}
@@ -290,9 +264,7 @@ const ApplicantCoApplicantHeader = props => {
 										? CONST_SECTIONS.BUSINESS_TYPE_OPTIONS[businessType]
 										: addNewDirectorKey}
 								</UI.AvatarName> */}
-								<UI.AvatarName>
-									{addNewDirectorKey}
-								</UI.AvatarName>
+								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
 								<UI.HoverBadge>&nbsp;</UI.HoverBadge>
 							</UI.LI>
 						)}

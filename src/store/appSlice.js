@@ -226,6 +226,11 @@ export const appSlice = createSlice({
 			}
 			if (isEditLoan || isViewLoan) state.isEditOrViewLoan = true;
 		},
+		resetEditOrViewLoan: (state, action) => {
+			state.isViewLoan = false;
+			state.isEditLoan = false;
+			state.isEditOrViewLoan = false;
+		},
 	},
 });
 
@@ -259,6 +264,7 @@ export const {
 
 	setDefaultLoader,
 	setIsDraftLoan,
+	resetEditOrViewLoan,
 } = appSlice.actions;
 
 export default appSlice.reducer;

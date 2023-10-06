@@ -201,12 +201,34 @@ export const directorsSlice = createSlice({
 			// console.log('PrevState', !prevState);
 			// console.log(prevState?.selectedDirectorId, 'Prestate directorID');
 			if (prevState.selectedDirectorId) {
-				const prevDirector = newDirectors[state.selectedDirectorId];
+				// console.log('if-prev-directorid !!!!!!!!!!!!!!!!!!!!!!', {
+				// 	prevStateaddNewDirectorKey: prevState.addNewDirectorKey,
+				// 	prevState,
+				// 	currentStateaddNewDirectorKey: state.addNewDirectorKey,
+				// 	state,
+				// });
+				const prevDirector = newDirectors[prevState.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
 			} else if (prevState.addNewDirectorKey) {
+				// console.log('else-if-directorid ????????????????????????????', {
+				// 	prevStateaddNewDirectorKey: prevState.addNewDirectorKey,
+				// 	prevState,
+				// 	currentStateaddNewDirectorKey: state.addNewDirectorKey,
+				// 	state,
+				// });
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
+				// console.log(
+				// 	'else-if-directorid-!prevState.selectedDirectorId--------------------',
+				// 	{
+				// 		prevStateaddNewDirectorKey: prevState.addNewDirectorKey,
+				// 		prevState,
+				// 		currentStateaddNewDirectorKey: state.addNewDirectorKey,
+				// 		state,
+				// 	}
+				// );
+
 				state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
 				// if (
 				// 	isSelectedProductTypeBusiness &&
@@ -364,6 +386,12 @@ export const directorsSlice = createSlice({
 			}
 		},
 
+		resetDirectors: state => {
+			state.directors = {};
+			state.selectedDirectorOptions = [];
+			state.selectedDirectorId = '';
+		},
+
 		// MAINTAINS ARRAY TO STORE REDUX-KEY-NAME OF FIELDS FOR WHICH GEOLOCATION IS MANDATORY
 		setGeotaggingMandatoryFields: (state, { payload }) => {
 			if (
@@ -393,6 +421,7 @@ export const {
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
 	setGeotaggingMandatoryFields,
+	resetDirectors,
 } = directorsSlice.actions;
 
 export default directorsSlice.reducer;

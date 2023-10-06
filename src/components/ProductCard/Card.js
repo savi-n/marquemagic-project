@@ -23,12 +23,21 @@ import CustomerListModal from './CustomerListModal';
 import CustomerDetailsFormModal from './CustomerDetailsFormModal';
 import CustomerVerificationOTPModal from './CustomerVerificationOTPModal';
 import * as UI from './ui';
+import { useEffect } from 'react';
+import { resetEditOrViewLoan } from 'store/appSlice';
+import * as CONST from './const';
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { app } = useSelector(state => state);
-	const { isGeoTaggingEnabled, userToken, userDetails, permission } = app;
+	const {
+		isGeoTaggingEnabled,
+		userToken,
+		userDetails,
+		permission,
+		whiteLabelId,
+	} = app;
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 	const [
 		isCustomerDetailsFormModalOpen,
@@ -46,6 +55,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [sendingOTP, setSendingOTP] = useState(false);
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
+	const [selectedDedupeData, setSelectedDedupeData] = useState({});
+	const [subProduct, setSubProduct] = useState({});
+	const [productModalData, setProductModalData] = useState({});
 
 	// const handleClick = (e, id) => {
 	// 	e.preventDefault();
@@ -54,19 +66,32 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	// 		data: id,
 	// 	});
 	// };
-
+	// console.log(
+	// 	{ selectedDedupeData, product, customerDetailsFormData },
+	// 	'card.js'
+	// );
 	// console.log('Card-allstates-', { product });
-
-	const redirectToProductPage = () => {
+	useEffect(() => {
+		// console.log('card.js - useeffect-');
+		dispatch(resetEditOrViewLoan());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+	const redirectToProductPage = (productForModal = product) => {
+		// console.log(
+		// 	'🚀 ~ file: Card.js:79 ~ redirectToProductPage ~ productForModal:',
+		// 	productForModal
+		// );
 		// sessionStorage.clear();
 		const params = queryString.parse(window.location.search);
-		let redirectURL = `/nconboarding/applyloan/product/${btoa(product.id)}`;
+		let redirectURL = `/nconboarding/applyloan/product/${btoa(
+			productForModal.id
+		)}`;
 		if (params?.token) {
 			redirectURL += `?token=${params.token}`;
 		}
 		if (
-			!product?.sub_products ||
-			product?.sub_products?.length === 0 ||
+			!productForModal?.sub_products ||
+			productForModal?.sub_products?.length === 0 ||
 			isSubProductModalOpen
 		) {
 			window.open(redirectURL, '_self');
@@ -90,7 +115,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			edit: true,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
-			product?.id
+			productModalData?.id || product?.id
 		)}?token=${encryptReq(editLoanRedirectObject)}`;
 		// console.log('redirectToProductPageInEditMode-obj-', {
 		// 	editLoanRedirectObject,
@@ -112,22 +137,109 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			// 		)?.[0]?.customer_id || '137453244',
 			// };
 			// const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
-			const customer_id =
+
+			const customerId =
 				customerList?.filter(
 					c => c.customer_id === selectedCustomer?.customer_id
 				)?.[0]?.customer_id || ''; // '137453244';
-			setCustomerId(customer_id);
-			const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, { customer_id });
+			setCustomerId(customerId);
+			// console.log({ customerId, selectedDedupeData });
+			if (selectedDedupeData?.is_otp_required) {
+				try {
+					const sendOtpRes = await axios.post(
+						selectedDedupeData?.generate_otp,
+						{
+							customer_id: customerId,
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
 
-			setSendOtpRes(sendOtpRes?.data?.data || {});
-			// console.log('Card-sendOtpRes-', { sendOtpRes });
-			setIsCustomerListModalOpen(false);
-			setIsCustomerVerificationOTPModal(true);
-			setSelectedCustomer(null);
-			addToast({
-				message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
-				type: 'success',
-			});
+					setSendOtpRes(sendOtpRes?.data?.data || {});
+					// console.log('Card-sendOtpRes-', { sendOtpRes });
+					setIsCustomerListModalOpen(false);
+					setIsCustomerVerificationOTPModal(true);
+					setSelectedCustomer(null);
+					addToast({
+						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+						type: 'success',
+					});
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
+						type: 'error',
+					});
+				}
+			} else {
+				// fetch api call for dedupe existing user
+				try {
+					const reqBody = {
+						customer_id: customerId,
+						white_label_id: whiteLabelId,
+						businesstype: customerDetailsFormData?.businesstype || '',
+						loan_product_id:
+							productModalData?.product_id?.[
+								customerDetailsFormData?.businesstype
+							] ||
+							product?.product_id?.[customerDetailsFormData?.businesstype] ||
+							'',
+						loan_product_details_id:
+							productModalData?.id || product?.id || undefined,
+						parent_product_id: product?.parent_id || undefined,
+						isApplicant: true, //implemented based on savitha's changes - bad practice
+						type_name:
+							`${productModalData?.loan_request_type ||
+								product?.loan_request_type}` === '2'
+								? 'Applicant'
+								: CONST.TYPE_NAME_MAPPING[
+										(customerDetailsFormData?.businesstype)
+								  ] || '',
+						origin: API.ORIGIN,
+					};
+					const verifyData = await axios.post(
+						selectedDedupeData?.verify,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+					// console.log(
+					// 	'🚀 ~ file: Card.js:193 ~ onProceedSelectCustomer ~ verifyData:',
+					// 	verifyData
+					// );
+
+					// console.log({ verifyData });
+					if (verifyData?.data?.status === 'ok') {
+						redirectToProductPageInEditMode(verifyData?.data);
+					}
+					if (verifyData?.data?.status === 'nok') {
+						addToast({
+							message:
+								verifyData?.data?.message ||
+								verifyData?.data?.Message ||
+								'Something Went Wrong, Please check the selected/entered details.',
+							type: 'error',
+						});
+					}
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message:
+							err?.response?.data?.message ||
+							err?.response?.data?.Message ||
+							err.message ||
+							'Otp generation failed!',
+						type: 'error',
+					});
+				}
+				// console.log('else-part-no-otp');
+			}
 		} catch (e) {
 			console.error('error-onSelectCustomer-', e);
 		} finally {
@@ -138,10 +250,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	return (
 		<UI.Wrapper>
 			<UI.ImgDiv>
-				<UI.Img src={product.url} alt={product.name} />
+				<UI.Img src={product?.url} alt={product?.name} />
 				<UI.ImgSelectProduct src={imgSelectProduct} alt='product' />
 			</UI.ImgDiv>
-			<UI.ProductName>{product.name}</UI.ProductName>
+			<UI.ProductName>{product?.name}</UI.ProductName>
 			{/* <ButtonBox> */}
 			<UI.ButtonWrapper>
 				<Button
@@ -216,7 +328,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								setGettingGeoLocation(false);
 							}
 						}
-						// if (product.loan_request_type === 2) {
+						// if (product?.loan_request_type === 2) {
 						if (add) {
 							setAddedProduct(product);
 							setAddProduct(false);
@@ -245,7 +357,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						// clearFormData();
 						// resetUserDetails();
 						// removeAllLoanDocuments();
-						// !add ? handleClick(e, product.id) : setAddedProduct(product);
+						// !add ? handleClick(e, product?.id) : setAddedProduct(product);
 						// setAddProduct && setAddProduct(false);
 					}}
 				>
@@ -253,11 +365,15 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				</Button>
 				{/* {add ? 'Add Loan' : 'Get Loan'} */}
 				{/* </Button> */}
-				<UI.Description>{product.description}</UI.Description>
+				<UI.Description>{product?.description}</UI.Description>
 			</UI.ButtonWrapper>
 			<Modal
 				show={isSubProductModalOpen}
-				onClose={() => setSubProductModalOpen(false)}
+				onClose={() => {
+					setSubProductModalOpen(false);
+					// setCustomerDetailsFormData(null);
+					// setSelectedDedupeData({});
+				}}
 				width='90%'
 				height='70%'
 				padding='50px'
@@ -293,6 +409,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 										product={subProduct}
 										key={`product__${subProduct.id}`}
 										setAddProduct={setAddedProduct}
+										setSubProduct={setSubProduct}
+										setIsCustomerDetailsFormModalOpen={
+											setIsCustomerDetailsFormModalOpen
+										}
 									/>
 								);
 							})}
@@ -304,12 +424,19 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					show={isCustomerDetailsFormModalOpen}
 					onClose={() => {
 						setIsCustomerDetailsFormModalOpen(false);
+						// setCustomerDetailsFormData(null);
+						// setSelectedDedupeData({});
 					}}
 					redirectToProductPage={redirectToProductPage}
 					product={product}
 					setCustomerList={setCustomerList}
 					setIsCustomerListModalOpen={setIsCustomerListModalOpen}
 					setCustomerDetailsFormData={setCustomerDetailsFormData}
+					selectedDedupeData={selectedDedupeData}
+					setSelectedDedupeData={setSelectedDedupeData}
+					subProduct={subProduct}
+					setProductModalData={setProductModalData}
+					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
 				/>
 			)}
 			{isCustomerListModalOpen && (
@@ -319,6 +446,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						setIsCustomerDetailsFormModalOpen(false);
 						setIsCustomerListModalOpen(false);
 						setSelectedCustomer(null);
+						// setTempProduct({});
+						// setCustomerDetailsFormData(null);
+						// setSelectedDedupeData({});
 					}}
 					customerList={customerList}
 					selectedCustomer={selectedCustomer}
@@ -342,6 +472,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					customerDetailsFormData={customerDetailsFormData}
 					product={product}
 					sendOtpRes={sendOtpRes}
+					subProduct={subProduct}
 				/>
 			)}
 		</UI.Wrapper>

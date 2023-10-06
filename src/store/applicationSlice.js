@@ -21,6 +21,7 @@ const initialState = {
 	geoLocation: {},
 	prompted: false,
 	businessName: '',
+	dedupePrefilledValues: null,
 	// isSelfieImagePresent: false,
 };
 
@@ -156,10 +157,14 @@ export const applicationSlice = createSlice({
 		},
 
 		removeCacheDocument: (state, action) => {
-			const { doc_type_id, directorId, fileId } = action.payload;
+			const { doc_type_id, directorId, fileId, document_id } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			const newDocuments = oldDocuments.filter(doc => {
 				if (fileId && doc?.id === fileId) return false;
+				// for imd doc deletion,
+				if (document_id && document_id === doc?.document_id) {
+					return false;
+				}
 				if (
 					doc?.doc_type_id === doc_type_id &&
 					doc?.directorId === directorId
@@ -315,9 +320,12 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newFilteredCacheDocuments;
 		},
+		setDedupePrefilledValues: (state, { payload }) => {
+			// console.log(payload)
+			state.dedupePrefilledValues = payload;
+		},
 	},
 });
-
 export const {
 	reInitializeApplicationSlice,
 
@@ -348,6 +356,7 @@ export const {
 	setIsPrompted,
 	addCacheAPIReqRes,
 	setGeoLocation,
+	setDedupePrefilledValues,
 	clearCacheDraftModeSectionsData,
 	resetCacheDocuments,
 	resetOnsiteSelfiImages,

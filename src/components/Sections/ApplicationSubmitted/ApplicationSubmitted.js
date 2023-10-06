@@ -12,7 +12,7 @@ import { TO_APPLICATION_STAGE_URL } from '_config/app.config';
 import axios from 'axios';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 
-const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
+const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 const Wrapper = styled.div`
 	flex: 1;
 	padding: 50px;
@@ -91,6 +91,8 @@ const ApplicationSubmitted = props => {
 					loan_id: loanId,
 					section_id: APPLICATION_SUBMITTED_SECTION_ID,
 					doc_section_id: DOCUMENT_UPLOAD_SECTION_ID,
+					sme_final_api:
+						selectedProduct?.product_details?.sme_final_api || false,
 				};
 
 				if (isDocumentUploadMandatory) {

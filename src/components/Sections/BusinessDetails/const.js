@@ -5,14 +5,14 @@ export const initialFormState = {
 	businessname: 'const SME ONESOURCE STRATEGIES PRIVATE LIMITED',
 	businesspancardnumber: 'AASCS8195D',
 	businessstartdate: '2011-04-15',
-	businesstype: 1,
+	businesstype: 4,
 	contact: '9999999999',
 	corporateid: 'U74900KA2011PTC058169',
 	// customer_id: '2222222222',
-	existing_customer: 'No',
+	existing_customer: 'Yes',
 	pan_number: 'ABCDE2222F',
 	income_type: '2',
-	business_type: '2',
+	business_type: '4',
 	business_name: 'Tensa Zangetsu',
 	business_vintage: '1994-11-05',
 	pat: '100000',
@@ -56,3 +56,7 @@ export const MOBILE_NUMBER_FIELD_NAME = 'mobile_no';
 export const GSTIN_FIELD_NAME = 'gstin';
 export const BUSINESS_EMAIL_FIELD = 'email';
 export const CONTACT_EMAIL_FIELD = 'contact_email';
+export const CUSTOMER_ID_FIELD_NAME = 'customer_id';
+export const BUSINESS_START_DATE = 'business_vintage';
+export const SUB_INDUSTRY_TYPE_FIELD_NAME = 'sub_industry_type';
+export const INDUSTRY_TYPE_FIELD_NAME = 'industry_type';

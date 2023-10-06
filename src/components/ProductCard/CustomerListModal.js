@@ -16,7 +16,7 @@ export default function CustomerListModal(props) {
 		sendingOTP,
 	} = props;
 
-	// console.log('CustomerListModal-allstates-', { props });
+	// console.log('CustomerListModal-allstates-', { customerList });
 
 	return (
 		<Modal
@@ -43,13 +43,20 @@ export default function CustomerListModal(props) {
 						onClick={() => {
 							setSelectedCustomer(customer);
 						}}
-						isActive={!!selectedCustomer}
+						isActive={
+							customer?.customer_id === selectedCustomer?.customer_id
+								? true
+								: false
+						}
 					>
 						<UI.CustomerListCardItem>
 							Customer Name: {customer?.customer_name}
 						</UI.CustomerListCardItem>
 						<UI.CustomerListCardItem>
 							Customer ID: {customer?.customer_id}
+						</UI.CustomerListCardItem>
+						<UI.CustomerListCardItem>
+							PAN/Government Id No: {customer?.id_no || 'N/A'}
 						</UI.CustomerListCardItem>
 						<UI.CustomerListCardItem>
 							Mobile: {customer?.mobile_flag}
@@ -73,3 +80,23 @@ export default function CustomerListModal(props) {
 		</Modal>
 	);
 }
+// {
+//     "is_otp_required": false,
+//     "search_api": "http://20.204.69.253:3200/Ucic/search",
+//     "verify": "http://20.204.69.253:3200/Ucic/fetchData",
+//     "product_id": [
+//         14,
+//         47
+//     ]
+// }
+
+// {
+//     "is_otp_required": true,
+//     "search_api": "http://20.204.69.253:1338/ddupe_check",
+//     "generate_otp": "http://20.204.69.253:1338/verify_customer",
+//     "verify": "http://20.204.69.253:1338/get_customer_details",
+//     "product_id": [
+//         39,
+//         41
+//     ]
+// }

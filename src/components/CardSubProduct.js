@@ -12,12 +12,11 @@ import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { useContext } from 'react';
 // import { UserContext } from 'reducer/userReducer';
 // import { LoanFormContext } from 'reducer/loanFormDataReducer';
-import { getGeoLocation } from 'utils/helper';
+import { fetchGeoLocation } from 'utils/helper';
 import {
 	setGeoLocation,
 	reInitializeApplicationSlice,
 } from 'store/applicationSlice';
-import axios from 'axios';
 import * as API from '_config/app.config';
 // import Button from './Button';
 import { useState } from 'react';
@@ -108,6 +107,8 @@ export default function CardSubProduct({
 	add,
 	setAddedProduct,
 	setAddProduct,
+	setSubProduct,
+	setIsCustomerDetailsFormModalOpen,
 }) {
 	// const {
 	// 	state: { basePageUrl },
@@ -165,28 +166,19 @@ export default function CardSubProduct({
 					onClick={async e => {
 						dispatch(reInitializeApplicationSlice());
 						dispatch(reInitializeDirectorsSlice());
-						// setSubProduct(true)
+						setSubProduct(product);
+						if (product?.customer_details) {
+							return setIsCustomerDetailsFormModalOpen(true);
+						}
 						if (!add) {
 							try {
 								if (isGeoTaggingEnabled) {
 									setGettingGeoLocation(true);
-									const coordinates = await getGeoLocation();
-									const reqBody = {
-										lat: coordinates?.latitude,
-										long: coordinates?.longitude,
-									};
-									// console.log(userToken);
-
-									const geoLocationRes = await axios.post(
-										API.GEO_LOCATION,
-										reqBody,
-										{
-											headers: {
-												Authorization: `Bearer ${userToken}`,
-											},
-										}
-									);
-									dispatch(setGeoLocation(geoLocationRes?.data?.data));
+									const geoRes = await fetchGeoLocation({
+										geoAPI: API.GEO_LOCATION,
+										userToken,
+									});
+									dispatch(setGeoLocation(geoRes));
 								}
 							} catch (e) {
 								console.error(

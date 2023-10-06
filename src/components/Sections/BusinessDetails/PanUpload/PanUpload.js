@@ -54,12 +54,7 @@ const PanUpload = props => {
 		// setdisableUdyamNumberInput,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const {
-		selectedProduct,
-		clientToken,
-		selectedSectionId,
-		isEditOrViewLoan,
-	} = app;
+	const { selectedProduct, clientToken, selectedSectionId, isViewLoan } = app;
 	const { loanId, businessUserId } = application;
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
@@ -473,6 +468,13 @@ const PanUpload = props => {
 				name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
 				value: businessVintageValue,
 			});
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_START_DATE,
+				value:
+					moment(formattedCompanyData?.DateOfIncorporation).format(
+						'YYYY-MM-DD'
+					) || '',
+			});
 			// prepopulation ends
 		} catch (error) {
 			setLoading(false);
@@ -620,7 +622,7 @@ const PanUpload = props => {
 					<UI.Field>
 						<InputField
 							name='Udyam Number'
-							value={udyogAadhar?.toUpperCase()}
+							value={udyogAadhar?.toUpperCase().trim()}
 							onChange={e => {
 								setUdyogAadhar(e.target.value);
 							}}
@@ -793,7 +795,7 @@ const PanUpload = props => {
 									</div>
 								) : null}
 								{!uploadedFile?.document_id &&
-									!isEditOrViewLoan &&
+									!isViewLoan &&
 									!completedSections?.includes(selectedSectionId) && (
 										<UI.IconDelete
 											src={iconDelete}

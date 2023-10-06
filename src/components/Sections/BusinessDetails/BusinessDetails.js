@@ -7,12 +7,17 @@ import PanUpload from './PanUpload';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
-
+import { encryptReq } from 'utils/encrypt';
+import moment from 'moment';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
-import { API_END_POINT } from '_config/app.config';
+import {
+	API_END_POINT,
+	// IFSC_LIST_FETCH,
+	INDUSTRY_LIST_FETCH,
+} from '_config/app.config';
 import {
 	setIsDraftLoan,
 	setLoginCreateUserRes,
@@ -42,16 +47,18 @@ import {
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { scrollToTopRootElement } from 'utils/helper';
+import { scrollToTopRootElement, getTotalYearsCompleted } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import * as CONST_BUSINESS_DETAILS from './const';
+import { fetchOptions, clearDependentFields } from 'utils/helperFunctions';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 import { isInvalidPan } from 'utils/validation';
+import DedupeAccordian from './DedupeComponents/DedupeAccordian';
 
 const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -74,23 +81,98 @@ const BusinessDetails = props => {
 		// editLoanDirectors,
 		userDetails,
 		isTestMode,
+		permission,
 	} = app;
 	const {
 		borrowerUserId,
 		businessUserId,
-		// businessId,
-		// loanId,
+		businessId,
+		loanId,
 		businessType,
 		loanRefId,
+		dedupePrefilledValues,
 	} = application;
+	// console.log(
+	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
+	// 	dedupePrefilledValues
+	// );
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
+	// ------------------------------------------------sample json -----------------------------------------------------------------------------------------
+	const response = [
+		{
+			headerName: 'Identification',
+			id: 'Identification',
+			matchLevel: [
+				{
+					name: 'Application Match',
+					data: [
+						{
+							loan_ref_id: 'LKKR00019297',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'RUGA00019298',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'CPRM00019299',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'savi@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: {
+								id: 179622,
+								bank: 'Muthoot Fincorp Ltd',
+								ifsc: 'S0031-SULB',
+								branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
+							},
+							stage: 'Application',
+							match: '100%',
+						},
+						{
+							loan_ref_id: 'GUMG00019313',
+							pan_no: 'fwqy12324',
+							name: 'savisavi n',
+							date_of_birth: '12/3/1994',
+							mobile_number: '6564654665',
+							email_id: 'gjdgs@sdfsdf.com',
+							product: 'Unsecured Business/Self-Employed',
+							branch: '',
+							stage: 'Application',
+							match: '75%',
+						},
+					],
+				},
+			],
+		},
+	];
+
+	//--------------------------------------------------------------------------------------------------------------
+
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
-
 	// eslint-disable-next-line
 	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
 	// eslint-disable-next-line
@@ -111,6 +193,26 @@ const BusinessDetails = props => {
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail, setisPrefilEmail] = useState(true);
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
+	const [mainComponentOptions, setMainComponentOptions] = useState(null);
+	const [subComponentOptions, setSubComponentOptions] = useState([]);
+	const [allIndustriesOption, setAllIndustriesOption] = useState([]);
+	// const [selectedMainOptionId, setSelectedMainOptionId] = useState('');
+	const [isSubIndustryMandatory, setIsSubIndustryMandatory] = useState(true);
+	const [isDedupeCheckModalOpen, setIsDedupeCheckModalOpen] = useState(false);
+	const [isDedupeCheckModalLoading, setIsDedupeCheckModalLoading] = useState(
+		false
+	);
+	const [dedupeModalData, setDedupeModalData] = useState([]);
+
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const selectedDedupeData =
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(selectedProduct?.id);
+			  })?.[0] || {}
+			: {};
+
 	const {
 		handleSubmit,
 		register,
@@ -154,7 +256,119 @@ const BusinessDetails = props => {
 			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
 		}));
 	};
+	const onFetchFromCustomerId = async () => {
+		// console.log('on-fetch-customer-id');
+		if (formState?.values?.['business_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Business Type',
+			});
+			return;
+		}
+		try {
+			setLoading(true);
+			const reqBody = {
+				customer_id: formState?.values?.['customer_id'],
+				white_label_id: whiteLabelId,
+				businesstype: formState?.values?.['business_type'],
+				loan_product_id:
+					selectedProduct?.product_id?.[formState?.values?.['business_type']],
+				loan_product_details_id: selectedProduct?.id || undefined,
+				parent_product_id: selectedProduct?.parent_id || undefined,
+				loan_id: loanId,
+				business_id: businessId,
+				isApplicant: true, //implemented based on savitha's changes - bad practice
+				origin: API.ORIGIN,
+			};
+			const fetchDataRes = await axios.post(
+				selectedDedupeData?.verify,
+				reqBody,
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
+			);
+			if (fetchDataRes?.data?.status === 'ok') {
+				addToast({
+					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
+					type: 'success',
+				});
+				redirectToProductPageInEditMode(fetchDataRes?.data);
+			}
 
+			if (fetchDataRes?.data?.status === 'nok') {
+				addToast({
+					message:
+						fetchDataRes?.data?.message ||
+						fetchDataRes?.data?.Message ||
+						`No Customer Data Found Against The Provide ID.Please Proceed As New Customer.`,
+					type: 'error',
+				});
+			}
+
+			// console.log({ fetchDataRes });
+		} catch (err) {
+			if (`${err?.response?.status}` === `400`) {
+				addToast({
+					message:
+						err?.response?.data?.message ||
+						err?.response?.data?.Message ||
+						err?.message ||
+						'Bad Request, Request Failed With Status Code 400 ',
+					type: 'error',
+				});
+			} else if (`${err?.response?.status}` === `500`) {
+				addToast({
+					message:
+						err?.response?.data?.message ||
+						err?.response?.data?.Message ||
+						err?.message ||
+						'Gateway Timeout, Request Failed With Status Code 500 ',
+					type: 'error',
+				});
+			} else {
+				addToast({
+					message:
+						err?.response?.data?.message ||
+						err?.response?.data?.Message ||
+						err?.message ||
+						'Something went wrong. Please try again later!',
+					type: 'error',
+				});
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const redirectToProductPageInEditMode = loanData => {
+		if (!loanData?.data?.loan_data?.loan_ref_id) {
+			addToast({
+				message: 'Something went wrong, try after sometimes',
+				type: 'error',
+			});
+			return;
+		}
+		// sessionStorage.clear();
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
+			token: userToken,
+			edit: true,
+			loan_product_details_id: selectedProduct?.id,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			selectedProduct?.id
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		// console.log('redirectToProductPageInEditMode-obj-', {
+		// 	editLoanRedirectObject,
+		// 	redirectURL,
+		// 	loanData,
+		// 	product,
+		// });
+		window.open(redirectURL, '_self');
+	};
 	const onPanEnter = async pan => {
 		try {
 			const panErrorMessage = isInvalidPan(pan);
@@ -268,6 +482,23 @@ const BusinessDetails = props => {
 			setLoading(false);
 		}
 	};
+
+	// const selectedMainOptionId = allIndustriesOption?.filter(item => {
+	// 	return (
+	// 		item?.IndustryName === formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]
+	// 	);
+	// })?.[0]?.id;
+	// console.log(
+	// 	'🚀 ~ file: BusinessDetails.js:823 ~ currentId ~ currentId:',
+	// 	selectedMainOptionId
+	// );
+
+	// const performDedupeCheck = async data => {
+	// 	setIsDedupeCheckModalOpen(true);
+	// 	console.log('Hello Modal');
+	// };
+
+	// console.log({ borrowerUserId, isEditOrViewLoan });
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -275,6 +506,17 @@ const BusinessDetails = props => {
 			if (isTokenValid === false) return;
 			// call login craete user api only once while creating the loan
 			// TODO: varun do not call this api when RM is creating loan
+			if (
+				isSubIndustryMandatory &&
+				formState.values[CONST.SUB_INDUSTRY_TYPE_FIELD_NAME] === ''
+			) {
+				addToast({
+					message: 'Please Select Any Sub Industry Option And Proceed',
+					type: 'error',
+				});
+				return;
+			}
+
 			let newBorrowerUserId = '';
 			if (!isEditOrViewLoan && !borrowerUserId) {
 				const loginCreateUserReqBody = {
@@ -344,6 +586,7 @@ const BusinessDetails = props => {
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
 
+			// buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
 			const buissnessDetailsRes = await axios.post(
 				API.BUSINESS_DETIALS,
 				buissnessDetailsReqBody
@@ -501,6 +744,44 @@ const BusinessDetails = props => {
 		}
 	};
 
+	const fetchDedupeCheckData = async () => {
+		try {
+			setIsDedupeCheckModalLoading(true);
+			const dedupeReqBody = {
+				isSelectedProductTypeBusiness:
+					`${selectedProduct?.loan_request_type}` === '1',
+				isSelectedProductTypeSalaried: false,
+				object: {
+					pan_no: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME] || '',
+					date_of_birth: formState?.values?.[CONST.BUSINESS_START_DATE] || '',
+					email_id: formState?.values?.[CONST.BUSINESS_EMAIL_FIELD] || '',
+					mobile_number:
+						formState?.values?.[CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME] || '',
+				},
+				white_label_id: whiteLabelId,
+			};
+
+			const fetchDedupeRes = await axios.post(
+				`${API.API_END_POINT}/dedupe_check`,
+				dedupeReqBody
+			);
+			console.log(fetchDedupeRes, 'fetch dedupe res');
+			if (fetchDedupeRes?.data?.status === 'ok') {
+				console.log('ok data');
+				setDedupeModalData(fetchDedupeRes?.data?.data);
+			}
+		} catch (error) {
+			console.error('Error fetching Dedupe Data', error);
+			addToast({
+				message: 'Dedupe Data Fetch Failed',
+				type: 'error',
+			});
+		} finally {
+			setIsDedupeCheckModalLoading(false);
+		}
+	};
+
+	// console.log(formState.values, 'form................');
 	const prefilledValues = field => {
 		try {
 			// TEST MODE
@@ -512,7 +793,11 @@ const BusinessDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
-
+			const dedupeData =
+				!completedSections?.includes(selectedSectionId) &&
+				!!dedupePrefilledValues
+					? dedupePrefilledValues
+					: null;
 			const preData = {
 				...sectionData?.business_details,
 				...sectionData?.loan_data,
@@ -520,7 +805,43 @@ const BusinessDetails = props => {
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
+				// industry_type:
+				// sectionData?.business_details?.businessindustry?.IndustryName || '',
+				// 	sectionData?.business_details?.businessindustry || '',
+				businesspancardnumber:
+					sectionData?.business_details?.businesspancardnumber ||
+					dedupeData?.pan_number,
+
+				// userdata - (Savitha confirmed about the below prefilling data)
+				// fieldName : business mobile number - dbKey: contact  || prefillData : userData.contact
+				contact: sectionData?.user_data?.contact || dedupeData?.mobile_no,
+
+				// businessdata - (Savitha confirmed about the below prefilling data)
+				// fieldName: mobile_no - dbKey: contactno || prefillData : prefilData: businessDetails.contactno
+				contactno: sectionData?.business_details?.contactno,
+
+				// old code starts
+				// contact:
+				// 	sectionData?.business_details?.contactno || dedupeData?.mobile_no,
+				// old code ends
+
+				businesstype:
+					sectionData?.business_details?.businesstype ||
+					dedupeData?.businesstype ||
+					'',
+				sub_industry_type:
+					sectionData?.business_details?.businessindustry?.id || '',
+				industry_type: selectedIndustryFromGetResp() || '',
+				businessstartdate:
+					companyRocData?.DateOfIncorporation ||
+					sectionData?.business_details?.businessstartdate ||
+					'',
+				customer_id:
+					sectionData?.business_details?.additional_cust_id ||
+					sectionData?.business_details?.customer_id ||
+					'',
 			};
+
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
 
 			return field?.value || '';
@@ -531,6 +852,7 @@ const BusinessDetails = props => {
 			});
 		}
 	};
+
 	const validateToken = async () => {
 		try {
 			const params = queryString.parse(window.location.search);
@@ -648,10 +970,19 @@ const BusinessDetails = props => {
 					// console.log({ tempCompletedSections });
 				}
 
-				const panToGstRes = await axios.post(API.PAN_TO_GST, {
-					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
-				});
-				setGstin(panToGstRes);
+				// const panToGstRes = await axios.post(API.PAN_TO_GST, {
+				// 	pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
+				// });
+				// only call panToGst if pan is present and since pan number has a proper format and length of 10
+				if (
+					fetchRes?.data?.data?.business_details?.businesspancardnumber
+						?.length >= 10
+				) {
+					const panToGstRes = await axios.post(API.PAN_TO_GST, {
+						pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
+					});
+					setGstin(panToGstRes);
+				}
 			} else {
 				setSectionData({});
 			}
@@ -677,6 +1008,106 @@ const BusinessDetails = props => {
 		if (loanRefId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
+
+	useEffect(() => {
+		const fetchMainCompOptions = async () => {
+			try {
+				const allIndustriesOption = await fetchOptions({
+					fetchOptionsURL: INDUSTRY_LIST_FETCH,
+					sectionId: selectedSectionId,
+					setOriginalOptions: setAllIndustriesOption,
+				});
+
+				const sortedOptions =
+					(allIndustriesOption &&
+						allIndustriesOption.length > 0 &&
+						allIndustriesOption.sort((a, b) => {
+							return a.name.localeCompare(b.name);
+						})) ||
+					[];
+
+				setMainComponentOptions(sortedOptions);
+			} catch (err) {
+				console.error(err, 'Industry-Fetch-Error');
+			}
+		};
+		fetchMainCompOptions();
+	}, [selectedSectionId]);
+
+	const extractAndFormatSubOption = () => {
+		const extractedSubOptn = allIndustriesOption?.filter(industry => {
+			return (
+				`${industry.id}` ===
+				`${formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]}`
+			);
+		})?.[0]?.subindustry;
+
+		let newOptionsList = [];
+		extractedSubOptn?.length === 0
+			? (newOptionsList = [{ value: '', name: '' }])
+			: extractedSubOptn?.map(item => {
+					newOptionsList.push({
+						value: `${item.id}`,
+						name: `${item.subindustry}`,
+					});
+					return null;
+			  });
+
+		const sortedOptions =
+			(newOptionsList &&
+				newOptionsList.length > 0 &&
+				newOptionsList.sort((a, b) => {
+					return a.name.localeCompare(b.name);
+				})) ||
+			[];
+
+		return sortedOptions;
+	};
+
+	const selectedIndustryFromGetResp = () => {
+		const industryName =
+			sectionData?.business_details?.businessindustry.IndustryName;
+		// console.log(allIndustriesOption);
+		return allIndustriesOption.filter(
+			item => item?.IndustryName === industryName
+		)?.[0]?.id;
+	};
+
+	useEffect(() => {
+		const res = extractAndFormatSubOption();
+		setSubComponentOptions(res);
+		if ((res?.length === 1 && res?.[0]?.value === '') || res.length === 0) {
+			setIsSubIndustryMandatory(false);
+		} else {
+			setIsSubIndustryMandatory(true);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]]);
+
+	useEffect(
+		() => {
+			// console.log(subComponentOptions);
+			if (formState?.values[CONST.SUB_INDUSTRY_TYPE_FIELD_NAME]?.length > 0) {
+				clearDependentFields({
+					formState,
+					field_name: CONST.SUB_INDUSTRY_TYPE_FIELD_NAME,
+					subComponentOptions,
+					onChangeFormStateField,
+				});
+			}
+		},
+		//eslint-disable-next-line
+		[JSON.stringify(subComponentOptions)]
+	);
+	// console.log({
+	// 	allIndustriesOption,
+	// 	mainComponentOptions,
+	// 	subComponentOptions,
+	// 	formValues: formState.values,
+	// 	isSubIndustryMandatory,
+	// 	random: selectedIndustryFromGetResp(),
+	// });
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -747,6 +1178,38 @@ const BusinessDetails = props => {
 						</section>
 					</Modal>
 
+					<Modal
+						show={isDedupeCheckModalOpen}
+						onClose={() => {
+							setIsDedupeCheckModalOpen(false);
+						}}
+						customStyle={{
+							width: '85%',
+							minWidth: '65%',
+							minHeight: 'auto',
+						}}
+					>
+						<section>
+							<UI.ImgClose
+								onClick={() => {
+									setIsDedupeCheckModalOpen(false);
+								}}
+								src={imgClose}
+								alt='close'
+							/>
+							{isDedupeCheckModalLoading ? (
+								<Loading />
+							) : (
+								<DedupeAccordian
+									selectedProduct={selectedProduct}
+									dedupedata={dedupeModalData}
+									data={response}
+									fetchDedupeCheckData={fetchDedupeCheckData}
+								/>
+							)}
+						</section>
+					</Modal>
+
 					<ROCBusinessDetailsModal
 						show={isBusinessModalOpen}
 						onClose={() => {
@@ -775,8 +1238,8 @@ const BusinessDetails = props => {
 									/>
 								)}
 								<UI_SECTIONS.FormWrapGrid>
-									{sub_section?.fields?.map((field, fieldIndex) => {
-										// const field = _.cloneDeep(f);
+									{sub_section?.fields?.map((eachField, fieldIndex) => {
+										const field = _.cloneDeep(eachField);
 										if (
 											field.type === 'file' &&
 											field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -827,8 +1290,7 @@ const BusinessDetails = props => {
 															onChangeFormStateField={onChangeFormStateField}
 															clearErrorFormState={clearErrorFormState}
 															isDisabled={
-																isEditOrViewLoan ||
-																completedSections?.includes(selectedSectionId)
+																!!completedSections?.includes(selectedSectionId)
 															}
 															setCompanyRocData={setCompanyRocData}
 															completedSections={completedSections}
@@ -862,7 +1324,7 @@ const BusinessDetails = props => {
 											);
 										}
 										const customFieldProps = {};
-										const customFieldPropdSubFields = {};
+										const customFieldPropsSubFields = {};
 										if (
 											field?.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
@@ -870,6 +1332,23 @@ const BusinessDetails = props => {
 												...field.rules,
 												is_zero_not_allowed_for_first_digit: true,
 											};
+										}
+
+										/* Starts : Here we will pass all the required props for the main and the sub-components */
+										if (field?.name === 'industry_type') {
+											customFieldProps.type = 'industryType';
+											// customFieldProps.apiURL = SUB_INDUSTRY_FETCH;
+											customFieldProps.mainComponentOptions = mainComponentOptions;
+											// customFieldProps.setSubComponentOptions = setSubComponentOptions;
+											customFieldProps.sectionId = selectedSectionId;
+											customFieldProps.errMessage =
+												'Searched Option Not Found.';
+										}
+
+										if (field?.name === 'sub_industry_type') {
+											customFieldProps.type = 'subIndustryType';
+											customFieldProps.subComponentOptions = subComponentOptions;
+											// customFieldProps.errMessage = 'not found';
 										}
 										if (
 											(field?.name === CONST.BUSINESS_EMAIL_FIELD ||
@@ -898,6 +1377,10 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										}
 
+										if (field?.name === 'ifsc_code') {
+											customFieldProps.subComponentOptions = subComponentOptions;
+											// customFieldProps.errMessage = 'not found';
+										}
 										if (
 											isPanUploadMandatory &&
 											isPanNumberExist &&
@@ -906,8 +1389,9 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										}
 										// TODO: check for casedos
-										if (!isPanUploadMandatory)
-											customFieldProps.disabled = false;
+										// below code from vikram was breaking for all the fields.
+										// if (!isPanUploadMandatory)
+										// 	customFieldProps.disabled = false;
 										// if (field?.name === 'pan_number')
 										// 	if (field?.sub_fields?.[0]?.name === 'Fetch') {
 										// 		customFieldProps.loading = loading;
@@ -917,13 +1401,57 @@ const BusinessDetails = props => {
 										// 			onPanEnter(formState.values?.['pan_number']);
 										// 		};
 										// 	}
-										if (field?.name === 'pan_number') {
-											customFieldPropdSubFields.loading = loading;
+										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
+											customFieldPropsSubFields.loading = loading;
 											customFieldProps.disabled =
-												loading || isViewLoan || isEditLoan;
-											customFieldPropdSubFields.onClick = event => {
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+										}
+
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											customFieldPropsSubFields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubFields.loading = loading;
+											customFieldPropsSubFields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldProps.disabled = !!completedSections?.includes(
+												selectedSectionId
+											);
+										}
+
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											field.type = 'input_field_with_info';
+											customFieldProps.infoIcon = true;
+											customFieldProps.infoMessage =
+												'Select the Business Type to fetch the data from Customer ID.';
+										}
+										if (field.name === CONST.BUSINESS_START_DATE) {
+											customFieldPropsSubFields.value =
+												getTotalYearsCompleted(
+													moment(
+														formState?.values?.[CONST.BUSINESS_START_DATE]
+													).format('YYYY-MM-DD')
+												) || '';
+											customFieldPropsSubFields.disabled = true;
+										}
+										// console.log({
+										// 	formState,
+										// 	selectedProduct,
+										// 	selectedDedupeData,
+										// });
+										// To be verified once the config changes are done
+										if (
+											`${formState?.values?.['business_type']}`?.length === 0
+										) {
+											if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+												field.disabled = true;
+											}
 										}
 										// TODO: to be fix properly
 										// no use of set state inside return statement
@@ -956,13 +1484,13 @@ const BusinessDetails = props => {
 
 										if (
 											field?.name === CONST.BUSINESS_TYPE_FIELD_NAME &&
-											(isEditOrViewLoan ||
-												completedSections?.includes(selectedSectionId))
+											completedSections?.includes(selectedSectionId)
 										) {
 											customFieldProps.disabled = true;
 										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubFields.disabled = true;
 										}
 										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
 											// console.log("Contact")
@@ -1009,6 +1537,7 @@ const BusinessDetails = props => {
 										if (field?.disabled === true) {
 											customFieldProps.disabled = true;
 										}
+
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
@@ -1027,7 +1556,7 @@ const BusinessDetails = props => {
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
-															...customFieldPropdSubFields,
+															...customFieldPropsSubFields,
 														})}
 													<div
 														style={{
@@ -1048,7 +1577,7 @@ const BusinessDetails = props => {
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
-															...customFieldPropdSubFields,
+															...customFieldPropsSubFields,
 														})}
 												</div>
 												{(formState?.submit?.isSubmited ||
@@ -1115,6 +1644,18 @@ const BusinessDetails = props => {
 								<Button name='Next' onClick={naviagteToNextSection} fill />
 							</>
 						)}
+						<>
+							{selectedSection?.show_dedupe_button && (
+								<Button
+									name='Open Dedupe'
+									onClick={() => {
+										setIsDedupeCheckModalOpen(true);
+										fetchDedupeCheckData();
+									}}
+									fill
+								/>
+							)}
+						</>
 					</UI_SECTIONS.Footer>
 				</>
 			)}
