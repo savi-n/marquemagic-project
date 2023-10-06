@@ -2160,6 +2160,7 @@ const BasicDetails = props => {
 										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
 										}
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
