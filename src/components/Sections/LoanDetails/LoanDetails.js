@@ -347,6 +347,12 @@ const LoanDetails = () => {
 			if (imd_Details_doc_id) {
 				loanDetailsReqBody.data.imd_details.doc_id = imd_Details_doc_id;
 			}
+
+			const branchObj = branchOptions.filter(
+				branch => branch.value === formState?.values?.[CONST.BRANCH_FIELD_NAME]
+			);
+
+			loanDetailsReqBody.data.source_details.branch_id = branchObj?.[0] || {};
 			await axios.post(
 				`${API.API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
