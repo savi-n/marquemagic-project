@@ -568,7 +568,11 @@ const LoanDetails = () => {
 	};
 
 	useLayoutEffect(() => {
-		if (formState?.values?.[CONST.LOAN_SOURCE] === 'Branch') {
+		if (
+			CONST.LOAN_CREATE_BRANCH_FOR.includes(
+				formState?.values?.[CONST.LOAN_SOURCE]
+			)
+		) {
 			onChangeFormStateField({
 				name: CONST.BRANCH_FIELD_NAME,
 				value: loggedUserBranch || '',
