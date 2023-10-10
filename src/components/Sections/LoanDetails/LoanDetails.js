@@ -81,7 +81,9 @@ const LoanDetails = () => {
 	//const [loadingFile, setLoadingFile] = useState(false);
 
 	//default logged in user's branch id can be taken from session storage userDetails
-	const loggedUserBranch = userDetails?.branch_id;
+
+	// some permanent solution required for this, discussed with savitha, for now we will be using branch_id object that we get from GET API response
+	// const loggedUserBranch = userDetails?.branch_id;
 
 	const branchField =
 		selectedSection?.sub_sections
@@ -349,7 +351,9 @@ const LoanDetails = () => {
 			}
 
 			const branchObj = branchOptions.filter(
-				branch => branch.value === formState?.values?.[CONST.BRANCH_FIELD_NAME]
+				branch =>
+					`${branch.value}` ===
+					`${formState?.values?.[CONST.BRANCH_FIELD_NAME]}`
 			);
 
 			loanDetailsReqBody.data.source_details.branch_id = branchObj?.[0] || {};
@@ -575,7 +579,7 @@ const LoanDetails = () => {
 		) {
 			onChangeFormStateField({
 				name: CONST.BRANCH_FIELD_NAME,
-				value: loggedUserBranch || '',
+				value: sectionData?.loan_details?.branch_id?.id || '',
 			});
 		}
 		//eslint-disable-next-line
