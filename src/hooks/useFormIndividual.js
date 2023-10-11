@@ -30,6 +30,9 @@ function required(value) {
 function numberOnly(value) {
 	return !Number(value);
 }
+function startsWith(value, text) {
+	return !value.toLowerCase().startsWith(text.toLowerCase());
+}
 
 function pastDatesOnly(value) {
 	// console.log(moment().format('YYYY/MM'), '222');
@@ -112,6 +115,10 @@ const VALIDATION_RULES = {
 	max_age_limit: {
 		func: maxAgeLimit,
 		message: 'The applicant should be below the age limit',
+	},
+	startWith: {
+		func: startsWith,
+		message: 'Must start with Letter F',
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
