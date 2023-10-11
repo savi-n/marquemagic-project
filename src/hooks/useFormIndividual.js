@@ -52,8 +52,14 @@ function maxAgeLimit(value, maxAgeLimit) {
 function validatePattern(pattern) {
 	return function(value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
-		return !new RegExp(pat).test(value);
+		const resp = !new RegExp(pat).test(value);
+		return resp;
 	};
+}
+
+function validatePatternNew(inputString, str) {
+	const pattern = /^[Ff]\d{4}$/;
+	return !pattern.test(inputString);
 }
 
 function limitLength(type) {
@@ -117,8 +123,8 @@ const VALIDATION_RULES = {
 		message: 'The applicant should be below the age limit',
 	},
 	startWith: {
-		func: startsWith,
-		message: 'Must start with Letter F',
+		func: validatePatternNew,
+		message: 'Please enter in correct format',
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
