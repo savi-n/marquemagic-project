@@ -196,6 +196,7 @@ const MASKS = {
 	character_limit: (value, n) => `${value}`?.substring(0, n) || '',
 	alpha_char_only: value => `${value}`?.replace(/[^a-zA-Z .]/g, '') || '',
 	alphaNumeric_only: value => `${value}`?.replace(/[^a-zA-Z0-9]+$/i, ''),
+	pureAlphaNumeric: value => `${value}`?.replace(/[^a-zA-Z0-9]/, ''),
 	mask_values: (value, options) => {
 		// console.log('inside mask');
 		// start value
