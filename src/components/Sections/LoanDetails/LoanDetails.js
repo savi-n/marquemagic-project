@@ -537,13 +537,17 @@ const LoanDetails = () => {
 	// 	}
 	// 	// eslint-disable-next-line
 	// }, [formState.values, connectorOptions]);
-	const connectorCode = sectionData?.loan_details?.connector_user_id;
+
 	useLayoutEffect(() => {
 		getBranchOptions();
 		getConnectors();
 		fetchSectionDetails();
-		getConnectorsWithCode(connectorCode);
 		// eslint-disable-next-line
+	}, []);
+
+	const connectorCode = sectionData?.loan_details?.connector_user_id;
+	useEffect(() => {
+		getConnectorsWithCode(connectorCode);
 	}, [connectorCode]);
 
 	// console.log('loan-details-allstates-', {
