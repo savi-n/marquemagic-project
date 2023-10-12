@@ -245,6 +245,7 @@ const PrioritySectorDetails = () => {
 										// }
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
 										}
 
 										return (
