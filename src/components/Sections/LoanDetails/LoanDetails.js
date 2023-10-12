@@ -52,7 +52,7 @@ const LoanDetails = () => {
 		isEditOrViewLoan,
 		selectedProduct,
 		permission,
-		userDetails,
+		// userDetails,
 	} = app;
 	const {
 		loanId,
@@ -537,13 +537,14 @@ const LoanDetails = () => {
 	// 	}
 	// 	// eslint-disable-next-line
 	// }, [formState.values, connectorOptions]);
-
+	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useLayoutEffect(() => {
 		getBranchOptions();
 		getConnectors();
 		fetchSectionDetails();
+		getConnectorsWithCode(connectorCode);
 		// eslint-disable-next-line
-	}, []);
+	}, [connectorCode]);
 
 	// console.log('loan-details-allstates-', {
 	// 	app,
@@ -572,6 +573,33 @@ const LoanDetails = () => {
 			dispatch(removeCacheDocument(file));
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
+		}
+	};
+	// console.log(connectorOptions);
+
+	const getConnectorsWithCode = async code => {
+		if (sectionData?.loan_details?.connector_user_id) {
+			try {
+				setLoading(true);
+				const connectorRes = await axios.get(
+					`${API.API_END_POINT}/connectors?user_reference_no=${code}`
+				);
+				if (connectorOptions?.length <= 0) {
+					const newConnectorOptions = [];
+					connectorRes?.data?.data?.map(connector => {
+						newConnectorOptions.push({
+							...connector,
+							value: `${connector?.user_reference_no}`,
+						});
+						return null;
+					});
+					setConnectorOptions(newConnectorOptions);
+				}
+			} catch (error) {
+				console.error('Error', error);
+			} finally {
+				setLoading(false);
+			}
 		}
 	};
 
