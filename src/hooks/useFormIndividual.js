@@ -30,9 +30,6 @@ function required(value) {
 function numberOnly(value) {
 	return !Number(value);
 }
-function startsWith(value, text) {
-	return !value.toLowerCase().startsWith(text.toLowerCase());
-}
 
 function pastDatesOnly(value) {
 	// console.log(moment().format('YYYY/MM'), '222');
