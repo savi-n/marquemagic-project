@@ -548,6 +548,7 @@ const LoanDetails = () => {
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
 		getConnectorsWithCode(connectorCode);
+		// eslint-disable-next-line
 	}, [connectorCode]);
 
 	// console.log('loan-details-allstates-', {
@@ -588,16 +589,24 @@ const LoanDetails = () => {
 				const connectorRes = await axios.get(
 					`${API.API_END_POINT}/connectors?user_reference_no=${code}`
 				);
-				if (connectorOptions?.length <= 0) {
-					const newConnectorOptions = [];
-					connectorRes?.data?.data?.map(connector => {
-						newConnectorOptions.push({
-							...connector,
-							value: `${connector?.user_reference_no}`,
-						});
-						return null;
+
+				const newConnectorOptions = [];
+				connectorRes?.data?.data?.map(connector => {
+					newConnectorOptions.push({
+						...connector,
+						value: `${connector?.user_reference_no}`,
 					});
-					setConnectorOptions(newConnectorOptions);
+					return null;
+				});
+				const filteredConnector =
+					connectorOptions?.filter(option => {
+						return (
+							`${option?.user_reference_no}` ===
+							`${newConnectorOptions?.[0]?.user_reference_no}`
+						);
+					}) || [];
+				if (filteredConnector?.length === 0) {
+					setConnectorOptions(prev => [...prev, newConnectorOptions?.[0]]);
 				}
 			} catch (error) {
 				console.error('Error', error);
