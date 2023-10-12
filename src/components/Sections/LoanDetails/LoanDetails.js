@@ -548,6 +548,7 @@ const LoanDetails = () => {
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
 		getConnectorsWithCode(connectorCode);
+		// eslint-disable-next-line
 	}, [connectorCode]);
 
 	// console.log('loan-details-allstates-', {
