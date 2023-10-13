@@ -163,7 +163,7 @@ const CustomerDetailsFormModal = props => {
 						});
 						return;
 					}
-					redirectToProductPageInEditMode(ddupeRes?.data);
+					redirectToProductPageInEditMode(ddupeRes?.data, productForModal);
 				} else {
 					// console.log({ ddupeRes }, 'search-called ---- else part');
 					if (ddupeRes?.data.status === 'nok') {

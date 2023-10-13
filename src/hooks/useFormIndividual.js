@@ -49,8 +49,14 @@ function maxAgeLimit(value, maxAgeLimit) {
 function validatePattern(pattern) {
 	return function(value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
-		return !new RegExp(pat).test(value);
+		const resp = !new RegExp(pat).test(value);
+		return resp;
 	};
+}
+
+function validatePatternNew(inputString, str) {
+	const pattern = /^[Ff]\d{4}$/;
+	return !pattern.test(inputString);
 }
 
 function limitLength(type) {
@@ -112,6 +118,10 @@ const VALIDATION_RULES = {
 	max_age_limit: {
 		func: maxAgeLimit,
 		message: 'The applicant should be below the age limit',
+	},
+	startWith: {
+		func: validatePatternNew,
+		message: 'Please enter in correct format',
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
@@ -186,6 +196,7 @@ const MASKS = {
 	character_limit: (value, n) => `${value}`?.substring(0, n) || '',
 	alpha_char_only: value => `${value}`?.replace(/[^a-zA-Z .]/g, '') || '',
 	alphaNumeric_only: value => `${value}`?.replace(/[^a-zA-Z0-9]+$/i, ''),
+	pureAlphaNumeric: value => `${value}`?.replace(/[^a-zA-Z0-9]/, ''),
 	mask_values: (value, options) => {
 		// console.log('inside mask');
 		// start value

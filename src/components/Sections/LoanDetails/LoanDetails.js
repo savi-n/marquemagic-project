@@ -52,7 +52,7 @@ const LoanDetails = () => {
 		isEditOrViewLoan,
 		selectedProduct,
 		permission,
-		userDetails,
+		// userDetails,
 	} = app;
 	const {
 		loanId,
@@ -60,6 +60,7 @@ const LoanDetails = () => {
 		businessType,
 		businessId,
 		userId,
+		sections,
 	} = application;
 
 	const applicant =
@@ -81,7 +82,9 @@ const LoanDetails = () => {
 	//const [loadingFile, setLoadingFile] = useState(false);
 
 	//default logged in user's branch id can be taken from session storage userDetails
-	const loggedUserBranch = userDetails?.branch_id;
+
+	// some permanent solution required for this, discussed with savitha, for now we will be using branch_id object that we get from GET API response
+	// const loggedUserBranch = userDetails?.branch_id;
 
 	const branchField =
 		selectedSection?.sub_sections
@@ -347,6 +350,14 @@ const LoanDetails = () => {
 			if (imd_Details_doc_id) {
 				loanDetailsReqBody.data.imd_details.doc_id = imd_Details_doc_id;
 			}
+
+			const branchObj = branchOptions.filter(
+				branch =>
+					`${branch.value}` ===
+					`${formState?.values?.[CONST.BRANCH_FIELD_NAME]}`
+			);
+
+			loanDetailsReqBody.data.source_details.branch_id = branchObj?.[0] || {};
 			await axios.post(
 				`${API.API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
@@ -405,7 +416,10 @@ const LoanDetails = () => {
 			credit_insurance: loanDetails?.credit_linked_insurance,
 			// savitha should take accountability if the response is changed later - bad practice
 			// this code will only take the option if it is available at last
-			loan_source: loanDetails?.loan_origin?.split('_')?.slice(-1)?.[0],
+			loan_source:
+				sections && sections.length > 0 && sections.includes('loan_details')
+					? loanDetails?.loan_origin?.split('_')?.slice(-1)?.[0]
+					: '',
 			connector_name: loanDetails?.connector_user_id,
 			connector_code: loanDetails?.connector_user_id,
 			...imdDetails,
@@ -531,6 +545,12 @@ const LoanDetails = () => {
 		// eslint-disable-next-line
 	}, []);
 
+	const connectorCode = sectionData?.loan_details?.connector_user_id;
+	useEffect(() => {
+		getConnectorsWithCode(connectorCode);
+		// eslint-disable-next-line
+	}, [connectorCode]);
+
 	// console.log('loan-details-allstates-', {
 	// 	app,
 	// 	application,
@@ -560,12 +580,51 @@ const LoanDetails = () => {
 			console.error('error-deleteDocument-', error);
 		}
 	};
+	// console.log(connectorOptions);
+
+	const getConnectorsWithCode = async code => {
+		if (sectionData?.loan_details?.connector_user_id) {
+			try {
+				setLoading(true);
+				const connectorRes = await axios.get(
+					`${API.API_END_POINT}/connectors?user_reference_no=${code}`
+				);
+
+				const newConnectorOptions = [];
+				connectorRes?.data?.data?.map(connector => {
+					newConnectorOptions.push({
+						...connector,
+						value: `${connector?.user_reference_no}`,
+					});
+					return null;
+				});
+				const filteredConnector =
+					connectorOptions?.filter(option => {
+						return (
+							`${option?.user_reference_no}` ===
+							`${newConnectorOptions?.[0]?.user_reference_no}`
+						);
+					}) || [];
+				if (filteredConnector?.length === 0) {
+					setConnectorOptions(prev => [...prev, newConnectorOptions?.[0]]);
+				}
+			} catch (error) {
+				console.error('Error', error);
+			} finally {
+				setLoading(false);
+			}
+		}
+	};
 
 	useLayoutEffect(() => {
-		if (formState?.values?.[CONST.LOAN_SOURCE] === 'Branch') {
+		if (
+			CONST.LOAN_CREATE_BRANCH_FOR.includes(
+				formState?.values?.[CONST.LOAN_SOURCE]
+			)
+		) {
 			onChangeFormStateField({
 				name: CONST.BRANCH_FIELD_NAME,
-				value: loggedUserBranch || '',
+				value: sectionData?.loan_details?.branch_id?.id || '',
 			});
 		}
 		//eslint-disable-next-line

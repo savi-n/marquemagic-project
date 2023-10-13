@@ -99,7 +99,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		return;
 	};
 
-	const redirectToProductPageInEditMode = loanData => {
+	const redirectToProductPageInEditMode = (
+		loanData,
+		productForModal = product
+	) => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
 			addToast({
 				message: 'Something went wrong, try after sometimes',
@@ -115,7 +118,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			edit: true,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
-			productModalData?.id || product?.id
+			productForModal?.id || productModalData?.id || product?.id
 		)}?token=${encryptReq(editLoanRedirectObject)}`;
 		// console.log('redirectToProductPageInEditMode-obj-', {
 		// 	editLoanRedirectObject,
