@@ -55,7 +55,7 @@ function validatePattern(pattern) {
 }
 
 function validatePatternNew(inputString, str) {
-	const pattern = /^[Ff]\d{4}$/;
+	const pattern = /^[Ff]\d+$/;
 	return !pattern.test(inputString);
 }
 
