@@ -6,12 +6,23 @@ import React from 'react';
 
 const InputCheckBox = styled.input`
 	padding: 10px;
+	margin: 5px 0;
 	${({ disabled }) => disabled && `cursor: not-allowed;`}
+	min-width: 16px;
+	min-height: 16px;
 `;
 const Div = styled.div`
 	display: flex;
+	align-items: flex-start;
 	gap: 10px;
 `;
+
+const Asteris = styled.span`
+	color: red;
+`;
+
+const Label = styled.label``;
+
 export default function CheckBox(props) {
 	const { onChange, round, disabled, bg, fg, placeholder, name } = props;
 	const id = uuidv4();
@@ -29,6 +40,7 @@ export default function CheckBox(props) {
 			<InputCheckBox
 				name={name}
 				type='checkbox'
+				value={props.value}
 				id={id}
 				onChange={handleChange}
 				checked={props.value === 'true'}
@@ -37,7 +49,10 @@ export default function CheckBox(props) {
 				bg={bg}
 				fg={fg}
 			/>
-			<label htmlFor={id}>{placeholder}</label>
+			<Label htmlFor={id}>
+				{props.rules?.required ? <Asteris>* </Asteris> : <Asteris> </Asteris>}
+				{placeholder}
+			</Label>
 		</Div>
 	);
 }
