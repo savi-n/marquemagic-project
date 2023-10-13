@@ -62,7 +62,7 @@ const PrioritySectorDetails = () => {
 	// Check if both conditions are met
 	const showErrorMessage = isConsentOneValid && isConsentTwoValid;
 
-	console.log(formState, 'formstate');
+	// console.log(formState, 'formstate');
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
