@@ -118,7 +118,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			edit: true,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
-			productForModal?.id || productModalData?.id || product?.id
+			productModalData?.id || productForModal?.id || product?.id
 		)}?token=${encryptReq(editLoanRedirectObject)}`;
 		// console.log('redirectToProductPageInEditMode-obj-', {
 		// 	editLoanRedirectObject,
@@ -219,7 +219,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 
 					// console.log({ verifyData });
 					if (verifyData?.data?.status === 'ok') {
-						redirectToProductPageInEditMode(verifyData?.data);
+						redirectToProductPageInEditMode(verifyData?.data, productModalData);
 					}
 					if (verifyData?.data?.status === 'nok') {
 						addToast({
