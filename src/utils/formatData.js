@@ -179,6 +179,8 @@ export const formatSectionReqBody = data => {
 			loan_product_id: selectedLoanProductId || loanProductId,
 			origin: ORIGIN,
 			data: subSectionsData,
+			//savitha approved to pass loan_request_type for all the api's in generic
+			loan_request_type: selectedProduct?.loan_request_type,
 		};
 
 		// STATIC DATA PRESENT IN ALL UPDATE REQBODY
