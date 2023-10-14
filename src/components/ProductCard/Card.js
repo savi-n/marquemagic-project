@@ -192,7 +192,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							'',
 						loan_product_details_id:
 							productModalData?.id || product?.id || undefined,
-						parent_product_id: product?.parent_id || undefined,
+						parent_product_id:
+							productModalData?.parent_id || product?.parent_id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 						type_name:
 							`${productModalData?.loan_request_type ||
