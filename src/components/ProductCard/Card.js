@@ -118,7 +118,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			edit: true,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
-			productForModal?.id || productModalData?.id || product?.id
+			productModalData?.id || productForModal?.id || product?.id
 		)}?token=${encryptReq(editLoanRedirectObject)}`;
 		// console.log('redirectToProductPageInEditMode-obj-', {
 		// 	editLoanRedirectObject,
@@ -140,7 +140,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			// 		)?.[0]?.customer_id || '137453244',
 			// };
 			// const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
-
+			// console.log({ customerList, selectedCustomer });
 			const customerId =
 				customerList?.filter(
 					c => c.customer_id === selectedCustomer?.customer_id
@@ -165,7 +165,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					// console.log('Card-sendOtpRes-', { sendOtpRes });
 					setIsCustomerListModalOpen(false);
 					setIsCustomerVerificationOTPModal(true);
-					setSelectedCustomer(null);
+					// setSelectedCustomer(null);
 					addToast({
 						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
 						type: 'success',
@@ -192,7 +192,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							'',
 						loan_product_details_id:
 							productModalData?.id || product?.id || undefined,
-						parent_product_id: product?.parent_id || undefined,
+						parent_product_id:
+							productModalData?.parent_id || product?.parent_id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 						type_name:
 							`${productModalData?.loan_request_type ||
@@ -219,7 +220,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 
 					// console.log({ verifyData });
 					if (verifyData?.data?.status === 'ok') {
-						redirectToProductPageInEditMode(verifyData?.data);
+						redirectToProductPageInEditMode(verifyData?.data, productModalData);
 					}
 					if (verifyData?.data?.status === 'nok') {
 						addToast({
