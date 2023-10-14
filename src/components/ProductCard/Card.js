@@ -165,7 +165,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					// console.log('Card-sendOtpRes-', { sendOtpRes });
 					setIsCustomerListModalOpen(false);
 					setIsCustomerVerificationOTPModal(true);
-					setSelectedCustomer(null);
+					// setSelectedCustomer(null);
 					addToast({
 						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
 						type: 'success',
