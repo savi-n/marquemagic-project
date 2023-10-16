@@ -934,7 +934,7 @@ const BasicDetails = props => {
 				isApplicant,
 				type_name: addNewDirectorKey || selectedDirector?.type_name,
 				origin: API.ORIGIN,
-				director_id: selectedDirectorId || undefined,
+				did: selectedDirectorId || undefined,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
