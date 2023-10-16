@@ -469,12 +469,12 @@ const EmploymentDetails = () => {
 
 	useEffect(() => {
 		scrollToTopRootElement();
-		if (
-			!!selectedDirector?.sections?.includes(
-				CONST.EMPLOYMENT_DETAILS_SECTION_ID
-			)
-		)
-			fetchSectionDetails();
+		// if (
+		// 	!!selectedDirector?.sections?.includes(
+		// 		CONST.EMPLOYMENT_DETAILS_SECTION_ID
+		// 	)
+		// )
+		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 
