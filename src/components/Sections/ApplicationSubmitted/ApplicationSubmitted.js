@@ -12,7 +12,6 @@ import { TO_APPLICATION_STAGE_URL } from '_config/app.config';
 import axios from 'axios';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 
-const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 const Wrapper = styled.div`
 	flex: 1;
 	padding: 50px;
@@ -47,40 +46,42 @@ const CaptionImg = styled.div`
 	background-repeat: no-repeat;
 `;
 
-const data = [
-	{
-		caption: `Your ${
-			wt_lbl?.solution_type === 'CaseDOS'
-				? 'Order has been forwarded to OPS'
-				: 'Application has been forwarded to the branch'
-		} , decision shall be communicated within 2-3 working days.`,
-		guarantor: true,
-		img: img1,
-	},
-	{
-		caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
-		guarantor: true,
-		img: img2,
-	},
-	{
-		caption: `Sorry! You are not eligible for the requested ${
-			wt_lbl?.solution_type === 'CaseDOS' ? 'report' : 'loan'
-		} as your Credit score is not satisfactory`,
-		guarantor: false,
-	},
-];
-
 const ApplicationSubmitted = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct } = app;
+	const { selectedProduct, permission } = app;
 	const { loanRefId, loanId } = application;
 	const [count] = useState(0);
 	const isUseEffectCalledOnce = useRef(false);
+	const solutionType = permission?.solution_type || '';
+
+	const data = [
+		{
+			caption: `Your ${
+				solutionType === 'CaseDOS'
+					? 'Order has been forwarded to OPS'
+					: 'Application has been forwarded to the branch'
+			} , decision shall be communicated within 2-3 working days.`,
+			guarantor: true,
+			img: img1,
+		},
+		{
+			caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
+			guarantor: true,
+			img: img2,
+		},
+		{
+			caption: `Sorry! You are not eligible for the requested ${
+				solutionType === 'CaseDOS' ? 'report' : 'loan'
+			} as your Credit score is not satisfactory`,
+			guarantor: false,
+		},
+	];
 	const d = data[count];
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
 
 	const { isViewLoan, isEditLoan, isDraftLoan } = app;
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		if (isUseEffectCalledOnce.current) return;
@@ -113,7 +114,7 @@ const ApplicationSubmitted = props => {
 			<CaptionImg bg={d.img} />
 			<Caption>{d.caption}</Caption>
 			<section>
-				{wt_lbl?.solution_type === 'CaseDOS' ? 'Order ' : 'Application '}
+				{solutionType === 'CaseDOS' ? 'Order ' : 'Application '}
 				Reference Number: <span className='font-bold'> {loanRefId}</span>
 			</section>
 		</Wrapper>
