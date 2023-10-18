@@ -84,10 +84,13 @@ export const getDirectors = createAsyncThunk(
 			);
 			// return directorsRes?.data?.data || [];
 			const existingDirectors = directorsRes?.data?.data?.directors || [];
-
+			const trackData = directorsRes?.data?.data?.trackData?.[0] || {};
+			const parsedOnBoardingTrack =
+				Object.keys(trackData)?.length > 0 &&
+				JSON.parse(trackData?.onboarding_track);
+			// console.log({ directorsRes, trackData, parsedOnBoardingTrack });
 			const completedDirectorSections =
-				JSON.parse(directorsRes?.data?.data?.trackData?.[0]?.onboarding_track)
-					?.director_details || {};
+				parsedOnBoardingTrack?.director_details || {};
 
 			existingDirectors?.map(director => {
 				director.directorId = director?.id;
@@ -98,6 +101,7 @@ export const getDirectors = createAsyncThunk(
 		} catch (error) {
 			// return [];
 			// return rejectWithValue(error.message);
+			console.error(error);
 		}
 		return res;
 	}

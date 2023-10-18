@@ -728,7 +728,7 @@ const BasicDetails = props => {
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
-					cacheDocumentsTemp.map(doc => {
+					cacheDocumentsTemp?.map(doc => {
 						if (!doc?.requestId) return null;
 						uploadCacheDocumentsTemp.push({
 							...doc,
@@ -916,7 +916,7 @@ const BasicDetails = props => {
 						}`,
 						type: 'error',
 					});
-					return false;
+					return;
 				}
 			}
 
@@ -934,6 +934,7 @@ const BasicDetails = props => {
 				isApplicant,
 				type_name: addNewDirectorKey || selectedDirector?.type_name,
 				origin: API.ORIGIN,
+				did: selectedDirectorId || undefined,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -1551,12 +1552,20 @@ const BasicDetails = props => {
 					isEditOrViewLoan &&
 					`${selectedProduct?.loan_request_type}` === '2'
 				) {
-					const tempCompletedSections = parseJSON(
-						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
-					);
-					dispatch(
-						setNewCompletedSections(tempCompletedSections?.loan_details)
-					);
+					const tempTrackData = fetchRes?.data?.data?.trackData?.[0] || {};
+
+					const tempCompletedSections =
+						Object.keys(tempTrackData)?.length > 0 &&
+						JSON.parse(tempTrackData?.onboarding_track);
+
+					// const tempCompletedSections = parseJSON(
+					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
+					// );
+					if (tempCompletedSections?.loan_details) {
+						dispatch(
+							setNewCompletedSections(tempCompletedSections?.loan_details)
+						);
+					}
 					if (
 						!tempCompletedSections?.loan_details?.includes(
 							CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
@@ -1564,11 +1573,13 @@ const BasicDetails = props => {
 					) {
 						dispatch(setIsDraftLoan(true));
 					}
-					dispatch(
-						setNewCompletedDirectorSections(
-							tempCompletedSections?.director_details
-						)
-					);
+					if (tempCompletedSections?.director_details) {
+						dispatch(
+							setNewCompletedDirectorSections(
+								tempCompletedSections?.director_details
+							)
+						);
+					}
 				}
 
 				const fetchedProfilePicData =

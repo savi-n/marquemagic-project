@@ -308,7 +308,7 @@ const AddressDetails = props => {
 
 			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
 			// US CLIENT REQUIREMENT CHANGES
-			if (!isEditOrViewLoan && isCountryIndia) {
+			if (!isSectionCompleted && isCountryIndia) {
 				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
 					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
