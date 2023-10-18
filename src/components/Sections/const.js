@@ -24,6 +24,8 @@ export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 
 export const BASIC_DETAILS_SUB_SECTION_ID = 'basic_details';
 
+export const timeoutForDocumentUpload = 5000;
+
 export const ALL_SECTION_IDS = {
 	document_upload: 'document_upload',
 	consent_details: 'consent_details',
@@ -48,7 +50,7 @@ export const ALL_SECTION_IDS = {
 //for sme flow
 export const BUSINESS_DETAILS_SECTION_ID = 'business_details';
 export const BUSINESS_ADDRESS_SECTION_ID = 'business_address_details';
-export const BUSINESS_ADDRESS_EDI_SECTION_ID='business_address_details_edi'
+export const BUSINESS_ADDRESS_EDI_SECTION_ID = 'business_address_details_edi';
 
 export const INITIAL_SECTION_IDS = [
 	BASIC_DETAILS_SECTION_ID,

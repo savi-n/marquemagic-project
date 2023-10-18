@@ -140,7 +140,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			// 		)?.[0]?.customer_id || '137453244',
 			// };
 			// const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
-
+			// console.log({ customerList, selectedCustomer });
 			const customerId =
 				customerList?.filter(
 					c => c.customer_id === selectedCustomer?.customer_id

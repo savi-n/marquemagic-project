@@ -318,7 +318,10 @@ const LoanDetails = () => {
 						// });
 						const borrowerDocUploadRes = await axios.post(
 							`${API.BORROWER_UPLOAD_URL}`,
-							borrowerDocUploadRedBody
+							borrowerDocUploadRedBody,
+							{
+								timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+							}
 						);
 						// console.log('borrowerDocUploadRes-', {
 						// 	borrowerDocUploadRes,
