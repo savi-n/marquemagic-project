@@ -2,6 +2,7 @@
 
 import axios from 'axios';
 import { ENDPOINT_BANK, VERIFY_TOKEN } from '_config/app.config';
+// import * as CONST_SECTIONS from 'components/Sections/const';
 
 export const verifyUiUxToken = async token => {
 	try {
@@ -24,6 +25,8 @@ export const getKYCData = async (formData, token) => {
 				'Content-type': 'multipart/form-data',
 				Authorization: token,
 			},
+			// Not adding timeout here - This api takes more time and hence it will fail
+			// timeout: CONST_SECTIONS.timeoutForDocumentUpload,
 		};
 		const g = await axios.post(url, formData, config);
 		const t = await g;
@@ -50,7 +53,10 @@ export const getKYCDataId = async (formData, token) => {
 				'Content-type': 'multipart/form-data',
 				Authorization: token,
 			},
+			// Not adding timeout here - This api takes more time and hence it will fail
+			// timeout: CONST_SECTIONS.timeoutForDocumentUpload,
 		};
+
 		const g = await axios.post(url, formData, config);
 		const t = await g;
 		return t;
