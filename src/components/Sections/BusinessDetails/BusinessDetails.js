@@ -633,9 +633,14 @@ const BusinessDetails = props => {
 						application,
 						selectedLoanProductId,
 					});
+					const crimeCheck =
+						selectedProduct?.product_details?.crime_check || 'No';
 
 					companyRocData?.data?.director?.map(dir => {
 						dir.income_type = 'business'; // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
+						if (crimeCheck) {
+							dir.crime_check = crimeCheck;
+						}
 						return null;
 					});
 					addDirectorsReqBody.data =
@@ -643,6 +648,7 @@ const BusinessDetails = props => {
 						formatObject(companyRocData?.directorsForShow);
 					addDirectorsReqBody.business_id = newBusinessId;
 					addDirectorsReqBody.loan_id = newLoanId;
+
 					axios.post(API.ADD_MULTIPLE_DIRECTOR, addDirectorsReqBody);
 				} catch (error) {
 					console.error(error);
