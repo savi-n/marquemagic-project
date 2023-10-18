@@ -28,6 +28,7 @@ const Header = props => {
 		selectedSectionId,
 		directorSectionIds,
 		nextSectionId,
+		permission,
 	} = app;
 	const { loanRefId: reduxLoanRefId } = application;
 	const [corporateName, setCorporateName] = useState('');
@@ -35,8 +36,7 @@ const Header = props => {
 	const [loanRefId, setLoanRefId] = useState('');
 	const dispatch = useDispatch();
 
-	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
-
+	const solutionType = permission?.solution_type || '';
 	useEffect(() => {
 		const params = queryString.parse(window.location.search);
 		if (params.token) {
@@ -144,7 +144,7 @@ const Header = props => {
 					<Button onClick={redirectDashboard} customStyle={{ width: 'auto' }}>
 						<span>
 							{loanRefId
-								? wt_lbl?.solution_type === 'CaseDOS'
+								? solutionType === 'CaseDOS'
 									? 'BACK TO CASE LISTING'
 									: 'BACK TO LOAN LISTING'
 								: 'BACK TO DASHBOARD'}

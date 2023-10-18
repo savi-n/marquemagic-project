@@ -102,7 +102,7 @@ const AuthenticationOTPModal = props => {
 		// type = 'income',
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, userToken, editLoanData } = app;
+	const { selectedProduct, userToken, editLoanData, permission } = app;
 	const { businessId, loanId } = application;
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
@@ -113,9 +113,10 @@ const AuthenticationOTPModal = props => {
 			sessionStorage.getItem('otp_duration') ||
 			RESEND_OTP_TIMER
 	);
+	const solutionType = permission?.solution_type || '';
+
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [, setIsResentOtp] = useState(false);
-	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 	const maskedContactNo = `XXXXX${setContactNo[setContactNo?.length - 5]}${
 		setContactNo[setContactNo?.length - 4]
 	}${setContactNo[setContactNo?.length - 3]}${
@@ -180,7 +181,7 @@ const AuthenticationOTPModal = props => {
 					setTimeout(() => {
 						addToast({
 							message: `Your ${
-								wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'Application'
+								solutionType === 'CaseDOS' ? 'Order' : 'Application'
 							} has been updated`,
 							type: 'success',
 						});
