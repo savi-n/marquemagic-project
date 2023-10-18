@@ -16,6 +16,7 @@ import * as UI from './ui';
 import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import TooltipImage from '../Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
+import * as CONST_SECTIONS from 'components/Sections/const';
 
 const InputFieldSingleFileUpload = props => {
 	const {
@@ -113,7 +114,10 @@ const InputFieldSingleFileUpload = props => {
 				formData.append('document', filesToUpload.file);
 				const fileUploadRes = await axios.post(
 					`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-					formData
+					formData,
+					{
+						timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+					}
 				);
 				if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
 					return { ...finalFilesToUpload[0], status: 'error' };
