@@ -254,6 +254,7 @@ const BusinessDetails = props => {
 			name: obj.Name,
 			'din/pan': obj.Din,
 			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
+			crime_check: selectedProduct?.product_details?.crime_check || 'No',
 		}));
 	};
 	const onFetchFromCustomerId = async () => {
