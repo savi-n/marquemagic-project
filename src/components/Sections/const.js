@@ -24,7 +24,7 @@ export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 
 export const BASIC_DETAILS_SUB_SECTION_ID = 'basic_details';
 
-export const timeoutForDocumentUpload = 60000;
+export const timeoutForDocumentUpload = 15000;
 
 export const ALL_SECTION_IDS = {
 	document_upload: 'document_upload',
