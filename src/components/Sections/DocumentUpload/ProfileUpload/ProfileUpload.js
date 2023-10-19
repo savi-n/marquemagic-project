@@ -34,6 +34,7 @@ import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import * as CONST from './const';
 import { validateFileUpload } from 'utils/helperFunctions';
+import * as CONST_SECTIONS from 'components/Sections/const';
 
 const ProfileUpload = props => {
 	const {
@@ -280,7 +281,10 @@ const ProfileUpload = props => {
 					if (acceptedFiles.length > 0) {
 						const resp = await axios.post(
 							UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
-							formData
+							formData,
+							{
+								timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+							}
 						);
 						const newFile = {
 							id: resp?.data?.document_details_data?.doc_id,
@@ -338,7 +342,9 @@ const ProfileUpload = props => {
 					}
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData, {
+							timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+						});
 						const newFile = {
 							field,
 							...resp?.data,
