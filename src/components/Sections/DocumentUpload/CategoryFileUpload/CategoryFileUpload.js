@@ -179,7 +179,7 @@ const CategoryFileUpload = props => {
 						data: formData,
 						onUploadProgress: event => onProgress(event, file, documents),
 						cancelToken: file.cancelToken.token,
-						timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+						// timeout: CONST_SECTIONS.timeoutForDocumentUpload,
 					}
 				)
 					.then(res => {
