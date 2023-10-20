@@ -114,10 +114,10 @@ const InputFieldSingleFileUpload = props => {
 				formData.append('document', filesToUpload.file);
 				const fileUploadRes = await axios.post(
 					`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-					formData,
-					{
-						timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-					}
+					formData
+					// {
+					// 	timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+					// }
 				);
 				if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
 					return { ...finalFilesToUpload[0], status: 'error' };

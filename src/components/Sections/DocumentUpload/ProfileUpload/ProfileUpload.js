@@ -281,10 +281,7 @@ const ProfileUpload = props => {
 					if (acceptedFiles.length > 0) {
 						const resp = await axios.post(
 							UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
-							formData,
-							{
-								timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-							}
+							formData
 						);
 						const newFile = {
 							id: resp?.data?.document_details_data?.doc_id,
@@ -342,9 +339,7 @@ const ProfileUpload = props => {
 					}
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData, {
-							timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-						});
+						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
 						const newFile = {
 							field,
 							...resp?.data,
