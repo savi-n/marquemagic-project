@@ -903,22 +903,22 @@ const BasicDetails = props => {
 				return;
 			}
 
-			if (!isApplicant) {
-				const validateDirectors = validateAllTheDirectors({
-					directors,
-				});
-				// console.log({ validateDirectors });
+			// if (!isApplicant) {
+			// 	const validateDirectors = validateAllTheDirectors({
+			// 		directors,
+			// 	});
+			// 	// console.log({ validateDirectors });
 
-				if (validateDirectors?.allowProceed === false) {
-					addToast({
-						message: `Please fill all the details in ${
-							validateDirectors?.directorName
-						}`,
-						type: 'error',
-					});
-					return;
-				}
-			}
+			// 	if (validateDirectors?.allowProceed === false) {
+			// 		addToast({
+			// 			message: `Please fill all the details in ${
+			// 				validateDirectors?.directorName
+			// 			}`,
+			// 			type: 'error',
+			// 		});
+			// 		return;
+			// 	}
+			// }
 
 			setLoading(true);
 			const reqBody = {

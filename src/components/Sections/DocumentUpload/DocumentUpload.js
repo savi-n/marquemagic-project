@@ -1138,10 +1138,7 @@ const DocumentUpload = props => {
 			if (documentUploadReqBody.data.document_upload.length > 0) {
 				const borrowerDocUploadRes = await axios.post(
 					`${API.BORROWER_UPLOAD_URL}`,
-					documentUploadReqBody,
-					{
-						timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-					}
+					documentUploadReqBody
 				);
 				const updateDocumentIdToCacheDocuments = [];
 				newUploadedDocuments.map(cacheDoc => {
