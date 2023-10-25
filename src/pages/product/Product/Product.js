@@ -120,7 +120,7 @@ const Product = props => {
 							)
 						);
 					} else {
-						return tempSections;
+						return section;
 					}
 				});
 				selectedProductRes.product_details.sections = flowData;
@@ -142,7 +142,7 @@ const Product = props => {
 						)
 					);
 				} else {
-					return tempSections;
+					return section;
 				}
 			});
 			selectedProductRes.product_details.sections = flowDataSections;
