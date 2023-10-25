@@ -455,10 +455,7 @@ const AddressDetails = props => {
 					formData.append('document', idx.file);
 					let result = await axios.post(
 						`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-						formData,
-						{
-							timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-						}
+						formData
 					);
 					let leng = result.data.files.length;
 					let fd = {
@@ -510,9 +507,7 @@ const AddressDetails = props => {
 				documentUploadReqBody.data.document_upload = newOtherUploadedDocumentsTemp;
 				// console.log('other-documentUploadReqBody-', { documentUploadReqBody });
 				// return;
-				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody, {
-					timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-				});
+				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
 
 			const newKycUploadCacheDocumentsTemp = [];
@@ -553,7 +548,6 @@ const AddressDetails = props => {
 								headers: {
 									Authorization: clientToken,
 								},
-								timeout: CONST_SECTIONS.timeoutForDocumentUpload,
 							}
 						);
 					}

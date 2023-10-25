@@ -227,9 +227,7 @@ const ProfileUpload = props => {
 					formData.append('document', finalFilesToUpload[0]);
 
 					if (finalFilesToUpload?.length > 0) {
-						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData, {
-							timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-						});
+						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
 						const newFile = {
 							field,
 							...resp?.data,
