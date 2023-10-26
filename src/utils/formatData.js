@@ -911,7 +911,7 @@ export const validateEmploymentDetails = data => {
 			return null;
 		});
 
-		if (lastDirector?.sections?.length < 2)
+		if (!lastDirector?.sections || lastDirector?.sections?.length < 2)
 			notCompletedDirectors.push(lastDirector);
 
 		// special case when last director is submitted with basic and address sections.But the user tries to submit employment details from the first director

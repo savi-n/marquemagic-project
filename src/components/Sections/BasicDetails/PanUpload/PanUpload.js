@@ -180,51 +180,56 @@ const PanUpload = props => {
 
 			// Pre population from pan
 
-			onChangeFormStateField({
-				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
-				value: confirmPanNumber,
-			});
+			const ucicValue =
+				formState.values[CONST_BASIC_DETAILS.CUSTOMER_ID_FIELD_NAME] || '';
 
-			/* split the name into first and last name */
-			let name = panExtractionData?.Name,
-				first_name = '',
-				last_name = '';
-			if (name) {
-				let nameSplit = name.split(' ');
-				if (nameSplit.length > 1) {
-					last_name = nameSplit[nameSplit.length - 1];
-					nameSplit.pop();
+			if (!ucicValue) {
+				onChangeFormStateField({
+					name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+					value: confirmPanNumber,
+				});
+
+				/* split the name into first and last name */
+				let name = panExtractionData?.Name,
+					first_name = '',
+					last_name = '';
+				if (name) {
+					let nameSplit = name.split(' ');
+					if (nameSplit.length > 1) {
+						last_name = nameSplit[nameSplit.length - 1];
+						nameSplit.pop();
+					}
+					first_name = nameSplit.join(' ');
 				}
-				first_name = nameSplit.join(' ');
-			}
 
-			if (first_name) {
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
-					value: first_name || '',
-				});
-			}
-			if (last_name) {
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
-					value: last_name || '',
-				});
-			}
-			if (panExtractionData?.father_name) {
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
-					value: panExtractionData?.father_name || '',
-				});
-			}
-			if (panExtractionData?.DOB) {
-				let DOB = panExtractionData?.DOB;
-				DOB = DOB?.split('/')
-					?.reverse()
-					?.join('-');
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
-					value: DOB || '',
-				});
+				if (first_name) {
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
+						value: first_name || '',
+					});
+				}
+				if (last_name) {
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
+						value: last_name || '',
+					});
+				}
+				if (panExtractionData?.father_name) {
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
+						value: panExtractionData?.father_name || '',
+					});
+				}
+				if (panExtractionData?.DOB) {
+					let DOB = panExtractionData?.DOB;
+					DOB = DOB?.split('/')
+						?.reverse()
+						?.join('-');
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
+						value: DOB || '',
+					});
+				}
 			}
 
 			// Company search select is only applicable for business loans
