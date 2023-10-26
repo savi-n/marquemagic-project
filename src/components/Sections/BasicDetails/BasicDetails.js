@@ -2147,6 +2147,13 @@ const BasicDetails = props => {
 										}
 
 										if (
+											field.name === CONST.EXISTING_CUSTOMER_FIELD_NAME &&
+											sectionData?.director_details?.existing_customer
+										) {
+											customFieldProps.disabled = true;
+										}
+
+										if (
 											isPanUploadMandatory &&
 											!isPanNumberExist &&
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
