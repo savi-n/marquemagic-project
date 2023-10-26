@@ -440,7 +440,7 @@ const PanUpload = props => {
 			setCompanyRocData(formattedCompanyData);
 
 			const ucicValue =
-				formState.values[CONST_BUSINESS_DETAILS.CUSTOMER_ID_FIELD_NAME];
+				formState.values[CONST_BUSINESS_DETAILS.CUSTOMER_ID_FIELD_NAME] || '';
 
 			// prepopulation starts
 			if (!ucicValue) {

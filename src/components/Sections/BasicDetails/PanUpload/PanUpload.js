@@ -181,7 +181,7 @@ const PanUpload = props => {
 			// Pre population from pan
 
 			const ucicValue =
-				formState.values[CONST_BASIC_DETAILS.CUSTOMER_ID_FIELD_NAME];
+				formState.values[CONST_BASIC_DETAILS.CUSTOMER_ID_FIELD_NAME] || '';
 
 			if (!ucicValue) {
 				onChangeFormStateField({
