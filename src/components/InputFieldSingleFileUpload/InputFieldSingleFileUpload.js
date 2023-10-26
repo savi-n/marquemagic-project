@@ -16,7 +16,6 @@ import * as UI from './ui';
 import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import TooltipImage from '../Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
-// import * as CONST_SECTIONS from 'components/Sections/const';
 
 const InputFieldSingleFileUpload = props => {
 	const {
