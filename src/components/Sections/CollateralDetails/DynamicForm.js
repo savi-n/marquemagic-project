@@ -58,6 +58,21 @@ const DynamicForm = props => {
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
+	const cityField =
+		subSections
+			?.filter(
+				item => item?.id === CONST.PROPERTY_ADDRESS_DETAILS_SUB_SECTION_ID
+			)?.[0]
+			?.fields?.filter(field => field?.name === CONST.CITY_FIELD_NAME)?.[0] ||
+		{};
+	const stateField =
+		subSections
+			?.filter(
+				item => item?.id === CONST.PROPERTY_ADDRESS_DETAILS_SUB_SECTION_ID
+			)?.[0]
+			?.fields?.filter(field => field?.name === CONST.STATE_FIELD_NAME)?.[0] ||
+		{};
+
 	const prefilledEditOrViewLoanValues = field => {
 		const preData = {
 			...prefillData,
@@ -120,6 +135,19 @@ const DynamicForm = props => {
 			) {
 				addToast({
 					message: 'Construction Area should be lesser than Total Area.',
+					type: 'error',
+				});
+				return;
+			}
+
+			if (
+				(cityField?.rules?.required === true &&
+					!formState?.values?.[CONST.CITY_FIELD_NAME]) ||
+				(stateField?.rules?.required === true &&
+					!formState?.values?.[CONST.STATE_FIELD_NAME])
+			) {
+				addToast({
+					message: 'Please enter City and State',
 					type: 'error',
 				});
 				return;
