@@ -47,7 +47,7 @@ import {
 	isDirectorApplicant,
 	isFieldValid,
 	parseJSON,
-	validateAllTheDirectors,
+	// validateAllTheDirectors,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
