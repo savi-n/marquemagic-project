@@ -257,7 +257,24 @@ const BasicDetails = props => {
 		selectedSection,
 		isApplicant,
 	});
-	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
+
+	const selectedPanUploadFieldWithForType =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.BASIC_DETAILS_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field =>
+					field?.name === CONST.PAN_UPLOAD_FIELD_NAME &&
+					field?.for_type?.[0] ===
+						formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME]
+			)?.[0] || {};
+
+	// const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
+
+	const isPanUploadMandatory =
+		Object.keys(selectedPanUploadFieldWithForType).length > 0
+			? !!selectedPanUploadFieldWithForType?.rules?.required ??
+			  !!selectedPanUploadField?.rules?.required
+			: !!selectedPanUploadField?.rules?.required;
 
 	const panUploadedFile =
 		cacheDocumentsTemp?.filter(
