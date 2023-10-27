@@ -55,4 +55,4 @@ export const APPLICATION_GEO_ERROR_HINT = `Please Allow Location Access From Bro
 export const NO_INCOME_TYPE_SELECTED_HINT =
 	'Select the income type to fetch the data from Customer ID.';
 export const ENTER_DIFFERENT_UCIC_HINT =
-	'Please Enter Different Ucic Number To Fetch Data Again';
+	'Please Enter Different UCIC Number To Fetch Data Again';
