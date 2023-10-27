@@ -2215,6 +2215,11 @@ const BasicDetails = props => {
 											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
 											customFieldPropsSubfields.loading = loading;
 											customFieldPropsSubfields.disabled =
+												`${
+													sectionData?.director_details?.additional_cust_id
+												}` ===
+													formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
+												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME] ||
 												loading ||
 												!!completedSections?.includes(selectedSectionId);
 											customFieldProps.disabled = !!completedSections?.includes(
@@ -2224,9 +2229,26 @@ const BasicDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											customFieldProps.infoMessage =
-												'Select the income type to fetch the data from Customer ID.';
+											let infoMessage = '';
+											if (
+												`${
+													sectionData?.director_details?.additional_cust_id
+												}` === formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
+											) {
+												infoMessage =
+													'Please Enter Different Ucic Number To Fetch Data Again';
+											} else if (
+												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]
+											) {
+												infoMessage =
+													'Select the income type to fetch the data from Customer ID.';
+											} else {
+												infoMessage =
+													'Select the income type to fetch the data from Customer ID.';
+											}
+											customFieldProps.infoMessage = infoMessage;
 										}
+
 										if (field?.name === CONST.DOB_FIELD_NAME) {
 											customFieldPropsSubfields.value =
 												getTotalYearsCompleted(
