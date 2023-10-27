@@ -61,4 +61,4 @@ export const HIDE_PRESENT_ADDRESS_FIELDS = [
 ];
 
 export const PRESENT_OTHERS_RADIO = 'present_others';
-export const PERMANENT_OTHERS_RADIO = 'present_others';
+export const PERMANENT_OTHERS_RADIO = 'permanent_others';
