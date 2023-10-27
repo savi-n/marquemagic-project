@@ -2235,16 +2235,13 @@ const BasicDetails = props => {
 													sectionData?.director_details?.additional_cust_id
 												}` === formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
 											) {
-												infoMessage =
-													'Please Enter Different Ucic Number To Fetch Data Again';
+												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
 											} else if (
 												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]
 											) {
-												infoMessage =
-													'Select the income type to fetch the data from Customer ID.';
+												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
 											} else {
-												infoMessage =
-													'Select the income type to fetch the data from Customer ID.';
+												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
 											}
 											customFieldProps.infoMessage = infoMessage;
 										}

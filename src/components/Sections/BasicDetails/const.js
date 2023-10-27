@@ -51,3 +51,8 @@ export const CUSTOMER_ID_FIELD_NAME = 'customer_id';
 
 export const PROFILE_PIC_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting And Re-Upload The Profile Image`;
 export const APPLICATION_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting`;
+
+export const NO_INCOME_TYPE_SELECTED_HINT =
+	'Select the income type to fetch the data from Customer ID.';
+export const ENTER_DIFFERENT_UCIC_HINT =
+	'Please Enter Different Ucic Number To Fetch Data Again';
