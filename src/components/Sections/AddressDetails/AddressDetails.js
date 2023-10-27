@@ -667,14 +667,14 @@ const AddressDetails = props => {
 					sectionData?.director_details?.additional_cust_id &&
 					!sectionData?.director_details?.ekyc_data?.classification_type
 						? CONST.PERMANENT_OTHERS_RADIO
-						: sectionData?.director_details?.ekyc_data?.classification_type,
+						: ekycArrayPermanentAddress?.classification_type,
 
 				present_address_proof_type:
 					`${whiteLabelId}` === '9' &&
 					sectionData?.director_details?.additional_cust_id &&
 					!sectionData?.director_details?.ekyc_data?.classification_type
 						? CONST.PRESENT_OTHERS_RADIO
-						: sectionData?.director_details?.ekyc_data?.classification_type,
+						: ekycArrayPresentAddress?.classification_type,
 
 				permanent_aadhaar: sectionData?.director_details?.daadhaar,
 				permanent_address_proof_id_others:
