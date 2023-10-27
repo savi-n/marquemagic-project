@@ -68,6 +68,7 @@ const AddressDetails = props => {
 		selectedSection,
 		permission,
 		selectedProduct,
+		whiteLabelId,
 	} = app;
 	const { isCountryIndia } = permission;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
@@ -660,6 +661,20 @@ const AddressDetails = props => {
 			const preData = {
 				permanent_address_proof_address_type:
 					sectionData?.director_details?.address_type,
+
+				permanent_address_proof_type:
+					`${whiteLabelId}` === '9' &&
+					sectionData?.director_details?.additional_cust_id &&
+					!sectionData?.director_details?.ekyc_data?.classification_type
+						? CONST.PERMANENT_OTHERS_RADIO
+						: ekycArrayPermanentAddress?.classification_type,
+
+				present_address_proof_type:
+					`${whiteLabelId}` === '9' &&
+					sectionData?.director_details?.additional_cust_id &&
+					!sectionData?.director_details?.ekyc_data?.classification_type
+						? CONST.PRESENT_OTHERS_RADIO
+						: ekycArrayPresentAddress?.classification_type,
 
 				permanent_aadhaar: sectionData?.director_details?.daadhaar,
 				permanent_address_proof_id_others:
