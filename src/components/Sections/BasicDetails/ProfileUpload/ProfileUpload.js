@@ -470,7 +470,7 @@ const ProfileUpload = props => {
 				</UI.CameraIconWrapper>
 			) : (
 				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-					<input {...getInputProps()} />
+					<input {...getInputProps()} capture='camera' />
 					{!isDisabled && <UI.IconCamera src={iconCameraGrey} alt='camera' />}
 				</UI.CameraIconWrapper>
 			)}
