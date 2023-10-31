@@ -67,6 +67,12 @@ const PanUpload = props => {
 	const panExtractionData = uploadedFile?.panExtractionData || {};
 	const [udyamErrorMessage, setUdyamErrorMessage] = useState('');
 
+	const uploadType =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
+	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
+	const isFileFromDeviceStorageAllowed =
+		uploadType === true || uploadType === false ? uploadType : true;
+
 	// called for roc starts
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: '',
@@ -90,6 +96,12 @@ const PanUpload = props => {
 			}
 		},
 	});
+
+	const inputProps = { ...getInputProps() };
+	if (!isFileFromDeviceStorageAllowed) {
+		inputProps.capture = 'camera';
+	}
+
 	const handleExtractionPan = async file => {
 		// console.log('handleExtractionPan-called-0th');
 		const previewFileData = {
@@ -862,7 +874,8 @@ const PanUpload = props => {
 									className: 'dropzone',
 								})}
 							>
-								<input {...getInputProps()} />
+								{/* <input {...getInputProps()} /> */}
+								<input {...inputProps} />
 								<UI.IconUpload src={iconUploadBlue} alt='camera' />
 							</UI.UploadIconWrapper>
 						</>
