@@ -56,11 +56,9 @@ const PanUpload = props => {
 	// const dispatch = useDispatch();
 	const panExtractionData = uploadedFile?.panExtractionData;
 
-	const uploadType =
-		selectedProduct?.product_details?.is_file_from_storage_allowed;
 	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
 	const isFileFromDeviceStorageAllowed =
-		uploadType === true || uploadType === false ? uploadType : true;
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
 
 	const openDocument = async file => {
 		try {
@@ -404,7 +402,10 @@ const PanUpload = props => {
 	});
 
 	const inputProps = { ...getInputProps() };
-	if (!isFileFromDeviceStorageAllowed) {
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
 		inputProps.capture = 'camera';
 	}
 
