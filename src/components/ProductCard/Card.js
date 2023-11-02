@@ -30,7 +30,7 @@ import * as CONST from './const';
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { app } = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
 	const {
 		isGeoTaggingEnabled,
 		userToken,
@@ -38,6 +38,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		permission,
 		whiteLabelId,
 	} = app;
+	const { geoLocation } = application;
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 	const [
 		isCustomerDetailsFormModalOpen,
@@ -203,6 +204,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 										(customerDetailsFormData?.businesstype)
 								  ] || '',
 						origin: API.ORIGIN,
+						lat: geoLocation?.lat || '',
+						long: geoLocation?.long || '',
+						timestamp: geoLocation?.timestamp || '',
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
