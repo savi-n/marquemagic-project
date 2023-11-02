@@ -952,6 +952,9 @@ const BasicDetails = props => {
 				type_name: addNewDirectorKey || selectedDirector?.type_name,
 				origin: API.ORIGIN,
 				did: selectedDirectorId || undefined,
+				lat: geoLocation?.lat || '',
+				long: geoLocation?.long || '',
+				timestamp: geoLocation?.timestamp || '',
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -2164,6 +2167,7 @@ const BasicDetails = props => {
 										}
 
 										if (
+											// `${selectedProduct?.loan_request_type}` === '2' &&
 											field.name === CONST.EXISTING_CUSTOMER_FIELD_NAME &&
 											sectionData?.director_details?.existing_customer
 										) {
