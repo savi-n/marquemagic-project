@@ -55,7 +55,7 @@ const ProfileUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { whiteLabelId, isGeoTaggingEnabled } = app;
+	const { whiteLabelId, isGeoTaggingEnabled, selectedProduct } = app;
 	const {
 		loanId,
 		// loanRefId,
@@ -67,6 +67,10 @@ const ProfileUpload = props => {
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
 	const [fetchedValue, setFetchedValue] = useState('');
+
+	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
 
 	const openDocument = async file => {
 		try {
@@ -329,6 +333,13 @@ const ProfileUpload = props => {
 	// 	isPreview,
 	// 	uploadedFile,
 	// });
+	const inputProps = { ...getInputProps() };
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		inputProps.capture = 'camera';
+	}
 
 	if (isPreview) {
 		return (
@@ -470,7 +481,8 @@ const ProfileUpload = props => {
 				</UI.CameraIconWrapper>
 			) : (
 				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-					<input {...getInputProps()} />
+					{/* <input {...getInputProps()} capture='camera' /> */}
+					<input {...inputProps} />
 					{!isDisabled && <UI.IconCamera src={iconCameraGrey} alt='camera' />}
 				</UI.CameraIconWrapper>
 			)}
