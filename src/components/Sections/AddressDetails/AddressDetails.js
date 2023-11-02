@@ -354,26 +354,27 @@ const AddressDetails = props => {
 						return;
 					}
 
-					if (!businessAddressIdAid1) {
-						// if document is (voter-dl-passport), it should be uploaded and extracted
-						const isPermanentSelectedAddressProofTypeOthers = formState?.values?.[
-							CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
-						]?.includes(CONST_SECTIONS.EXTRACTION_KEY_OTHERS);
-						if (!isPermanentSelectedAddressProofTypeOthers) {
-							let isFetchAddressPressed = false;
-							permanentCacheDocumentsTemp.map(doc => {
-								if (!!doc?.extractionRes) isFetchAddressPressed = true;
-								return null;
+					// removing since for ucic loans, the address details are coming and so businessAddressId
+					// if (!businessAddressIdAid1) {
+					// if document is (voter-dl-passport), it should be uploaded and extracted
+					const isPermanentSelectedAddressProofTypeOthers = formState?.values?.[
+						CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					]?.includes(CONST_SECTIONS.EXTRACTION_KEY_OTHERS);
+					if (!isPermanentSelectedAddressProofTypeOthers) {
+						let isFetchAddressPressed = false;
+						permanentCacheDocumentsTemp.map(doc => {
+							if (!!doc?.extractionRes) isFetchAddressPressed = true;
+							return null;
+						});
+						if (!isFetchAddressPressed) {
+							addToast({
+								message: 'Please upload address proof documents',
+								type: 'error',
 							});
-							if (!isFetchAddressPressed) {
-								addToast({
-									message: 'Please upload address proof documents',
-									type: 'error',
-								});
-								return;
-							}
+							return;
 						}
 					}
+					// }
 				}
 			}
 			setLoading(true);
