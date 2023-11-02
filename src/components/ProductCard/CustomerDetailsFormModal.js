@@ -18,7 +18,7 @@ import {
 	setDedupePrefilledValues,
 	setGeoLocation,
 } from 'store/applicationSlice';
-import { fetchGeoLocation } from 'utils/helper';
+import { fetchGeoLocation, getGeoLocation } from 'utils/helper';
 import * as API from '_config/app.config';
 
 const CustomerDetailsFormModal = props => {
@@ -135,6 +135,9 @@ const CustomerDetailsFormModal = props => {
 						: CONST.TYPE_NAME_MAPPING[(formState?.values['businesstype'])] ||
 						  '',
 				origin: API.ORIGIN,
+				lat: geoRes?.lat || '',
+				long: geoRes?.long || '',
+				timestamp: geoRes?.timestamp || '',
 			};
 
 			setCustomerDetailsFormData(formState?.values || {});

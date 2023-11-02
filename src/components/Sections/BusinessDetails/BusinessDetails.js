@@ -91,6 +91,7 @@ const BusinessDetails = props => {
 		businessType,
 		loanRefId,
 		dedupePrefilledValues,
+		geoLocation,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
@@ -280,6 +281,9 @@ const BusinessDetails = props => {
 				business_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
 				origin: API.ORIGIN,
+				lat: geoLocation?.lat || '',
+				long: geoLocation?.long || '',
+				timestamp: geoLocation?.timestamp || '',
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
