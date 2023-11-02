@@ -340,6 +340,26 @@ const AddressDetails = props => {
 					}
 				}
 
+				// in case of aadhar, either we should upload document or verify with otp
+				if (
+					isPermanentSelectedAddressProofTypeAadhaar &&
+					isVerifyWithOtpRequired
+				) {
+					const otpVerifiedForAadhar = selectedVerifyOtp?.res?.status === 'ok';
+					let isFetchAddressPressed = false;
+					permanentCacheDocumentsTemp.map(doc => {
+						if (!!doc?.extractionRes) isFetchAddressPressed = true;
+						return null;
+					});
+
+					if (!(otpVerifiedForAadhar || isFetchAddressPressed)) {
+						addToast({
+							message: 'Please Upload Aadhar or Verify Aadhar Number With OTP',
+							type: 'error',
+						});
+						return;
+					}
+				}
 				// console.log(isVeriftOtpRules, '-3');
 				if (
 					!isPermanentSelectedAddressProofTypeAadhaar &&
