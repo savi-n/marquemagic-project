@@ -77,6 +77,11 @@ const ProfileUpload = props => {
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
 	const isSelectedProductTypeBusiness = !!selectedProduct?.isSelectedProductTypeBusiness;
+
+	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
+
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -378,6 +383,15 @@ const ProfileUpload = props => {
 			}
 		},
 	});
+
+	const inputProps = { ...getInputProps() };
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		inputProps.capture = 'camera';
+	}
+
 	useEffect(() => {
 		(async () => {
 			try {
@@ -573,7 +587,8 @@ const ProfileUpload = props => {
 				</UI.CameraIconWrapper>
 			) : (
 				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-					<input {...getInputProps()} />
+					{/* <input {...getInputProps()} /> */}
+					<input {...inputProps} />
 					{!isDisabled && <UI.IconCamera src={iconCameraGrey} alt='camera' />}
 				</UI.CameraIconWrapper>
 			)}
