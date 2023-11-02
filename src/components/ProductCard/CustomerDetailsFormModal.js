@@ -18,7 +18,7 @@ import {
 	setDedupePrefilledValues,
 	setGeoLocation,
 } from 'store/applicationSlice';
-import { fetchGeoLocation, getGeoLocation } from 'utils/helper';
+import { fetchGeoLocation } from 'utils/helper';
 import * as API from '_config/app.config';
 
 const CustomerDetailsFormModal = props => {
