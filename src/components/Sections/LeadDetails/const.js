@@ -8,3 +8,7 @@ export const initialFormState = {
 
 // add all the field names as constants and use in the leads component
 //example -  export const FIRST_NAME_FIELD_NAME = 'first_name';
+
+export const FIRST_NAME_FIELD_NAME = 'first_name';
+export const LAST_NAME_FIELD_NAME = 'last_name';
+export const PAN_NUMBER_FIELD_NAME = 'pan_number';
