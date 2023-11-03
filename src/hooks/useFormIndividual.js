@@ -92,11 +92,11 @@ const VALIDATION_RULES = {
 	email: {
 		// eslint-disable-next-line
 		// func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
-		func: validatePattern(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
+		func: validatePattern(/^$|^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
 		message: 'Invalid Email Address',
 	},
 	empty_or_email: {
-		func: validatePattern(/^$|[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
+		func: validatePattern(/^$|^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
 		message: 'Invalid Email Address',
 	},
 	is_udyam: {
