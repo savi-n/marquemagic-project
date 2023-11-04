@@ -42,7 +42,12 @@ export const SOURCE_DETAILS_SUBSECTION_ID = 'source_details';
 export const TENURE = 'tenure';
 export const LOAN_AMOUNT = 'loan_amount';
 export const LOAN_SOURCE = 'loan_source';
-export const DISABLE_BRANCH_FIELD_FOR = ['Branch', 'Connector', 'GL Branch'];
+export const DISABLE_BRANCH_FIELD_FOR = [
+	'Branch',
+	'Connector',
+	'GL Branch',
+	'',
+];
 export const LOAN_CREATE_BRANCH_FOR = ['Branch', 'GL Branch'];
 
 export const selectedSection = {
