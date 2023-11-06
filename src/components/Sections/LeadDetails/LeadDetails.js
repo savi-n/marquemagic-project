@@ -6,7 +6,7 @@ import queryString from 'query-string';
 import _ from 'lodash';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
-import { decryptRes } from 'utils/encrypt';
+import { decryptRes, encryptBase64 } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import {
@@ -31,6 +31,10 @@ import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getAllCompletedSections,
+	getSelectedSubField,
+	getSelectedField,
+	isDirectorApplicant,
+	formatAadhaarOtpResponse,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -38,13 +42,21 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import { scrollToTopRootElement } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
+import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import * as API from '_config/app.config';
-import { isInvalidPan } from 'utils/validation';
+import { isInvalidAadhaar, isInvalidPan } from 'utils/validation';
 
 // import * as UI from './ui';
 import * as CONST from './const';
+import LeadAadhaarVerify from './LeadAadhaarVerify';
+import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
+	const { selectedDirectorId, directors } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
 
 	const {
 		selectedProduct,
@@ -66,6 +78,7 @@ const LeadDetails = props => {
 		businessUserId,
 		businessType,
 		loanRefId,
+		loanProductId,
 	} = application;
 
 	const naviagteToNextSection = () => {
@@ -80,6 +93,21 @@ const LeadDetails = props => {
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
+	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
+	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
+	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
+	let selectedVerifyOtp = verifyOtpResponseTemp || null;
+	if (
+		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
+		!selectedVerifyOtp
+	) {
+		selectedVerifyOtp = {
+			res: {
+				status: 'ok',
+			},
+		};
+	}
 
 	const {
 		handleSubmit,
@@ -91,8 +119,144 @@ const LeadDetails = props => {
 		selectedProduct,
 		application,
 		selectedSectionId,
+		selectedDirector,
+		isApplicant,
 	});
+	const isSectionCompleted = completedSections.includes(selectedSectionId);
 
+	const selectedPermanentAadhaarField = getSelectedField({
+		fieldName: CONST.AADHAR_OTP_FIELD_NAME,
+		selectedSection,
+		isApplicant,
+	});
+	const selectedVerifyWithOtpSubField = getSelectedSubField({
+		fields: selectedPermanentAadhaarField?.sub_fields || [],
+		isApplicant,
+	});
+	// const sectionRequired = selectedSection?.is_section_mandatory !== false;
+	const onClickVerifyWithOtp = async field => {
+		if (field?.redirect_url) {
+			handleBankRedirection(field.redirect_url);
+			return;
+		}
+		try {
+			const aadhaarErrorMessage = isInvalidAadhaar(
+				formState.values[CONST.AADHAR_OTP_FIELD_NAME]
+			);
+			if (aadhaarErrorMessage) {
+				return addToast({
+					message: aadhaarErrorMessage,
+					type: 'error',
+				});
+			}
+
+			// Check for federal bank url redirect flag
+			if (selectedVerifyWithOtpSubField?.redirect_url) {
+				try {
+					setVerifyingWithOtp(true);
+					// const reqBody = {};
+					const sessionIdRes = await axios.post(
+						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT
+					);
+					const sessionId = await sessionIdRes?.data?.data?.SessionId;
+					if (!sessionId || sessionIdRes.status === 'nok') {
+						addToast({
+							message: 'Error verifying aadhaar, Please try after some time.',
+							type: 'error',
+						});
+						console.error(
+							'error-generate session id-',
+							sessionIdRes.message || sessionIdRes.data.message
+						);
+					}
+				} catch (error) {
+					console.error('error-addressdetails-aadhaarurlredirect-', error);
+				} finally {
+					setVerifyingWithOtp(false);
+					return;
+				}
+			}
+			// -- Check for federal bank url redirect flag
+
+			setVerifyingWithOtp(true);
+			try {
+				const aadhaarOtpReqBody = {
+					aadhaarNo: formState.values[CONST.AADHAR_OTP_FIELD_NAME],
+					product_id: loanProductId,
+				};
+				// console.log(aadhaarOtpReqBody, '555', clientToken);
+				// --------------------
+				const aadharOtpReq = await axios.post(
+					API.AADHAAR_GENERATE_OTP,
+					aadhaarOtpReqBody,
+					{
+						headers: {
+							Authorization: `${clientToken}`,
+						},
+					}
+				);
+				const aadhaarGenOtpResponse = aadharOtpReq.data;
+				if (aadhaarGenOtpResponse.status === 'nok') {
+					addToast({
+						message:
+							aadhaarGenOtpResponse?.data?.msg ||
+							'Aadhaar cannot be validated due to technical failure. Please try again after sometime',
+						type: 'error',
+					});
+				}
+				if (aadhaarGenOtpResponse.status === 'ok') {
+					aadhaarGenOtpResponse.aadhaarNo =
+						formState?.values?.[CONST.AADHAR_OTP_FIELD_NAME];
+
+					setAadharOtpResponse({
+						req: aadhaarOtpReqBody,
+						res: aadhaarGenOtpResponse,
+					});
+
+					addToast({
+						message: 'OTP is sent to aadhaar link mobile number',
+						type: 'success',
+					});
+					setIsAadhaarOtpModalOpen(true);
+				}
+			} catch (error) {
+				console.error('error-generate-aadhaar-otp-', error);
+				addToast({
+					message:
+						error?.response?.data?.message ||
+						error?.response?.data?.data?.msg ||
+						'Aadhaar cannot be validated due to technical failure. Please try again after sometime',
+					type: 'error',
+				});
+			} finally {
+				setVerifyingWithOtp(false);
+			}
+		} catch (error) {
+			console.error('error-onClickVerifyWithOtp-', error);
+		} finally {
+			setVerifyingWithOtp(false);
+		}
+	};
+
+	const handleBankRedirection = async url => {
+		try {
+			const resp = await axios.post(API.GENERATE_SESSION_ID_AADHAAR_REDIRECT);
+			const session_id = resp?.data?.data?.SessionId;
+			if (session_id) {
+				window.open(
+					`${url}?session_id=${session_id}&redirect_url=${encryptBase64(
+						window.location.href
+					)}&option=biometric`,
+					'_blank'
+				);
+			}
+		} catch (err) {
+			console.error(err);
+			// console.log('====================================');
+			console.error(err);
+			// console.log('====================================');
+		}
+	};
 	// console.log({ borrowerUserId, isEditOrViewLoan });
 	const onSaveAndProceed = async () => {
 		try {
@@ -208,6 +372,19 @@ const LeadDetails = props => {
 		} finally {
 			setLoading(false);
 		}
+	};
+	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
+		// console.log('prePopulateAddressDetailsFromVerifyOtpRes-aadhaarOtpRes-', {
+		// 	aadhaarOtpRes,
+		// });
+		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
+		Object.keys(formatedData || {}).map(key => {
+			onChangeFormStateField({
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+				value: formatedData?.[key] || '',
+			});
+			return null;
+		});
 	};
 
 	const prefilledValues = field => {
@@ -433,6 +610,18 @@ const LeadDetails = props => {
 				<Loading />
 			) : (
 				<>
+					{isAadhaarOtpModalOpen && (
+						<LeadAadhaarOTPModal
+							formState={formState}
+							isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
+							setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
+							aadhaarGenOtpResponse={aadharOtpResponse?.res}
+							prePopulateAddressDetailsFromVerifyOtpRes={
+								prePopulateAddressDetailsFromVerifyOtpRes
+							}
+							setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
+						/>
+					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{/* {console.log(formState.values.email)}; */}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
@@ -474,6 +663,25 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+										}
+
+										if (field?.name === CONST.AADHAR_OTP_FIELD_NAME) {
+											return (
+												<LeadAadhaarVerify
+													key={`field-${fieldIndex}-${field.name}`}
+													field={field}
+													register={register}
+													formState={formState}
+													prefilledValues={prefilledValues}
+													addressProofUploadSection={sub_section}
+													onClickVerifyWithOtp={onClickVerifyWithOtp}
+													verifyingWithOtp={verifyingWithOtp}
+													directorDetails={sectionData?.director_details}
+													selectedVerifyOtp={selectedVerifyOtp}
+													isViewLoan={isViewLoan}
+													isSectionCompleted={isSectionCompleted}
+												/>
+											);
 										}
 
 										if (field?.for_type_name) {
