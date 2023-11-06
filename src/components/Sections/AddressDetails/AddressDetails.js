@@ -352,7 +352,7 @@ const AddressDetails = props => {
 						return null;
 					});
 
-					if (!(otpVerifiedForAadhar || isFetchAddressPressed) && !isTestMode) {
+					if (!(otpVerifiedForAadhar || isFetchAddressPressed)) {
 						addToast({
 							message: 'Please Upload Aadhar or Verify Aadhar Number With OTP',
 							type: 'error',
