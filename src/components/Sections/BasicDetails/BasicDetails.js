@@ -2167,13 +2167,12 @@ const BasicDetails = props => {
 										}
 
 										if (
-											// `${selectedProduct?.loan_request_type}` === '2' &&
+											`${selectedProduct?.loan_request_type}` === '2' &&
 											field.name === CONST.EXISTING_CUSTOMER_FIELD_NAME &&
 											sectionData?.director_details?.existing_customer
 										) {
 											customFieldProps.disabled = true;
 										}
-
 										if (
 											isPanUploadMandatory &&
 											!isPanNumberExist &&
@@ -2194,6 +2193,12 @@ const BasicDetails = props => {
 												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
 											) &&
 											field.name === CONST.INCOME_TYPE_FIELD_NAME
+										) {
+											customFieldProps.disabled = true;
+										}
+										if (
+											!!completedSections?.includes(selectedSectionId) &&
+											field?.name === CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
 										}
