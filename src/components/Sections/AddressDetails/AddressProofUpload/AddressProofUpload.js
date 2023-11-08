@@ -996,7 +996,7 @@ const AddressProofUpload = props => {
 						type='file'
 						id={id}
 						accept=''
-						capture={isCameraCapture}
+						{...(isCameraCapture ? { capture: 'camera' } : {})}
 						onChange={onChange}
 						onClick={e => {
 							if (isInActive) {

@@ -438,7 +438,7 @@ const CategoryFileUpload = props => {
 						id={id}
 						onChange={onChange}
 						accept=''
-						capture={isCameraCapture}
+						{...(isCameraCapture ? { capture: 'camera' } : {})}
 						onClick={e => {
 							e.target.value = '';
 						}}
