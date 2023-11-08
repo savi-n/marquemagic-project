@@ -319,7 +319,9 @@ export default function Products() {
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
-	const { userToken } = useSelector(state => state.app);
+	const { userToken, permission: newPermission } = useSelector(
+		state => state.app
+	);
 	const { response: products } = useFetch({
 		url: PRODUCT_LIST_URL({ whiteLabelId }),
 		headers: { Authorization: `Bearer ${userToken}` },
@@ -339,8 +341,9 @@ export default function Products() {
 	const [addProduct, setAddProduct] = useState(false);
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
+	const solutionType = newPermission?.solution_type || '';
+
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
-	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 
 	const getStatusCustomer = async () => {
 		try {
@@ -497,8 +500,7 @@ export default function Products() {
 	return (
 		<Wrapper>
 			<Head>
-				Choose a
-				{wt_lbl?.solution_type === 'CaseDOS' ? ' Report' : ' Loan Product'}
+				Choose a{solutionType === 'CaseDOS' ? ' Product Type' : ' Loan Product'}
 			</Head>
 			<ImgDotElementRight src={imgDotElement} alt='dot' />
 			<ImgDotElementLeft src={imgDotElement} alt='dot' />
@@ -604,9 +606,8 @@ export default function Products() {
 				<StatusBox>
 					<ProductName>
 						Here, you can check your{' '}
-						{wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'application'}{' '}
-						status by entering the{' '}
-						{wt_lbl?.solution_type === 'CaseDOS' ? 'Case' : 'Loan'}
+						{solutionType === 'CaseDOS' ? 'Order' : 'application'} status by
+						entering the {solutionType === 'CaseDOS' ? 'Case' : 'Loan'}
 						Reference ID, Phone No or PAN No
 					</ProductName>
 					<StatusInputBox>
@@ -617,7 +618,7 @@ export default function Products() {
 							<input
 								className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none rounded-l-full my-2'
 								placeholder={`Enter ${
-									wt_lbl?.solution_type === 'CaseDOS' ? 'Case' : 'Loan'
+									solutionType === 'CaseDOS' ? 'Case' : 'Loan'
 								} Reference ID, Phone No or PAN No`}
 								onChange={e => setRefstatus(e.target.value)}
 							/>

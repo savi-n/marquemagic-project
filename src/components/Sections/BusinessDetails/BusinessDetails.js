@@ -91,6 +91,7 @@ const BusinessDetails = props => {
 		businessType,
 		loanRefId,
 		dedupePrefilledValues,
+		geoLocation,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
@@ -254,6 +255,7 @@ const BusinessDetails = props => {
 			name: obj.Name,
 			'din/pan': obj.Din,
 			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
+			crime_check: selectedProduct?.product_details?.crime_check || 'No',
 		}));
 	};
 	const onFetchFromCustomerId = async () => {
@@ -279,6 +281,9 @@ const BusinessDetails = props => {
 				business_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
 				origin: API.ORIGIN,
+				lat: geoLocation?.lat || '',
+				long: geoLocation?.long || '',
+				timestamp: geoLocation?.timestamp || '',
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -633,9 +638,14 @@ const BusinessDetails = props => {
 						application,
 						selectedLoanProductId,
 					});
+					const crimeCheck =
+						selectedProduct?.product_details?.crime_check || 'No';
 
 					companyRocData?.data?.director?.map(dir => {
 						dir.income_type = 'business'; // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
+						if (crimeCheck) {
+							dir.crime_check = crimeCheck;
+						}
 						return null;
 					});
 					addDirectorsReqBody.data =
@@ -643,6 +653,7 @@ const BusinessDetails = props => {
 						formatObject(companyRocData?.directorsForShow);
 					addDirectorsReqBody.business_id = newBusinessId;
 					addDirectorsReqBody.loan_id = newLoanId;
+
 					axios.post(API.ADD_MULTIPLE_DIRECTOR, addDirectorsReqBody);
 				} catch (error) {
 					console.error(error);
@@ -949,12 +960,20 @@ const BusinessDetails = props => {
 					);
 
 					// update completed sections
-					const tempCompletedSections = JSON.parse(
-						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
-					);
-					dispatch(
-						setNewCompletedSections(tempCompletedSections?.loan_details)
-					);
+					const tempTrackData = fetchRes?.data?.data?.trackData?.[0] || {};
+
+					const tempCompletedSections =
+						Object.keys(tempTrackData)?.length > 0 &&
+						JSON.parse(tempTrackData?.onboarding_track);
+
+					// const tempCompletedSections = JSON.parse(
+					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
+					// );
+					if (tempCompletedSections?.loan_details) {
+						dispatch(
+							setNewCompletedSections(tempCompletedSections?.loan_details)
+						);
+					}
 					if (
 						!tempCompletedSections?.loan_details?.includes(
 							CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
@@ -962,11 +981,13 @@ const BusinessDetails = props => {
 					) {
 						dispatch(setIsDraftLoan(true));
 					}
-					dispatch(
-						setNewCompletedDirectorSections(
-							tempCompletedSections?.director_details
-						)
-					);
+					if (tempCompletedSections?.director_details) {
+						dispatch(
+							setNewCompletedDirectorSections(
+								tempCompletedSections?.director_details
+							)
+						);
+					}
 					// console.log({ tempCompletedSections });
 				}
 

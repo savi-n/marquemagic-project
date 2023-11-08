@@ -67,6 +67,10 @@ const PanUpload = props => {
 	const panExtractionData = uploadedFile?.panExtractionData || {};
 	const [udyamErrorMessage, setUdyamErrorMessage] = useState('');
 
+	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
+
 	// called for roc starts
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: '',
@@ -90,6 +94,15 @@ const PanUpload = props => {
 			}
 		},
 	});
+
+	const inputProps = { ...getInputProps() };
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		inputProps.capture = 'camera';
+	}
+
 	const handleExtractionPan = async file => {
 		// console.log('handleExtractionPan-called-0th');
 		const previewFileData = {
@@ -438,26 +451,34 @@ const PanUpload = props => {
 				confirmPanNumber
 			);
 			setCompanyRocData(formattedCompanyData);
-			// prepopulation starts
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-				value:
-					formattedCompanyData?.panNumber || panExtractionData?.panNumber || '',
-			});
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
-				value:
-					formattedCompanyData?.BusinessName || panExtractionData?.Name || '',
-			});
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
-				value: `${formattedCompanyData?.BusinessType}` || '0' || '',
-			});
 
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
-				value: formattedCompanyData?.Email || '',
-			});
+			const ucicValue =
+				formState.values[CONST_BUSINESS_DETAILS.CUSTOMER_ID_FIELD_NAME] || '';
+
+			// prepopulation starts
+			if (!ucicValue) {
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+					value:
+						formattedCompanyData?.panNumber ||
+						panExtractionData?.panNumber ||
+						'',
+				});
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+					value:
+						formattedCompanyData?.BusinessName || panExtractionData?.Name || '',
+				});
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+					value: `${formattedCompanyData?.BusinessType}` || '0' || '',
+				});
+
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
+					value: formattedCompanyData?.Email || '',
+				});
+			}
 
 			const businessVintageValue =
 				moment(formattedCompanyData?.BusinessVintage).format('YYYY-MM-DD') ||
@@ -854,7 +875,8 @@ const PanUpload = props => {
 									className: 'dropzone',
 								})}
 							>
-								<input {...getInputProps()} />
+								{/* <input {...getInputProps()} /> */}
+								<input {...inputProps} />
 								<UI.IconUpload src={iconUploadBlue} alt='camera' />
 							</UI.UploadIconWrapper>
 						</>

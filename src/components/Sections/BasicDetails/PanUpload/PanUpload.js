@@ -56,6 +56,10 @@ const PanUpload = props => {
 	// const dispatch = useDispatch();
 	const panExtractionData = uploadedFile?.panExtractionData;
 
+	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
+
 	const openDocument = async file => {
 		try {
 			setLoadingFile(true);
@@ -180,51 +184,56 @@ const PanUpload = props => {
 
 			// Pre population from pan
 
-			onChangeFormStateField({
-				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
-				value: confirmPanNumber,
-			});
+			const ucicValue =
+				formState.values[CONST_BASIC_DETAILS.CUSTOMER_ID_FIELD_NAME] || '';
 
-			/* split the name into first and last name */
-			let name = panExtractionData?.Name,
-				first_name = '',
-				last_name = '';
-			if (name) {
-				let nameSplit = name.split(' ');
-				if (nameSplit.length > 1) {
-					last_name = nameSplit[nameSplit.length - 1];
-					nameSplit.pop();
+			if (!ucicValue) {
+				onChangeFormStateField({
+					name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+					value: confirmPanNumber,
+				});
+
+				/* split the name into first and last name */
+				let name = panExtractionData?.Name,
+					first_name = '',
+					last_name = '';
+				if (name) {
+					let nameSplit = name.split(' ');
+					if (nameSplit.length > 1) {
+						last_name = nameSplit[nameSplit.length - 1];
+						nameSplit.pop();
+					}
+					first_name = nameSplit.join(' ');
 				}
-				first_name = nameSplit.join(' ');
-			}
 
-			if (first_name) {
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
-					value: first_name || '',
-				});
-			}
-			if (last_name) {
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
-					value: last_name || '',
-				});
-			}
-			if (panExtractionData?.father_name) {
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
-					value: panExtractionData?.father_name || '',
-				});
-			}
-			if (panExtractionData?.DOB) {
-				let DOB = panExtractionData?.DOB;
-				DOB = DOB?.split('/')
-					?.reverse()
-					?.join('-');
-				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
-					value: DOB || '',
-				});
+				if (first_name) {
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
+						value: first_name || '',
+					});
+				}
+				if (last_name) {
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
+						value: last_name || '',
+					});
+				}
+				if (panExtractionData?.father_name) {
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
+						value: panExtractionData?.father_name || '',
+					});
+				}
+				if (panExtractionData?.DOB) {
+					let DOB = panExtractionData?.DOB;
+					DOB = DOB?.split('/')
+						?.reverse()
+						?.join('-');
+					onChangeFormStateField({
+						name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
+						value: DOB || '',
+					});
+				}
 			}
 
 			// Company search select is only applicable for business loans
@@ -370,7 +379,7 @@ const PanUpload = props => {
 
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: '',
-
+		capture: 'user',
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);
@@ -391,6 +400,14 @@ const PanUpload = props => {
 			}
 		},
 	});
+
+	const inputProps = { ...getInputProps() };
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		inputProps.capture = 'camera';
+	}
 
 	useEffect(() => {
 		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -575,7 +592,8 @@ const PanUpload = props => {
 							<UI.UploadIconWrapper
 								{...getRootProps({ className: 'dropzone' })}
 							>
-								<input {...getInputProps()} />
+								{/* <input {...getInputProps()} /> */}
+								<input {...inputProps} />
 								<UI.IconUpload src={iconUploadBlue} alt='camera' />
 							</UI.UploadIconWrapper>
 						</>

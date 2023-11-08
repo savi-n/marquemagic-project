@@ -36,9 +36,7 @@ function AddressDetailsCard(props) {
 				) : (
 					<>
 						{!address ? (
-							<UI.TextContent>
-								<h2>Fetching Address...</h2>
-							</UI.TextContent>
+							<UI.TextContent>Fetching Address...</UI.TextContent>
 						) : (
 							<>
 								<UI.TextContent embedInImageUpload={embedInImageUpload}>

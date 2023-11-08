@@ -45,7 +45,6 @@ const SideNav = props => {
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { addToast } = useToasts();
 	const isApplicant = applicantCoApplicants?.isApplicant;
-	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 	// console.log(isApplicant);
 
 	const {
@@ -54,6 +53,7 @@ const SideNav = props => {
 		directorSectionIds,
 		isEditOrViewLoan,
 		isViewLoan,
+		permission,
 	} = app;
 	const { loanRefId } = application;
 	// const isApplicant = isDirectorApplicant(selectedDirector);
@@ -61,7 +61,7 @@ const SideNav = props => {
 	const [hide, setShowHideSidebar] = useState(true);
 	const isApplicationSubmitted =
 		selectedSectionId === CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID;
-
+	const solutionType = permission?.solution_type || '';
 	const completedSections = getAllCompletedSections({
 		application,
 		selectedDirector,
@@ -113,9 +113,7 @@ const SideNav = props => {
 						<UI.ProductName hide={hide}>
 							<span>{selectedProduct?.name}</span>
 							<UI.ApplicationNo>
-								{wt_lbl?.solution_type === 'CaseDOS'
-									? 'Order '
-									: 'Application '}
+								{solutionType === 'CaseDOS' ? 'Order ' : 'Application '}
 								No: {loanRefId}
 							</UI.ApplicationNo>
 						</UI.ProductName>

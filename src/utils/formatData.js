@@ -179,6 +179,8 @@ export const formatSectionReqBody = data => {
 			loan_product_id: selectedLoanProductId || loanProductId,
 			origin: ORIGIN,
 			data: subSectionsData,
+			//savitha approved to pass loan_request_type for all the api's in generic
+			loan_request_type: selectedProduct?.loan_request_type,
 		};
 
 		// STATIC DATA PRESENT IN ALL UPDATE REQBODY
@@ -909,7 +911,7 @@ export const validateEmploymentDetails = data => {
 			return null;
 		});
 
-		if (lastDirector?.sections?.length < 2)
+		if (!lastDirector?.sections || lastDirector?.sections?.length < 2)
 			notCompletedDirectors.push(lastDirector);
 
 		// special case when last director is submitted with basic and address sections.But the user tries to submit employment details from the first director

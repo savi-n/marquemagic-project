@@ -39,7 +39,6 @@ export const ADDRESSPROOF = 'addressproof';
 export const SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD =
 	'present_address_proof_upload';
 
-
 export const PERMANENT_ADDRESS_DETAILS_SECTION_ID = 'permanent_address_details';
 export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
 export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';
@@ -55,8 +54,11 @@ export const PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 export const PRESENT_ID_PROOF_UPLOAD_FIELD_NAME = 'present_id_upload';
 export const REGISTERED_FIELD_NAME = 'registered_address';
 export const OTHERS_DOC_NAME_FIELD_NAME = 'address_proof_id_others';
-export const PERMANENT_ADDRESS1_FIELD_NAME='permanent_address1'
+export const PERMANENT_ADDRESS1_FIELD_NAME = 'permanent_address1';
 export const HIDE_PRESENT_ADDRESS_FIELDS = [
 	PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
 	PRESENT_ID_PROOF_UPLOAD_FIELD_NAME,
 ];
+
+export const PRESENT_OTHERS_RADIO = 'present_others';
+export const PERMANENT_OTHERS_RADIO = 'permanent_others';

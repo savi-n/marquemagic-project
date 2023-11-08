@@ -68,6 +68,7 @@ const AddressDetails = props => {
 		selectedSection,
 		permission,
 		selectedProduct,
+		whiteLabelId,
 	} = app;
 	const { isCountryIndia } = permission;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
@@ -308,7 +309,7 @@ const AddressDetails = props => {
 
 			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
 			// US CLIENT REQUIREMENT CHANGES
-			if (!isEditOrViewLoan && isCountryIndia) {
+			if (!isSectionCompleted && isCountryIndia) {
 				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
 					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
@@ -339,6 +340,26 @@ const AddressDetails = props => {
 					}
 				}
 
+				// in case of aadhar, either we should upload document or verify with otp
+				if (
+					isPermanentSelectedAddressProofTypeAadhaar &&
+					isVerifyWithOtpRequired
+				) {
+					const otpVerifiedForAadhar = selectedVerifyOtp?.res?.status === 'ok';
+					let isFetchAddressPressed = false;
+					permanentCacheDocumentsTemp.map(doc => {
+						if (!!doc?.extractionRes) isFetchAddressPressed = true;
+						return null;
+					});
+
+					if (!(otpVerifiedForAadhar || isFetchAddressPressed)) {
+						addToast({
+							message: 'Please Upload Aadhar or Verify Aadhar Number With OTP',
+							type: 'error',
+						});
+						return;
+					}
+				}
 				// console.log(isVeriftOtpRules, '-3');
 				if (
 					!isPermanentSelectedAddressProofTypeAadhaar &&
@@ -353,26 +374,27 @@ const AddressDetails = props => {
 						return;
 					}
 
-					if (!businessAddressIdAid1) {
-						// if document is (voter-dl-passport), it should be uploaded and extracted
-						const isPermanentSelectedAddressProofTypeOthers = formState?.values?.[
-							CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
-						]?.includes(CONST_SECTIONS.EXTRACTION_KEY_OTHERS);
-						if (!isPermanentSelectedAddressProofTypeOthers) {
-							let isFetchAddressPressed = false;
-							permanentCacheDocumentsTemp.map(doc => {
-								if (!!doc?.extractionRes) isFetchAddressPressed = true;
-								return null;
+					// removing since for ucic loans, the address details are coming and so businessAddressId
+					// if (!businessAddressIdAid1) {
+					// if document is (voter-dl-passport), it should be uploaded and extracted
+					const isPermanentSelectedAddressProofTypeOthers = formState?.values?.[
+						CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					]?.includes(CONST_SECTIONS.EXTRACTION_KEY_OTHERS);
+					if (!isPermanentSelectedAddressProofTypeOthers) {
+						let isFetchAddressPressed = false;
+						permanentCacheDocumentsTemp.map(doc => {
+							if (!!doc?.extractionRes) isFetchAddressPressed = true;
+							return null;
+						});
+						if (!isFetchAddressPressed) {
+							addToast({
+								message: 'Please upload address proof documents',
+								type: 'error',
 							});
-							if (!isFetchAddressPressed) {
-								addToast({
-									message: 'Please upload address proof documents',
-									type: 'error',
-								});
-								return;
-							}
+							return;
 						}
 					}
+					// }
 				}
 			}
 			setLoading(true);
@@ -455,10 +477,7 @@ const AddressDetails = props => {
 					formData.append('document', idx.file);
 					let result = await axios.post(
 						`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-						formData,
-						{
-							timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-						}
+						formData
 					);
 					let leng = result.data.files.length;
 					let fd = {
@@ -510,9 +529,7 @@ const AddressDetails = props => {
 				documentUploadReqBody.data.document_upload = newOtherUploadedDocumentsTemp;
 				// console.log('other-documentUploadReqBody-', { documentUploadReqBody });
 				// return;
-				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody, {
-					timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-				});
+				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
 
 			const newKycUploadCacheDocumentsTemp = [];
@@ -553,7 +570,6 @@ const AddressDetails = props => {
 								headers: {
 									Authorization: clientToken,
 								},
-								timeout: CONST_SECTIONS.timeoutForDocumentUpload,
 							}
 						);
 					}
@@ -666,6 +682,20 @@ const AddressDetails = props => {
 			const preData = {
 				permanent_address_proof_address_type:
 					sectionData?.director_details?.address_type,
+
+				permanent_address_proof_type:
+					process.env.REACT_APP_MUTHOOT_WHITELABEL === `${whiteLabelId}` &&
+					sectionData?.director_details?.additional_cust_id &&
+					!sectionData?.director_details?.ekyc_data?.classification_type
+						? CONST.PERMANENT_OTHERS_RADIO
+						: ekycArrayPermanentAddress?.classification_type,
+
+				present_address_proof_type:
+					process.env.REACT_APP_MUTHOOT_WHITELABEL === `${whiteLabelId}` &&
+					sectionData?.director_details?.additional_cust_id &&
+					!sectionData?.director_details?.ekyc_data?.classification_type
+						? CONST.PRESENT_OTHERS_RADIO
+						: ekycArrayPresentAddress?.classification_type,
 
 				permanent_aadhaar: sectionData?.director_details?.daadhaar,
 				permanent_address_proof_id_others:

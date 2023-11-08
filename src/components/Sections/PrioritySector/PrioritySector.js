@@ -52,9 +52,27 @@ const PrioritySectorDetails = () => {
 
 	const completedSections = application?.sections;
 
+	const isConsentOneValid =
+		!formState?.values[CONST.PRIORITY_CONSENT_ONE] ||
+		formState?.values[CONST.PRIORITY_CONSENT_ONE] === 'false';
+	const isConsentTwoValid =
+		!formState?.values[CONST.PRIORITY_CONSENT_TWO] ||
+		formState?.values[CONST.PRIORITY_CONSENT_TWO] === 'false';
+
+	// Check if both conditions are met
+	const showErrorMessage = isConsentOneValid && isConsentTwoValid;
+
+	// console.log(formState, 'formstate');
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
+			if (showErrorMessage) {
+				addToast({
+					message: 'Please select at least of the declaration',
+					type: 'error',
+				});
+				return;
+			}
 			const prioritySectorReqBody = formatSectionReqBody({
 				app,
 				application,
@@ -281,6 +299,11 @@ const PrioritySectorDetails = () => {
 							</Fragment>
 						);
 					})}
+					{showErrorMessage && (
+						<div style={{ color: 'red', margin: '20px 0' }}>
+							*Please Select Atleast One Of The Declaration Consent
+						</div>
+					)}
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
 							<Button

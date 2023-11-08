@@ -34,7 +34,6 @@ import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import * as CONST from './const';
 import { validateFileUpload } from 'utils/helperFunctions';
-import * as CONST_SECTIONS from 'components/Sections/const';
 
 const ProfileUpload = props => {
 	const {
@@ -78,6 +77,11 @@ const ProfileUpload = props => {
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
 	const isSelectedProductTypeBusiness = !!selectedProduct?.isSelectedProductTypeBusiness;
+
+	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
+
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -281,10 +285,7 @@ const ProfileUpload = props => {
 					if (acceptedFiles.length > 0) {
 						const resp = await axios.post(
 							UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
-							formData,
-							{
-								timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-							}
+							formData
 						);
 						const newFile = {
 							id: resp?.data?.document_details_data?.doc_id,
@@ -342,9 +343,7 @@ const ProfileUpload = props => {
 					}
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData, {
-							timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-						});
+						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
 						const newFile = {
 							field,
 							...resp?.data,
@@ -384,6 +383,15 @@ const ProfileUpload = props => {
 			}
 		},
 	});
+
+	const inputProps = { ...getInputProps() };
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		inputProps.capture = 'camera';
+	}
+
 	useEffect(() => {
 		(async () => {
 			try {
@@ -579,7 +587,8 @@ const ProfileUpload = props => {
 				</UI.CameraIconWrapper>
 			) : (
 				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-					<input {...getInputProps()} />
+					{/* <input {...getInputProps()} /> */}
+					<input {...inputProps} />
 					{!isDisabled && <UI.IconCamera src={iconCameraGrey} alt='camera' />}
 				</UI.CameraIconWrapper>
 			)}

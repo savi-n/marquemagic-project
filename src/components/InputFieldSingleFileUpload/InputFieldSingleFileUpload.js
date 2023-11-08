@@ -16,7 +16,6 @@ import * as UI from './ui';
 import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import TooltipImage from '../Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
-import * as CONST_SECTIONS from 'components/Sections/const';
 
 const InputFieldSingleFileUpload = props => {
 	const {
@@ -35,12 +34,16 @@ const InputFieldSingleFileUpload = props => {
 	// 	state => state.directors
 	// );
 	// const selectedDirector = directors?.[selectedDirectorId] || {};
-	const { isViewLoan } = app;
+	const { isViewLoan, selectedProduct } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
 	const dispatch = useDispatch();
 	const isMandatory = !!field?.rules?.required;
+
+	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
 
 	const openDocument = async file => {
 		try {
@@ -114,10 +117,10 @@ const InputFieldSingleFileUpload = props => {
 				formData.append('document', filesToUpload.file);
 				const fileUploadRes = await axios.post(
 					`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-					formData,
-					{
-						timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-					}
+					formData
+					// {
+					// 	timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+					// }
 				);
 				if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
 					return { ...finalFilesToUpload[0], status: 'error' };
@@ -168,6 +171,15 @@ const InputFieldSingleFileUpload = props => {
 			}
 		},
 	});
+
+	const inputProps = { ...getInputProps() };
+
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		inputProps.capture = 'camera';
+	}
 
 	useEffect(() => {
 		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -264,7 +276,8 @@ const InputFieldSingleFileUpload = props => {
 						</UI.UploadIconWrapper>
 					) : (
 						<UI.UploadIconWrapper {...getRootProps({ className: 'dropzone' })}>
-							<input {...getInputProps()} />
+							{/* <input {...getInputProps()} /> */}
+							<input {...inputProps} />
 
 							<UI.IconUpload src={iconUploadBlue} alt='camera' />
 						</UI.UploadIconWrapper>

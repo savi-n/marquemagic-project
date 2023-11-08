@@ -120,11 +120,34 @@ const Product = props => {
 							)
 						);
 					} else {
-						return tempSections;
+						return section;
 					}
 				});
 				selectedProductRes.product_details.sections = flowData;
 			}
+
+			// if (!isViewLoan) {
+			const tempSections = _.cloneDeep(
+				selectedProductRes?.product_details?.sections
+			);
+
+			const flowDataSections = tempSections?.filter(section => {
+				if (section?.remove_section_for_usertype) {
+					return (
+						!section?.remove_section_for_usertype?.includes(
+							userDetails?.usertype
+						) &&
+						!section?.remove_section_for_usertype?.includes(
+							userDetails?.user_sub_type
+						)
+					);
+				} else {
+					return section;
+				}
+			});
+			selectedProductRes.product_details.sections = flowDataSections;
+			// }
+
 			// New Individual loan changes for displaying sections based on the config - ends
 			dispatch(setSelectedProduct(selectedProductRes));
 			dispatch(

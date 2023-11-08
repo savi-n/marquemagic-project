@@ -47,7 +47,7 @@ import {
 	isDirectorApplicant,
 	isFieldValid,
 	parseJSON,
-	validateAllTheDirectors,
+	// validateAllTheDirectors,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -257,7 +257,24 @@ const BasicDetails = props => {
 		selectedSection,
 		isApplicant,
 	});
-	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
+
+	const selectedPanUploadFieldWithForType =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.BASIC_DETAILS_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field =>
+					field?.name === CONST.PAN_UPLOAD_FIELD_NAME &&
+					field?.for_type?.[0] ===
+						formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME]
+			)?.[0] || {};
+
+	// const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
+
+	const isPanUploadMandatory =
+		Object.keys(selectedPanUploadFieldWithForType).length > 0
+			? !!selectedPanUploadFieldWithForType?.rules?.required ??
+			  !!selectedPanUploadField?.rules?.required
+			: !!selectedPanUploadField?.rules?.required;
 
 	const panUploadedFile =
 		cacheDocumentsTemp?.filter(
@@ -728,7 +745,7 @@ const BasicDetails = props => {
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
-					cacheDocumentsTemp.map(doc => {
+					cacheDocumentsTemp?.map(doc => {
 						if (!doc?.requestId) return null;
 						uploadCacheDocumentsTemp.push({
 							...doc,
@@ -903,22 +920,22 @@ const BasicDetails = props => {
 				return;
 			}
 
-			if (!isApplicant) {
-				const validateDirectors = validateAllTheDirectors({
-					directors,
-				});
-				// console.log({ validateDirectors });
+			// if (!isApplicant) {
+			// 	const validateDirectors = validateAllTheDirectors({
+			// 		directors,
+			// 	});
+			// 	// console.log({ validateDirectors });
 
-				if (validateDirectors?.allowProceed === false) {
-					addToast({
-						message: `Please fill all the details in ${
-							validateDirectors?.directorName
-						}`,
-						type: 'error',
-					});
-					return false;
-				}
-			}
+			// 	if (validateDirectors?.allowProceed === false) {
+			// 		addToast({
+			// 			message: `Please fill all the details in ${
+			// 				validateDirectors?.directorName
+			// 			}`,
+			// 			type: 'error',
+			// 		});
+			// 		return;
+			// 	}
+			// }
 
 			setLoading(true);
 			const reqBody = {
@@ -934,6 +951,10 @@ const BasicDetails = props => {
 				isApplicant,
 				type_name: addNewDirectorKey || selectedDirector?.type_name,
 				origin: API.ORIGIN,
+				did: selectedDirectorId || undefined,
+				lat: geoLocation?.lat || '',
+				long: geoLocation?.long || '',
+				timestamp: geoLocation?.timestamp || '',
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -1551,12 +1572,20 @@ const BasicDetails = props => {
 					isEditOrViewLoan &&
 					`${selectedProduct?.loan_request_type}` === '2'
 				) {
-					const tempCompletedSections = parseJSON(
-						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
-					);
-					dispatch(
-						setNewCompletedSections(tempCompletedSections?.loan_details)
-					);
+					const tempTrackData = fetchRes?.data?.data?.trackData?.[0] || {};
+
+					const tempCompletedSections =
+						Object.keys(tempTrackData)?.length > 0 &&
+						JSON.parse(tempTrackData?.onboarding_track);
+
+					// const tempCompletedSections = parseJSON(
+					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
+					// );
+					if (tempCompletedSections?.loan_details) {
+						dispatch(
+							setNewCompletedSections(tempCompletedSections?.loan_details)
+						);
+					}
 					if (
 						!tempCompletedSections?.loan_details?.includes(
 							CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
@@ -1564,11 +1593,13 @@ const BasicDetails = props => {
 					) {
 						dispatch(setIsDraftLoan(true));
 					}
-					dispatch(
-						setNewCompletedDirectorSections(
-							tempCompletedSections?.director_details
-						)
-					);
+					if (tempCompletedSections?.director_details) {
+						dispatch(
+							setNewCompletedDirectorSections(
+								tempCompletedSections?.director_details
+							)
+						);
+					}
 				}
 
 				const fetchedProfilePicData =
@@ -2136,6 +2167,13 @@ const BasicDetails = props => {
 										}
 
 										if (
+											`${selectedProduct?.loan_request_type}` === '2' &&
+											field.name === CONST.EXISTING_CUSTOMER_FIELD_NAME &&
+											sectionData?.director_details?.existing_customer
+										) {
+											customFieldProps.disabled = true;
+										}
+										if (
 											isPanUploadMandatory &&
 											!isPanNumberExist &&
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
@@ -2155,6 +2193,12 @@ const BasicDetails = props => {
 												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
 											) &&
 											field.name === CONST.INCOME_TYPE_FIELD_NAME
+										) {
+											customFieldProps.disabled = true;
+										}
+										if (
+											!!completedSections?.includes(selectedSectionId) &&
+											field?.name === CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
 										}
@@ -2180,6 +2224,11 @@ const BasicDetails = props => {
 											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
 											customFieldPropsSubfields.loading = loading;
 											customFieldPropsSubfields.disabled =
+												`${
+													sectionData?.director_details?.additional_cust_id
+												}` ===
+													formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
+												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME] ||
 												loading ||
 												!!completedSections?.includes(selectedSectionId);
 											customFieldProps.disabled = !!completedSections?.includes(
@@ -2189,9 +2238,23 @@ const BasicDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											customFieldProps.infoMessage =
-												'Select the income type to fetch the data from Customer ID.';
+											let infoMessage = '';
+											if (
+												`${
+													sectionData?.director_details?.additional_cust_id
+												}` === formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
+											) {
+												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
+											} else if (
+												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]
+											) {
+												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
+											} else {
+												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
+											}
+											customFieldProps.infoMessage = infoMessage;
 										}
+
 										if (field?.name === CONST.DOB_FIELD_NAME) {
 											customFieldPropsSubfields.value =
 												getTotalYearsCompleted(

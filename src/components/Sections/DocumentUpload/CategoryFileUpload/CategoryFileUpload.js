@@ -37,7 +37,6 @@ import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import { useToasts } from 'components/Toast/ToastProvider';
 import TooltipImage from 'components/Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
-import * as CONST_SECTIONS from 'components/Sections/const';
 
 let refCounter = 0;
 
@@ -179,7 +178,7 @@ const CategoryFileUpload = props => {
 						data: formData,
 						onUploadProgress: event => onProgress(event, file, documents),
 						cancelToken: file.cancelToken.token,
-						timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+						// timeout: CONST_SECTIONS.timeoutForDocumentUpload,
 					}
 				)
 					.then(res => {
