@@ -49,7 +49,7 @@ const CategoryFileUpload = props => {
 		directorId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan, isLocalhost } = app;
+	const { isViewLoan, isLocalhost, selectedProduct } = app;
 	const { businessId, businessUserId, loanId, userId } = application;
 	const ref = useRef(uuidv4());
 	const refPopup = useRef(null);
@@ -69,6 +69,17 @@ const CategoryFileUpload = props => {
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 	const [unUploadedFile, setUnUploadedFile] = useState([]);
+
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
+
+	let isCameraCapture = '';
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		isCameraCapture = 'camera';
+	}
 
 	const openDocument = async file => {
 		try {
@@ -426,6 +437,8 @@ const CategoryFileUpload = props => {
 						type='file'
 						id={id}
 						onChange={onChange}
+						accept=''
+						capture={isCameraCapture}
 						onClick={e => {
 							e.target.value = '';
 						}}
