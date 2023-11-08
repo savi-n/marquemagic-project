@@ -174,10 +174,15 @@ const ProfileUpload = props => {
 		}
 	};
 	const { getRootProps, getInputProps } = useDropzone({
+		// accept: {
+		// 	'image/png': ['.png'],
+		// 	'image/jpeg': ['.jpeg'],
+		// 	'image/jpg': ['.jpg'],
+		// },
 		accept: {
-			'image/png': ['.png'],
-			'image/jpeg': ['.jpeg'],
-			'image/jpg': ['.jpg'],
+			'image/jpeg': [],
+			'image/png': [],
+			'image/jpg': [],
 		},
 
 		onDrop: async acceptedFiles => {
