@@ -19,6 +19,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'components/Modal';
 import Button from 'components/Button';
+import queryString from 'query-string';
+
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
 // import imgEditIcon from 'assets/icons/edit-icon.png';
 // import { faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -27,6 +29,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import Loading from 'components/Loading';
 import searchIcon from 'assets/icons/search-icon.png';
 import { useSelector } from 'react-redux';
+import { decryptBase64 } from '../../../src/utils/encrypt';
 
 // import InputField from 'components/inputs/InputField';
 const Wrapper = styled.div`
@@ -494,7 +497,9 @@ export default function Products() {
 		sessionStorage.setItem('permission', permissionTemp);
 		userDetails && sessionStorage.setItem('userDetails', userDetails);
 	}, []);
-
+	const params = queryString.parse(window.location.search);
+	const { lid, token } = params;
+	console.log(lid);
 	useEffect(() => {}, [addedProduct]);
 
 	return (
