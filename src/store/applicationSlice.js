@@ -134,8 +134,8 @@ export const applicationSlice = createSlice({
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
 					if (
-						// `${doc?.id}` === `${newFile?.id}` ||
-						`${doc?.document_key}` === `${newFile?.document_key}`
+						`${doc?.id}` === `${newFile?.id}`
+						// `${doc?.document_key}` === `${newFile?.document_key}`
 					) {
 						return true;
 					}
