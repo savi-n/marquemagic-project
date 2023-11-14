@@ -25,7 +25,8 @@ import {
 	setLoanIds,
 	// addOrUpdateCacheDocuments,
 	// clearCacheDraftModeSectionsData,
-	setLeadIds,
+	setLeadId,
+	setSelectedProductIdFromLead,
 } from 'store/applicationSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from 'components/Header';
@@ -111,7 +112,8 @@ const AppLayout = () => {
 			decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 			const isEditLoan = decryptedToken?.edit ? true : false;
 			const isViewLoan = !isEditLoan && !decryptedToken?.create;
-
+			// log for reference
+			console.log({ decryptedToken });
 			// set the values for new flow
 			dispatch(setUserToken(decryptedToken?.token));
 			// if (!decryptedToken?.token) {
@@ -135,7 +137,7 @@ const AppLayout = () => {
 			}
 			if (decryptedToken?.lead_id) {
 				dispatch(
-					setLeadIds({
+					setLeadId({
 						leadId: decryptedToken?.lead_id,
 					})
 				);
@@ -144,6 +146,14 @@ const AppLayout = () => {
 					setEditOrViewLoan({
 						isEditLoan,
 						isViewLoan,
+					})
+				);
+			}
+			if (decryptedToken?.selected_product_id_from_lead) {
+				dispatch(
+					setSelectedProductIdFromLead({
+						selectedProductIdFromLead:
+							decryptedToken?.selected_product_id_from_lead,
 					})
 				);
 			}

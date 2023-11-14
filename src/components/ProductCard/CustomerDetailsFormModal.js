@@ -35,9 +35,12 @@ const CustomerDetailsFormModal = props => {
 		subProduct = {},
 		setProductModalData,
 		redirectToProductPageInEditMode,
+		redirectToProductPageInEditModeFromLeadId,
 	} = props;
-	const { app } = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
 	const { permission, whiteLabelId, userToken } = app;
+	const { leadId, selectedProductIdFromLead } = application;
+
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
@@ -270,6 +273,10 @@ const CustomerDetailsFormModal = props => {
 									userToken,
 								});
 								dispatch(setGeoLocation(geoRes));
+								if (leadId && selectedProductIdFromLead) {
+									redirectToProductPageInEditModeFromLeadId(product);
+									return;
+								}
 								redirectToProductPage(productForModal);
 								dispatch(setDedupePrefilledValues(formState?.values));
 							}}

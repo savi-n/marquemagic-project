@@ -325,6 +325,7 @@ export default function Products() {
 	const { userToken, permission: newPermission } = useSelector(
 		state => state.app
 	);
+	const { selectedProductIdFromLead } = useSelector(state => state.application);
 	const { response: products } = useFetch({
 		url: PRODUCT_LIST_URL({ whiteLabelId }),
 		headers: { Authorization: `Bearer ${userToken}` },
@@ -345,7 +346,10 @@ export default function Products() {
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
 	const solutionType = newPermission?.solution_type || '';
-
+	const [
+		isCustomerDetailsFormModalOpen,
+		setIsCustomerDetailsFormModalOpen,
+	] = useState(false);
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
 
 	const getStatusCustomer = async () => {
@@ -496,11 +500,33 @@ export default function Products() {
 		sessionStorage.setItem('wt_lbl', wt_lbl);
 		sessionStorage.setItem('permission', permissionTemp);
 		userDetails && sessionStorage.setItem('userDetails', userDetails);
+		// console.log({ products }, 'Use-effect');
+		// if (selectedProductIdFromLead) {
+		// 	const filteredProduct = products?.data?.filter(item => {
+		// 		return `${item?.id}` === `${selectedProductIdFromLead}`;
+		// 	})?.[0];
+		// 	if (filteredProduct) setAddedProduct(filteredProduct);
+		// 	console.log({ selectedProductIdFromLead, filteredProduct, products });
+		// }
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	// const params = queryString.parse(window.location.search);
 	// const { lid } = params;
 	// console.log(lid);
-	// useEffect(() => {}, [addedProduct]);
+	useEffect(() => {
+		if (!addedProduct) {
+			if (selectedProductIdFromLead) {
+				const filteredProduct = products?.data?.filter(item => {
+					return `${item?.id}` === `${selectedProductIdFromLead}`;
+				})?.[0];
+				if (filteredProduct) {
+					setAddedProduct(filteredProduct);
+					setIsCustomerDetailsFormModalOpen(true);
+				}
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [products]);
 
 	return (
 		<Wrapper>
@@ -514,7 +540,16 @@ export default function Products() {
 					products?.data?.map(
 						(product, idx) =>
 							idx < initialLoanProductCount && (
-								<Card product={product} key={`product__${product.id}`} />
+								<Card
+									product={product}
+									key={`product__${product.id}`}
+									isCustomerDetailsFormModalOpen={
+										isCustomerDetailsFormModalOpen
+									}
+									setIsCustomerDetailsFormModalOpen={
+										setIsCustomerDetailsFormModalOpen
+									}
+								/>
 							)
 					)}
 			</ProductsBox>
@@ -530,7 +565,14 @@ export default function Products() {
 				) : (
 					<>
 						{addedProduct && (
-							<Card product={addedProduct} key={`product__${addProduct.id}`} />
+							<Card
+								product={addedProduct}
+								key={`product__${addProduct.id}`}
+								isCustomerDetailsFormModalOpen={isCustomerDetailsFormModalOpen}
+								setIsCustomerDetailsFormModalOpen={
+									setIsCustomerDetailsFormModalOpen
+								}
+							/>
 						)}
 					</>
 				)}
@@ -562,6 +604,12 @@ export default function Products() {
 											product={product}
 											key={`product__${product.id}`}
 											setAddProduct={setAddProduct}
+											isCustomerDetailsFormModalOpen={
+												isCustomerDetailsFormModalOpen
+											}
+											setIsCustomerDetailsFormModalOpen={
+												setIsCustomerDetailsFormModalOpen
+											}
 										/>
 									);
 								})}
