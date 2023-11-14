@@ -17,6 +17,8 @@ import { useToasts } from '../Toast/ToastProvider';
 import {
 	setDedupePrefilledValues,
 	setGeoLocation,
+	setSelectedProductIdFromLead,
+	setLeadId,
 } from 'store/applicationSlice';
 import { fetchGeoLocation } from 'utils/helper';
 import * as API from '_config/app.config';
@@ -169,6 +171,9 @@ const CustomerDetailsFormModal = props => {
 						});
 						return;
 					}
+					dispatch(setLeadId(''));
+					dispatch(setSelectedProductIdFromLead(''));
+
 					redirectToProductPageInEditMode(ddupeRes?.data, productForModal);
 				} else {
 					// console.log({ ddupeRes }, 'search-called ---- else part');
