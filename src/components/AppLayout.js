@@ -25,6 +25,7 @@ import {
 	setLoanIds,
 	// addOrUpdateCacheDocuments,
 	// clearCacheDraftModeSectionsData,
+	setLeadIds,
 } from 'store/applicationSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from 'components/Header';
@@ -122,6 +123,20 @@ const AppLayout = () => {
 				dispatch(
 					setLoanIds({
 						loanRefId: decryptedToken?.loan_ref_id,
+					})
+				);
+
+				dispatch(
+					setEditOrViewLoan({
+						isEditLoan,
+						isViewLoan,
+					})
+				);
+			}
+			if (decryptedToken?.lead_id) {
+				dispatch(
+					setLeadIds({
+						leadId: decryptedToken?.lead_id,
 					})
 				);
 

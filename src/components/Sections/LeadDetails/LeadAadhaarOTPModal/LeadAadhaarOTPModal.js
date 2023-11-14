@@ -179,7 +179,6 @@ const LeadAadhaarOTPModal = props => {
 			// 		res: aadhaarVerifyResponse,
 			// 	})
 			// );
-			console.log('formState', formState);
 			if (
 				formState?.values?.[
 					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
@@ -187,7 +186,7 @@ const LeadAadhaarOTPModal = props => {
 				CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
 			) {
 				prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
-				console.log('demo');
+				// console.log('demo');
 			}
 
 			if (aadhaarVerifyResponse.status === 'ok') {

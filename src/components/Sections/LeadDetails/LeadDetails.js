@@ -6,13 +6,14 @@ import queryString from 'query-string';
 import _ from 'lodash';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
-import { decryptRes, encryptBase64 } from 'utils/encrypt';
+import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import {
 	setIsDraftLoan,
-	setLoginCreateUserRes,
+	// setLoginCreateUserRes,
 	setSelectedSectionId,
+	// setUserToken,
 } from 'store/appSlice';
 import {
 	setNewCompletedDirectorSections,
@@ -21,14 +22,15 @@ import {
 } from 'store/directorsSlice';
 import {
 	setLoanIds,
+	// setLeadIds,
 	setCompletedApplicationSection,
 	setBusinessType,
 	setNewCompletedSections,
-	setBusinessMobile,
-	setBusinessName,
+	// setBusinessMobile,
+	// setBusinessName,
 } from 'store/applicationSlice';
 import {
-	formatSectionReqBody,
+	// formatSectionReqBody,
 	getApiErrorMessage,
 	getAllCompletedSections,
 	getSelectedSubField,
@@ -50,6 +52,7 @@ import { isInvalidAadhaar, isInvalidPan } from 'utils/validation';
 import * as CONST from './const';
 import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
+// import LeadAssetsDetails from './LeadAssetsDetails';
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedDirectorId, directors } = useSelector(
@@ -74,10 +77,11 @@ const LeadDetails = props => {
 		isTestMode,
 	} = app;
 	const {
-		borrowerUserId,
-		businessUserId,
+		// borrowerUserId,
+		// businessUserId,
 		businessType,
 		loanRefId,
+		leadId,
 		loanProductId,
 	} = application;
 
@@ -108,7 +112,7 @@ const LeadDetails = props => {
 			},
 		};
 	}
-
+	// console.log('selectedSection=>', selectedSection);
 	const {
 		handleSubmit,
 		register,
@@ -263,100 +267,42 @@ const LeadDetails = props => {
 			setLoading(true);
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
-			// call login craete user api only once while creating the loan
 
-			// modify the data according to the fields added
-			let newBorrowerUserId = '';
-			if (!isEditOrViewLoan && !borrowerUserId) {
-				const loginCreateUserReqBody = {
-					email: formState?.values?.email || '',
-					white_label_id: whiteLabelId,
-					source: API.APP_CLIENT,
-					name:
-						formState?.values?.first_name || formState?.values?.business_name,
-					mobileNo: formState?.values?.business_mobile_no,
-					addrr1: '',
-					addrr2: '',
-				};
-				if (!!userDetails?.id) {
-					loginCreateUserReqBody.user_id = userDetails?.id;
-				}
-				const newLoginCreateUserRes = await axios.post(
-					`${API.LOGIN_CREATEUSER}`,
-					loginCreateUserReqBody
-				);
-				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
-				newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
-				// first priority is to set existing user token which is comming from ui-ux
-				// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
-				axios.defaults.headers.Authorization = `Bearer ${userToken ||
-					newLoginCreateUserRes?.data?.token}`;
-			} else {
-				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
-			}
-			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
-
-			const buissnessDetailsReqBody = formatSectionReqBody({
-				section: selectedSection,
-				values: {
-					...formState.values,
-				},
-				app,
-				// selectedDirector,
-				application,
-				// selectedLoanProductId,
-			});
-
-			buissnessDetailsReqBody.borrower_user_id =
-				newBorrowerUserId || businessUserId || borrowerUserId;
-
-			delete buissnessDetailsReqBody.data.business_details.loan_document;
-			buissnessDetailsReqBody.data.business_details.crime_check = crimeCheck;
-
-			if (completedSections?.includes(selectedSectionId)) {
-				delete buissnessDetailsReqBody.data.business_details.gstin;
-			}
-
-			const buissnessDetailsRes = await axios.post(
-				API.BUSINESS_DETIALS,
-				buissnessDetailsReqBody
+			const leadsDetailsReqBody = {
+				...formState.values,
+				white_label_id: whiteLabelId,
+			};
+			// console.log('leadsDetailsReqBody=>', leadsDetailsReqBody);
+			const leadsDetailsRes = await axios.post(
+				`${API.LEADS_DETIALS}`,
+				leadsDetailsReqBody
 			);
-			const newLoanRefId =
-				buissnessDetailsRes?.data?.data?.loan_data?.loan_ref_id;
-			const newLoanId = buissnessDetailsRes?.data?.data?.loan_data?.id;
-			const newBusinessId =
-				buissnessDetailsRes?.data?.data?.business_data?.id ||
-				buissnessDetailsRes?.data?.data?.loan_data?.business_id;
-
-			const newBusinessUserId =
-				buissnessDetailsRes?.data?.data?.business_data?.userid;
-			const newCreatedByUserId =
-				buissnessDetailsRes?.data?.data?.loan_data?.createdUserId;
-			const newBusinessType =
-				buissnessDetailsRes?.data?.data?.business_data?.businesstype;
-			const newBusinessMobile =
-				buissnessDetailsRes?.data?.data?.business_data?.contactno;
-			if (!!newBusinessType) {
-				dispatch(setBusinessType(newBusinessType));
-				dispatch(setSmeType(newBusinessType));
+			console.log('leadsDetailsRes=>', leadsDetailsRes);
+			if (leadsDetailsRes?.data?.status === 'ok') {
+				console.log(leadsDetailsRes.data.data);
+				// console.log('selectedProduct', selectedProduct);
+				// console.log(userDetails);
+				try {
+					const token = {
+						userId: userDetails?.id,
+						token: userToken,
+						create: true,
+						productId: selectedProduct?.id,
+						leadId: leadsDetailsRes?.data?.data?.id,
+					};
+					const encryptedToken = encryptReq(token);
+					window.open(
+						`${window.origin}/nconboarding/applyloan/?uid=${
+							userDetails?.id
+						}&token=${encryptedToken}`,
+						'_self'
+					);
+				} catch (error) {
+					console.error('header-getAppylyloanUrl-error  ', error);
+				}
 			}
-			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
-			const newBusinessName =
-				buissnessDetailsRes?.data?.data?.business_data?.businessname;
-			if (!!newBusinessName) dispatch(setBusinessName(newBusinessName));
 
 			dispatch(setCompletedApplicationSection(selectedSectionId));
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					// loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LeadDetails-onProceed-', {
@@ -426,6 +372,7 @@ const LeadDetails = props => {
 			});
 		}
 	};
+	// console.log(formState);
 
 	const validateToken = async () => {
 		try {
@@ -456,11 +403,13 @@ const LeadDetails = props => {
 		try {
 			setFetchingSectionData(true);
 			// get method of the sections is here. modify the api of this particular section
-			const fetchRes = await axios.get(`${API_END_POINT}/business_details`, {
+			const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
 				params: {
-					loan_ref_id: loanRefId,
+					lead_id: leadId,
+					white_label_id: whiteLabelId,
 				},
 			});
+			console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
 				if (!businessType) {
@@ -625,6 +574,19 @@ const LeadDetails = props => {
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{/* {console.log(formState.values.email)}; */}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+						// if (sub_section?.id === CONST.FIELD_NAME_ASSETS_DETAILS) {
+						// 	return (
+						// 		<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+						// 			<LeadAssetsDetails
+						// 				sectionIndex={sectionIndex}
+						// 				sub_section={sub_section}
+						// 				formState={formState}
+						// 				prefilledValues={prefilledValues}
+						// 				registerField={register}
+						// 			/>
+						// 		</Fragment>
+						// 	);
+						// }
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -666,6 +628,16 @@ const LeadDetails = props => {
 										}
 
 										if (field?.name === CONST.AADHAR_OTP_FIELD_NAME) {
+											customFieldPropsSubFields.loading = loading;
+											customFieldProps.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.onClick = event => {
+												onClickVerifyWithOtp(formState.values?.['aadhaar']);
+											};
 											return (
 												<LeadAadhaarVerify
 													key={`field-${fieldIndex}-${field.name}`}
@@ -769,13 +741,8 @@ const LeadDetails = props => {
 								isLoader={loading}
 								disabled={loading}
 								onClick={handleSubmit(() => {
-									if (
-										isEditOrViewLoan ||
-										completedSections?.includes(selectedSectionId)
-									) {
-										onSaveAndProceed();
-										return;
-									}
+									onSaveAndProceed();
+									return;
 								})}
 							/>
 						)}

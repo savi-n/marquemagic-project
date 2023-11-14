@@ -103,7 +103,19 @@ const AddressProofUpload = props => {
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	let refCounter = 0;
+
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
+
+	const isFileFromDeviceStorageAllowed =
+		selectedProduct?.product_details?.is_file_from_storage_allowed;
+
+	let isCameraCapture = '';
+	if (
+		isFileFromDeviceStorageAllowed !== undefined &&
+		!isFileFromDeviceStorageAllowed
+	) {
+		isCameraCapture = 'camera';
+	}
 
 	const verifyKycAddressProof = async data => {
 		try {
@@ -983,6 +995,8 @@ const AddressProofUpload = props => {
 					<UI.UploadButton
 						type='file'
 						id={id}
+						accept=''
+						{...(isCameraCapture ? { capture: 'camera' } : {})}
 						onChange={onChange}
 						onClick={e => {
 							if (isInActive) {

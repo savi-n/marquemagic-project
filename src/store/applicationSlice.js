@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { APPLICATION_SUBMITTED_SECTION_ID } from 'components/Sections/const';
 
 const initialState = {
+	leadId: '',
 	borrowerUserId: '',
 	loanRefId: '',
 	loanId: '',
@@ -47,6 +48,10 @@ export const applicationSlice = createSlice({
 			if (loanProductId) state.loanProductId = loanProductId;
 			if (createdByUserId) state.createdByUserId = createdByUserId;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
+		},
+		setLeadIds: (state, action) => {
+			const { leadId } = action.payload;
+			if (leadId) state.leadId = leadId;
 		},
 		setCompletedApplicationSection: (state, { payload }) => {
 			// payload === sectionId
@@ -129,8 +134,8 @@ export const applicationSlice = createSlice({
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
 					if (
-						// `${doc?.id}` === `${newFile?.id}` ||
-						`${doc?.document_key}` === `${newFile?.document_key}`
+						`${doc?.id}` === `${newFile?.id}`
+						// `${doc?.document_key}` === `${newFile?.document_key}`
 					) {
 						return true;
 					}
@@ -330,6 +335,7 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
+	setLeadIds,
 	setCompletedApplicationSection,
 	setNewCompletedSections,
 
