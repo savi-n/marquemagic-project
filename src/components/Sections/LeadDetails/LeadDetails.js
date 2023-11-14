@@ -11,9 +11,9 @@ import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import {
 	setIsDraftLoan,
-	setLoginCreateUserRes,
+	// setLoginCreateUserRes,
 	setSelectedSectionId,
-	setUserToken,
+	// setUserToken,
 } from 'store/appSlice';
 import {
 	setNewCompletedDirectorSections,
@@ -22,7 +22,7 @@ import {
 } from 'store/directorsSlice';
 import {
 	setLoanIds,
-	setLeadIds,
+	// setLeadIds,
 	setCompletedApplicationSection,
 	setBusinessType,
 	setNewCompletedSections,
@@ -77,7 +77,7 @@ const LeadDetails = props => {
 		isTestMode,
 	} = app;
 	const {
-		borrowerUserId,
+		// borrowerUserId,
 		// businessUserId,
 		businessType,
 		loanRefId,
