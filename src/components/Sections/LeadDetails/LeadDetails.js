@@ -22,7 +22,7 @@ import {
 } from 'store/directorsSlice';
 import {
 	setLoanIds,
-	// setLeadIds,
+	// setLeadId,
 	setCompletedApplicationSection,
 	setBusinessType,
 	setNewCompletedSections,
@@ -84,7 +84,7 @@ const LeadDetails = props => {
 		leadId,
 		loanProductId,
 	} = application;
-
+	console.log({ isEditLoan, isViewLoan });
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
@@ -277,9 +277,9 @@ const LeadDetails = props => {
 				`${API.LEADS_DETIALS}`,
 				leadsDetailsReqBody
 			);
-			console.log('leadsDetailsRes=>', leadsDetailsRes);
+			// console.log('leadsDetailsRes=>', { leadsDetailsRes });
 			if (leadsDetailsRes?.data?.status === 'ok') {
-				console.log(leadsDetailsRes.data.data);
+				// console.log(leadsDetailsRes.data.data);
 				// console.log('selectedProduct', selectedProduct);
 				// console.log(userDetails);
 				try {
@@ -287,8 +287,8 @@ const LeadDetails = props => {
 						userId: userDetails?.id,
 						token: userToken,
 						create: true,
-						productId: selectedProduct?.id,
-						leadId: leadsDetailsRes?.data?.data?.id,
+						selected_product_id_from_lead: selectedProduct?.id,
+						lead_id: leadsDetailsRes?.data?.data?.id,
 					};
 					const encryptedToken = encryptReq(token);
 					window.open(
@@ -405,7 +405,7 @@ const LeadDetails = props => {
 			// get method of the sections is here. modify the api of this particular section
 			const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
 				params: {
-					lead_id: leadId,
+					id: leadId,
 					white_label_id: whiteLabelId,
 				},
 			});
@@ -497,7 +497,7 @@ const LeadDetails = props => {
 			);
 		}
 		//new get api
-		if (loanRefId) fetchSectionDetails();
+		if (leadId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
 

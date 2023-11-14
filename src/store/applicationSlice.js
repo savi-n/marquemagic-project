@@ -23,6 +23,7 @@ const initialState = {
 	prompted: false,
 	businessName: '',
 	dedupePrefilledValues: null,
+	selectedProductIdFromLead: '',
 	// isSelfieImagePresent: false,
 };
 
@@ -49,9 +50,15 @@ export const applicationSlice = createSlice({
 			if (createdByUserId) state.createdByUserId = createdByUserId;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
-		setLeadIds: (state, action) => {
+		setLeadId: (state, action) => {
 			const { leadId } = action.payload;
 			if (leadId) state.leadId = leadId;
+		},
+
+		setSelectedProductIdFromLead: (state, action) => {
+			const { selectedProductIdFromLead } = action.payload;
+			if (selectedProductIdFromLead)
+				state.selectedProductIdFromLead = selectedProductIdFromLead;
 		},
 		setCompletedApplicationSection: (state, { payload }) => {
 			// payload === sectionId
@@ -335,10 +342,10 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
-	setLeadIds,
+	setLeadId,
 	setCompletedApplicationSection,
 	setNewCompletedSections,
-
+	setSelectedProductIdFromLead,
 	addCacheDocument,
 	addSelfieCacheDocument,
 	addOrUpdateCacheDocument,
