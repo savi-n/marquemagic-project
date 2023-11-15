@@ -23,7 +23,7 @@ const initialState = {
 	prompted: false,
 	businessName: '',
 	dedupePrefilledValues: null,
-	selectedProductIdFromLead: '',
+	selectedProductIdsFromLead: '',
 	// isSelfieImagePresent: false,
 };
 
@@ -56,10 +56,16 @@ export const applicationSlice = createSlice({
 		},
 
 		setSelectedProductIdFromLead: (state, action) => {
-			const { selectedProductIdFromLead } = action.payload;
-			if (selectedProductIdFromLead)
-				state.selectedProductIdFromLead = selectedProductIdFromLead;
+			const { selectedProductIdsFromLead } = action.payload;
+			console.log(
+				'🚀 ~ file: applicationSlice.js:60 ~ selectedProductIdFromLead:',
+				selectedProductIdsFromLead
+			);
+
+			if (selectedProductIdsFromLead)
+				state.selectedProductIdsFromLead = selectedProductIdsFromLead;
 		},
+
 		setCompletedApplicationSection: (state, { payload }) => {
 			// payload === sectionId
 			if (!state.sections.includes(payload)) {

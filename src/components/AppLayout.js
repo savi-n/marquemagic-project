@@ -149,11 +149,11 @@ const AppLayout = () => {
 					})
 				);
 			}
-			if (decryptedToken?.selected_product_id_from_lead) {
+			if (decryptedToken?.selected_product_ids_from_lead) {
 				dispatch(
 					setSelectedProductIdFromLead({
-						selectedProductIdFromLead:
-							decryptedToken?.selected_product_id_from_lead,
+						selectedProductIdsFromLead:
+							decryptedToken?.selected_product_ids_from_lead,
 					})
 				);
 			}

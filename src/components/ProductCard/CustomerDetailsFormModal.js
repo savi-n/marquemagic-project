@@ -41,7 +41,7 @@ const CustomerDetailsFormModal = props => {
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const { permission, whiteLabelId, userToken } = app;
-	const { leadId, selectedProductIdFromLead } = application;
+	const { leadId, selectedProductIdsFromLead } = application;
 
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
@@ -278,7 +278,7 @@ const CustomerDetailsFormModal = props => {
 									userToken,
 								});
 								dispatch(setGeoLocation(geoRes));
-								if (leadId && selectedProductIdFromLead) {
+								if (leadId && selectedProductIdsFromLead) {
 									redirectToProductPageInEditModeFromLeadId(product);
 									return;
 								}
