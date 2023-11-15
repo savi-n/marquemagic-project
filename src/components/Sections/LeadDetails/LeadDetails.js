@@ -279,6 +279,7 @@ const LeadDetails = props => {
 
 			const leadsDetailsReqBody = {
 				...formState.values,
+				product_name: selectedProduct?.id,
 				white_label_id: whiteLabelId,
 			};
 			// console.log('leadsDetailsReqBody=>', leadsDetailsReqBody);
