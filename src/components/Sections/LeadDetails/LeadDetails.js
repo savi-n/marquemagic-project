@@ -84,7 +84,6 @@ const LeadDetails = props => {
 		leadId,
 		loanProductId,
 	} = application;
-	console.log({ isEditLoan, isViewLoan });
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
@@ -100,9 +99,11 @@ const LeadDetails = props => {
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
+
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
 			? dedupeApiData?.filter(item => {
@@ -279,8 +280,10 @@ const LeadDetails = props => {
 
 			const leadsDetailsReqBody = {
 				...formState.values,
-				product_name: selectedProduct?.id,
 				white_label_id: whiteLabelId,
+				product_id: selectedProduct?.id,
+				parent_id: selectedProduct?.parent_id || '',
+				id: leadId,
 			};
 			// console.log('leadsDetailsReqBody=>', leadsDetailsReqBody);
 			const leadsDetailsRes = await axios.post(
@@ -288,6 +291,7 @@ const LeadDetails = props => {
 				leadsDetailsReqBody
 			);
 			// console.log('leadsDetailsRes=>', { leadsDetailsRes });
+			// return;
 			if (leadsDetailsRes?.data?.status === 'ok') {
 				// TODO: Manoranjan - discuss with madhuri regarding user and add the below check (already added the condition - just reverify)
 				// 1 condition to check whether this user is allowed to proceed further
@@ -312,7 +316,7 @@ const LeadDetails = props => {
 						window.open(`${window.origin}/newui/main/dashboard`, '_self');
 					}
 				} else {
-					if (Object.keys(selectedDedupeData)?.length > 0) {
+					if (Object.keys(selectedDedupeData)?.length > 0 || isEditLoan) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
 					} else {
@@ -386,19 +390,7 @@ const LeadDetails = props => {
 			}
 
 			const preData = {
-				...sectionData?.business_details,
-				...sectionData?.loan_data,
-				...sectionData?.user_data,
-				business_email: sectionData?.user_data?.email,
-				email: sectionData?.business_details?.business_email,
-				name: sectionData?.business_details?.first_name,
-
-				businesspancardnumber:
-					sectionData?.business_details?.businesspancardnumber,
-
-				contact: sectionData?.user_data?.contact,
-
-				contactno: sectionData?.business_details?.contactno,
+				...sectionData,
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
@@ -448,7 +440,7 @@ const LeadDetails = props => {
 					white_label_id: whiteLabelId,
 				},
 			});
-			console.log('=>', fetchRes);
+			// console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
 				if (!businessType) {
@@ -537,6 +529,8 @@ const LeadDetails = props => {
 		}
 		//new get api
 		if (leadId) fetchSectionDetails();
+		// log is required to monitor the modes
+		console.log({ isViewLoan, isEditLoan });
 		//eslint-disable-next-line
 	}, []);
 
@@ -705,6 +699,10 @@ const LeadDetails = props => {
 										}
 
 										if (field?.disabled === true) {
+											customFieldProps.disabled = true;
+										}
+
+										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
 

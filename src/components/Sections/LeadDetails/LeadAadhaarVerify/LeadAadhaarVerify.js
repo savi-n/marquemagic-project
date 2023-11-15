@@ -38,6 +38,11 @@ const LeadAadhaarVerify = props => {
 	if (isSectionCompleted) {
 		customFieldProps.disabled = true;
 	}
+
+	if (isViewLoan) {
+		customFieldProps.disabled = true;
+	}
+
 	return (
 		<UI_SECTIONS.FieldWrapGrid>
 			{field?.name === CONST.AADHAR_OTP_FIELD_NAME && (
@@ -46,7 +51,7 @@ const LeadAadhaarVerify = props => {
 						...aadhaarProofOTPField,
 						value: prefilledValues(aadhaarProofOTPField),
 						visibility: 'visible',
-						// ...customFieldProps,
+						...customFieldProps,
 					})}
 					{(selectedVerifyOtp?.res?.status === 'ok' ||
 						selectedDirector?.is_aadhaar_otp_verified === true) && (
