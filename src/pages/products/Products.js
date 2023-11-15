@@ -354,11 +354,16 @@ export default function Products() {
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
 	const solutionType = newPermission?.solution_type || '';
+	const [subProduct, setSubProduct] = useState({});
+	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
+
 	const [
 		isCustomerDetailsFormModalOpen,
 		setIsCustomerDetailsFormModalOpen,
 	] = useState(false);
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 
 	const getStatusCustomer = async () => {
 		try {
@@ -522,8 +527,9 @@ export default function Products() {
 	// const { lid } = params;
 	// console.log(lid);
 	useEffect(() => {
+		// console.log({ selectedProductIdsFromLead });
 		if (!addedProduct) {
-			if (!selectedProductIdsFromLead?.parent_id) {
+			if (!selectedProductIdsFromLead?.parent_product_id) {
 				const filteredProduct = products?.data?.filter(item => {
 					return (
 						`${item?.id}` ===
@@ -533,11 +539,21 @@ export default function Products() {
 				if (filteredProduct) {
 					setAddedProduct(filteredProduct);
 					setIsCustomerDetailsFormModalOpen(true);
+					const isDedupeExist = dedupeApiData?.filter(item => {
+						return item?.product_id?.includes(filteredProduct?.id);
+					})?.[0];
+					// console.log({ isDedupeExist });
+					if (isDedupeExist) {
+						setIsCustomerDetailsFormModalOpen(true);
+					}
 				}
 			} else {
 				const filteredParentProduct = products?.data?.filter(item => {
-					return `${item?.id}` === `${selectedProductIdsFromLead?.parent_id}`;
+					return (
+						`${item?.id}` === `${selectedProductIdsFromLead?.parent_product_id}`
+					);
 				})?.[0];
+
 				const filteredSelectedProduct = filteredParentProduct?.sub_products?.filter(
 					item => {
 						return (
@@ -547,8 +563,15 @@ export default function Products() {
 					}
 				);
 				if (filteredSelectedProduct) {
-					setAddedProduct(filteredSelectedProduct);
-					setIsCustomerDetailsFormModalOpen(true);
+					setAddedProduct(filteredParentProduct);
+					setSubProductModalOpen(true);
+					const isDedupeExist = dedupeApiData?.filter(item => {
+						return item?.product_id?.includes(filteredSelectedProduct?.id);
+					})?.[0];
+					// console.log({ isDedupeExist });
+					if (isDedupeExist) {
+						setIsCustomerDetailsFormModalOpen(true);
+					}
 				}
 			}
 		}
@@ -576,6 +599,10 @@ export default function Products() {
 									setIsCustomerDetailsFormModalOpen={
 										setIsCustomerDetailsFormModalOpen
 									}
+									subProduct={subProduct}
+									setSubProduct={setSubProduct}
+									isSubProductModalOpen={isSubProductModalOpen}
+									setSubProductModalOpen={setSubProductModalOpen}
 								/>
 							)
 					)}
@@ -599,6 +626,10 @@ export default function Products() {
 								setIsCustomerDetailsFormModalOpen={
 									setIsCustomerDetailsFormModalOpen
 								}
+								subProduct={subProduct}
+								setSubProduct={setSubProduct}
+								isSubProductModalOpen={isSubProductModalOpen}
+								setSubProductModalOpen={setSubProductModalOpen}
 							/>
 						)}
 					</>
@@ -637,6 +668,10 @@ export default function Products() {
 											setIsCustomerDetailsFormModalOpen={
 												setIsCustomerDetailsFormModalOpen
 											}
+											subProduct={subProduct}
+											setSubProduct={setSubProduct}
+											isSubProductModalOpen={isSubProductModalOpen}
+											setSubProductModalOpen={setSubProductModalOpen}
 										/>
 									);
 								})}

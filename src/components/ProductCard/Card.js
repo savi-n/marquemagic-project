@@ -36,6 +36,10 @@ export default function Card({
 	setAddProduct,
 	isCustomerDetailsFormModalOpen,
 	setIsCustomerDetailsFormModalOpen,
+	subProduct,
+	setSubProduct,
+	isSubProductModalOpen,
+	setSubProductModalOpen,
 }) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -48,7 +52,8 @@ export default function Card({
 		whiteLabelId,
 	} = app;
 	const { geoLocation, leadId } = application;
-	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
+	// const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
+
 	// const [
 	// 	isCustomerDetailsFormModalOpen,
 	// 	setIsCustomerDetailsFormModalOpen,
@@ -66,7 +71,7 @@ export default function Card({
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 	const [selectedDedupeData, setSelectedDedupeData] = useState({});
-	const [subProduct, setSubProduct] = useState({});
+	// const [subProduct, setSubProduct] = useState({});
 	const [productModalData, setProductModalData] = useState({});
 
 	// const handleClick = (e, id) => {

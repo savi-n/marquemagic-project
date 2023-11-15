@@ -23,7 +23,7 @@ const initialState = {
 	prompted: false,
 	businessName: '',
 	dedupePrefilledValues: null,
-	selectedProductIdsFromLead: '',
+	selectedProductIdsFromLead: {},
 	// isSelfieImagePresent: false,
 };
 

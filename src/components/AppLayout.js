@@ -95,6 +95,16 @@ const AppLayout = () => {
 	useEffect(() => {
 		dispatch(setSelectedSectionId(''));
 		dispatch(setAddNewDirectorKey(''));
+		dispatch(
+			setLeadId({
+				leadId: '',
+			})
+		);
+		dispatch(
+			setSelectedProductIdFromLead({
+				selectedProductIdsFromLead: {},
+			})
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 

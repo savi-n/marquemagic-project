@@ -72,7 +72,7 @@ const LeadDetails = props => {
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
-
+		permission,
 		userDetails,
 		isTestMode,
 	} = app;
@@ -101,6 +101,14 @@ const LeadDetails = props => {
 	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const selectedDedupeData =
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(selectedProduct?.id);
+			  })?.[0] || {}
+			: {};
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 	if (
 		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
@@ -112,6 +120,7 @@ const LeadDetails = props => {
 			},
 		};
 	}
+	// console.log({ userDetails });
 	// console.log('selectedSection=>', selectedSection);
 	const {
 		handleSubmit,
@@ -279,29 +288,55 @@ const LeadDetails = props => {
 			);
 			// console.log('leadsDetailsRes=>', { leadsDetailsRes });
 			if (leadsDetailsRes?.data?.status === 'ok') {
-				// console.log(leadsDetailsRes.data.data);
-				// console.log('selectedProduct', selectedProduct);
-				// console.log(userDetails);
-				try {
-					const token = {
-						userId: userDetails?.id,
-						token: userToken,
-						create: true,
-						selected_product_ids_from_lead: {
-							parent_product_id: selectedProduct?.parent_id,
-							selected_product_id: selectedProduct?.id,
-						},
-						lead_id: leadsDetailsRes?.data?.data?.id,
-					};
-					const encryptedToken = encryptReq(token);
-					window.open(
-						`${window.origin}/nconboarding/applyloan/?uid=${
-							userDetails?.id
-						}&token=${encryptedToken}`,
-						'_self'
-					);
-				} catch (error) {
-					console.error('header-getAppylyloanUrl-error  ', error);
+				// TODO: Manoranjan - discuss with madhuri regarding user and add the below check (already added the condition - just reverify)
+				// 1 condition to check whether this user is allowed to proceed further
+				// 2 condition to check whether dedupe is present. if not present move to next section
+				// 3 if dedupe is present, redirect to dedupe screen
+
+				if (
+					selectedSection?.restrict_user_loan_creation?.includes(
+						userDetails?.usertype
+					) ||
+					selectedSection?.restrict_user_loan_creation?.includes(
+						userDetails?.user_sub_type
+					)
+				) {
+					sessionStorage.clear();
+					if (loanRefId) {
+						window.open(
+							`${window.origin}/newui/main/loanlist?id=${loanRefId}`,
+							'_self'
+						);
+					} else {
+						window.open(`${window.origin}/newui/main/dashboard`, '_self');
+					}
+				} else {
+					if (Object.keys(selectedDedupeData)?.length > 0) {
+						dispatch(setCompletedApplicationSection(selectedSectionId));
+						dispatch(setSelectedSectionId(nextSectionId));
+					} else {
+						try {
+							const token = {
+								userId: userDetails?.id,
+								token: userToken,
+								create: true,
+								selected_product_ids_from_lead: {
+									parent_product_id: selectedProduct?.parent_id,
+									selected_product_id: selectedProduct?.id,
+								},
+								lead_id: leadsDetailsRes?.data?.data?.id,
+							};
+							const encryptedToken = encryptReq(token);
+							window.open(
+								`${window.origin}/nconboarding/applyloan/?uid=${
+									userDetails?.id
+								}&token=${encryptedToken}`,
+								'_self'
+							);
+						} catch (error) {
+							console.error('header-getAppylyloanUrl-error  ', error);
+						}
+					}
 				}
 			}
 
