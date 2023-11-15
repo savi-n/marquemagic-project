@@ -287,7 +287,10 @@ const LeadDetails = props => {
 						userId: userDetails?.id,
 						token: userToken,
 						create: true,
-						selected_product_id_from_lead: selectedProduct?.id,
+						selected_product_ids_from_lead: {
+							parent_product_id: selectedProduct?.parent_id,
+							selected_product_id: selectedProduct?.id,
+						},
 						lead_id: leadsDetailsRes?.data?.data?.id,
 					};
 					const encryptedToken = encryptReq(token);

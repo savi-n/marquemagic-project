@@ -325,7 +325,15 @@ export default function Products() {
 	const { userToken, permission: newPermission } = useSelector(
 		state => state.app
 	);
-	const { selectedProductIdFromLead } = useSelector(state => state.application);
+	const { selectedProductIdsFromLead } = useSelector(
+		state => state.application
+	);
+
+	console.log(
+		'🚀 ~ file: Products.js:329 ~ Products ~ selectedProductIdsFromLead:',
+		selectedProductIdsFromLead
+	);
+
 	const { response: products } = useFetch({
 		url: PRODUCT_LIST_URL({ whiteLabelId }),
 		headers: { Authorization: `Bearer ${userToken}` },
@@ -515,12 +523,31 @@ export default function Products() {
 	// console.log(lid);
 	useEffect(() => {
 		if (!addedProduct) {
-			if (selectedProductIdFromLead) {
+			if (!selectedProductIdsFromLead?.parent_id) {
 				const filteredProduct = products?.data?.filter(item => {
-					return `${item?.id}` === `${selectedProductIdFromLead}`;
+					return (
+						`${item?.id}` ===
+						`${selectedProductIdsFromLead?.selected_product_id}`
+					);
 				})?.[0];
 				if (filteredProduct) {
 					setAddedProduct(filteredProduct);
+					setIsCustomerDetailsFormModalOpen(true);
+				}
+			} else {
+				const filteredParentProduct = products?.data?.filter(item => {
+					return `${item?.id}` === `${selectedProductIdsFromLead?.parent_id}`;
+				})?.[0];
+				const filteredSelectedProduct = filteredParentProduct?.sub_products?.filter(
+					item => {
+						return (
+							`${item?.id}` ===
+							`${selectedProductIdsFromLead?.selected_product_id}`
+						);
+					}
+				);
+				if (filteredSelectedProduct) {
+					setAddedProduct(filteredSelectedProduct);
 					setIsCustomerDetailsFormModalOpen(true);
 				}
 			}
