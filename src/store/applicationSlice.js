@@ -52,7 +52,7 @@ export const applicationSlice = createSlice({
 		},
 		setLeadId: (state, action) => {
 			const { leadId } = action.payload;
-			if (leadId) state.leadId = leadId;
+			state.leadId = leadId;
 		},
 
 		setSelectedProductIdFromLead: (state, action) => {

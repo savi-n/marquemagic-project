@@ -44,13 +44,14 @@ import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
 import BusinessAddressDetailsEdi from 'components/Sections/BusinessAddressDetailsEDI';
 import PrioritySectorDetails from 'components/Sections/PrioritySector';
+import VehicleDetails from 'components/Sections/VehicleDetails';
 import LeadDetails from 'components/Sections/LeadDetails';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
 	const { directors } = useSelector(state => state);
 	const { selectedDirectorId } = directors;
-	const { app } = reduxState;
+	const { app, application } = reduxState;
 	const {
 		selectedSectionId,
 		directorSectionIds,
@@ -59,8 +60,10 @@ const Product = props => {
 		userDetails,
 		whiteLabelId,
 		isViewLoan,
+		isEditLoan,
 		isEditOrViewLoan,
 	} = app;
+	const { leadId } = application;
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({
 			whiteLabelId,
@@ -89,6 +92,7 @@ const Product = props => {
 		emi_details: EMIDetails,
 		liability_details: LiabilitysDetails,
 		assets_details: AssetsDetails,
+		vehicle_details: VehicleDetails,
 		application_submitted: ApplicationSubmitted,
 		consent_details: ConsentDetails,
 		subsidiary_details: SubsidiaryDetails,
@@ -149,6 +153,17 @@ const Product = props => {
 			});
 			selectedProductRes.product_details.sections = flowDataSections;
 			// }
+
+			if (isEditOrViewLoan && !leadId) {
+				const tempSections = _.cloneDeep(
+					selectedProductRes?.product_details?.sections
+				);
+
+				const flowDataSections = tempSections?.filter(
+					section => section?.id !== 'lead_details'
+				);
+				selectedProductRes.product_details.sections = flowDataSections;
+			}
 
 			// New Individual loan changes for displaying sections based on the config - ends
 			dispatch(setSelectedProduct(selectedProductRes));
