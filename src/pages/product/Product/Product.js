@@ -44,6 +44,7 @@ import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
 import BusinessAddressDetailsEdi from 'components/Sections/BusinessAddressDetailsEDI';
 import PrioritySectorDetails from 'components/Sections/PrioritySector';
+import VehicleDetails from 'components/Sections/VehicleDetails';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
@@ -88,6 +89,7 @@ const Product = props => {
 		emi_details: EMIDetails,
 		liability_details: LiabilitysDetails,
 		assets_details: AssetsDetails,
+		vehicle_details: VehicleDetails,
 		application_submitted: ApplicationSubmitted,
 		consent_details: ConsentDetails,
 		subsidiary_details: SubsidiaryDetails,
