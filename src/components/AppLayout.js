@@ -25,6 +25,8 @@ import {
 	setLoanIds,
 	// addOrUpdateCacheDocuments,
 	// clearCacheDraftModeSectionsData,
+	setLeadId,
+	setSelectedProductIdFromLead,
 } from 'store/applicationSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from 'components/Header';
@@ -93,6 +95,16 @@ const AppLayout = () => {
 	useEffect(() => {
 		dispatch(setSelectedSectionId(''));
 		dispatch(setAddNewDirectorKey(''));
+		dispatch(
+			setLeadId({
+				leadId: '',
+			})
+		);
+		dispatch(
+			setSelectedProductIdFromLead({
+				selectedProductIdsFromLead: {},
+			})
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -110,7 +122,8 @@ const AppLayout = () => {
 			decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 			const isEditLoan = decryptedToken?.edit ? true : false;
 			const isViewLoan = !isEditLoan && !decryptedToken?.create;
-
+			// log for reference
+			console.log({ decryptedToken });
 			// set the values for new flow
 			dispatch(setUserToken(decryptedToken?.token));
 			// if (!decryptedToken?.token) {
@@ -129,6 +142,28 @@ const AppLayout = () => {
 					setEditOrViewLoan({
 						isEditLoan,
 						isViewLoan,
+					})
+				);
+			}
+			if (decryptedToken?.lead_id) {
+				dispatch(
+					setLeadId({
+						leadId: decryptedToken?.lead_id,
+					})
+				);
+
+				dispatch(
+					setEditOrViewLoan({
+						isEditLoan,
+						isViewLoan,
+					})
+				);
+			}
+			if (decryptedToken?.selected_product_ids_from_lead) {
+				dispatch(
+					setSelectedProductIdFromLead({
+						selectedProductIdsFromLead:
+							decryptedToken?.selected_product_ids_from_lead,
 					})
 				);
 			}

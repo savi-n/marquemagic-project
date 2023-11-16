@@ -44,6 +44,7 @@ import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
 import BusinessAddressDetailsEdi from 'components/Sections/BusinessAddressDetailsEDI';
 import PrioritySectorDetails from 'components/Sections/PrioritySector';
+import LeadDetails from 'components/Sections/LeadDetails';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
@@ -93,6 +94,7 @@ const Product = props => {
 		subsidiary_details: SubsidiaryDetails,
 		shareholder_details: ShareholderDetails,
 		poa_details: PowerOfAtterneyDetails,
+		lead_details: LeadDetails,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
