@@ -10,22 +10,22 @@ import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import {
-	setIsDraftLoan,
+	// setIsDraftLoan,
 	// setLoginCreateUserRes,
 	setSelectedSectionId,
 	// setUserToken,
 } from 'store/appSlice';
+// import {
+// 	setNewCompletedDirectorSections,
+// 	getDirectors,
+// 	setSmeType,
+// } from 'store/directorsSlice';
 import {
-	setNewCompletedDirectorSections,
-	getDirectors,
-	setSmeType,
-} from 'store/directorsSlice';
-import {
-	setLoanIds,
+	// setLoanIds,
 	// setLeadId,
 	setCompletedApplicationSection,
-	setBusinessType,
-	setNewCompletedSections,
+	// setBusinessType,
+	// setNewCompletedSections,
 	// setBusinessMobile,
 	// setBusinessName,
 } from 'store/applicationSlice';
@@ -71,7 +71,7 @@ const LeadDetails = props => {
 		userToken,
 		isViewLoan,
 		isEditLoan,
-		isEditOrViewLoan,
+		// isEditOrViewLoan,
 		permission,
 		userDetails,
 		isTestMode,
@@ -79,7 +79,7 @@ const LeadDetails = props => {
 	const {
 		// borrowerUserId,
 		// businessUserId,
-		businessType,
+		// businessType,
 		loanRefId,
 		leadId,
 		loanProductId,
@@ -443,71 +443,6 @@ const LeadDetails = props => {
 			// console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
-				if (!businessType) {
-					dispatch(
-						setBusinessType(
-							fetchRes?.data?.data?.business_details?.businesstype
-						)
-					);
-					dispatch(
-						setSmeType(fetchRes?.data?.data?.business_details?.businesstype)
-					);
-				}
-				if (isEditOrViewLoan) {
-					dispatch(
-						getDirectors({
-							loanRefId,
-							isSelectedProductTypeBusiness:
-								selectedProduct?.isSelectedProductTypeBusiness,
-							selectedSectionId,
-						})
-					);
-					const responseData = fetchRes?.data?.data;
-					dispatch(
-						setLoanIds({
-							loanId: responseData?.loan_data?.id,
-							businessId:
-								responseData?.business_details?.id ||
-								responseData?.loan_data?.business_id?.id,
-							businessUserId: fetchRes?.data?.data?.business_details?.userid,
-							loanProductId: fetchRes?.data?.data?.loan_data?.loan_product_id,
-							createdByUserId: fetchRes?.data?.data?.loan_data?.createdUserId,
-						})
-					);
-
-					// update completed sections
-					const tempTrackData = fetchRes?.data?.data?.trackData?.[0] || {};
-
-					const tempCompletedSections =
-						Object.keys(tempTrackData)?.length > 0 &&
-						JSON.parse(tempTrackData?.onboarding_track);
-
-					// const tempCompletedSections = JSON.parse(
-					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
-					// );
-					if (tempCompletedSections?.loan_details) {
-						dispatch(
-							setNewCompletedSections(tempCompletedSections?.loan_details)
-						);
-					}
-					if (
-						!tempCompletedSections?.loan_details?.includes(
-							CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
-						)
-					) {
-						dispatch(setIsDraftLoan(true));
-					}
-					if (tempCompletedSections?.director_details) {
-						dispatch(
-							setNewCompletedDirectorSections(
-								tempCompletedSections?.director_details
-							)
-						);
-					}
-					// console.log({ tempCompletedSections });
-				}
-			} else {
-				setSectionData({});
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);

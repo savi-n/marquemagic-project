@@ -82,7 +82,7 @@ const SideNav = props => {
 	// 	application,
 	// 	addNewDirectorKey,
 	// });
-	console.log('selectedProduct=>', selectedProduct);
+	// console.log('selectedProduct=>', selectedProduct);
 
 	return (
 		<Fragment>
