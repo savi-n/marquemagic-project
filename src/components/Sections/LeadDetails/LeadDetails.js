@@ -316,7 +316,7 @@ const LeadDetails = props => {
 						window.open(`${window.origin}/newui/main/dashboard`, '_self');
 					}
 				} else {
-					if (Object.keys(selectedDedupeData)?.length > 0 || isEditLoan) {
+					if (Object.keys(selectedDedupeData)?.length === 0 || isEditLoan) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
 					} else {
