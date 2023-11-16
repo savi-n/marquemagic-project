@@ -121,6 +121,7 @@ const REDIRECT_CREATE =
 const SKIP_SECTION = `${API_END_POINT}/skip_section`;
 
 const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
+const VEHICLE_RC = `${API_END_POINT}/api/vehicleRC`;
 const NC_STATUS_CODE = {
 	OK: 'ok',
 	NC200: 'NC200',
@@ -258,4 +259,5 @@ export {
 	INDUSTRY_LIST_FETCH,
 	SUB_INDUSTRY_FETCH,
 	LEADS_DETIALS,
+	VEHICLE_RC,
 };
