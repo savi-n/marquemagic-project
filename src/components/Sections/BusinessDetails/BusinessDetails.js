@@ -92,6 +92,7 @@ const BusinessDetails = props => {
 		loanRefId,
 		dedupePrefilledValues,
 		geoLocation,
+		leadId,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
@@ -590,6 +591,8 @@ const BusinessDetails = props => {
 			if (!!companyRocData && Object.values(companyRocData)?.length > 0)
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
+
+			if (leadId) buissnessDetailsReqBody.lead_id = leadId;
 
 			// buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
 			const buissnessDetailsRes = await axios.post(
