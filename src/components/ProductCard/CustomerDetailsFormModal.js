@@ -6,7 +6,7 @@ import Button from 'components/Button';
 import Modal from 'components/Modal';
 import useForm from 'hooks/useFormIndividual';
 
-import { DDUPE_CHECK } from '_config/app.config';
+import { DDUPE_CHECK, LEADS_DATA } from '_config/app.config';
 import { isFieldValid } from 'utils/formatData';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -22,6 +22,7 @@ import {
 } from 'store/applicationSlice';
 import { fetchGeoLocation } from 'utils/helper';
 import * as API from '_config/app.config';
+import { useLayoutEffect } from 'react';
 
 const CustomerDetailsFormModal = props => {
 	const dispatch = useDispatch();
@@ -46,6 +47,8 @@ const CustomerDetailsFormModal = props => {
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
+	const [leadsData, setLeadsData] = useState({});
+	const [fetchingFormData, setFetchingFormData] = useState(false);
 
 	const { addToast } = useToasts();
 
@@ -71,11 +74,47 @@ const CustomerDetailsFormModal = props => {
 	// 	'customerDetailsFormModal.js'
 	// );
 
+	const fetchLeadsData = async () => {
+		try {
+			setFetchingFormData(true);
+			// get method of the sections is here. modify the api of this particular section
+			const fetchRes = await axios.get(LEADS_DATA, {
+				params: {
+					id: leadId,
+					white_label_id: whiteLabelId,
+				},
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			});
+			// console.log('=>', fetchRes);
+			if (fetchRes?.data?.status === 'ok') {
+				setTimeout(() => {
+					setLeadsData(fetchRes?.data?.data);
+				}, 200);
+			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			setFetchingFormData(false);
+		}
+	};
+
 	useEffect(() => {
 		if (Object.keys(selectedDedupeData)?.length > 0)
 			setSelectedDedupeData(selectedDedupeData);
+		if (leadId && selectedProductIdsFromLead) {
+			fetchLeadsData();
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	// useLayoutEffect(() => {
+	// 	if (leadId && selectedProductIdsFromLead) {
+	// 		fetchLeadsData();
+	// 	}
+	// }, []);
+
 	// api_details : {
 	// 	is_otp_required: false,
 	// 	search_api: 'http://20.204.69.253:3200/Ucic/search',
@@ -209,6 +248,41 @@ const CustomerDetailsFormModal = props => {
 		}
 	};
 
+	const prefilledValues = field => {
+		try {
+			// // TEST MODE
+
+			// if (isTestMode && CONST.initialFormState?.[field?.db_key]) {
+			// 	return CONST.initialFormState?.[field?.db_key];
+			// }
+			// // -- TEST MODE
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
+				return formState?.values?.[field?.name];
+			}
+			const otherData = leadsData?.other_data || '';
+			const tempSectionData = otherData ? JSON.parse(otherData) : {};
+			// console.log({ otherData, tempSectionData });
+			const preData = {
+				businesstype: tempSectionData?.business_type || '',
+				pan_number: tempSectionData?.pan_number || '',
+				mobile_no: tempSectionData?.mobile_no || '',
+				ddob: tempSectionData?.ddob || '',
+			};
+
+			console.log(leadsData);
+			console.log(preData?.[field?.name]);
+			if (preData?.[field?.name]) return preData?.[field?.name];
+
+			return field?.value || '';
+		} catch (err) {
+			console.error('error-BusinessDetials', {
+				error: err,
+				res: err?.response?.data || '',
+			});
+		}
+	};
+
 	return (
 		<Modal
 			show={show}
@@ -240,6 +314,12 @@ const CustomerDetailsFormModal = props => {
 										) {
 											return null;
 										}
+										const newValue = prefilledValues(field);
+										console.log(
+											'🚀 ~ file: CustomerDetailsFormModal.js:306 ~ {sub_section?.fields?.map ~ newValue:',
+											newValue
+										);
+
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
@@ -247,7 +327,8 @@ const CustomerDetailsFormModal = props => {
 											>
 												{register({
 													...field,
-													value: formState?.values?.[field.name] || '',
+													value:
+														formState?.values?.[field.name] || newValue || '',
 													visibility: 'visible',
 												})}
 
