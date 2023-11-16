@@ -16,7 +16,7 @@ import {
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
-import { API_END_POINT } from '_config/app.config';
+import { API_END_POINT, VEHICLE_RC } from '_config/app.config';
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
@@ -126,7 +126,7 @@ const DynamicForm = props => {
 
 	const callVehicleRcApi = data => {
 		try {
-			axios.get('https://api3.loan2pal.com/api/vehicleRC', {
+			axios.get(VEHICLE_RC, {
 				params: { ...data },
 				headers: {
 					Authorization: clientToken,
@@ -175,8 +175,7 @@ const DynamicForm = props => {
 			);
 			if (submitRes?.data?.status === 'ok') {
 				const vehicleRcPayload = {
-					vehicleNo:
-						'KA50EH4126' || formState?.values[CONST.FIELD_NAME_VEHICLE_NUMBER],
+					vehicleNo: formState?.values[CONST.FIELD_NAME_VEHICLE_NUMBER],
 					loanAssetId: submitRes?.data?.data?.[0]?.id || editSectionId || '',
 					// isBlackListRequired: '',
 				};

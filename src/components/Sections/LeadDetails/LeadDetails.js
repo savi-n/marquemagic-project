@@ -24,6 +24,7 @@ import {
 	// setLoanIds,
 	// setLeadId,
 	setCompletedApplicationSection,
+	setLeadId,
 	// setBusinessType,
 	// setNewCompletedSections,
 	// setBusinessMobile,
@@ -366,7 +367,7 @@ const LeadDetails = props => {
 				// 1 condition to check whether this user is allowed to proceed further
 				// 2 condition to check whether dedupe is present. if not present move to next section
 				// 3 if dedupe is present, redirect to dedupe screen
-
+				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
 				if (
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.usertype
@@ -810,6 +811,7 @@ const LeadDetails = props => {
 
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubFields.disabled = true;
 										}
 
 										return (
