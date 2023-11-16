@@ -23,7 +23,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
 // import { API_END_POINT } from '_config/app.config';
-import { scrollToTopRootElement } from 'utils/helper';
+import { extractPincode, scrollToTopRootElement } from 'utils/helper';
 import useForm from 'hooks/useFormIndividual';
 // import { encryptBase64 } from 'utils/encrypt';
 import Button from 'components/Button';
@@ -243,12 +243,18 @@ const BusinessAddressDetailsEdi = props => {
 				return item.aid === 1;
 			});
 			// -- TEST MODE
+			let rocRegAddress = '';
+			if (sectionData?.address.length <= 0) {
+				rocRegAddress = sectionData?.registered_address;
+			}
+
 			// Baas!
 			const preData = {
-				registered_address1: registeredAddress?.[0]?.line1,
+				registered_address1: rocRegAddress || registeredAddress?.[0]?.line1,
 				registered_address2: registeredAddress?.[0]?.line2,
 				registered_address3: registeredAddress?.[0]?.locality,
-				registered_pin_code: registeredAddress?.[0]?.pincode,
+				registered_pin_code:
+					extractPincode(rocRegAddress) || registeredAddress?.[0]?.pincode,
 				registered_city: registeredAddress?.[0]?.city,
 				registered_state: registeredAddress?.[0]?.state,
 				registered_residential_type: registeredAddress?.[0]?.residential_type,
