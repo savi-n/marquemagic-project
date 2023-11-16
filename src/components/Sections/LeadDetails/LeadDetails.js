@@ -457,12 +457,15 @@ const LeadDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
-
+			const otherData = sectionData?.other_data || '';
+			const tempSectionData = otherData ? JSON.parse(otherData) : {};
+			// console.log({ otherData, tempSectionData });
 			const preData = {
-				...sectionData,
+				// ...sectionData,
+				...tempSectionData,
 			};
 
-			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
+			if (preData?.[field?.name]) return preData?.[field?.name];
 
 			return field?.value || '';
 		} catch (err) {

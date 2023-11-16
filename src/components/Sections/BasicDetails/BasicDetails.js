@@ -307,7 +307,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -619,7 +619,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -1246,7 +1246,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -1582,8 +1582,12 @@ const BasicDetails = props => {
 					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					// );
 					if (tempCompletedSections?.loan_details) {
+						// Since the leads section will always be completed when the loan is in draft or application stage. Leads section id is included in the completed sections.
 						dispatch(
-							setNewCompletedSections(tempCompletedSections?.loan_details)
+							setNewCompletedSections([
+								...tempCompletedSections?.loan_details,
+								CONST_SECTIONS.LEADS_SECTION_ID,
+							])
 						);
 					}
 					if (
