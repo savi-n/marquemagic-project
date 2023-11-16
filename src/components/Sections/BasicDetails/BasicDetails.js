@@ -110,6 +110,7 @@ const BasicDetails = props => {
 		loanId,
 		businessId,
 		dedupePrefilledValues,
+		leadId,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -704,6 +705,9 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
+
+			if (leadId) basicDetailsReqBody.lead_id = leadId;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
