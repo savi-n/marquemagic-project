@@ -50,7 +50,7 @@ const Product = props => {
 	const reduxState = useSelector(state => state);
 	const { directors } = useSelector(state => state);
 	const { selectedDirectorId } = directors;
-	const { app } = reduxState;
+	const { app, application } = reduxState;
 	const {
 		selectedSectionId,
 		directorSectionIds,
@@ -59,8 +59,10 @@ const Product = props => {
 		userDetails,
 		whiteLabelId,
 		isViewLoan,
+		isEditLoan,
 		isEditOrViewLoan,
 	} = app;
+	const { leadId } = application;
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({
 			whiteLabelId,
@@ -149,6 +151,17 @@ const Product = props => {
 			});
 			selectedProductRes.product_details.sections = flowDataSections;
 			// }
+
+			if (isEditOrViewLoan && !leadId) {
+				const tempSections = _.cloneDeep(
+					selectedProductRes?.product_details?.sections
+				);
+
+				const flowDataSections = tempSections?.filter(
+					section => section?.id !== 'lead_details'
+				);
+				selectedProductRes.product_details.sections = flowDataSections;
+			}
 
 			// New Individual loan changes for displaying sections based on the config - ends
 			dispatch(setSelectedProduct(selectedProductRes));
