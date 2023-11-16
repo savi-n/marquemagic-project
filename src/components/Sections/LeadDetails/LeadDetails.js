@@ -384,6 +384,7 @@ const LeadDetails = props => {
 					} else {
 						window.open(`${window.origin}/newui/main/dashboard`, '_self');
 					}
+					return;
 				} else {
 					if (Object.keys(selectedDedupeData)?.length === 0 || isEditLoan) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
@@ -407,6 +408,7 @@ const LeadDetails = props => {
 								}&token=${encryptedToken}`,
 								'_self'
 							);
+							return;
 						} catch (error) {
 							console.error('header-getAppylyloanUrl-error  ', error);
 						}
