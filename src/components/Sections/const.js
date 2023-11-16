@@ -47,6 +47,7 @@ export const ALL_SECTION_IDS = {
 	application_submitted: 'application_submitted',
 };
 
+export const LEAD_DETAILS_SECTION_ID = 'lead_details';
 //for sme flow
 export const BUSINESS_DETAILS_SECTION_ID = 'business_details';
 export const BUSINESS_ADDRESS_SECTION_ID = 'business_address_details';
