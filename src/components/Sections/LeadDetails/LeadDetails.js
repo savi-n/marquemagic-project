@@ -52,6 +52,7 @@ import { isInvalidAadhaar, isInvalidPan } from 'utils/validation';
 import * as CONST from './const';
 import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
+import { useLayoutEffect } from 'react';
 // import LeadAssetsDetails from './LeadAssetsDetails';
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -110,6 +111,9 @@ const LeadDetails = props => {
 					return item?.product_id?.includes(selectedProduct?.id);
 			  })?.[0] || {}
 			: {};
+	const [connectorOptions, setConnectorOptions] = useState([]);
+	const [branchOptions, setBranchOptions] = useState([]);
+
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 	if (
 		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
@@ -123,12 +127,22 @@ const LeadDetails = props => {
 	}
 	// console.log({ userDetails });
 	// console.log('selectedSection=>', selectedSection);
+	const branchField =
+		selectedSection?.sub_sections
+			?.filter(item => {
+				return item.id === CONST.SOURCE_DETAILS_SUBSECTION_ID;
+			})?.[0]
+			?.fields?.filter(field => {
+				return field?.name === CONST.BRANCH_FIELD_NAME;
+			})?.[0] || {};
+
 	const {
 		handleSubmit,
 		register,
 		formState,
 		onChangeFormStateField,
 	} = useForm();
+
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
@@ -252,6 +266,55 @@ const LeadDetails = props => {
 		}
 	};
 
+	const getBranchOptions = async () => {
+		try {
+			if (Object.keys(branchField)?.length > 0) {
+				setLoading(true);
+				const bankRefId = permission?.ref_bank_id || 0;
+
+				const branchRes = await axios.get(
+					`${API.API_END_POINT}/getBranchList?bankId=${bankRefId}`
+				);
+				// console.log('branchRes-', { branchRes });
+				const newBranchOptions = [];
+				branchRes?.data?.branchList?.map(branch => {
+					newBranchOptions?.push({
+						...branch,
+						value: `${branch?.id}`,
+						name: `${branch?.branch}`,
+					});
+					return null;
+				});
+				setBranchOptions(newBranchOptions);
+			} // console.log('branchRes-', { branchRes });
+		} catch (error) {
+			console.error('error-getBranchOptions-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const getConnectors = async () => {
+		try {
+			setLoading(true);
+			const connectorRes = await axios.get(`${API.API_END_POINT}/connectors`);
+			// console.log('connectorRes-', { connectorRes });
+			const newConnectorOptions = [];
+			connectorRes?.data?.data?.map(connector => {
+				newConnectorOptions.push({
+					...connector,
+					value: `${connector?.user_reference_no}`,
+				});
+				return null;
+			});
+			setConnectorOptions(newConnectorOptions);
+		} catch (error) {
+			console.error('error-getConnectors-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const handleBankRedirection = async url => {
 		try {
 			const resp = await axios.post(API.GENERATE_SESSION_ID_AADHAAR_REDIRECT);
@@ -271,6 +334,12 @@ const LeadDetails = props => {
 			// console.log('====================================');
 		}
 	};
+	console.log({
+		selectedDedupeData,
+		dedupeApiData,
+		documentMapping,
+		id: selectedProduct?.id,
+	});
 	// console.log({ borrowerUserId, isEditOrViewLoan });
 	const onSaveAndProceed = async () => {
 		try {
@@ -462,12 +531,78 @@ const LeadDetails = props => {
 				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
 			);
 		}
+		getBranchOptions();
+		getConnectors();
 		//new get api
 		if (leadId) fetchSectionDetails();
 		// log is required to monitor the modes
 		console.log({ isViewLoan, isEditLoan });
 		//eslint-disable-next-line
 	}, []);
+
+	const connectorCode = sectionData?.loan_details?.connector_user_id;
+	useEffect(() => {
+		getConnectorsWithCode(connectorCode);
+		// eslint-disable-next-line
+	}, [connectorCode]);
+
+	const getConnectorsWithCode = async code => {
+		if (sectionData?.loan_details?.connector_user_id) {
+			try {
+				setLoading(true);
+				const connectorRes = await axios.get(
+					`${API.API_END_POINT}/connectors?user_reference_no=${code}`
+				);
+
+				const newConnectorOptions = [];
+				connectorRes?.data?.data?.map(connector => {
+					newConnectorOptions.push({
+						...connector,
+						value: `${connector?.user_reference_no}`,
+					});
+					return null;
+				});
+				const filteredConnector =
+					connectorOptions?.filter(option => {
+						return (
+							`${option?.user_reference_no}` ===
+							`${newConnectorOptions?.[0]?.user_reference_no}`
+						);
+					}) || [];
+				if (filteredConnector?.length === 0) {
+					setConnectorOptions(prev => [...prev, newConnectorOptions?.[0]]);
+				}
+			} catch (error) {
+				console.error('Error', error);
+			} finally {
+				setLoading(false);
+			}
+		}
+	};
+
+	useLayoutEffect(() => {
+		if (
+			CONST.LOAN_CREATE_BRANCH_FOR.includes(
+				formState?.values?.[CONST.LOAN_SOURCE]
+			)
+		) {
+			onChangeFormStateField({
+				name: CONST.BRANCH_FIELD_NAME,
+				value:
+					sectionData?.loan_details?.branch_id?.id ||
+					userDetails.branch_id ||
+					'',
+			});
+		}
+
+		// if (formState.values[CONST.LOAN_SOURCE] === 'branch') {
+		// onChangeFormStateField({
+		// 	name: CONST.BRANCH_FIELD_NAME,
+		// 	value: '179423',
+		// });
+		// }
+		//eslint-disable-next-line
+	}, [formState.values[CONST.LOAN_SOURCE]]);
 
 	const onPanEnter = async pan => {
 		try {
@@ -593,6 +728,36 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+										}
+
+										if (field?.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
+											field.options = connectorOptions;
+										}
+
+										if (field?.name === CONST.BRANCH_FIELD_NAME) {
+											field.options = branchOptions;
+										}
+
+										if (
+											field?.name === CONST.BRANCH_FIELD_NAME &&
+											!CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
+												formState?.values?.['loan_source']
+											)
+										) {
+											customFieldProps.disabled = false;
+										}
+
+										if (
+											field?.name === CONST.BRANCH_FIELD_NAME &&
+											CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
+												formState?.values?.['loan_source']
+											)
+										) {
+											customFieldProps.disabled = true;
+										}
+
+										if (field.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
+											customFieldProps.disabled = true;
 										}
 
 										if (field?.name === CONST.AADHAR_OTP_FIELD_NAME) {
