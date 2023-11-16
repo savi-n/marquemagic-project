@@ -889,11 +889,11 @@ const LeadDetails = props => {
 								})}
 							/>
 						)}
-						{isViewLoan && (
+						{/* {isViewLoan && (
 							<>
 								<Button name='Next' onClick={naviagteToNextSection} fill />
 							</>
-						)}
+						)} */}
 					</UI_SECTIONS.Footer>
 				</>
 			)}
