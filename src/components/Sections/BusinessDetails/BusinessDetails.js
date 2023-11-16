@@ -92,6 +92,7 @@ const BusinessDetails = props => {
 		loanRefId,
 		dedupePrefilledValues,
 		geoLocation,
+		leadId,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
@@ -523,7 +524,7 @@ const BusinessDetails = props => {
 			}
 
 			let newBorrowerUserId = '';
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -590,6 +591,8 @@ const BusinessDetails = props => {
 			if (!!companyRocData && Object.values(companyRocData)?.length > 0)
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
+
+			if (leadId) buissnessDetailsReqBody.lead_id = leadId;
 
 			// buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
 			const buissnessDetailsRes = await axios.post(
@@ -969,9 +972,14 @@ const BusinessDetails = props => {
 					// const tempCompletedSections = JSON.parse(
 					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					// );
+
 					if (tempCompletedSections?.loan_details) {
+						// Since the leads section will always be completed when the loan is in draft or application stage. Leads section id is included in the completed sections.
 						dispatch(
-							setNewCompletedSections(tempCompletedSections?.loan_details)
+							setNewCompletedSections([
+								...tempCompletedSections?.loan_details,
+								CONST_SECTIONS.LEADS_SECTION_ID,
+							])
 						);
 					}
 					if (
@@ -1375,8 +1383,7 @@ const BusinessDetails = props => {
 											(field?.name === CONST.BUSINESS_EMAIL_FIELD ||
 												field?.name ===
 													CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME) &&
-											(isEditOrViewLoan ||
-												completedSections?.includes(selectedSectionId))
+											completedSections?.includes(selectedSectionId)
 										) {
 											customFieldProps.disabled = true;
 										}
@@ -1648,10 +1655,7 @@ const BusinessDetails = props => {
 								onClick={
 									// () => onPanEnter(formState.values?.['pan_number'])
 									handleSubmit(() => {
-										if (
-											isEditOrViewLoan ||
-											completedSections?.includes(selectedSectionId)
-										) {
+										if (completedSections?.includes(selectedSectionId)) {
 											onSaveAndProceed();
 											return;
 										}

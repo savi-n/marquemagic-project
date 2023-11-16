@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { APPLICATION_SUBMITTED_SECTION_ID } from 'components/Sections/const';
 
 const initialState = {
+	leadId: '',
 	borrowerUserId: '',
 	loanRefId: '',
 	loanId: '',
@@ -22,6 +23,7 @@ const initialState = {
 	prompted: false,
 	businessName: '',
 	dedupePrefilledValues: null,
+	selectedProductIdsFromLead: {},
 	// isSelfieImagePresent: false,
 };
 
@@ -346,9 +348,10 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
+	setLeadId,
 	setCompletedApplicationSection,
 	setNewCompletedSections,
-
+	setSelectedProductIdFromLead,
 	addCacheDocument,
 	addSelfieCacheDocument,
 	addOrUpdateCacheDocument,

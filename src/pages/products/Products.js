@@ -19,6 +19,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'components/Modal';
 import Button from 'components/Button';
+// import queryString from 'query-string';
+
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
 // import imgEditIcon from 'assets/icons/edit-icon.png';
 // import { faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -27,6 +29,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import Loading from 'components/Loading';
 import searchIcon from 'assets/icons/search-icon.png';
 import { useSelector } from 'react-redux';
+// import { decryptBase64 } from '../../../src/utils/encrypt';
 
 // import InputField from 'components/inputs/InputField';
 const Wrapper = styled.div`
@@ -322,6 +325,15 @@ export default function Products() {
 	const { userToken, permission: newPermission } = useSelector(
 		state => state.app
 	);
+	const { selectedProductIdsFromLead } = useSelector(
+		state => state.application
+	);
+
+	console.log(
+		'🚀 ~ file: Products.js:329 ~ Products ~ selectedProductIdsFromLead:',
+		selectedProductIdsFromLead
+	);
+
 	const { response: products } = useFetch({
 		url: PRODUCT_LIST_URL({ whiteLabelId }),
 		headers: { Authorization: `Bearer ${userToken}` },
@@ -342,8 +354,16 @@ export default function Products() {
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
 	const solutionType = newPermission?.solution_type || '';
+	const [subProduct, setSubProduct] = useState({});
+	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 
+	const [
+		isCustomerDetailsFormModalOpen,
+		setIsCustomerDetailsFormModalOpen,
+	] = useState(false);
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 
 	const getStatusCustomer = async () => {
 		try {
@@ -493,9 +513,70 @@ export default function Products() {
 		sessionStorage.setItem('wt_lbl', wt_lbl);
 		sessionStorage.setItem('permission', permissionTemp);
 		userDetails && sessionStorage.setItem('userDetails', userDetails);
+		// console.log({ products }, 'Use-effect');
+		// if (selectedProductIdFromLead) {
+		// 	const filteredProduct = products?.data?.filter(item => {
+		// 		return `${item?.id}` === `${selectedProductIdFromLead}`;
+		// 	})?.[0];
+		// 	if (filteredProduct) setAddedProduct(filteredProduct);
+		// 	console.log({ selectedProductIdFromLead, filteredProduct, products });
+		// }
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	// const params = queryString.parse(window.location.search);
+	// const { lid } = params;
+	// console.log(lid);
+	useEffect(() => {
+		// console.log({ selectedProductIdsFromLead });
+		if (!addedProduct) {
+			if (!selectedProductIdsFromLead?.parent_product_id) {
+				const filteredProduct = products?.data?.filter(item => {
+					return (
+						`${item?.id}` ===
+						`${selectedProductIdsFromLead?.selected_product_id}`
+					);
+				})?.[0];
+				if (filteredProduct) {
+					setAddedProduct(filteredProduct);
+					setIsCustomerDetailsFormModalOpen(true);
+					const isDedupeExist = dedupeApiData?.filter(item => {
+						return item?.product_id?.includes(filteredProduct?.id);
+					})?.[0];
+					// console.log({ isDedupeExist });
+					if (isDedupeExist) {
+						setIsCustomerDetailsFormModalOpen(true);
+					}
+				}
+			} else {
+				const filteredParentProduct = products?.data?.filter(item => {
+					return (
+						`${item?.id}` === `${selectedProductIdsFromLead?.parent_product_id}`
+					);
+				})?.[0];
 
-	useEffect(() => {}, [addedProduct]);
+				const filteredSelectedProduct = filteredParentProduct?.sub_products?.filter(
+					item => {
+						return (
+							`${item?.id}` ===
+							`${selectedProductIdsFromLead?.selected_product_id}`
+						);
+					}
+				);
+				if (filteredSelectedProduct) {
+					setAddedProduct(filteredParentProduct);
+					setSubProductModalOpen(true);
+					const isDedupeExist = dedupeApiData?.filter(item => {
+						return item?.product_id?.includes(filteredSelectedProduct?.id);
+					})?.[0];
+					// console.log({ isDedupeExist });
+					if (isDedupeExist) {
+						setIsCustomerDetailsFormModalOpen(true);
+					}
+				}
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [products]);
 
 	return (
 		<Wrapper>
@@ -509,7 +590,20 @@ export default function Products() {
 					products?.data?.map(
 						(product, idx) =>
 							idx < initialLoanProductCount && (
-								<Card product={product} key={`product__${product.id}`} />
+								<Card
+									product={product}
+									key={`product__${product.id}`}
+									isCustomerDetailsFormModalOpen={
+										isCustomerDetailsFormModalOpen
+									}
+									setIsCustomerDetailsFormModalOpen={
+										setIsCustomerDetailsFormModalOpen
+									}
+									subProduct={subProduct}
+									setSubProduct={setSubProduct}
+									isSubProductModalOpen={isSubProductModalOpen}
+									setSubProductModalOpen={setSubProductModalOpen}
+								/>
 							)
 					)}
 			</ProductsBox>
@@ -525,7 +619,18 @@ export default function Products() {
 				) : (
 					<>
 						{addedProduct && (
-							<Card product={addedProduct} key={`product__${addProduct.id}`} />
+							<Card
+								product={addedProduct}
+								key={`product__${addProduct.id}`}
+								isCustomerDetailsFormModalOpen={isCustomerDetailsFormModalOpen}
+								setIsCustomerDetailsFormModalOpen={
+									setIsCustomerDetailsFormModalOpen
+								}
+								subProduct={subProduct}
+								setSubProduct={setSubProduct}
+								isSubProductModalOpen={isSubProductModalOpen}
+								setSubProductModalOpen={setSubProductModalOpen}
+							/>
 						)}
 					</>
 				)}
@@ -557,6 +662,16 @@ export default function Products() {
 											product={product}
 											key={`product__${product.id}`}
 											setAddProduct={setAddProduct}
+											isCustomerDetailsFormModalOpen={
+												isCustomerDetailsFormModalOpen
+											}
+											setIsCustomerDetailsFormModalOpen={
+												setIsCustomerDetailsFormModalOpen
+											}
+											subProduct={subProduct}
+											setSubProduct={setSubProduct}
+											isSubProductModalOpen={isSubProductModalOpen}
+											setSubProductModalOpen={setSubProductModalOpen}
 										/>
 									);
 								})}

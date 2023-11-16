@@ -17,6 +17,8 @@ import { useToasts } from '../Toast/ToastProvider';
 import {
 	setDedupePrefilledValues,
 	setGeoLocation,
+	setSelectedProductIdFromLead,
+	setLeadId,
 } from 'store/applicationSlice';
 import { fetchGeoLocation } from 'utils/helper';
 import * as API from '_config/app.config';
@@ -35,9 +37,12 @@ const CustomerDetailsFormModal = props => {
 		subProduct = {},
 		setProductModalData,
 		redirectToProductPageInEditMode,
+		redirectToProductPageInEditModeFromLeadId,
 	} = props;
-	const { app } = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
 	const { permission, whiteLabelId, userToken } = app;
+	const { leadId, selectedProductIdsFromLead } = application;
+
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
@@ -166,6 +171,9 @@ const CustomerDetailsFormModal = props => {
 						});
 						return;
 					}
+					dispatch(setLeadId(''));
+					dispatch(setSelectedProductIdFromLead(''));
+
 					redirectToProductPageInEditMode(ddupeRes?.data, productForModal);
 				} else {
 					// console.log({ ddupeRes }, 'search-called ---- else part');
@@ -270,6 +278,10 @@ const CustomerDetailsFormModal = props => {
 									userToken,
 								});
 								dispatch(setGeoLocation(geoRes));
+								if (leadId && selectedProductIdsFromLead) {
+									redirectToProductPageInEditModeFromLeadId(product);
+									return;
+								}
 								redirectToProductPage(productForModal);
 								dispatch(setDedupePrefilledValues(formState?.values));
 							}}
