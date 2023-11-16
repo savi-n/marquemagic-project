@@ -307,7 +307,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -619,7 +619,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -1246,7 +1246,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,

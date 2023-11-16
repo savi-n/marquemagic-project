@@ -523,7 +523,7 @@ const BusinessDetails = props => {
 			}
 
 			let newBorrowerUserId = '';
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -1375,8 +1375,7 @@ const BusinessDetails = props => {
 											(field?.name === CONST.BUSINESS_EMAIL_FIELD ||
 												field?.name ===
 													CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME) &&
-											(isEditOrViewLoan ||
-												completedSections?.includes(selectedSectionId))
+											completedSections?.includes(selectedSectionId)
 										) {
 											customFieldProps.disabled = true;
 										}
@@ -1648,10 +1647,7 @@ const BusinessDetails = props => {
 								onClick={
 									// () => onPanEnter(formState.values?.['pan_number'])
 									handleSubmit(() => {
-										if (
-											isEditOrViewLoan ||
-											completedSections?.includes(selectedSectionId)
-										) {
+										if (completedSections?.includes(selectedSectionId)) {
 											onSaveAndProceed();
 											return;
 										}
