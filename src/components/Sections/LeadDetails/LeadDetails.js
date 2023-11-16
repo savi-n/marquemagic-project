@@ -283,8 +283,8 @@ const LeadDetails = props => {
 				white_label_id: whiteLabelId,
 				product_id: selectedProduct?.id,
 				parent_id: selectedProduct?.parent_id || '',
-				id: leadId,
 			};
+			if (leadId) leadsDetailsReqBody.id = leadId;
 			// console.log('leadsDetailsReqBody=>', leadsDetailsReqBody);
 			const leadsDetailsRes = await axios.post(
 				`${API.LEADS_DETIALS}`,
