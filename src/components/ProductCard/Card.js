@@ -9,6 +9,8 @@ import { getGeoLocation } from 'utils/helper';
 import {
 	setGeoLocation,
 	reInitializeApplicationSlice,
+	setLeadId,
+	setSelectedProductIdFromLead,
 } from 'store/applicationSlice';
 import * as API from '_config/app.config';
 import CardSubProduct from '../CardSubProduct';
@@ -27,7 +29,18 @@ import { useEffect } from 'react';
 import { resetEditOrViewLoan } from 'store/appSlice';
 import * as CONST from './const';
 
-export default function Card({ product, add, setAddedProduct, setAddProduct }) {
+export default function Card({
+	product,
+	add,
+	setAddedProduct,
+	setAddProduct,
+	isCustomerDetailsFormModalOpen,
+	setIsCustomerDetailsFormModalOpen,
+	subProduct,
+	setSubProduct,
+	isSubProductModalOpen,
+	setSubProductModalOpen,
+}) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { app, application } = useSelector(state => state);
@@ -38,12 +51,13 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		permission,
 		whiteLabelId,
 	} = app;
-	const { geoLocation } = application;
-	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
-	const [
-		isCustomerDetailsFormModalOpen,
-		setIsCustomerDetailsFormModalOpen,
-	] = useState(false);
+	const { geoLocation, leadId } = application;
+	// const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
+
+	// const [
+	// 	isCustomerDetailsFormModalOpen,
+	// 	setIsCustomerDetailsFormModalOpen,
+	// ] = useState(false);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState([]);
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
@@ -57,7 +71,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 	const [selectedDedupeData, setSelectedDedupeData] = useState({});
-	const [subProduct, setSubProduct] = useState({});
+	// const [subProduct, setSubProduct] = useState({});
 	const [productModalData, setProductModalData] = useState({});
 
 	// const handleClick = (e, id) => {
@@ -106,7 +120,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	) => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
 			addToast({
-				message: 'Something went wrong, try after sometimes',
+				message: 'Something went wrong, try after sometime',
 				type: 'error',
 			});
 			return;
@@ -128,6 +142,36 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		// 	product,
 		// });
 		window.open(redirectURL, '_self');
+	};
+
+	const redirectToProductPageInEditModeFromLeadId = (
+		productForModal = product
+	) => {
+		if (!leadId) {
+			addToast({
+				message: 'Something went wrong, try after sometime',
+				type: 'error',
+			});
+			return;
+		}
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			lead_id: leadId,
+			token: userToken,
+			edit: true,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			productModalData?.id || productForModal?.id || product?.id
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		// console.log('redirectToProductPageInEditMode-obj-', {
+		// 	editLoanRedirectObject,
+		// 	redirectURL,
+		// 	loanData,
+		// 	product,
+		// });
+		window.open(redirectURL, '_self');
+		dispatch(setLeadId(''));
+		dispatch(setSelectedProductIdFromLead(''));
 	};
 
 	// Send/Generate/Re-Send OTP
@@ -352,6 +396,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 
 						// dduple-check // existing customer information fetch
 						if (!!product?.customer_details) {
+							if (!leadId && product?.product_details?.is_lead_product) {
+								return redirectToProductPage();
+							}
 							setIsCustomerDetailsFormModalOpen(true);
 							return;
 						}
@@ -445,6 +492,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					subProduct={subProduct}
 					setProductModalData={setProductModalData}
 					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+					redirectToProductPageInEditModeFromLeadId={
+						redirectToProductPageInEditModeFromLeadId
+					}
 				/>
 			)}
 			{isCustomerListModalOpen && (

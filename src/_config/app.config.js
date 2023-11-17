@@ -76,6 +76,7 @@ const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 const INDUSTRY_LIST_FETCH = `${API_END_POINT}/industry_list`;
 const SUB_INDUSTRY_FETCH = `${API_END_POINT}/subindustry_list`;
 const BUSINESS_DETIALS = `${API_END_POINT}/business_details`;
+const LEADS_DETIALS = `${API_END_POINT}/leadsData`;
 const BUSINESS_ADDRESS_DETAILS = `${API_END_POINT}/business_address_details`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
@@ -120,6 +121,8 @@ const REDIRECT_CREATE =
 const SKIP_SECTION = `${API_END_POINT}/skip_section`;
 
 const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
+const VEHICLE_RC = `${API_END_POINT}/api/vehicleRC`;
+const LEADS_DATA = `${API_END_POINT}/leadsData`;
 const NC_STATUS_CODE = {
 	OK: 'ok',
 	NC200: 'NC200',
@@ -256,4 +259,7 @@ export {
 	SKIP_SECTION,
 	INDUSTRY_LIST_FETCH,
 	SUB_INDUSTRY_FETCH,
+	LEADS_DETIALS,
+	VEHICLE_RC,
+	LEADS_DATA,
 };

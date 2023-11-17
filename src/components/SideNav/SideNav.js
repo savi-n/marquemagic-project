@@ -82,6 +82,7 @@ const SideNav = props => {
 	// 	application,
 	// 	addNewDirectorKey,
 	// });
+	// console.log('selectedProduct=>', selectedProduct);
 
 	return (
 		<Fragment>
@@ -135,6 +136,9 @@ const SideNav = props => {
 							if (isViewLoan && section?.id === 'application_submitted') {
 								return null;
 							} else {
+								const isLeadDetailsPresent = selectedProduct?.product_details?.sections?.some(
+									section => section.id === CONST.LEAD_DETAILS
+								);
 								return (
 									<Fragment key={section.id}>
 										<UI.Link
@@ -245,13 +249,30 @@ const SideNav = props => {
 												)}
 											</UI.Menu>
 										</UI.Link>
-										{selectedProduct?.loan_request_type === 1 &&
-											sectionIndex + 1 ===
-												CONST.lengthOfuniqueSectionsForSmeFlow && (
+										{isLeadDetailsPresent &&
+											section.id === CONST.LEAD_DETAILS && (
 												<UI.SectionDevider />
 											)}
-
-										{selectedProduct?.loan_request_type === 1
+										{isLeadDetailsPresent
+											? selectedProduct?.loan_request_type === 1 &&
+											  sectionIndex + 1 ===
+													CONST.lengthOfuniqueSectionsForSmeFlowLead && (
+													<UI.SectionDevider />
+											  )
+											: selectedProduct?.loan_request_type === 1 &&
+											  sectionIndex + 1 ===
+													CONST.lengthOfuniqueSectionsForSmeFlow && (
+													<UI.SectionDevider />
+											  )}
+										{isLeadDetailsPresent
+											? selectedProduct?.loan_request_type === 1
+												? directorSectionIds?.length +
+														CONST.lengthOfuniqueSectionsForSmeFlowLead ===
+														sectionIndex + 1 && <UI.SectionDevider />
+												: directorSectionIds?.length === sectionIndex + 1 && (
+														<UI.SectionDevider />
+												  )
+											: selectedProduct?.loan_request_type === 1
 											? directorSectionIds?.length +
 													CONST.lengthOfuniqueSectionsForSmeFlow ===
 													sectionIndex + 1 && <UI.SectionDevider />

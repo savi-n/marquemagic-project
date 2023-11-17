@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { APPLICATION_SUBMITTED_SECTION_ID } from 'components/Sections/const';
 
 const initialState = {
+	leadId: '',
 	borrowerUserId: '',
 	loanRefId: '',
 	loanId: '',
@@ -22,6 +23,7 @@ const initialState = {
 	prompted: false,
 	businessName: '',
 	dedupePrefilledValues: null,
+	selectedProductIdsFromLead: {},
 	// isSelfieImagePresent: false,
 };
 
@@ -48,6 +50,22 @@ export const applicationSlice = createSlice({
 			if (createdByUserId) state.createdByUserId = createdByUserId;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
+		setLeadId: (state, action) => {
+			const { leadId } = action.payload;
+			state.leadId = leadId;
+		},
+
+		setSelectedProductIdFromLead: (state, action) => {
+			const { selectedProductIdsFromLead } = action.payload;
+			console.log(
+				'🚀 ~ file: applicationSlice.js:60 ~ selectedProductIdFromLead:',
+				selectedProductIdsFromLead
+			);
+
+			if (selectedProductIdsFromLead)
+				state.selectedProductIdsFromLead = selectedProductIdsFromLead;
+		},
+
 		setCompletedApplicationSection: (state, { payload }) => {
 			// payload === sectionId
 			if (!state.sections.includes(payload)) {
@@ -330,9 +348,10 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
+	setLeadId,
 	setCompletedApplicationSection,
 	setNewCompletedSections,
-
+	setSelectedProductIdFromLead,
 	addCacheDocument,
 	addSelfieCacheDocument,
 	addOrUpdateCacheDocument,
