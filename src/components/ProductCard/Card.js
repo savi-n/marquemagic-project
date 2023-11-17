@@ -396,6 +396,9 @@ export default function Card({
 
 						// dduple-check // existing customer information fetch
 						if (!!product?.customer_details) {
+							if (!leadId && product?.product_details?.is_lead_product) {
+								return redirectToProductPage();
+							}
 							setIsCustomerDetailsFormModalOpen(true);
 							return;
 						}
