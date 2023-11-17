@@ -13,6 +13,8 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 import { useToasts } from '../Toast/ToastProvider';
+import Loading from 'components/Loading';
+
 // import SAMPLE_JSON from './customerdetailsformsample.json';
 import {
 	setDedupePrefilledValues,
@@ -49,7 +51,6 @@ const CustomerDetailsFormModal = props => {
 	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
 	const [leadsData, setLeadsData] = useState({});
 	const [fetchingFormData, setFetchingFormData] = useState(false);
-
 	const { addToast } = useToasts();
 
 	const productForModal =
@@ -89,9 +90,7 @@ const CustomerDetailsFormModal = props => {
 			});
 			// console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
-				setTimeout(() => {
-					setLeadsData(fetchRes?.data?.data);
-				}, 200);
+				setLeadsData(fetchRes?.data?.data);
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -293,92 +292,100 @@ const CustomerDetailsFormModal = props => {
 				padding: '40px',
 			}}
 		>
-			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
-			<UI.ResponsiveWrapper>
-				{/* {SAMPLE_JSON?.sub_sections?.map((sub_section, sectionIndex) => { */}
-				{productForModal?.customer_details?.sub_sections?.map(
-					(sub_section, sectionIndex) => {
-						return (
-							<React.Fragment
-								key={`section-${sectionIndex}-${sub_section?.id}`}
-							>
-								{sub_section?.name ? (
-									<UI.CustomerDetailsFormModalHeader>
-										{sub_section.name}
-									</UI.CustomerDetailsFormModalHeader>
-								) : null}
-								<UI_SECTIONS.FormWrap>
-									{sub_section?.fields?.map((field, fieldIndex) => {
-										if (
-											!isFieldValid({ field, isApplicant: true, formState })
-										) {
-											return null;
+			{fetchingFormData ? (
+				<Loading />
+			) : (
+				<>
+					<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
+					<UI.ResponsiveWrapper>
+						{/* {SAMPLE_JSON?.sub_sections?.map((sub_section, sectionIndex) => { */}
+						{productForModal?.customer_details?.sub_sections?.map(
+							(sub_section, sectionIndex) => {
+								return (
+									<React.Fragment
+										key={`section-${sectionIndex}-${sub_section?.id}`}
+									>
+										{sub_section?.name ? (
+											<UI.CustomerDetailsFormModalHeader>
+												{sub_section.name}
+											</UI.CustomerDetailsFormModalHeader>
+										) : null}
+										<UI_SECTIONS.FormWrap>
+											{sub_section?.fields?.map((field, fieldIndex) => {
+												if (
+													!isFieldValid({ field, isApplicant: true, formState })
+												) {
+													return null;
+												}
+												const newValue = prefilledValues(field);
+												// console.log(
+												// 	'🚀 ~ file: CustomerDetailsFormModal.js:306 ~ {sub_section?.fields?.map ~ newValue:',
+												// 	newValue
+												// );
+
+												return (
+													<UI_SECTIONS.FieldWrapGrid
+														key={`field-${fieldIndex}-${field.name}`}
+														style={{ padding: '10px 0' }}
+													>
+														{register({
+															...field,
+															value:
+																formState?.values?.[field.name] ||
+																newValue ||
+																'',
+															visibility: 'visible',
+														})}
+
+														{(formState?.submit?.isSubmited ||
+															formState?.touched?.[field.name]) &&
+															formState?.error?.[field.name] && (
+																<UI_SECTIONS.ErrorMessage>
+																	{formState?.error?.[field.name]}
+																</UI_SECTIONS.ErrorMessage>
+															)}
+													</UI_SECTIONS.FieldWrapGrid>
+												);
+											})}
+										</UI_SECTIONS.FormWrap>
+									</React.Fragment>
+								);
+							}
+						)}
+
+						<UI.CustomerDetailsFormModalFooter>
+							{productForModal?.customer_details?.is_skip && (
+								<Button
+									disabled={fetchingCustomerDetails}
+									isLoader={fetchingCustomerDetails}
+									onClick={async () => {
+										const geoRes = await fetchGeoLocation({
+											geoAPI: API.GEO_LOCATION,
+											userToken,
+										});
+										dispatch(setGeoLocation(geoRes));
+										if (leadId && selectedProductIdsFromLead) {
+											redirectToProductPageInEditModeFromLeadId(product);
+											return;
 										}
-										const newValue = prefilledValues(field);
-										console.log(
-											'🚀 ~ file: CustomerDetailsFormModal.js:306 ~ {sub_section?.fields?.map ~ newValue:',
-											newValue
-										);
-
-										return (
-											<UI_SECTIONS.FieldWrapGrid
-												key={`field-${fieldIndex}-${field.name}`}
-												style={{ padding: '10px 0' }}
-											>
-												{register({
-													...field,
-													value:
-														formState?.values?.[field.name] || newValue || '',
-													visibility: 'visible',
-												})}
-
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field.name]) &&
-													formState?.error?.[field.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[field.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-											</UI_SECTIONS.FieldWrapGrid>
-										);
-									})}
-								</UI_SECTIONS.FormWrap>
-							</React.Fragment>
-						);
-					}
-				)}
-
-				<UI.CustomerDetailsFormModalFooter>
-					{productForModal?.customer_details?.is_skip && (
-						<Button
-							disabled={fetchingCustomerDetails}
-							isLoader={fetchingCustomerDetails}
-							onClick={async () => {
-								const geoRes = await fetchGeoLocation({
-									geoAPI: API.GEO_LOCATION,
-									userToken,
-								});
-								dispatch(setGeoLocation(geoRes));
-								if (leadId && selectedProductIdsFromLead) {
-									redirectToProductPageInEditModeFromLeadId(product);
-									return;
-								}
-								redirectToProductPage(productForModal);
-								dispatch(setDedupePrefilledValues(formState?.values));
-							}}
-							// name={proceedAsNewCustomer ? 'Proceed As New Customer' : 'Skip'}
-							name='Skip'
-						/>
-					)}
-					<Button
-						disabled={fetchingCustomerDetails}
-						isLoader={fetchingCustomerDetails}
-						name='Proceed'
-						onClick={handleSubmit(handleProceed)}
-						fill
-					/>
-				</UI.CustomerDetailsFormModalFooter>
-			</UI.ResponsiveWrapper>
+										redirectToProductPage(productForModal);
+										dispatch(setDedupePrefilledValues(formState?.values));
+									}}
+									// name={proceedAsNewCustomer ? 'Proceed As New Customer' : 'Skip'}
+									name='Skip'
+								/>
+							)}
+							<Button
+								disabled={fetchingCustomerDetails}
+								isLoader={fetchingCustomerDetails}
+								name='Proceed'
+								onClick={handleSubmit(handleProceed)}
+								fill
+							/>
+						</UI.CustomerDetailsFormModalFooter>
+					</UI.ResponsiveWrapper>
+				</>
+			)}
 		</Modal>
 	);
 };
