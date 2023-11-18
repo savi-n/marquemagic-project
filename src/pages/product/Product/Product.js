@@ -60,7 +60,7 @@ const Product = props => {
 		userDetails,
 		whiteLabelId,
 		isViewLoan,
-		isEditLoan,
+		// isEditLoan,
 		isEditOrViewLoan,
 	} = app;
 	const { leadId } = application;

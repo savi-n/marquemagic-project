@@ -57,10 +57,10 @@ export const applicationSlice = createSlice({
 
 		setSelectedProductIdFromLead: (state, action) => {
 			const { selectedProductIdsFromLead } = action.payload;
-			console.log(
-				'🚀 ~ file: applicationSlice.js:60 ~ selectedProductIdFromLead:',
-				selectedProductIdsFromLead
-			);
+			// console.log(
+			// 	'🚀 ~ file: applicationSlice.js:60 ~ selectedProductIdFromLead:',
+			// 	selectedProductIdsFromLead
+			// );
 
 			if (selectedProductIdsFromLead)
 				state.selectedProductIdsFromLead = selectedProductIdsFromLead;
