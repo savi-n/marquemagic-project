@@ -141,7 +141,7 @@ export default function CardSubProduct({
 	// 		data: id,
 	// 	});
 	// };
-
+	// console.log({ productName: product.name, product }, 'card-subproduct');
 	return (
 		<Wrapper>
 			<ImgDiv>

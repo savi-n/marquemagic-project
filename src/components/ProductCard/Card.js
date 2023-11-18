@@ -36,11 +36,15 @@ export default function Card({
 	setAddProduct,
 	isCustomerDetailsFormModalOpen,
 	setIsCustomerDetailsFormModalOpen,
-	subProduct,
-	setSubProduct,
-	isSubProductModalOpen,
-	setSubProductModalOpen,
+	isSubProductModalOpenDuplicate,
+	setSubProductModalOpenDuplicate,
+	// subProduct,
+	// setSubProduct,
+	// isSubProductModalOpen,
+	// setSubProductModalOpen,
 }) {
+	// console.log({ product, productName: product?.name }, '-444-Card.js');
+
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { app, application } = useSelector(state => state);
@@ -52,7 +56,7 @@ export default function Card({
 		whiteLabelId,
 	} = app;
 	const { geoLocation, leadId } = application;
-	// const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
+	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 
 	// const [
 	// 	isCustomerDetailsFormModalOpen,
@@ -71,7 +75,7 @@ export default function Card({
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 	const [selectedDedupeData, setSelectedDedupeData] = useState({});
-	// const [subProduct, setSubProduct] = useState({});
+	const [subProduct, setSubProduct] = useState({});
 	const [productModalData, setProductModalData] = useState({});
 
 	// const handleClick = (e, id) => {
@@ -336,6 +340,7 @@ export default function Card({
 									product?.sub_products &&
 									product?.sub_products?.length > 0
 								) {
+									// console.log({ product }, 'onclick-subproductmodal');
 									setSubProductModalOpen(true);
 								}
 								if (isGeoTaggingEnabled) {
@@ -423,9 +428,10 @@ export default function Card({
 				<UI.Description>{product?.description}</UI.Description>
 			</UI.ButtonWrapper>
 			<Modal
-				show={isSubProductModalOpen}
+				show={isSubProductModalOpen || isSubProductModalOpenDuplicate}
 				onClose={() => {
 					setSubProductModalOpen(false);
+					setSubProductModalOpenDuplicate(false);
 					// setCustomerDetailsFormData(null);
 					// setSelectedDedupeData({});
 				}}
@@ -436,6 +442,7 @@ export default function Card({
 				<UI.ImgClose
 					onClick={() => {
 						setSubProductModalOpen(false);
+						setSubProductModalOpenDuplicate(false);
 					}}
 					src={imgClose}
 					alt='close'
