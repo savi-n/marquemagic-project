@@ -24,7 +24,7 @@ import {
 } from 'store/applicationSlice';
 import { fetchGeoLocation } from 'utils/helper';
 import * as API from '_config/app.config';
-import { useLayoutEffect } from 'react';
+// import { useLayoutEffect } from 'react';
 
 const CustomerDetailsFormModal = props => {
 	const dispatch = useDispatch();

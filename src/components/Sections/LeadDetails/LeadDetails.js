@@ -86,9 +86,9 @@ const LeadDetails = props => {
 		leadId,
 		loanProductId,
 	} = application;
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
+	// const naviagteToNextSection = () => {
+	// 	dispatch(setSelectedSectionId(nextSectionId));
+	// };
 
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});

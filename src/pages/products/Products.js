@@ -329,15 +329,16 @@ export default function Products() {
 		state => state.application
 	);
 
-	console.log(
-		'🚀 ~ file: Products.js:329 ~ Products ~ selectedProductIdsFromLead:',
-		selectedProductIdsFromLead
-	);
+	// console.log(
+	// 	'🚀 ~ file: Products.js:329 ~ Products ~ selectedProductIdsFromLead:',
+	// 	selectedProductIdsFromLead
+	// );
 
 	const { response: products } = useFetch({
 		url: PRODUCT_LIST_URL({ whiteLabelId }),
 		headers: { Authorization: `Bearer ${userToken}` },
 	});
+
 	const history = useHistory();
 	const [addedProduct, setAddedProduct] = useState(null);
 	const [searching, setSearching] = useState(false);
@@ -354,8 +355,11 @@ export default function Products() {
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
 	const solutionType = newPermission?.solution_type || '';
-	const [subProduct, setSubProduct] = useState({});
-	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
+	// const [subProduct, setSubProduct] = useState({});
+	const [
+		isSubProductModalOpenDuplicate,
+		setSubProductModalOpenDuplicate,
+	] = useState(false);
 
 	const [
 		isCustomerDetailsFormModalOpen,
@@ -564,7 +568,7 @@ export default function Products() {
 				);
 				if (filteredSelectedProduct) {
 					setAddedProduct(filteredParentProduct);
-					setSubProductModalOpen(true);
+					setSubProductModalOpenDuplicate(true);
 					const isDedupeExist = dedupeApiData?.filter(item => {
 						return item?.product_id?.includes(filteredSelectedProduct?.id);
 					})?.[0];
@@ -599,10 +603,14 @@ export default function Products() {
 									setIsCustomerDetailsFormModalOpen={
 										setIsCustomerDetailsFormModalOpen
 									}
-									subProduct={subProduct}
-									setSubProduct={setSubProduct}
-									isSubProductModalOpen={isSubProductModalOpen}
-									setSubProductModalOpen={setSubProductModalOpen}
+									// subProduct={subProduct}
+									// setSubProduct={setSubProduct}
+									isSubProductModalOpenDuplicate={
+										isSubProductModalOpenDuplicate
+									}
+									setSubProductModalOpenDuplicate={
+										setSubProductModalOpenDuplicate
+									}
 								/>
 							)
 					)}
@@ -626,10 +634,12 @@ export default function Products() {
 								setIsCustomerDetailsFormModalOpen={
 									setIsCustomerDetailsFormModalOpen
 								}
-								subProduct={subProduct}
-								setSubProduct={setSubProduct}
-								isSubProductModalOpen={isSubProductModalOpen}
-								setSubProductModalOpen={setSubProductModalOpen}
+								// subProduct={subProduct}
+								// setSubProduct={setSubProduct}
+								isSubProductModalOpenDuplicate={isSubProductModalOpenDuplicate}
+								setSubProductModalOpenDuplicate={
+									setSubProductModalOpenDuplicate
+								}
 							/>
 						)}
 					</>
@@ -668,10 +678,14 @@ export default function Products() {
 											setIsCustomerDetailsFormModalOpen={
 												setIsCustomerDetailsFormModalOpen
 											}
-											subProduct={subProduct}
-											setSubProduct={setSubProduct}
-											isSubProductModalOpen={isSubProductModalOpen}
-											setSubProductModalOpen={setSubProductModalOpen}
+											// subProduct={subProduct}
+											// setSubProduct={setSubProduct}
+											isSubProductModalOpenDuplicate={
+												isSubProductModalOpenDuplicate
+											}
+											setSubProductModalOpenDuplicate={
+												setSubProductModalOpenDuplicate
+											}
 										/>
 									);
 								})}
