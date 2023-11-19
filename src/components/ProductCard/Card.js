@@ -481,34 +481,34 @@ export default function Card({
 					</UI.DivAdd>
 				</section>
 			</Modal>
-			{isCustomerDetailsFormModalOpen ||
-				(isCustomerDetailsFormModalOpenDuplicate && (
-					<CustomerDetailsFormModal
-						show={
-							isCustomerDetailsFormModalOpen ||
-							isCustomerDetailsFormModalOpenDuplicate
-						}
-						onClose={() => {
-							setIsCustomerDetailsFormModalOpen(false);
-							setIsCustomerDetailsFormModalOpenDuplicate(false);
-							// setCustomerDetailsFormData(null);
-							// setSelectedDedupeData({});
-						}}
-						redirectToProductPage={redirectToProductPage}
-						product={product}
-						setCustomerList={setCustomerList}
-						setIsCustomerListModalOpen={setIsCustomerListModalOpen}
-						setCustomerDetailsFormData={setCustomerDetailsFormData}
-						selectedDedupeData={selectedDedupeData}
-						setSelectedDedupeData={setSelectedDedupeData}
-						subProduct={subProduct}
-						setProductModalData={setProductModalData}
-						redirectToProductPageInEditMode={redirectToProductPageInEditMode}
-						redirectToProductPageInEditModeFromLeadId={
-							redirectToProductPageInEditModeFromLeadId
-						}
-					/>
-				))}
+			{(isCustomerDetailsFormModalOpen ||
+				isCustomerDetailsFormModalOpenDuplicate) && (
+				<CustomerDetailsFormModal
+					show={
+						isCustomerDetailsFormModalOpen ||
+						isCustomerDetailsFormModalOpenDuplicate
+					}
+					onClose={() => {
+						setIsCustomerDetailsFormModalOpen(false);
+						setIsCustomerDetailsFormModalOpenDuplicate(false);
+						// setCustomerDetailsFormData(null);
+						// setSelectedDedupeData({});
+					}}
+					redirectToProductPage={redirectToProductPage}
+					product={product}
+					setCustomerList={setCustomerList}
+					setIsCustomerListModalOpen={setIsCustomerListModalOpen}
+					setCustomerDetailsFormData={setCustomerDetailsFormData}
+					selectedDedupeData={selectedDedupeData}
+					setSelectedDedupeData={setSelectedDedupeData}
+					subProduct={subProduct}
+					setProductModalData={setProductModalData}
+					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+					redirectToProductPageInEditModeFromLeadId={
+						redirectToProductPageInEditModeFromLeadId
+					}
+				/>
+			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
 					show={isCustomerListModalOpen}
