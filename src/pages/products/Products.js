@@ -362,8 +362,8 @@ export default function Products() {
 	] = useState(false);
 
 	const [
-		isCustomerDetailsFormModalOpen,
-		setIsCustomerDetailsFormModalOpen,
+		isCustomerDetailsFormModalOpenDuplicate,
+		setIsCustomerDetailsFormModalOpenDuplicate,
 	] = useState(false);
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
@@ -542,13 +542,14 @@ export default function Products() {
 				})?.[0];
 				if (filteredProduct) {
 					setAddedProduct(filteredProduct);
-					setIsCustomerDetailsFormModalOpen(true);
+
+					setIsCustomerDetailsFormModalOpenDuplicate(true);
 					const isDedupeExist = dedupeApiData?.filter(item => {
 						return item?.product_id?.includes(filteredProduct?.id);
 					})?.[0];
 					// console.log({ isDedupeExist });
 					if (isDedupeExist) {
-						setIsCustomerDetailsFormModalOpen(true);
+						setIsCustomerDetailsFormModalOpenDuplicate(true);
 					}
 				}
 			} else {
@@ -574,7 +575,7 @@ export default function Products() {
 					})?.[0];
 					// console.log({ isDedupeExist });
 					if (isDedupeExist) {
-						setIsCustomerDetailsFormModalOpen(true);
+						setIsCustomerDetailsFormModalOpenDuplicate(true);
 					}
 				}
 			}
@@ -597,11 +598,11 @@ export default function Products() {
 								<Card
 									product={product}
 									key={`product__${product.id}`}
-									isCustomerDetailsFormModalOpen={
-										isCustomerDetailsFormModalOpen
+									isCustomerDetailsFormModalOpenDuplicate={
+										isCustomerDetailsFormModalOpenDuplicate
 									}
-									setIsCustomerDetailsFormModalOpen={
-										setIsCustomerDetailsFormModalOpen
+									setIsCustomerDetailsFormModalOpenDuplicate={
+										setIsCustomerDetailsFormModalOpenDuplicate
 									}
 									// subProduct={subProduct}
 									// setSubProduct={setSubProduct}
@@ -630,9 +631,11 @@ export default function Products() {
 							<Card
 								product={addedProduct}
 								key={`product__${addProduct.id}`}
-								isCustomerDetailsFormModalOpen={isCustomerDetailsFormModalOpen}
-								setIsCustomerDetailsFormModalOpen={
-									setIsCustomerDetailsFormModalOpen
+								isCustomerDetailsFormModalOpenDuplicate={
+									isCustomerDetailsFormModalOpenDuplicate
+								}
+								setIsCustomerDetailsFormModalOpenDuplicate={
+									setIsCustomerDetailsFormModalOpenDuplicate
 								}
 								// subProduct={subProduct}
 								// setSubProduct={setSubProduct}
@@ -672,11 +675,11 @@ export default function Products() {
 											product={product}
 											key={`product__${product.id}`}
 											setAddProduct={setAddProduct}
-											isCustomerDetailsFormModalOpen={
-												isCustomerDetailsFormModalOpen
+											isCustomerDetailsFormModalOpenDuplicate={
+												isCustomerDetailsFormModalOpenDuplicate
 											}
-											setIsCustomerDetailsFormModalOpen={
-												setIsCustomerDetailsFormModalOpen
+											setIsCustomerDetailsFormModalOpenDuplicate={
+												setIsCustomerDetailsFormModalOpenDuplicate
 											}
 											// subProduct={subProduct}
 											// setSubProduct={setSubProduct}
