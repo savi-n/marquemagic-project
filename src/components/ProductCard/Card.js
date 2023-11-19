@@ -34,8 +34,8 @@ export default function Card({
 	add,
 	setAddedProduct,
 	setAddProduct,
-	isCustomerDetailsFormModalOpen,
-	setIsCustomerDetailsFormModalOpen,
+	isCustomerDetailsFormModalOpenDuplicate,
+	setIsCustomerDetailsFormModalOpenDuplicate,
 	isSubProductModalOpenDuplicate,
 	setSubProductModalOpenDuplicate,
 	// subProduct,
@@ -58,10 +58,10 @@ export default function Card({
 	const { geoLocation, leadId } = application;
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 
-	// const [
-	// 	isCustomerDetailsFormModalOpen,
-	// 	setIsCustomerDetailsFormModalOpen,
-	// ] = useState(false);
+	const [
+		isCustomerDetailsFormModalOpen,
+		setIsCustomerDetailsFormModalOpen,
+	] = useState(false);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState([]);
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
@@ -481,29 +481,34 @@ export default function Card({
 					</UI.DivAdd>
 				</section>
 			</Modal>
-			{isCustomerDetailsFormModalOpen && (
-				<CustomerDetailsFormModal
-					show={isCustomerDetailsFormModalOpen}
-					onClose={() => {
-						setIsCustomerDetailsFormModalOpen(false);
-						// setCustomerDetailsFormData(null);
-						// setSelectedDedupeData({});
-					}}
-					redirectToProductPage={redirectToProductPage}
-					product={product}
-					setCustomerList={setCustomerList}
-					setIsCustomerListModalOpen={setIsCustomerListModalOpen}
-					setCustomerDetailsFormData={setCustomerDetailsFormData}
-					selectedDedupeData={selectedDedupeData}
-					setSelectedDedupeData={setSelectedDedupeData}
-					subProduct={subProduct}
-					setProductModalData={setProductModalData}
-					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
-					redirectToProductPageInEditModeFromLeadId={
-						redirectToProductPageInEditModeFromLeadId
-					}
-				/>
-			)}
+			{isCustomerDetailsFormModalOpen ||
+				(isCustomerDetailsFormModalOpenDuplicate && (
+					<CustomerDetailsFormModal
+						show={
+							isCustomerDetailsFormModalOpen ||
+							isCustomerDetailsFormModalOpenDuplicate
+						}
+						onClose={() => {
+							setIsCustomerDetailsFormModalOpen(false);
+							setIsCustomerDetailsFormModalOpenDuplicate(false);
+							// setCustomerDetailsFormData(null);
+							// setSelectedDedupeData({});
+						}}
+						redirectToProductPage={redirectToProductPage}
+						product={product}
+						setCustomerList={setCustomerList}
+						setIsCustomerListModalOpen={setIsCustomerListModalOpen}
+						setCustomerDetailsFormData={setCustomerDetailsFormData}
+						selectedDedupeData={selectedDedupeData}
+						setSelectedDedupeData={setSelectedDedupeData}
+						subProduct={subProduct}
+						setProductModalData={setProductModalData}
+						redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+						redirectToProductPageInEditModeFromLeadId={
+							redirectToProductPageInEditModeFromLeadId
+						}
+					/>
+				))}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
 					show={isCustomerListModalOpen}
@@ -511,6 +516,7 @@ export default function Card({
 						setIsCustomerDetailsFormModalOpen(false);
 						setIsCustomerListModalOpen(false);
 						setSelectedCustomer(null);
+						setIsCustomerDetailsFormModalOpenDuplicate(false);
 						// setTempProduct({});
 						// setCustomerDetailsFormData(null);
 						// setSelectedDedupeData({});
@@ -530,6 +536,7 @@ export default function Card({
 						setIsCustomerVerificationOTPModal(false);
 						setIsCustomerListModalOpen(false);
 						setIsCustomerDetailsFormModalOpen(false);
+						setIsCustomerDetailsFormModalOpenDuplicate(false);
 					}}
 					selectedCustomer={selectedCustomer}
 					resendOtp={onProceedSelectCustomer}
