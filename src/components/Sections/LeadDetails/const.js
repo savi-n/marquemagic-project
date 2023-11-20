@@ -36,3 +36,4 @@ export const SOURCE_DETAILS_SUBSECTION_ID = 'source_details';
 export const LOAN_CREATE_BRANCH_FOR = ['Branch', 'GL Branch'];
 
 export const LEAD_STATUS_HOT_OPTION_VALUE = '3';
+export const BUSINESS_START_DATE = 'business_vintage';

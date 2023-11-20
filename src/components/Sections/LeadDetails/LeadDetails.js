@@ -9,6 +9,9 @@ import Button from 'components/Button';
 import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
+import { getTotalYearsCompleted } from 'utils/helper';
+import moment from 'moment';
+
 import {
 	// setIsDraftLoan,
 	// setLoginCreateUserRes,
@@ -781,6 +784,16 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.onClick = event => {
 												onClickVerifyWithOtp(formState.values?.['aadhaar']);
 											};
+
+											if (field.name === CONST.BUSINESS_START_DATE) {
+												customFieldPropsSubFields.value =
+													getTotalYearsCompleted(
+														moment(
+															formState?.values?.[CONST.BUSINESS_START_DATE]
+														).format('YYYY-MM-DD')
+													) || '';
+												customFieldPropsSubFields.disabled = true;
+											}
 											return (
 												<LeadAadhaarVerify
 													key={`field-${fieldIndex}-${field.name}`}
