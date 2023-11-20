@@ -376,7 +376,7 @@ const LeadDetails = props => {
 						userDetails?.user_sub_type
 					) ||
 					(selectedSection?.validate_lead_status === true &&
-						formState?.values?.['lead_category'] ===
+						formState?.values?.['lead_category'] !==
 							CONST.LEAD_STATUS_HOT_OPTION_VALUE)
 				) {
 					sessionStorage.clear();
