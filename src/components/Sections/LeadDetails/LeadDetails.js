@@ -473,6 +473,7 @@ const LeadDetails = props => {
 				// ...sectionData,
 				...tempSectionData,
 				branch: tempSectionData?.branch?.id,
+				leadid: tempSectionData?.id,
 			};
 
 			if (preData?.[field?.name]) return preData?.[field?.name];
