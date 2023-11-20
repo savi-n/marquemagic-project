@@ -9,6 +9,9 @@ import Button from 'components/Button';
 import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
+import { getTotalYearsCompleted } from 'utils/helper';
+import moment from 'moment';
+
 import {
 	// setIsDraftLoan,
 	// setLoginCreateUserRes,
@@ -335,12 +338,12 @@ const LeadDetails = props => {
 			// console.log('====================================');
 		}
 	};
-	console.log({
-		selectedDedupeData,
-		dedupeApiData,
-		documentMapping,
-		id: selectedProduct?.id,
-	});
+	// console.log({
+	// 	selectedDedupeData,
+	// 	dedupeApiData,
+	// 	documentMapping,
+	// 	id: selectedProduct?.id,
+	// });
 	// console.log({ borrowerUserId, isEditOrViewLoan });
 	const onSaveAndProceed = async () => {
 		try {
@@ -374,7 +377,10 @@ const LeadDetails = props => {
 					) ||
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.user_sub_type
-					)
+					) ||
+					(selectedSection?.validate_lead_status === true &&
+						formState?.values?.['lead_category'] !==
+							CONST.LEAD_STATUS_HOT_OPTION_VALUE)
 				) {
 					sessionStorage.clear();
 					if (loanRefId) {
@@ -543,7 +549,7 @@ const LeadDetails = props => {
 		//new get api
 		if (leadId) fetchSectionDetails();
 		// log is required to monitor the modes
-		console.log({ isViewLoan, isEditLoan });
+		// console.log({ isViewLoan, isEditLoan });
 		//eslint-disable-next-line
 	}, []);
 
@@ -778,6 +784,16 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.onClick = event => {
 												onClickVerifyWithOtp(formState.values?.['aadhaar']);
 											};
+
+											if (field.name === CONST.BUSINESS_START_DATE) {
+												customFieldPropsSubFields.value =
+													getTotalYearsCompleted(
+														moment(
+															formState?.values?.[CONST.BUSINESS_START_DATE]
+														).format('YYYY-MM-DD')
+													) || '';
+												customFieldPropsSubFields.disabled = true;
+											}
 											return (
 												<LeadAadhaarVerify
 													key={`field-${fieldIndex}-${field.name}`}
