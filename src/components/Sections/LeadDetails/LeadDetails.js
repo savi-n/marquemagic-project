@@ -468,12 +468,11 @@ const LeadDetails = props => {
 			}
 			const otherData = sectionData?.other_data || '';
 			const tempSectionData = otherData ? JSON.parse(otherData) : {};
-			// console.log({ otherData, tempSectionData });
 			const preData = {
 				// ...sectionData,
 				...tempSectionData,
 				branch: tempSectionData?.branch?.id,
-				leadid: tempSectionData?.id,
+				leadid: sectionData?.id,
 			};
 
 			if (preData?.[field?.name]) return preData?.[field?.name];
@@ -786,15 +785,6 @@ const LeadDetails = props => {
 												onClickVerifyWithOtp(formState.values?.['aadhaar']);
 											};
 
-											if (field.name === CONST.BUSINESS_START_DATE) {
-												customFieldPropsSubFields.value =
-													getTotalYearsCompleted(
-														moment(
-															formState?.values?.[CONST.BUSINESS_START_DATE]
-														).format('YYYY-MM-DD')
-													) || '';
-												customFieldPropsSubFields.disabled = true;
-											}
 											return (
 												<LeadAadhaarVerify
 													key={`field-${fieldIndex}-${field.name}`}
@@ -811,6 +801,15 @@ const LeadDetails = props => {
 													isSectionCompleted={isSectionCompleted}
 												/>
 											);
+										}
+										if (field?.name === CONST.BUSINESS_START_DATE) {
+											customFieldPropsSubFields.value =
+												getTotalYearsCompleted(
+													moment(
+														formState?.values?.[CONST.BUSINESS_START_DATE]
+													).format('YYYY-MM-DD')
+												) || '';
+											customFieldPropsSubFields.disabled = true;
 										}
 
 										if (field?.for_type_name) {
