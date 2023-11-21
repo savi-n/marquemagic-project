@@ -1459,7 +1459,7 @@ const BusinessDetails = props => {
 											customFieldProps.infoMessage =
 												'Select the Business Type to fetch the data from Customer ID.';
 										}
-										if (field.name === CONST.BUSINESS_START_DATE) {
+										if (field?.name === CONST.BUSINESS_START_DATE) {
 											customFieldPropsSubFields.value =
 												getTotalYearsCompleted(
 													moment(
