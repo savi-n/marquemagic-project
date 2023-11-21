@@ -493,17 +493,19 @@ const BasicDetails = props => {
 				timestamp: selectedDirector?.timestamp,
 			};
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
+			if (isApplicant) {
+				dispatch(
+					setLoanIds({
+						loanRefId: newLoanRefId,
+						loanId: newLoanId,
+						businessId: newBusinessId,
+						businessUserId: newBusinessUserId,
+						loanProductId: selectedLoanProductId,
+						createdByUserId: newCreatedByUserId,
+						borrowerUserId: newBorrowerUserId,
+					})
+				);
+			}
 			// if (addNewDirectorKey) {
 			dispatch(
 				getDirectors({
@@ -808,17 +810,19 @@ const BasicDetails = props => {
 				timestamp: selectedDirector?.timestamp,
 			};
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
+			if (isApplicant) {
+				dispatch(
+					setLoanIds({
+						loanRefId: newLoanRefId,
+						loanId: newLoanId,
+						businessId: newBusinessId,
+						businessUserId: newBusinessUserId,
+						loanProductId: selectedLoanProductId,
+						createdByUserId: newCreatedByUserId,
+						borrowerUserId: newBorrowerUserId,
+					})
+				);
+			}
 			// if (addNewDirectorKey) {
 			dispatch(
 				getDirectors({
@@ -1435,17 +1439,19 @@ const BasicDetails = props => {
 				timestamp: selectedDirector?.timestamp,
 			};
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
+			if (isApplicant) {
+				dispatch(
+					setLoanIds({
+						loanRefId: newLoanRefId,
+						loanId: newLoanId,
+						businessId: newBusinessId,
+						businessUserId: newBusinessUserId,
+						loanProductId: selectedLoanProductId,
+						createdByUserId: newCreatedByUserId,
+						borrowerUserId: newBorrowerUserId,
+					})
+				);
+			}
 			// if (addNewDirectorKey) {
 			dispatch(
 				getDirectors({
