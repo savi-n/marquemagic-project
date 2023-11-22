@@ -59,6 +59,7 @@ import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 import { isInvalidPan } from 'utils/validation';
 import DedupeAccordian from './DedupeComponents/DedupeAccordian';
+import DataDeletionWarningModal from '../BasicDetails/DataDeletionWarningModal';
 
 const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -205,6 +206,9 @@ const BusinessDetails = props => {
 		false
 	);
 	const [dedupeModalData, setDedupeModalData] = useState([]);
+	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
+		false
+	);
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -261,6 +265,7 @@ const BusinessDetails = props => {
 	};
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
+		setIsDataDeletionWarningOpen(false);
 		if (formState?.values?.['business_type']?.length === 0) {
 			addToast({
 				type: 'error',
@@ -1150,6 +1155,17 @@ const BusinessDetails = props => {
 		/>
 	);
 
+	const showDataDeletionWarningModal = () => {
+		if (formState?.values?.['business_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Business Type',
+			});
+			return;
+		}
+		setIsDataDeletionWarningOpen(true);
+	};
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData ? (
@@ -1166,6 +1182,14 @@ const BusinessDetails = props => {
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
 					/>
+					<DataDeletionWarningModal
+						warningMessage={`Once You Proceed, All The Filled Data Will Be
+					Lost. A New Loan Will Be Created With Details Fetched From The Entered New UCIC Number.`}
+						show={isDataDeletionWarningOpen}
+						onClose={setIsDataDeletionWarningOpen}
+						onProceed={onFetchFromCustomerId}
+					/>
+
 					<Modal
 						show={isGstModalOpen}
 						onClose={() => {
@@ -1443,9 +1467,12 @@ const BusinessDetails = props => {
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
-											customFieldPropsSubFields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubFields.onClick = showDataDeletionWarningModal;
 											customFieldPropsSubFields.loading = loading;
 											customFieldPropsSubFields.disabled =
+												`${sectionData?.business_details?.customer_id}` ===
+													formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
+												!formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME] ||
 												loading ||
 												!!completedSections?.includes(selectedSectionId);
 											customFieldProps.disabled = !!completedSections?.includes(
@@ -1456,8 +1483,20 @@ const BusinessDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											customFieldProps.infoMessage =
-												'Select the Business Type to fetch the data from Customer ID.';
+											let infoMessage = '';
+											if (
+												`${sectionData?.business_details?.customer_id}` ===
+												formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
+											) {
+												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
+											} else if (
+												!formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME]
+											) {
+												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
+											} else {
+												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
+											}
+											customFieldProps.infoMessage = infoMessage;
 										}
 										if (field?.name === CONST.BUSINESS_START_DATE) {
 											customFieldPropsSubFields.value =
