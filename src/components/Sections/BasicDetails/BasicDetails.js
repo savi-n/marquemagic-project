@@ -67,6 +67,7 @@ import {
 } from 'utils/helper';
 import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
+import DataDeletionWarningModal from './DataDeletionWarningModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -125,6 +126,9 @@ const BasicDetails = props => {
 	const [profilePicGeolocation, setProfilePicGeolocation] = useState({});
 	const [geoLocationData, setGeoLocationData] = useState(geoLocation);
 	const [mandatoryGeoTag, setMandatoryGeoTag] = useState([]);
+	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
+		false
+	);
 	const {
 		handleSubmit,
 		register,
@@ -920,6 +924,7 @@ const BasicDetails = props => {
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
 		try {
+			setIsDataDeletionWarningOpen(false);
 			if (formState?.values?.['income_type']?.length === 0) {
 				addToast({
 					type: 'error',
@@ -1958,6 +1963,16 @@ const BasicDetails = props => {
 		/>
 	);
 
+	const showDataDeletionWarningModal = () => {
+		if (formState?.values?.['income_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Income Type',
+			});
+			return;
+		}
+		setIsDataDeletionWarningOpen(true);
+	};
 	// console.log(formState.values, 'form state');
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
@@ -1977,6 +1992,14 @@ const BasicDetails = props => {
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
 					/>
+					<DataDeletionWarningModal
+						warningMessage={`Once You Proceed, All The Filled Data Will Be
+					Lost. A New Loan Will Be Created With Details Fetched From The Entered New UCIC Number.`}
+						show={isDataDeletionWarningOpen}
+						onClose={setIsDataDeletionWarningOpen}
+						onProceed={onFetchFromCustomerId}
+					/>
+
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
@@ -2235,7 +2258,9 @@ const BasicDetails = props => {
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
-											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubfields.onClick = isApplicant
+												? showDataDeletionWarningModal
+												: onFetchFromCustomerId;
 											customFieldPropsSubfields.loading = loading;
 											customFieldPropsSubfields.disabled =
 												`${
