@@ -187,9 +187,10 @@ const LeadDetails = props => {
 				try {
 					setVerifyingWithOtp(true);
 					// const reqBody = {};
-					const sessionIdRes = await axios.post(
-						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT
-					);
+					const apiUrl =
+						selectedSection?.aadhaar_redirect_api_url ||
+						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT;
+					const sessionIdRes = await axios.post(apiUrl);
 					const sessionId = await sessionIdRes?.data?.data?.SessionId;
 					if (!sessionId || sessionIdRes.status === 'nok') {
 						addToast({
@@ -321,7 +322,10 @@ const LeadDetails = props => {
 
 	const handleBankRedirection = async url => {
 		try {
-			const resp = await axios.post(API.GENERATE_SESSION_ID_AADHAAR_REDIRECT);
+			const apiUrl =
+				selectedSection?.aadhaar_redirect_api_url ||
+				API.GENERATE_SESSION_ID_AADHAAR_REDIRECT;
+			const resp = await axios.post(apiUrl);
 			const session_id = resp?.data?.data?.SessionId;
 			if (session_id) {
 				window.open(
