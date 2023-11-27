@@ -210,6 +210,14 @@ const ApplicantCoApplicantHeader = props => {
 										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
+										{directorIndex > 0 ? (
+											<UI.BadgeDelete
+												src={iconDelete}
+												onClick={() => setIsDeleteDirectorModalOpen(directorId)}
+												alt='delete'
+											/>
+										) : null}
+
 										<UI.Avatar
 											src={
 												+selectedDirectorId === +directorId
