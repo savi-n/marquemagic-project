@@ -15,12 +15,20 @@ import { scrollToTopRootElement } from 'utils/helper';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
+import iconSuccess from 'assets/icons/success_icon.png';
+import iconWarning from 'assets/icons/amber_warning_icon.png';
 import DynamicForm from './DynamicForm';
 import * as UI_SECTIONS from 'components/Sections/ui';
 
 const BankDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		selectedProduct,
+	} = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -28,6 +36,8 @@ const BankDetails = () => {
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.max || 10;
+	const showPennyDropButtons =
+		selectedProduct?.product_details?.show_penny_drop_button || false;
 
 	const openCreateForm = () => {
 		setEditSectionId('');
@@ -129,15 +139,34 @@ const BankDetails = () => {
 											>
 												{isAccordianOpen ? null : (
 													<>
+														{!!showPennyDropButtons && (
+															<UI_SECTIONS.AccordianIcon
+																style={{ marginRight: '10px' }}
+																src={
+																	`${prefillData.bank_verification_flag}` ===
+																	'verified'
+																		? iconSuccess
+																		: iconWarning
+																}
+																alt={
+																	`${prefillData.bank_verification_flag}` ===
+																	'verified'
+																		? 'verified'
+																		: 'not verified'
+																}
+																title={
+																	`${prefillData.bank_verification_flag}` ===
+																	'verified'
+																		? 'Bank Is Penny Drop Verified'
+																		: 'Bank Is Not Penny Drop Verified'
+																}
+															/>
+														)}
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Name:</span>
 															<strong>
 																{prefillData?.account_holder_name}
 															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															{/* <span>Type of Assets:</span>
-															<strong>{prefillData?.loan_asset_type_id}</strong> */}
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>AC#:</span>
@@ -179,6 +208,9 @@ const BankDetails = () => {
 														onClick={() => {
 															if (isCreateFormOpen || isEditLoan) return;
 															toggleAccordian(sectionId);
+															setTimeout(() => {
+																setEditSectionId('');
+															}, 100);
 														}}
 														style={{
 															transform: 'rotate(90deg)',
