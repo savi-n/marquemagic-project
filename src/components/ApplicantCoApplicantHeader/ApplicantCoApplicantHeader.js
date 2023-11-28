@@ -15,7 +15,10 @@ import {
 	setSelectedDirectorId,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
-import { getSelectedDirectorIndex } from 'utils/formatData';
+import {
+	getSelectedDirectorIndex,
+	isDirectorApplicant,
+} from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -40,6 +43,7 @@ const ApplicantCoApplicantHeader = props => {
 		loanRefId,
 		// businessType,
 		businessName,
+		businessId,
 	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -87,36 +91,41 @@ const ApplicantCoApplicantHeader = props => {
 	}, []);
 
 	const onClickDirectorAvatar = id => {
+		console.log('this is inside okCLick');
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
+		console.log('this is inside okCLick outside if loop : ' + id);
+
 		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
-	// const deleteDirectorData = async () => {
-	// 	try {
-	// 		// setFetchingFormData(true);
-	// 		// get method of the sections is here. modify the api of this particular section
-	// 		const fetchRes = await axios.get(DELETE_CO_APPLICANT, {
-	// 			params: {
-	// 				business_id: leadId,
-	// 				director_id: selectedDirectorId,
-	// 			},
-	// 			headers: {
-	// 				Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
-	// 			},
-	// 		});
-	// 		// console.log('=>', fetchRes);
-	// 		if (fetchRes?.data?.status === 'ok') {
-	// 			console.log(fetchRes?.data?.data);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('error-fetchSectionDetails-', error);
-	// 	} finally {
-	// 		// setFetchingFormData(false);
-	// 	}
-	// };
+	const deleteDirectorData = async () => {
+		try {
+			// setFetchingFormData(true);
+			// get method of the sections is here. modify the api of this particular section
+			const fetchRes = await axios.get(DELETE_CO_APPLICANT, {
+				params: {
+					business_id: businessId,
+					director_id: selectedDirectorId,
+				},
+				headers: {
+					Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
+				},
+			});
+			// console.log('=>', fetchRes);
+			if (fetchRes?.data?.status === 'ok') {
+				console.log(fetchRes?.data?.data);
+				fetchDirectors();
+				onClickDirectorAvatar('');
+			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			// setFetchingFormData(false);
+		}
+	};
 
 	const isEntityMandatoryUploaded = () => {
 		let isEntityMandatoryDocsSubmitted = true;
@@ -165,12 +174,8 @@ const ApplicantCoApplicantHeader = props => {
 						<DeleteCoApplicantModal
 							onNo={() => setIsDeleteDirectorModalOpen(false)}
 							onYes={() => {
-								console.log(
-									'this is directr id : ' +
-										selectedDirectorId +
-										' and business id is : ' +
-										selectedProduct?.id
-								);
+								deleteDirectorData();
+
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
 								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));

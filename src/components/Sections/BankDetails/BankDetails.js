@@ -72,9 +72,6 @@ const BankDetails = () => {
 		}
 	};
 	const deleteSectionDetails = async () => {
-		console.log(
-			'this is id : ' + loanSectionId + ' and loan id is : ' + loanId
-		);
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(DELETE_LOAN_FIN, {
@@ -83,8 +80,9 @@ const BankDetails = () => {
 					Authorization: `Bearer ${userToken}`,
 				},
 			});
-
-			console.log('this is delete resp : ' + fetchRes?.data?.data);
+			if (fetchRes.status === 200) {
+				onSaveOrUpdateSuccessCallback();
+			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
 		} finally {
