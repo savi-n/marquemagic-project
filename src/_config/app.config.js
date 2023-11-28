@@ -8,6 +8,7 @@ const OTP_API_END_POINT = process.env.REACT_APP_OTP_URL;
 const APP_DOMAIN = process.env.REACT_APP_DOMAIN;
 const CUSTOMER_FETCH_API_END_POINT =
 	process.env.REACT_APP_CUSTOMER_FETCH_API_URL;
+const COMMON_SERVICES_API_END_POINT = process.env.REACT_APP_COMMON_API_URL;
 
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
@@ -127,6 +128,9 @@ const DELETE_CO_APPLICANT = `${API_END_POINT}/delete_director`;
 const DELETE_LOAN_FIN = `${API_END_POINT}/deleteLoanFinancial`;
 const DELETE_COLLATERAL = `${API_END_POINT}/cubCollateral/deleteCollateral`;
 
+
+const TRIGGER_PENNY_DROP = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/trigger`;
+const PENNY_DROP_STATUS_FETCH = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/status`;
 const NC_STATUS_CODE = {
 	OK: 'ok',
 	NC200: 'NC200',
@@ -269,4 +273,6 @@ export {
 	DELETE_LOAN_FIN,
 	DELETE_CO_APPLICANT,
 	DELETE_COLLATERAL,
+	TRIGGER_PENNY_DROP,
+	PENNY_DROP_STATUS_FETCH,
 };

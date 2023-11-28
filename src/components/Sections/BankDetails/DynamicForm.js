@@ -16,8 +16,13 @@ import {
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
-import { API_END_POINT } from '_config/app.config';
+import {
+	API_END_POINT,
+	TRIGGER_PENNY_DROP,
+	PENNY_DROP_STATUS_FETCH,
+} from '_config/app.config';
 import { useEffect } from 'react';
+import PennyDropStatusModal from './PennyDropStatusModal';
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
@@ -39,6 +44,7 @@ const DynamicForm = props => {
 		selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	const { ifscList } = useSelector(state => state.app);
+	const { loanId } = application;
 
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	selectedDirectorOptions?.map(item => {
@@ -48,7 +54,12 @@ const DynamicForm = props => {
 		};
 	});
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
+	const {
+		isTestMode,
+		selectedSection,
+		isViewLoan: isViewLoanApp,
+		selectedProduct,
+	} = app;
 	const {
 		register,
 		formState,
@@ -58,6 +69,16 @@ const DynamicForm = props => {
 	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [pennyDropStatusModalOpen, setPennyDropStatusModalOpen] = useState(
+		false
+	);
+	const [pennyDropStatus, setPennyDropStatus] = useState({
+		message: '',
+		data: {},
+	});
+	const [pennyDropApiLoading, setPennyDropApiLoading] = useState(false);
+	const showPennyDropButtons =
+		selectedProduct?.product_details?.show_penny_drop_button;
 
 	const prefilledEditOrViewLoanValues = field => {
 		return prefillData?.[field?.name];
@@ -173,8 +194,96 @@ const DynamicForm = props => {
 	// 	prefillData,
 	// });
 
+	// payload for penny_drop
+	// {loan_id: loanId, acc_number: accNumber, ifsc, fin_type: finType, fin_id: finId}
+	const triggerPennyDrop = async () => {
+		try {
+			setPennyDropApiLoading(true);
+			const pennyDropReqBody = {
+				loan_id: loanId || '',
+				acc_number:
+					prefillData?.account_number ||
+					formState?.values?.[CONST.FIELD_NAME_ACCOUNT_NUMBER] ||
+					'',
+				ifsc:
+					prefillData?.IFSC ||
+					formState?.values?.[CONST.FIELD_NAME_IFSC_CODE] ||
+					'',
+				fin_type: CONST.FIN_TYPE_BANK_ACCOUNT || '',
+				fin_id: prefillData?.id || '',
+			};
+			const fetchRes = await axios.post(TRIGGER_PENNY_DROP, pennyDropReqBody);
+			if (fetchRes?.data?.status === 'ok') {
+				addToast({
+					message: fetchRes?.data?.message,
+					type: 'success',
+				});
+			} else {
+				addToast({
+					message: fetchRes?.data?.message,
+					type: 'error',
+				});
+			}
+		} catch (error) {
+			addToast({
+				message: error?.response?.data?.message || error?.message,
+				type: 'success',
+			});
+			console.error('Error in Triggering Penny Drop: ', error);
+		} finally {
+			setPennyDropApiLoading(false);
+		}
+	};
+
+	const checkPennyDropStatus = async () => {
+		try {
+			setPennyDropApiLoading(true);
+			const pennyDropStatusReqBody = {
+				fin_id: prefillData?.id,
+			};
+
+			const pennyDropStatusRes = await axios.get(PENNY_DROP_STATUS_FETCH, {
+				params: { ...pennyDropStatusReqBody },
+			});
+			if (pennyDropStatusRes?.data?.status === 'ok') {
+				setPennyDropStatus({
+					message: pennyDropStatusRes?.data?.message,
+					data: pennyDropStatusRes?.data?.data,
+				});
+			}
+
+			if (pennyDropStatusRes?.data?.status === 'nok') {
+				setPennyDropStatus({
+					message: pennyDropStatusRes?.data?.message,
+					data: pennyDropStatusRes?.data?.data || {},
+				});
+			}
+		} catch (error) {
+			console.error('Error In Fetching Penny Drop Status:', error);
+		} finally {
+			setPennyDropApiLoading(false);
+		}
+	};
+
+	const closePennyDropStatusModal = () => {
+		setPennyDropStatusModalOpen(false);
+	};
+
+	const openPennyDropStatusModal = () => {
+		checkPennyDropStatus();
+		setPennyDropStatusModalOpen(true);
+	};
+
 	return (
 		<React.Fragment>
+			{pennyDropStatusModalOpen && (
+				<PennyDropStatusModal
+					loading={pennyDropApiLoading}
+					onYes={closePennyDropStatusModal}
+					data={pennyDropStatus}
+				/>
+			)}
+
 			<UI_SECTIONS.FormWrapGrid>
 				{fields?.map((field, fieldIndex) => {
 					if (!isFieldValid({ field, formState, isApplicant })) {
@@ -225,6 +334,30 @@ const DynamicForm = props => {
 					)}
 				</>
 			)}
+			{!!showPennyDropButtons &&
+				!editSectionId &&
+				prefillData?.id &&
+				!isViewLoanApp && (
+					<>
+						<Button
+							name='Trigger Penny Drop'
+							customStyle={{ maxWidth: '300px' }}
+							onClick={triggerPennyDrop}
+							isLoader={pennyDropApiLoading}
+							disabled={pennyDropApiLoading}
+							fill
+						/>
+
+						<Button
+							name='Penny Drop Status'
+							customStyle={{ maxWidth: '300px', marginLeft: 20 }}
+							onClick={openPennyDropStatusModal}
+							isLoader={pennyDropApiLoading}
+							disabled={pennyDropApiLoading}
+							fill
+						/>
+					</>
+				)}
 		</React.Fragment>
 	);
 };
