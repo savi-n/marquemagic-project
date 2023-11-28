@@ -204,3 +204,13 @@ export const AccordianBody = styled.div`
 export const DynamicFormWrapper = styled.div`
 	/* border: 1px solid red; */
 `;
+
+export const BadgeDelete = styled.img`
+	position: absolute;
+	height: 30px;
+	right: 0;
+	top: 0;
+	margin-right: 20px;
+	margin-top: 15px;
+	cursor: pointer;
+`;

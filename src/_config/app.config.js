@@ -123,6 +123,10 @@ const SKIP_SECTION = `${API_END_POINT}/skip_section`;
 const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
 const VEHICLE_RC = `${API_END_POINT}/api/vehicleRC`;
 const LEADS_DATA = `${API_END_POINT}/leadsData`;
+const DELETE_CO_APPLICANT = `${API_END_POINT}/delete_director`;
+const DELETE_LOAN_FIN = `${API_END_POINT}/deleteLoanFinancial`;
+const DELETE_COLLATERAL = `${API_END_POINT}/cubCollateral/deleteCollateral`;
+
 const NC_STATUS_CODE = {
 	OK: 'ok',
 	NC200: 'NC200',
@@ -262,4 +266,7 @@ export {
 	LEADS_DETIALS,
 	VEHICLE_RC,
 	LEADS_DATA,
+	DELETE_LOAN_FIN,
+	DELETE_CO_APPLICANT,
+	DELETE_COLLATERAL,
 };

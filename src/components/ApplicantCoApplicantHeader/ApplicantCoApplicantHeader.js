@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-// import axios from 'axios';
+import axios from 'axios';
 
 import DeleteCoApplicantModal from 'components/modals/DeleteCoApplicantModal';
 import Loading from 'components/Loading';
@@ -21,6 +21,7 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
 import * as CONST from './const';
+import { DELETE_CO_APPLICANT } from '_config/app.config';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, application } = useSelector(state => state);
@@ -93,6 +94,30 @@ const ApplicantCoApplicantHeader = props => {
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
+	// const deleteDirectorData = async () => {
+	// 	try {
+	// 		// setFetchingFormData(true);
+	// 		// get method of the sections is here. modify the api of this particular section
+	// 		const fetchRes = await axios.get(DELETE_CO_APPLICANT, {
+	// 			params: {
+	// 				business_id: leadId,
+	// 				director_id: selectedDirectorId,
+	// 			},
+	// 			headers: {
+	// 				Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
+	// 			},
+	// 		});
+	// 		// console.log('=>', fetchRes);
+	// 		if (fetchRes?.data?.status === 'ok') {
+	// 			console.log(fetchRes?.data?.data);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('error-fetchSectionDetails-', error);
+	// 	} finally {
+	// 		// setFetchingFormData(false);
+	// 	}
+	// };
+
 	const isEntityMandatoryUploaded = () => {
 		let isEntityMandatoryDocsSubmitted = true;
 		if (isDocumentUploadMandatory) {
@@ -140,6 +165,12 @@ const ApplicantCoApplicantHeader = props => {
 						<DeleteCoApplicantModal
 							onNo={() => setIsDeleteDirectorModalOpen(false)}
 							onYes={() => {
+								console.log(
+									'this is directr id : ' +
+										selectedDirectorId +
+										' and business id is : ' +
+										selectedProduct?.id
+								);
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
 								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));

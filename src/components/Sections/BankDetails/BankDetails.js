@@ -10,20 +10,30 @@ import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
 
 import { formatGetSectionReqBody } from 'utils/formatData';
-import { API_END_POINT } from '_config/app.config';
+import { API_END_POINT, DELETE_LOAN_FIN } from '_config/app.config';
 import { scrollToTopRootElement } from 'utils/helper';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
+import iconDelete from 'assets/icons/grey_delete_icon.png';
 import DynamicForm from './DynamicForm';
 import * as UI_SECTIONS from 'components/Sections/ui';
 
 const BankDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		userToken,
+	} = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
+	const [loanSectionId, setloanSectionId] = useState('');
+	const [loanId, setloanId] = useState('');
+
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
@@ -61,6 +71,26 @@ const BankDetails = () => {
 			setFetchingSectionData(false);
 		}
 	};
+	const deleteSectionDetails = async () => {
+		console.log(
+			'this is id : ' + loanSectionId + ' and loan id is : ' + loanId
+		);
+		try {
+			setFetchingSectionData(true);
+			const fetchRes = await axios.get(DELETE_LOAN_FIN, {
+				params: { id: loanSectionId, loan_id: loanId },
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			});
+
+			console.log('this is delete resp : ' + fetchRes?.data?.data);
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			setFetchingSectionData(false);
+		}
+	};
 
 	const onSaveAndProceed = () => {
 		dispatch(setCompletedApplicationSection(selectedSectionId));
@@ -77,6 +107,10 @@ const BankDetails = () => {
 
 	const onSaveOrUpdateSuccessCallback = () => {
 		fetchSectionDetails();
+	};
+
+	const onDeleteSuccessCallback = () => {
+		deleteSectionDetails();
 	};
 
 	const onCancelCallback = deleteEditSectionId => {
@@ -113,6 +147,7 @@ const BankDetails = () => {
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
 									const sectionId = section?.id;
+									const loanId = section?.loan_id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 									const prefillData = {
@@ -173,6 +208,23 @@ const BankDetails = () => {
 															}
 														/>
 													)}
+													<UI_SECTIONS.AccordianIcon
+														src={iconDelete}
+														onClick={() => {
+															console.log(
+																'delete icon clicked id is :' +
+																	sectionId +
+																	'and loan id is : ' +
+																	loanId
+															);
+															setloanSectionId(sectionId);
+															setloanId(loanId);
+
+															onDeleteSuccessCallback();
+														}}
+														alt='delete'
+													/>
+
 													<UI_SECTIONS.AccordianIcon
 														src={expandIcon}
 														alt='toggle'
