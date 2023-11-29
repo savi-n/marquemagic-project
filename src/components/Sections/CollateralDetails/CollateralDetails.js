@@ -7,7 +7,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { setSelectedSectionId } from 'store/appSlice';
 import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
-import { API_END_POINT } from '_config/app.config';
+import { API_END_POINT, DELETE_COLLATERAL } from '_config/app.config';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
@@ -15,13 +15,20 @@ import DynamicForm from './DynamicForm';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
+import iconDelete from 'assets/icons/grey_delete_icon.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 // import _ from 'lodash';
 import * as CONST from './const';
 
 const CollateralDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		userToken,
+	} = app;
 	const { businessName } = application;
 	const { directors } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
@@ -29,6 +36,9 @@ const CollateralDetails = () => {
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
+	const [loanSectionId, setloanSectionId] = useState('');
+	const [loanId, setloanId] = useState('');
+
 	const [sectionData, setSectionData] = useState([]);
 	const [loanAssetData, setLoanAssetData] = useState([]);
 	// const [sectionData, setuudata] = useState([
@@ -119,6 +129,29 @@ const CollateralDetails = () => {
 		}
 	};
 
+	const deleteSectionDetails = async () => {
+		console.log(
+			'this is id : ' + loanSectionId + ' and loan id is : ' + loanId
+		);
+		try {
+			setFetchingSectionData(true);
+			const fetchRes = await axios.post(DELETE_COLLATERAL, {
+				params: { id: loanSectionId, loan_id: loanId },
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			});
+
+			if (fetchRes.status === 200) {
+				onSaveOrUpdateSuccessCallback();
+			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			setFetchingSectionData(false);
+		}
+	};
+
 	const onSaveAndProceed = () => {
 		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -126,6 +159,9 @@ const CollateralDetails = () => {
 
 	const onSaveOrUpdateSuccessCallback = () => {
 		fetchSectionDetails();
+	};
+	const onDeleteSuccessCallback = () => {
+		deleteSectionDetails();
 	};
 
 	const onCancelCallback = deleteEditSectionId => {
@@ -339,6 +375,24 @@ const CollateralDetails = () => {
 													}
 												/>
 											)}
+
+											<UI_SECTIONS.AccordianIcon
+												src={iconDelete}
+												onClick={() => {
+													console.log(
+														'delete icon clicked id is :' +
+															sectionId +
+															'and loan id is : ' +
+															loanId
+													);
+													setloanSectionId(sectionId);
+													setloanId(loanId);
+
+													onDeleteSuccessCallback();
+												}}
+												alt='delete'
+											/>
+
 											<UI_SECTIONS.AccordianIcon
 												src={expandIcon}
 												alt='toggle'

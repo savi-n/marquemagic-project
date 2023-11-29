@@ -355,6 +355,14 @@ const LeadDetails = props => {
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
 
+			let isLeadCategoryChanged = false;
+			if (
+				isEditLoan &&
+				sectionData?.lead_category !== formState?.values?.['lead_category']
+			) {
+				isLeadCategoryChanged = true;
+			}
+
 			const leadsDetailsReqBody = {
 				...formState.values,
 				white_label_id: whiteLabelId,
@@ -381,10 +389,7 @@ const LeadDetails = props => {
 					) ||
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.user_sub_type
-					) ||
-					(selectedSection?.validate_lead_status === true &&
-						formState?.values?.['lead_category'] !==
-							CONST.LEAD_STATUS_HOT_OPTION_VALUE)
+					)
 				) {
 					sessionStorage.clear();
 					if (loanRefId) {
@@ -397,7 +402,13 @@ const LeadDetails = props => {
 					}
 					return;
 				} else {
-					if (Object.keys(selectedDedupeData)?.length === 0 || isEditLoan) {
+					if (
+						Object.keys(selectedDedupeData)?.length === 0 ||
+						(isEditLoan && !isLeadCategoryChanged) ||
+						(selectedSection?.validate_lead_status === true &&
+							formState?.values?.['lead_category'] !==
+								CONST.LEAD_STATUS_HOT_OPTION_VALUE)
+					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
 					} else {
@@ -658,6 +669,11 @@ const LeadDetails = props => {
 				onChangeFormStateField({
 					name: CONST.LAST_NAME_FIELD_NAME,
 					value: lastName || '',
+				});
+
+				onChangeFormStateField({
+					name: CONST.BUSINESS_NAME_FIELD_NAME,
+					value: name || '',
 				});
 			}
 		} catch (err) {
