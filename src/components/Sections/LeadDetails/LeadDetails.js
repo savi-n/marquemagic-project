@@ -355,6 +355,14 @@ const LeadDetails = props => {
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
 
+			let isLeadCategoryChanged = false;
+			if (
+				isEditLoan &&
+				sectionData?.lead_category !== formState?.values?.['lead_category']
+			) {
+				isLeadCategoryChanged = true;
+			}
+
 			const leadsDetailsReqBody = {
 				...formState.values,
 				white_label_id: whiteLabelId,
@@ -396,7 +404,7 @@ const LeadDetails = props => {
 				} else {
 					if (
 						Object.keys(selectedDedupeData)?.length === 0 ||
-						isEditLoan ||
+						(isEditLoan && !isLeadCategoryChanged) ||
 						(selectedSection?.validate_lead_status === true &&
 							formState?.values?.['lead_category'] !==
 								CONST.LEAD_STATUS_HOT_OPTION_VALUE)
