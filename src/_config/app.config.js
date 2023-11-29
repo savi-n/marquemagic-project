@@ -124,6 +124,10 @@ const SKIP_SECTION = `${API_END_POINT}/skip_section`;
 const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
 const VEHICLE_RC = `${API_END_POINT}/api/vehicleRC`;
 const LEADS_DATA = `${API_END_POINT}/leadsData`;
+const DELETE_CO_APPLICANT = `${API_END_POINT}/delete_director`;
+const DELETE_LOAN_FIN = `${API_END_POINT}/deleteLoanFinancial`;
+const DELETE_COLLATERAL = `${API_END_POINT}/cubCollateral/deleteCollateral`;
+
 
 const TRIGGER_PENNY_DROP = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/trigger`;
 const PENNY_DROP_STATUS_FETCH = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/status`;
@@ -266,6 +270,9 @@ export {
 	LEADS_DETIALS,
 	VEHICLE_RC,
 	LEADS_DATA,
+	DELETE_LOAN_FIN,
+	DELETE_CO_APPLICANT,
+	DELETE_COLLATERAL,
 	TRIGGER_PENNY_DROP,
 	PENNY_DROP_STATUS_FETCH,
 };
