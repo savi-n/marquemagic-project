@@ -52,7 +52,6 @@ const CustomerDetailsFormModal = props => {
 	const [leadsData, setLeadsData] = useState({});
 	const [fetchingFormData, setFetchingFormData] = useState(false);
 	const { addToast } = useToasts();
-
 	const productForModal =
 		Object.keys(subProduct).length > 0 ? subProduct : product;
 
@@ -71,7 +70,7 @@ const CustomerDetailsFormModal = props => {
 			  })?.[0] || {}
 			: {};
 	// console.log(
-	// 	{ dedupeApiData, product, selectedDedupeData },
+	// 	{ dedupeApiData, product, selectedDedupeData, productForModal },
 	// 	'customerDetailsFormModal.js'
 	// );
 
@@ -269,8 +268,6 @@ const CustomerDetailsFormModal = props => {
 				ddob: tempSectionData?.ddob || '',
 			};
 
-			console.log(leadsData);
-			console.log(preData?.[field?.name]);
 			if (preData?.[field?.name]) return preData?.[field?.name];
 
 			return field?.value || '';
