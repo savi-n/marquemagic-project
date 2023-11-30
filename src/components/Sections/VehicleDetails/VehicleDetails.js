@@ -171,7 +171,7 @@ const VehicleDetails = props => {
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Type of Vehicle:</span>
+															<span>Type of Assets:</span>
 															<strong>
 																{prefillData?.loan_asset_type_id?.typename}
 															</strong>
