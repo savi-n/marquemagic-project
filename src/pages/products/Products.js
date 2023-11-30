@@ -353,6 +353,8 @@ export default function Products() {
 	const [errOTP, setErrOTP] = useState('');
 	const [addProduct, setAddProduct] = useState(false);
 	const [loadingOTP, setLoadingOTP] = useState(false);
+	const [tempSubProduct, setTempProduct] = useState({});
+
 	const initialLoanProductCount = 3;
 	const solutionType = newPermission?.solution_type || '';
 	// const [subProduct, setSubProduct] = useState({});
@@ -566,14 +568,19 @@ export default function Products() {
 							`${selectedProductIdsFromLead?.selected_product_id}`
 						);
 					}
-				);
+				)?.[0];
 				if (filteredSelectedProduct) {
 					setAddedProduct(filteredParentProduct);
 					setSubProductModalOpenDuplicate(true);
+					setTempProduct(filteredSelectedProduct);
 					const isDedupeExist = dedupeApiData?.filter(item => {
 						return item?.product_id?.includes(filteredSelectedProduct?.id);
 					})?.[0];
-					// console.log({ isDedupeExist });
+					// console.log({
+					// 	isDedupeExist,
+					// 	dedupeApiData,
+					// 	filteredSelectedProduct,
+					// });
 					if (isDedupeExist) {
 						setIsCustomerDetailsFormModalOpenDuplicate(true);
 					}
@@ -612,6 +619,7 @@ export default function Products() {
 									setSubProductModalOpenDuplicate={
 										setSubProductModalOpenDuplicate
 									}
+									tempSubProduct={tempSubProduct}
 								/>
 							)
 					)}
@@ -643,6 +651,7 @@ export default function Products() {
 								setSubProductModalOpenDuplicate={
 									setSubProductModalOpenDuplicate
 								}
+								tempSubProduct={tempSubProduct}
 							/>
 						)}
 					</>
@@ -689,6 +698,7 @@ export default function Products() {
 											setSubProductModalOpenDuplicate={
 												setSubProductModalOpenDuplicate
 											}
+											tempSubProduct={tempSubProduct}
 										/>
 									);
 								})}
