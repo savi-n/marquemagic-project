@@ -592,11 +592,16 @@ const BusinessDetails = props => {
 				delete buissnessDetailsReqBody.data.business_details.gstin;
 			}
 			// changes for gst selection ends
-
 			if (!!companyRocData && Object.values(companyRocData)?.length > 0)
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
 
+			// console.log({
+			// 	1: !!companyRocData,
+			// 	2: Object.values(companyRocData)?.length > 0,
+			// 	buissnessDetailsReqBody,
+			// 	companyRocData,
+			// });
 			if (leadId) buissnessDetailsReqBody.lead_id = leadId;
 
 			// buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
@@ -633,7 +638,6 @@ const BusinessDetails = props => {
 			if (
 				!!companyRocData &&
 				Object.values(companyRocData)?.length > 0 &&
-				!isEditLoan &&
 				!isViewLoan &&
 				!completedSections?.includes(selectedSectionId)
 			) {
