@@ -402,6 +402,14 @@ const LeadDetails = props => {
 					}
 					return;
 				} else {
+					// console.log({
+					// 	1: Object.keys(selectedDedupeData)?.length === 0,
+					// 	2: isEditLoan && !isLeadCategoryChanged,
+					// 	3:
+					// 		selectedSection?.validate_lead_status === true &&
+					// 		formState?.values?.['lead_category'] !==
+					// 			CONST.LEAD_STATUS_HOT_OPTION_VALUE,
+					// });
 					if (
 						Object.keys(selectedDedupeData)?.length === 0 ||
 						(isEditLoan && !isLeadCategoryChanged) ||

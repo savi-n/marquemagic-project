@@ -42,6 +42,7 @@ export default function Card({
 	// setSubProduct,
 	// isSubProductModalOpen,
 	// setSubProductModalOpen,
+	tempSubProduct,
 }) {
 	// console.log({ product, productName: product?.name }, '-444-Card.js');
 
@@ -93,6 +94,8 @@ export default function Card({
 	useEffect(() => {
 		// console.log('card.js - useeffect-');
 		dispatch(resetEditOrViewLoan());
+		if (tempSubProduct && Object.keys(tempSubProduct)?.length > 0)
+			setSubProduct(tempSubProduct);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	const redirectToProductPage = (productForModal = product) => {
