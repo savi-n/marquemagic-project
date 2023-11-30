@@ -670,19 +670,21 @@ const LeadDetails = props => {
 					firstName = nameSplit.join(' ');
 				}
 
-				onChangeFormStateField({
-					name: CONST.FIRST_NAME_FIELD_NAME,
-					value: firstName || '',
-				});
-				onChangeFormStateField({
-					name: CONST.LAST_NAME_FIELD_NAME,
-					value: lastName || '',
-				});
-
-				onChangeFormStateField({
-					name: CONST.BUSINESS_NAME_FIELD_NAME,
-					value: name || '',
-				});
+				if (`${selectedProduct?.loan_request_type}` === '2') {
+					onChangeFormStateField({
+						name: CONST.FIRST_NAME_FIELD_NAME,
+						value: firstName || '',
+					});
+					onChangeFormStateField({
+						name: CONST.LAST_NAME_FIELD_NAME,
+						value: lastName || '',
+					});
+				} else {
+					onChangeFormStateField({
+						name: CONST.BUSINESS_NAME_FIELD_NAME,
+						value: name || '',
+					});
+				}
 			}
 		} catch (err) {
 			console.error(err);
