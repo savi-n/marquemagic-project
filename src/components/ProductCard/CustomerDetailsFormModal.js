@@ -268,8 +268,6 @@ const CustomerDetailsFormModal = props => {
 				ddob: tempSectionData?.ddob || '',
 			};
 
-			console.log(leadsData);
-			console.log(preData?.[field?.name]);
 			if (preData?.[field?.name]) return preData?.[field?.name];
 
 			return field?.value || '';
