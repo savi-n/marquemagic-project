@@ -218,6 +218,7 @@ const DynamicForm = props => {
 					message: fetchRes?.data?.message,
 					type: 'success',
 				});
+				onSaveOrUpdateSuccessCallback();
 			} else {
 				addToast({
 					message: fetchRes?.data?.message,
@@ -339,23 +340,27 @@ const DynamicForm = props => {
 				prefillData?.id &&
 				!isViewLoanApp && (
 					<>
-						<Button
-							name='Trigger Penny Drop'
-							customStyle={{ maxWidth: '300px' }}
-							onClick={triggerPennyDrop}
-							isLoader={pennyDropApiLoading}
-							disabled={pennyDropApiLoading}
-							fill
-						/>
+						{!(`${prefillData.bank_verification_flag}` === 'verified') && (
+							<Button
+								name='Trigger Penny Drop'
+								customStyle={{ maxWidth: '300px' }}
+								onClick={triggerPennyDrop}
+								isLoader={pennyDropApiLoading}
+								disabled={pennyDropApiLoading}
+								fill
+							/>
+						)}
 
-						<Button
-							name='Penny Drop Status'
-							customStyle={{ maxWidth: '300px', marginLeft: 20 }}
-							onClick={openPennyDropStatusModal}
-							isLoader={pennyDropApiLoading}
-							disabled={pennyDropApiLoading}
-							fill
-						/>
+						{prefillData.bank_verification_flag && (
+							<Button
+								name='Penny Drop Status'
+								customStyle={{ maxWidth: '300px', marginLeft: 20 }}
+								onClick={openPennyDropStatusModal}
+								isLoader={pennyDropApiLoading}
+								disabled={pennyDropApiLoading}
+								fill
+							/>
+						)}
 					</>
 				)}
 		</React.Fragment>
