@@ -402,6 +402,14 @@ const LeadDetails = props => {
 					}
 					return;
 				} else {
+					// console.log({
+					// 	1: Object.keys(selectedDedupeData)?.length === 0,
+					// 	2: isEditLoan && !isLeadCategoryChanged,
+					// 	3:
+					// 		selectedSection?.validate_lead_status === true &&
+					// 		formState?.values?.['lead_category'] !==
+					// 			CONST.LEAD_STATUS_HOT_OPTION_VALUE,
+					// });
 					if (
 						Object.keys(selectedDedupeData)?.length === 0 ||
 						(isEditLoan && !isLeadCategoryChanged) ||
@@ -662,19 +670,21 @@ const LeadDetails = props => {
 					firstName = nameSplit.join(' ');
 				}
 
-				onChangeFormStateField({
-					name: CONST.FIRST_NAME_FIELD_NAME,
-					value: firstName || '',
-				});
-				onChangeFormStateField({
-					name: CONST.LAST_NAME_FIELD_NAME,
-					value: lastName || '',
-				});
-
-				onChangeFormStateField({
-					name: CONST.BUSINESS_NAME_FIELD_NAME,
-					value: name || '',
-				});
+				if (`${selectedProduct?.loan_request_type}` === '2') {
+					onChangeFormStateField({
+						name: CONST.FIRST_NAME_FIELD_NAME,
+						value: firstName || '',
+					});
+					onChangeFormStateField({
+						name: CONST.LAST_NAME_FIELD_NAME,
+						value: lastName || '',
+					});
+				} else {
+					onChangeFormStateField({
+						name: CONST.BUSINESS_NAME_FIELD_NAME,
+						value: name || '',
+					});
+				}
 			}
 		} catch (err) {
 			console.error(err);
