@@ -414,7 +414,7 @@ const LeadDetails = props => {
 						Object.keys(selectedDedupeData)?.length === 0 ||
 						(isEditLoan && !isLeadCategoryChanged) ||
 						(selectedSection?.validate_lead_status === true &&
-							formState?.values?.['lead_category'] !==
+							formState?.values?.['lead_category'] ===
 								CONST.LEAD_STATUS_HOT_OPTION_VALUE)
 					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
