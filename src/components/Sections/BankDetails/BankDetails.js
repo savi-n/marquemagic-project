@@ -209,7 +209,9 @@ const BankDetails = () => {
 															: { flex: 'none' }
 													}
 												>
-													{isViewLoan ? null : (
+													{isViewLoan ||
+													(prefillData.enach_status &&
+														!(prefillData.enach_status === `failed`)) ? null : (
 														<UI_SECTIONS.AccordianIcon
 															src={editIcon}
 															alt='edit'
@@ -230,22 +232,26 @@ const BankDetails = () => {
 															}
 														/>
 													)}
-													<UI_SECTIONS.AccordianIcon
-														src={iconDelete}
-														onClick={() => {
-															console.log(
-																'delete icon clicked id is :' +
-																	sectionId +
-																	'and loan id is : ' +
-																	loanId
-															);
-															setloanSectionId(sectionId);
-															setloanId(loanId);
+													{isViewLoan ||
+													(prefillData.enach_status &&
+														!(prefillData.enach_status === `failed`)) ? null : (
+														<UI_SECTIONS.AccordianIcon
+															src={iconDelete}
+															onClick={() => {
+																console.log(
+																	'delete icon clicked id is :' +
+																		sectionId +
+																		'and loan id is : ' +
+																		loanId
+																);
+																setloanSectionId(sectionId);
+																setloanId(loanId);
 
-															onDeleteSuccessCallback();
-														}}
-														alt='delete'
-													/>
+																onDeleteSuccessCallback();
+															}}
+															alt='delete'
+														/>
+													)}
 
 													<UI_SECTIONS.AccordianIcon
 														src={expandIcon}
