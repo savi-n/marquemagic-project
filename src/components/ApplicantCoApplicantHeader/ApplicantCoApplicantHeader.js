@@ -35,7 +35,13 @@ const ApplicantCoApplicantHeader = props => {
 		addNewDirectorKey,
 	} = useSelector(state => state.directors);
 
-	const { selectedSectionId, selectedProduct, isLocalhost } = app;
+	const {
+		selectedSectionId,
+		selectedProduct,
+		isLocalhost,
+		isViewLoan,
+		isEditLoan,
+	} = app;
 	// const [flag,setFlag]={};
 	const {
 		cacheDocuments,
@@ -95,20 +101,19 @@ const ApplicantCoApplicantHeader = props => {
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
-		console.log('this is inside okCLick outside if loop : ' + id);
 
 		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
-	const deleteDirectorData = async () => {
+	const deleteDirectorData = async id => {
 		try {
 			// setFetchingFormData(true);
 			// get method of the sections is here. modify the api of this particular section
 			const fetchRes = await axios.get(DELETE_CO_APPLICANT, {
 				params: {
 					business_id: businessId,
-					director_id: selectedDirectorId,
+					director_id: id,
 				},
 				headers: {
 					Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
@@ -174,7 +179,7 @@ const ApplicantCoApplicantHeader = props => {
 						<DeleteCoApplicantModal
 							onNo={() => setIsDeleteDirectorModalOpen(false)}
 							onYes={() => {
-								deleteDirectorData();
+								deleteDirectorData(isDeleteDirectorModalOpen);
 
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
@@ -246,7 +251,7 @@ const ApplicantCoApplicantHeader = props => {
 										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
-										{directorIndex > 0 ? (
+										{directorIndex > 0 && !isViewLoan ? (
 											<UI.BadgeDelete
 												src={iconDelete}
 												onClick={() => setIsDeleteDirectorModalOpen(directorId)}
