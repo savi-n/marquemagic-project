@@ -277,6 +277,7 @@ export default function SearchSelect(props) {
 		const { value } = event.target;
 		if (field.name.includes('ifsc')) {
 			if (value.length > 12) return;
+
 			onIfscChange(value);
 		}
 		if (field.name.includes('ifsc')) {

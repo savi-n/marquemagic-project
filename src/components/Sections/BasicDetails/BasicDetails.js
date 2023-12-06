@@ -67,6 +67,7 @@ import {
 } from 'utils/helper';
 import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
+import DataDeletionWarningModal from './DataDeletionWarningModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -110,6 +111,7 @@ const BasicDetails = props => {
 		loanId,
 		businessId,
 		dedupePrefilledValues,
+		leadId,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -124,6 +126,9 @@ const BasicDetails = props => {
 	const [profilePicGeolocation, setProfilePicGeolocation] = useState({});
 	const [geoLocationData, setGeoLocationData] = useState(geoLocation);
 	const [mandatoryGeoTag, setMandatoryGeoTag] = useState([]);
+	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
+		false
+	);
 	const {
 		handleSubmit,
 		register,
@@ -307,7 +312,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -492,17 +497,19 @@ const BasicDetails = props => {
 				timestamp: selectedDirector?.timestamp,
 			};
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
+			if (isApplicant) {
+				dispatch(
+					setLoanIds({
+						loanRefId: newLoanRefId,
+						loanId: newLoanId,
+						businessId: newBusinessId,
+						businessUserId: newBusinessUserId,
+						loanProductId: selectedLoanProductId,
+						createdByUserId: newCreatedByUserId,
+						borrowerUserId: newBorrowerUserId,
+					})
+				);
+			}
 			// if (addNewDirectorKey) {
 			dispatch(
 				getDirectors({
@@ -619,7 +626,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -704,6 +711,9 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
+
+			if (leadId) basicDetailsReqBody.lead_id = leadId;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -804,17 +814,19 @@ const BasicDetails = props => {
 				timestamp: selectedDirector?.timestamp,
 			};
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
+			if (isApplicant) {
+				dispatch(
+					setLoanIds({
+						loanRefId: newLoanRefId,
+						loanId: newLoanId,
+						businessId: newBusinessId,
+						businessUserId: newBusinessUserId,
+						loanProductId: selectedLoanProductId,
+						createdByUserId: newCreatedByUserId,
+						borrowerUserId: newBorrowerUserId,
+					})
+				);
+			}
 			// if (addNewDirectorKey) {
 			dispatch(
 				getDirectors({
@@ -912,6 +924,7 @@ const BasicDetails = props => {
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
 		try {
+			setIsDataDeletionWarningOpen(false);
 			if (formState?.values?.['income_type']?.length === 0) {
 				addToast({
 					type: 'error',
@@ -1246,7 +1259,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -1431,17 +1444,19 @@ const BasicDetails = props => {
 				timestamp: selectedDirector?.timestamp,
 			};
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
+			if (isApplicant) {
+				dispatch(
+					setLoanIds({
+						loanRefId: newLoanRefId,
+						loanId: newLoanId,
+						businessId: newBusinessId,
+						businessUserId: newBusinessUserId,
+						loanProductId: selectedLoanProductId,
+						createdByUserId: newCreatedByUserId,
+						borrowerUserId: newBorrowerUserId,
+					})
+				);
+			}
 			// if (addNewDirectorKey) {
 			dispatch(
 				getDirectors({
@@ -1582,8 +1597,12 @@ const BasicDetails = props => {
 					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					// );
 					if (tempCompletedSections?.loan_details) {
+						// Since the leads section will always be completed when the loan is in draft or application stage. Leads section id is included in the completed sections.
 						dispatch(
-							setNewCompletedSections(tempCompletedSections?.loan_details)
+							setNewCompletedSections([
+								...tempCompletedSections?.loan_details,
+								CONST_SECTIONS.LEADS_SECTION_ID,
+							])
 						);
 					}
 					if (
@@ -1944,6 +1963,16 @@ const BasicDetails = props => {
 		/>
 	);
 
+	const showDataDeletionWarningModal = () => {
+		if (formState?.values?.['income_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Income Type',
+			});
+			return;
+		}
+		setIsDataDeletionWarningOpen(true);
+	};
 	// console.log(formState.values, 'form state');
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
@@ -1963,6 +1992,14 @@ const BasicDetails = props => {
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
 					/>
+					<DataDeletionWarningModal
+						warningMessage={`Once You Proceed, All The Filled Data Will Be
+					Lost. A New Loan Will Be Created With Details Fetched From The Entered New UCIC Number.`}
+						show={isDataDeletionWarningOpen}
+						onClose={setIsDataDeletionWarningOpen}
+						onProceed={onFetchFromCustomerId}
+					/>
+
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
@@ -2221,7 +2258,9 @@ const BasicDetails = props => {
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
-											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubfields.onClick = isApplicant
+												? showDataDeletionWarningModal
+												: onFetchFromCustomerId;
 											customFieldPropsSubfields.loading = loading;
 											customFieldPropsSubfields.disabled =
 												`${

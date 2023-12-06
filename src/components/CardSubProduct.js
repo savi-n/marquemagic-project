@@ -120,7 +120,8 @@ export default function CardSubProduct({
 	// const {
 	// 	actions: { resetUserDetails },
 	// } = useContext(UserContext);
-	const { app } = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
+	const { leadId } = application;
 	const { isGeoTaggingEnabled } = app;
 	const { userToken } = app;
 	// const {
@@ -140,7 +141,7 @@ export default function CardSubProduct({
 	// 		data: id,
 	// 	});
 	// };
-
+	// console.log({ productName: product.name, product }, 'card-subproduct');
 	return (
 		<Wrapper>
 			<ImgDiv>
@@ -167,9 +168,15 @@ export default function CardSubProduct({
 						dispatch(reInitializeApplicationSlice());
 						dispatch(reInitializeDirectorsSlice());
 						setSubProduct(product);
-						if (product?.customer_details) {
+
+						if (product?.product_details?.is_lead_product) {
+							if (leadId) {
+								return setIsCustomerDetailsFormModalOpen(true);
+							}
+						} else if (product?.customer_details) {
 							return setIsCustomerDetailsFormModalOpen(true);
 						}
+
 						if (!add) {
 							try {
 								if (isGeoTaggingEnabled) {

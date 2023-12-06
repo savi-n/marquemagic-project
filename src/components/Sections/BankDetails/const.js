@@ -13,4 +13,8 @@ export const initialFormState = {
 };
 
 export const FIN_TYPE_BANK_ACCOUNT = 'Bank Account';
-export const APPLICANT_FIELD_NAME	='director_id'
+export const APPLICANT_FIELD_NAME = 'director_id';
+export const FIELD_NAME_BANK_NAME = 'bank_name';
+export const FIELD_NAME_ACCOUNT_NUMBER = 'account_number';
+export const FIELD_NAME_IFSC_CODE = 'ifsc_code';
+export const FIELD_NAME_ACCOUNT_TYPE = 'account_type';

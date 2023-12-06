@@ -1,49 +1,52 @@
-import React, { Fragment, useState, useLayoutEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useLayoutEffect } from 'react';
+import { Fragment, useState } from 'react';
 import axios from 'axios';
 
 import Button from 'components/Button';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 
+import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-
-import { formatGetSectionReqBody } from 'utils/formatData';
-import { API_END_POINT, DELETE_LOAN_FIN } from '_config/app.config';
-import { scrollToTopRootElement } from 'utils/helper';
+import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
+import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
-import iconDelete from 'assets/icons/grey_delete_icon.png';
-import iconSuccess from 'assets/icons/success_icon.png';
-import iconWarning from 'assets/icons/amber_warning_icon.png';
 import DynamicForm from './DynamicForm';
-import * as UI_SECTIONS from 'components/Sections/ui';
+import { API_END_POINT } from '_config/app.config';
+import { scrollToTopRootElement } from 'utils/helper';
+// import selectedSection from './sample.json';
 
-const BankDetails = () => {
+const VehicleDetails = props => {
 	const { app, application } = useSelector(state => state);
+	const { selectedDirectorOptions } = useSelector(state => state.directors);
 	const {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
 		selectedSection,
-		userToken,
 		selectedProduct,
+		// clientToken,
 	} = app;
+	const { businessName } = application;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
-	const [loanSectionId, setloanSectionId] = useState('');
-	const [loanId, setloanId] = useState('');
-
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
-	const MAX_ADD_COUNT = selectedSection?.max || 10;
-	const showPennyDropButtons =
-		selectedProduct?.product_details?.show_penny_drop_button || false;
-
+	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
+	// console.log({ sectionData });
+	const business = {
+		name: businessName || 'Company/Business',
+		value: '0',
+	}; // TODO: need to optimize business/applicant details here
+	let newselectedDirectorOptions;
+	if (selectedProduct?.isSelectedProductTypeBusiness)
+		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
+	else newselectedDirectorOptions = selectedDirectorOptions;
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
@@ -54,13 +57,13 @@ const BankDetails = () => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/bank_details?${formatGetSectionReqBody({
+				`${API_END_POINT}/assets_details?${formatGetSectionReqBody({
 					application,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.length > 0) {
-				setSectionData(fetchRes?.data?.data);
+			if (fetchRes?.data?.data?.vehicle_details?.length > 0) {
+				setSectionData(fetchRes?.data?.data?.vehicle_details);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -72,24 +75,6 @@ const BankDetails = () => {
 			console.error('error-fetchSectionDetails-', error);
 			setSectionData([]);
 			openCreateForm();
-		} finally {
-			setFetchingSectionData(false);
-		}
-	};
-	const deleteSectionDetails = async () => {
-		try {
-			setFetchingSectionData(true);
-			const fetchRes = await axios.get(DELETE_LOAN_FIN, {
-				params: { id: loanSectionId, loan_id: loanId },
-				headers: {
-					Authorization: `Bearer ${userToken}`,
-				},
-			});
-			if (fetchRes.status === 200) {
-				onSaveOrUpdateSuccessCallback();
-			}
-		} catch (error) {
-			console.error('error-fetchSectionDetails-', error);
 		} finally {
 			setFetchingSectionData(false);
 		}
@@ -112,10 +97,6 @@ const BankDetails = () => {
 		fetchSectionDetails();
 	};
 
-	const onDeleteSuccessCallback = () => {
-		deleteSectionDetails();
-	};
-
 	const onCancelCallback = deleteEditSectionId => {
 		if (deleteEditSectionId) {
 			setEditSectionId('');
@@ -131,7 +112,12 @@ const BankDetails = () => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('bank-details-', { app, application });
+	// console.log('VehicleDetails-allstates-', {
+	// 	app,
+	// 	selectedSection,
+	// 	isCreateFormOpen,
+	// 	editSectionId,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -139,7 +125,8 @@ const BankDetails = () => {
 				<Loading />
 			) : (
 				<>
-					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
+						if (!sub_section?.is_dynamic) return null;
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -149,17 +136,21 @@ const BankDetails = () => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
+									console.log({ section });
 									const sectionId = section?.id;
-									const loanId = section?.loan_id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
-									const prefillData = {
-										...(section || {}),
-										bank_name: `${section?.bank_id || ''}`,
-										ifsc_code: section?.IFSC || '',
-										start_date: section?.outstanding_start_date,
-										end_date: section?.outstanding_end_date,
-									};
+									const prefillData = section
+										? {
+												...section,
+												director_id:
+													section?.director_id === 0
+														? '0'
+														: `${section?.director_id}`,
+												...(section?.loan_json || {}),
+										  }
+										: {};
+
 									return (
 										<UI_SECTIONS.AccordianWrapper>
 											<UI_SECTIONS.AccordianHeader
@@ -167,51 +158,46 @@ const BankDetails = () => {
 											>
 												{isAccordianOpen ? null : (
 													<>
-														{!!showPennyDropButtons && (
-															<UI_SECTIONS.AccordianIcon
-																style={{ marginRight: '10px' }}
-																src={
-																	`${prefillData.bank_verification_flag}` ===
-																	'verified'
-																		? iconSuccess
-																		: iconWarning
-																}
-																alt={
-																	`${prefillData.bank_verification_flag}` ===
-																	'verified'
-																		? 'verified'
-																		: 'not verified'
-																}
-																title={
-																	`${prefillData.bank_verification_flag}` ===
-																	'verified'
-																		? 'Bank Is Penny Drop Verified'
-																		: 'Bank Is Not Penny Drop Verified'
-																}
-															/>
-														)}
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Name:</span>
+															<span>Vehicle For:</span>
 															<strong>
-																{prefillData?.account_holder_name}
+																{
+																	newselectedDirectorOptions?.filter(
+																		director =>
+																			`${director?.value}` ===
+																			`${prefillData?.director_id}`
+																	)?.[0]?.name
+																}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>AC#:</span>
-															<strong>{prefillData?.account_number}</strong>
+															<span>Type of Assets:</span>
+															<strong>
+																{prefillData?.loan_asset_type_id?.typename}
+															</strong>
+														</UI_SECTIONS.AccordianHeaderData>
+														<UI_SECTIONS.AccordianHeaderData>
+															<span>Amount:</span>
+															<strong>
+																{formatINR(
+																	prefillData?.value ||
+																		prefillData?.total_amount
+																)}
+															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
 												<UI_SECTIONS.AccordianHeaderData
 													style={
 														isAccordianOpen
-															? { marginLeft: 'auto', flex: 'none' }
+															? {
+																	marginLeft: 'auto',
+																	flex: 'none',
+															  }
 															: { flex: 'none' }
 													}
 												>
-													{isViewLoan ||
-													(prefillData.enach_status &&
-														!(prefillData.enach_status === `failed`)) ? null : (
+													{isViewLoan ? null : (
 														<UI_SECTIONS.AccordianIcon
 															src={editIcon}
 															alt='edit'
@@ -232,39 +218,19 @@ const BankDetails = () => {
 															}
 														/>
 													)}
-													{isViewLoan ||
-													(prefillData.enach_status &&
-														!(prefillData.enach_status === `failed`)) ? null : (
-														<UI_SECTIONS.AccordianIcon
-															src={iconDelete}
-															onClick={() => {
-																console.log(
-																	'delete icon clicked id is :' +
-																		sectionId +
-																		'and loan id is : ' +
-																		loanId
-																);
-																setloanSectionId(sectionId);
-																setloanId(loanId);
-
-																onDeleteSuccessCallback();
-															}}
-															alt='delete'
-														/>
-													)}
-
 													<UI_SECTIONS.AccordianIcon
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
+															openAccordianId !== sectionId &&
+																onCancelCallback(openAccordianId);
 															if (isCreateFormOpen || isEditLoan) return;
 															toggleAccordian(sectionId);
-															setTimeout(() => {
-																setEditSectionId('');
-															}, 100);
 														}}
 														style={{
-															transform: 'rotate(90deg)',
+															transform: isAccordianOpen
+																? 'rotate(270deg)'
+																: 'rotate(90deg)',
 															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',
@@ -331,7 +297,7 @@ const BankDetails = () => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional Bank Details</span>
+								<span>Click to add additional Vehicles</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
@@ -340,6 +306,7 @@ const BankDetails = () => {
 							<Button
 								fill
 								name='Save and Proceed'
+								// isLoader={!!editSectionId}
 								disabled={isCreateFormOpen || !!editSectionId}
 								onClick={onSaveAndProceed}
 							/>
@@ -353,4 +320,4 @@ const BankDetails = () => {
 	);
 };
 
-export default BankDetails;
+export default VehicleDetails;

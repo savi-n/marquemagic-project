@@ -24,10 +24,9 @@ export default function IfscList(props) {
 
 	const [loading, setloading] = useState(false);
 
-	const getNewIfscData = async data => {
+	const getNewIfscData = async () => {
 		setloading(true);
 
-		console.log('this is ifsc : ' + ifscCode);
 		try {
 			const ifscDataRes = await axios.get(IFSC_LIST_FETCH, {
 				params: { ifsc: ifscCode },
@@ -55,9 +54,8 @@ export default function IfscList(props) {
 
 	const onIfscChange = value => {
 		const newOptions = _.cloneDeep(options);
-		console.log('this is value : ' + value.name);
 		if (value.length > 10) {
-			setifscCode(value?.value);
+			setifscCode(value);
 
 			getNewIfscData();
 		}

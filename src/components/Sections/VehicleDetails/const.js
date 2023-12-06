@@ -1,0 +1,32 @@
+export const initialFormState = {
+	asset_type: '75',
+	type_of_funding: 'New',
+	total_amount: 500,
+	finance_requirement: 'RandomText123',
+	dealer_name: 'RandomDealer',
+	manufacturer_name: 'RandomManufacturer',
+	dealer_address: 'RandomAddress',
+	dealer_gst: 'RandomGST123',
+	supply_place: 'New York',
+	invoice_number: 'INV12345',
+	hirer: 'ABC Leasing',
+	make: 'Toyota',
+	full_model_code: 'Camry XLE',
+	tonnage_category: '5000 lbs',
+	chassis_number: 'CHS123456',
+	engine_number: 'ENG789012',
+	invoice_cost: '25000',
+	gst_invoice_cost: '3000',
+	total_gst_invoice_cost: '28000',
+	tcs: '500',
+	vehicle_category: 'Sedan',
+	color: 'Silver',
+	manufacture_year: '2022',
+	fuel_type: 'Petrol',
+	transmission_type: 'Automatic',
+	seating_capacity: 5,
+	max_speed: '130 mph',
+};
+
+export const FIELD_NAME_VEHICLE_NUMBER = 'registration_number';
+export const FIELD_NAME_VEHICLE_FOR = 'vehicle_for';

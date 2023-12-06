@@ -347,6 +347,17 @@ export default function useForm() {
 	const register = field => {
 		const { userDetails, isViewLoan } = app;
 		let newField = _.cloneDeep(field);
+		//Check whether the logged-in user has permission to access the fields listed in the field_not_allowed_for_users array within the field object.
+		const notAllowedUsers = field?.field_not_allowed_for_users;
+
+		if (
+			notAllowedUsers &&
+			(notAllowedUsers.includes(userDetails?.usertype) ||
+				notAllowedUsers.includes(userDetails?.user_sub_type))
+		) {
+			return;
+		}
+
 		// Masking the values for view loan based on the configuration (Masking starts)
 		if (
 			newField.is_masked &&
