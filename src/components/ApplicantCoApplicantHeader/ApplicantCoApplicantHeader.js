@@ -17,7 +17,7 @@ import {
 import { setSelectedSectionId } from 'store/appSlice';
 import {
 	getSelectedDirectorIndex,
-	isDirectorApplicant,
+	// isDirectorApplicant,
 } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
@@ -40,7 +40,7 @@ const ApplicantCoApplicantHeader = props => {
 		selectedProduct,
 		isLocalhost,
 		isViewLoan,
-		isEditLoan,
+		// isEditLoan,
 	} = app;
 	// const [flag,setFlag]={};
 	const {
