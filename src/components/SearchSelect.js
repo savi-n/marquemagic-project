@@ -276,12 +276,12 @@ export default function SearchSelect(props) {
 	const onSearchChange = async event => {
 		const { value } = event.target;
 		if (field.name.includes('ifsc')) {
-			if (value.length > 11) return;
+			if (value.length > 12) return;
 			onIfscChange(value);
 		}
 		if (field.name.includes('ifsc')) {
-			// length of ifsc is always 11
-			if (value.length === 11) {
+			// length of ifsc is always 12
+			if (value.length === 12) {
 				onOptionSelect(event, value);
 			}
 		}
