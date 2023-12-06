@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import SearchSelect from '../../SearchSelect';
 import { IFSC_LIST_FETCH } from '_config/app.config';
 import { setIfscList } from 'store/appSlice';
-import _ from 'lodash';
+// import _ from 'lodash';
 import axios from 'axios';
 
 export default function IfscList(props) {
@@ -18,7 +18,7 @@ export default function IfscList(props) {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
-	const [options, setOptions] = useState([]);
+	const [, setOptions] = useState([]);
 	const dispatch = useDispatch();
 	const [ifscCode, setifscCode] = useState(value);
 
@@ -53,7 +53,7 @@ export default function IfscList(props) {
 	};
 
 	const onIfscChange = value => {
-		const newOptions = _.cloneDeep(options);
+		// const newOptions = _.cloneDeep(options);
 		if (value.length > 10) {
 			setifscCode(value);
 

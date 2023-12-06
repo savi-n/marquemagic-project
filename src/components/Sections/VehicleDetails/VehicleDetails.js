@@ -125,168 +125,161 @@ const VehicleDetails = props => {
 				<Loading />
 			) : (
 				<>
-					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
-						if (!sub_section?.is_dynamic) return null;
-						return (
-							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-								{sub_section?.name ? (
-									<UI_SECTIONS.SubSectionHeader>
-										{sub_section.name}
-									</UI_SECTIONS.SubSectionHeader>
-								) : null}
-								{/* combine local + db array */}
-								{sectionData.map((section, sectionIndex) => {
-									console.log({ section });
-									const sectionId = section?.id;
-									const isAccordianOpen = sectionId === openAccordianId;
-									const isEditLoan = editSectionId === sectionId;
-									const prefillData = section
-										? {
-												...section,
-												director_id:
-													section?.director_id === 0
-														? '0'
-														: `${section?.director_id}`,
-												...(section?.loan_json || {}),
-										  }
-										: {};
+					<Fragment>
+						<UI_SECTIONS.SubSectionHeader>
+							{selectedSection?.name || 'Vehicle Details'}
+						</UI_SECTIONS.SubSectionHeader>
+						{/* combine local + db array */}
+						{sectionData.map((section, sectionIndex) => {
+							const sectionId = section?.id;
+							const isAccordianOpen = sectionId === openAccordianId;
+							const isEditLoan = editSectionId === sectionId;
+							const prefillData = section
+								? {
+										...section,
+										director_id:
+											section?.director_id === 0
+												? '0'
+												: `${section?.director_id}`,
+										...(section?.loan_json || {}),
+								  }
+								: {};
 
-									return (
-										<UI_SECTIONS.AccordianWrapper>
-											<UI_SECTIONS.AccordianHeader
-												key={`accordian-${sectionIndex}`}
-											>
-												{isAccordianOpen ? null : (
-													<>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Vehicle For:</span>
-															<strong>
-																{
-																	newselectedDirectorOptions?.filter(
-																		director =>
-																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
-																	)?.[0]?.name
-																}
-															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Type of Assets:</span>
-															<strong>
-																{prefillData?.loan_asset_type_id?.typename}
-															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Amount:</span>
-															<strong>
-																{formatINR(
-																	prefillData?.value ||
-																		prefillData?.total_amount
-																)}
-															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-													</>
-												)}
-												<UI_SECTIONS.AccordianHeaderData
-													style={
-														isAccordianOpen
-															? {
-																	marginLeft: 'auto',
-																	flex: 'none',
-															  }
-															: { flex: 'none' }
-													}
-												>
-													{isViewLoan ? null : (
-														<UI_SECTIONS.AccordianIcon
-															src={editIcon}
-															alt='edit'
-															onClick={() => {
-																if (isCreateFormOpen || isEditLoan) return;
-																toggleAccordian(sectionId, 'open');
-																setTimeout(() => {
-																	setEditSectionId(sectionId);
-																}, 200);
-															}}
-															style={
-																isCreateFormOpen || isEditLoan
-																	? {
-																			cursor: 'not-allowed',
-																			visibility: 'hidden',
-																	  }
-																	: {}
-															}
-														/>
-													)}
-													<UI_SECTIONS.AccordianIcon
-														src={expandIcon}
-														alt='toggle'
-														onClick={() => {
-															openAccordianId !== sectionId &&
-																onCancelCallback(openAccordianId);
-															if (isCreateFormOpen || isEditLoan) return;
-															toggleAccordian(sectionId);
-														}}
-														style={{
-															transform: isAccordianOpen
-																? 'rotate(270deg)'
-																: 'rotate(90deg)',
-															...(isCreateFormOpen || isEditLoan
-																? {
-																		cursor: 'not-allowed',
-																		visibility: 'hidden',
-																  }
-																: {}),
-														}}
-													/>
-												</UI_SECTIONS.AccordianHeaderData>
-											</UI_SECTIONS.AccordianHeader>
-											<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
-												{isAccordianOpen && !isCreateFormOpen && (
-													<DynamicForm
-														fields={sub_section?.fields || []}
-														prefillData={prefillData}
-														onSaveOrUpdateSuccessCallback={
-															onSaveOrUpdateSuccessCallback
+							return (
+								<UI_SECTIONS.AccordianWrapper>
+									<UI_SECTIONS.AccordianHeader
+										key={`accordian-${sectionIndex}`}
+									>
+										{isAccordianOpen ? null : (
+											<>
+												<UI_SECTIONS.AccordianHeaderData>
+													<span>Vehicle For:</span>
+													<strong>
+														{
+															newselectedDirectorOptions?.filter(
+																director =>
+																	`${director?.value}` ===
+																	`${prefillData?.director_id}`
+															)?.[0]?.name
 														}
-														onCancelCallback={onCancelCallback}
-														isEditLoan={isEditLoan}
-														editSectionId={editSectionId}
-														isCreateFormOpen={isCreateFormOpen}
-													/>
-												)}
-												{/* {isResetFormComplete ? (
+													</strong>
+												</UI_SECTIONS.AccordianHeaderData>
+												<UI_SECTIONS.AccordianHeaderData>
+													<span>Type of Assets:</span>
+													<strong>
+														{prefillData?.loan_asset_type_id?.typename}
+													</strong>
+												</UI_SECTIONS.AccordianHeaderData>
+												<UI_SECTIONS.AccordianHeaderData>
+													<span>Amount:</span>
+													<strong>
+														{formatINR(
+															prefillData?.value || prefillData?.total_amount
+														)}
+													</strong>
+												</UI_SECTIONS.AccordianHeaderData>
+											</>
+										)}
+										<UI_SECTIONS.AccordianHeaderData
+											style={
+												isAccordianOpen
+													? {
+															marginLeft: 'auto',
+															flex: 'none',
+													  }
+													: { flex: 'none' }
+											}
+										>
+											{isViewLoan ? null : (
+												<UI_SECTIONS.AccordianIcon
+													src={editIcon}
+													alt='edit'
+													onClick={() => {
+														if (isCreateFormOpen || isEditLoan) return;
+														toggleAccordian(sectionId, 'open');
+														setTimeout(() => {
+															setEditSectionId(sectionId);
+														}, 200);
+													}}
+													style={
+														isCreateFormOpen || isEditLoan
+															? {
+																	cursor: 'not-allowed',
+																	visibility: 'hidden',
+															  }
+															: {}
+													}
+												/>
+											)}
+											<UI_SECTIONS.AccordianIcon
+												src={expandIcon}
+												alt='toggle'
+												onClick={() => {
+													openAccordianId !== sectionId &&
+														onCancelCallback(openAccordianId);
+													if (isCreateFormOpen || isEditLoan) return;
+													toggleAccordian(sectionId);
+												}}
+												style={{
+													transform: isAccordianOpen
+														? 'rotate(270deg)'
+														: 'rotate(90deg)',
+													...(isCreateFormOpen || isEditLoan
+														? {
+																cursor: 'not-allowed',
+																visibility: 'hidden',
+														  }
+														: {}),
+												}}
+											/>
+										</UI_SECTIONS.AccordianHeaderData>
+									</UI_SECTIONS.AccordianHeader>
+									<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
+										{isAccordianOpen && !isCreateFormOpen && (
+											<DynamicForm
+												subSections={selectedSection?.sub_sections || []}
+												// fields={sub_section?.fields || []}
+												prefillData={prefillData}
+												onSaveOrUpdateSuccessCallback={
+													onSaveOrUpdateSuccessCallback
+												}
+												onCancelCallback={onCancelCallback}
+												isEditLoan={isEditLoan}
+												editSectionId={editSectionId}
+												isCreateFormOpen={isCreateFormOpen}
+											/>
+										)}
+										{/* {isResetFormComplete ? (
 											<DynamicForm fields={sub_section?.fields || []} />
 										) : null} */}
-											</UI_SECTIONS.AccordianBody>
-										</UI_SECTIONS.AccordianWrapper>
-									);
-								})}
-								<div style={{ marginTop: 30 }} />
-								{isCreateFormOpen && (
-									<UI_SECTIONS.AccordianWrapper>
-										<UI_SECTIONS.AccordianBody
-											isOpen={true}
-											style={{ padding: 30 }}
-										>
-											<UI_SECTIONS.DynamicFormWrapper>
-												<DynamicForm
-													fields={sub_section?.fields || []}
-													onSaveOrUpdateSuccessCallback={
-														onSaveOrUpdateSuccessCallback
-													}
-													onCancelCallback={onCancelCallback}
-													submitCTAName='Save'
-													hideCancelCTA={!(sectionData?.length > 0)}
-													isEditLoan={true}
-												/>
-											</UI_SECTIONS.DynamicFormWrapper>
-										</UI_SECTIONS.AccordianBody>
-									</UI_SECTIONS.AccordianWrapper>
-								)}
-							</Fragment>
-						);
-					})}
+									</UI_SECTIONS.AccordianBody>
+								</UI_SECTIONS.AccordianWrapper>
+							);
+						})}
+						<div style={{ marginTop: 30 }} />
+						{isCreateFormOpen && (
+							<UI_SECTIONS.AccordianWrapper>
+								<UI_SECTIONS.AccordianBody
+									isOpen={true}
+									style={{ padding: 30 }}
+								>
+									<UI_SECTIONS.DynamicFormWrapper>
+										<DynamicForm
+											subSections={selectedSection?.sub_sections || []}
+											// fields={sub_section?.fields || []}
+											onSaveOrUpdateSuccessCallback={
+												onSaveOrUpdateSuccessCallback
+											}
+											onCancelCallback={onCancelCallback}
+											submitCTAName='Save'
+											hideCancelCTA={!(sectionData?.length > 0)}
+											isEditLoan={true}
+										/>
+									</UI_SECTIONS.DynamicFormWrapper>
+								</UI_SECTIONS.AccordianBody>
+							</UI_SECTIONS.AccordianWrapper>
+						)}
+					</Fragment>
 					<UI_SECTIONS.AddDynamicSectionWrapper>
 						{isCreateFormOpen ||
 						isViewLoan ||
