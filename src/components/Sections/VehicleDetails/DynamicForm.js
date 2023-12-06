@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
@@ -21,7 +21,8 @@ import { API_END_POINT, VEHICLE_RC } from '_config/app.config';
 
 const DynamicForm = props => {
 	const {
-		fields,
+		subSections,
+		// fields,
 		onSaveOrUpdateSuccessCallback = () => {},
 		onCancelCallback = () => {},
 		prefillData = {},
@@ -51,7 +52,7 @@ const DynamicForm = props => {
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	console.log({ prefillData });
+	// console.log({ prefillData });
 	const prefilledEditOrViewLoanValues = field => {
 		// const preData = {
 		// 	asset_type: '75',
@@ -150,13 +151,17 @@ const DynamicForm = props => {
 				selectedDirector,
 				application,
 			});
-			console.log(
-				'🚀 ~ file: DynamicForm.js:165 ~ onSaveOrUpdate ~ reqBody:',
-				reqBody
-			);
+			// console.log(
+			// 	'🚀 ~ file: DynamicForm.js:165 ~ onSaveOrUpdate ~ reqBody:',
+			// 	reqBody
+			// );
+			const tempData = [];
+			tempData.push(reqBody.data);
+
+			reqBody.data = tempData;
 
 			if (editSectionId) {
-				reqBody.data.vehicle_details.id = editSectionId;
+				reqBody.data[0].id = editSectionId;
 			}
 
 			// if (
@@ -167,7 +172,7 @@ const DynamicForm = props => {
 			// 		?.assets_details?.financial_institution?.value;
 			// }
 
-			reqBody.data.vehicle_details = [reqBody.data.vehicle_details];
+			// reqBody.data.vehicle_details = [reqBody.data.vehicle_details];
 
 			const submitRes = await axios.post(
 				`${API_END_POINT}/vehicle_details`,
@@ -204,57 +209,68 @@ const DynamicForm = props => {
 	// 	selectedSection,
 	// 	prefillData,
 	// });
-
 	return (
 		<React.Fragment>
-			<UI_SECTIONS.FormWrapGrid>
-				{fields?.map((field, fieldIndex) => {
-					if (!isFieldValid({ field, formState, isApplicant })) {
-						return null;
-					}
-					const customFieldProps = {};
-					const newField = _.cloneDeep(field);
-					const business = {
-						name: businessName || 'Company/Business',
-						value: '0',
-					};
-					if (newField.name === CONST.FIELD_NAME_VEHICLE_FOR) {
-						// newField.options = selectedDirectorOptions;
-						newField.options = selectedProduct?.isSelectedProductTypeBusiness
-							? [business, ...selectedDirectorOptions]
-							: selectedDirectorOptions;
-						// newField.options.push(entity);
-					}
+			{subSections?.map((subSection, subSectionIndex) => {
+				return (
+					<Fragment key={`subSection-${subSectionIndex}-${subSection?.id}`}>
+						{subSection?.name ? (
+							<UI_SECTIONS.SubSectionHeader>
+								{subSection.name}
+							</UI_SECTIONS.SubSectionHeader>
+						) : null}
+						<UI_SECTIONS.FormWrapGrid>
+							{subSection?.fields?.map((field, fieldIndex) => {
+								if (!isFieldValid({ field, formState, isApplicant })) {
+									return null;
+								}
+								const customFieldProps = {};
+								const newField = _.cloneDeep(field);
+								const business = {
+									name: businessName || 'Company/Business',
+									value: '0',
+								};
+								if (newField.name === CONST.FIELD_NAME_VEHICLE_FOR) {
+									// newField.options = selectedDirectorOptions;
+									newField.options = selectedProduct?.isSelectedProductTypeBusiness
+										? [business, ...selectedDirectorOptions]
+										: selectedDirectorOptions;
+									// newField.options.push(entity);
+								}
 
-					if (isViewLoan || isViewLoanApp) {
-						customFieldProps.disabled = true;
-					}
-					// console.log('render-field-', {
-					// 	field,
-					// 	customFieldProps,
-					// 	isViewLoan,
-					// 	newField,
-					// 	formState,
-					// });
-					return (
-						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
-							{register({
-								...newField,
-								value: prefilledValues(newField),
-								...customFieldProps,
-								visibility: 'visible',
+								if (isViewLoan || isViewLoanApp) {
+									customFieldProps.disabled = true;
+								}
+								// console.log('render-field-', {
+								// 	field,
+								// 	customFieldProps,
+								// 	isViewLoan,
+								// 	newField,
+								// 	formState,
+								// });
+								return (
+									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
+										{register({
+											...newField,
+											value: prefilledValues(newField),
+											...customFieldProps,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[newField.name]) &&
+											formState?.error?.[newField.name] && (
+												<UI_SECTIONS.ErrorMessage>
+													{formState?.error?.[newField.name]}
+												</UI_SECTIONS.ErrorMessage>
+											)}
+									</UI_SECTIONS.FieldWrapGrid>
+								);
 							})}
-							{(formState?.submit?.isSubmited ||
-								formState?.touched?.[newField.name]) &&
-								formState?.error?.[newField.name] && (
-									<UI_SECTIONS.ErrorMessage>
-										{formState?.error?.[newField.name]}
-									</UI_SECTIONS.ErrorMessage>
-								)}
-						</UI_SECTIONS.FieldWrapGrid>
-					);
-				})}
-			</UI_SECTIONS.FormWrapGrid>
+						</UI_SECTIONS.FormWrapGrid>
+					</Fragment>
+				);
+			})}
+
 			{!isViewLoan && !isViewLoanApp && (
 				<>
 					<Button
