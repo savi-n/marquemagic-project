@@ -22,7 +22,11 @@ export default function IfscList(props) {
 	const dispatch = useDispatch();
 	const [ifscCode, setifscCode] = useState(value);
 
+	const [loading, setloading] = useState(false);
+
 	const getNewIfscData = async () => {
+		setloading(true);
+
 		try {
 			const ifscDataRes = await axios.get(IFSC_LIST_FETCH, {
 				params: { ifsc: ifscCode },
@@ -43,14 +47,16 @@ export default function IfscList(props) {
 			}
 		} catch (err) {
 			console.error(err);
+		} finally {
+			setloading(false);
 		}
 	};
 
 	const onIfscChange = value => {
 		const newOptions = _.cloneDeep(options);
-		setifscCode(value);
+		if (value.length > 10) {
+			setifscCode(value);
 
-		if (value.length > 5) {
 			getNewIfscData();
 		}
 
@@ -104,7 +110,11 @@ export default function IfscList(props) {
 			disabled={field?.disabled || isViewLoan}
 			onIfscChange={onIfscChange}
 			rules={field.rules}
-			errorMessage={'IFSC Not Available. Please check with the Support Team.'}
+			errorMessage={
+				loading
+					? 'Loading...Please wait'
+					: 'IFSC Not Available. Please check with the Support Team.'
+			}
 		/>
 	);
 }
