@@ -351,16 +351,17 @@ const DynamicForm = props => {
 							/>
 						)}
 
-						{prefillData.bank_verification_flag && (
-							<Button
-								name='Penny Drop Status'
-								customStyle={{ maxWidth: '300px', marginLeft: 20 }}
-								onClick={openPennyDropStatusModal}
-								isLoader={pennyDropApiLoading}
-								disabled={pennyDropApiLoading}
-								fill
-							/>
-						)}
+						{prefillData.bank_verification_flag &&
+							prefillData.bank_verification_flag !== 'unverified' && (
+								<Button
+									name='Penny Drop Status'
+									customStyle={{ maxWidth: '300px', marginLeft: 20 }}
+									onClick={openPennyDropStatusModal}
+									isLoader={pennyDropApiLoading}
+									disabled={pennyDropApiLoading}
+									fill
+								/>
+							)}
 					</>
 				)}
 		</React.Fragment>

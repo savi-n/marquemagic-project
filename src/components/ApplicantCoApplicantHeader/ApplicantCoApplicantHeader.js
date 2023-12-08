@@ -41,6 +41,7 @@ const ApplicantCoApplicantHeader = props => {
 		isLocalhost,
 		isViewLoan,
 		// isEditLoan,
+		userDetails,
 	} = app;
 	// const [flag,setFlag]={};
 	const {
@@ -167,6 +168,17 @@ const ApplicantCoApplicantHeader = props => {
 		return isEntityMandatoryDocsSubmitted;
 	};
 
+	const showDelIconIfCoAppMandatory = selectedProduct?.product_details
+		?.is_coapplicant_mandatory
+		? 3
+		: 2;
+
+	const showCoApplicantDeleteBtn = () => {
+		return selectedProduct?.product_details?.allow_users_to_delete_co_applicants?.includes(
+			userDetails?.user_sub_type || userDetails?.usertype
+		);
+	};
+
 	return (
 		<UI.Wrapper>
 			{fetchingDirectors ? (
@@ -251,7 +263,11 @@ const ApplicantCoApplicantHeader = props => {
 										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
-										{directorIndex > 0 && !isViewLoan ? (
+										{showCoApplicantDeleteBtn() &&
+										Object.keys(directors).length >=
+											showDelIconIfCoAppMandatory &&
+										directorIndex > 0 &&
+										!isViewLoan ? (
 											<UI.BadgeDelete
 												src={iconDelete}
 												onClick={() => setIsDeleteDirectorModalOpen(directorId)}
