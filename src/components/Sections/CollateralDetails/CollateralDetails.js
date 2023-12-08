@@ -28,16 +28,16 @@ const CollateralDetails = () => {
 		nextSectionId,
 		selectedSection,
 		userToken,
+		selectedProduct,
+		userDetails,
 	} = app;
-	const { businessName } = application;
+	const { businessName, loanId } = application;
 	const { directors } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
-	const [loanSectionId, setloanSectionId] = useState('');
-	const [loanId, setloanId] = useState('');
 
 	const [sectionData, setSectionData] = useState([]);
 	const [loanAssetData, setLoanAssetData] = useState([]);
@@ -129,14 +129,17 @@ const CollateralDetails = () => {
 		}
 	};
 
-	const deleteSectionDetails = async () => {
-		console.log(
-			'this is id : ' + loanSectionId + ' and loan id is : ' + loanId
+	const showDeleteButton = () => {
+		return selectedProduct?.product_details?.allow_users_to_view_internal_dedupe?.includes(
+			userDetails?.user_sub_type || userDetails?.usertype
 		);
+	};
+
+	const deleteSectionDetails = async deleteSectionId => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.post(DELETE_COLLATERAL, {
-				params: { id: loanSectionId, loan_id: loanId },
+				params: { id: deleteSectionId, loan_id: loanId },
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 				},
@@ -160,8 +163,8 @@ const CollateralDetails = () => {
 	const onSaveOrUpdateSuccessCallback = () => {
 		fetchSectionDetails();
 	};
-	const onDeleteSuccessCallback = () => {
-		deleteSectionDetails();
+	const onDeleteSuccessCallback = deleteSectionId => {
+		deleteSectionDetails(deleteSectionId);
 	};
 
 	const onCancelCallback = deleteEditSectionId => {
@@ -375,23 +378,15 @@ const CollateralDetails = () => {
 													}
 												/>
 											)}
-
-											<UI_SECTIONS.AccordianIcon
-												src={iconDelete}
-												onClick={() => {
-													console.log(
-														'delete icon clicked id is :' +
-															sectionId +
-															'and loan id is : ' +
-															loanId
-													);
-													setloanSectionId(sectionId);
-													setloanId(loanId);
-
-													onDeleteSuccessCallback();
-												}}
-												alt='delete'
-											/>
+											{!isViewLoan && showDeleteButton() && (
+												<UI_SECTIONS.AccordianIcon
+													src={iconDelete}
+													onClick={() => {
+														onDeleteSuccessCallback(prefillData?.id);
+													}}
+													alt='delete'
+												/>
+											)}
 
 											<UI_SECTIONS.AccordianIcon
 												src={expandIcon}
