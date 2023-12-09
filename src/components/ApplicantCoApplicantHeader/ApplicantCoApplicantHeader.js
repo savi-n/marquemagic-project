@@ -174,8 +174,13 @@ const ApplicantCoApplicantHeader = props => {
 		: 2;
 
 	const showCoApplicantDeleteBtn = () => {
-		return selectedProduct?.product_details?.allow_users_to_delete_co_applicants?.includes(
-			userDetails?.user_sub_type || userDetails?.usertype
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_co_applicants?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_co_applicants?.includes(
+				userDetails?.user_sub_type
+			)
 		);
 	};
 

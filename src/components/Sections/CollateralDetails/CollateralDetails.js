@@ -130,8 +130,13 @@ const CollateralDetails = () => {
 	};
 
 	const showDeleteButton = () => {
-		return selectedProduct?.product_details?.allow_users_to_view_internal_dedupe?.includes(
-			userDetails?.user_sub_type || userDetails?.usertype
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_collateral?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_collateral?.includes(
+				userDetails?.user_sub_type
+			)
 		);
 	};
 

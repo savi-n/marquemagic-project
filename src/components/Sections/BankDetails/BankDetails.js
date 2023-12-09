@@ -131,8 +131,13 @@ const BankDetails = () => {
 	}, []);
 
 	const showDeleteButton = () => {
-		return selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
-			userDetails?.user_sub_type || userDetails?.usertype
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
+				userDetails?.user_sub_type
+			)
 		);
 	};
 
