@@ -8,12 +8,14 @@ import axios from 'axios';
 
 export default function BankList(props) {
 	const { field, onSelectOptionCallback, value } = props;
+	const { setIfscListLoading } = field;
 	const { bankList } = useSelector(state => state.app);
 	const [bankId, setBankId] = useState(value);
 	const dispatch = useDispatch();
 
 	const getIfscData = async () => {
 		try {
+			setIfscListLoading(true);
 			const ifscDataRes = await axios.get(IFSC_LIST_FETCH, {
 				params: { bankId: bankId },
 			});
@@ -33,6 +35,8 @@ export default function BankList(props) {
 			}
 		} catch (err) {
 			console.error(err);
+		} finally {
+			setIfscListLoading(false);
 		}
 	};
 

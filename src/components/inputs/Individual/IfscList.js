@@ -6,10 +6,13 @@ import { IFSC_LIST_FETCH } from '_config/app.config';
 import { setIfscList } from 'store/appSlice';
 // import _ from 'lodash';
 import axios from 'axios';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 export default function IfscList(props) {
+	const { addToast } = useToasts();
 	const { field, onSelectOptionCallback, value } = props;
 	const { ifscList } = useSelector(state => state.app);
+	const { selectedBank, setIfscListLoading } = field;
 
 	const onIfscSelectCallback = value => {
 		onSelectOptionCallback({ name: value.name, value: value.value.value });
@@ -20,20 +23,26 @@ export default function IfscList(props) {
 
 	const [, setOptions] = useState([]);
 	const dispatch = useDispatch();
-	const [ifscCode, setifscCode] = useState(value);
 
 	const [loading, setloading] = useState(false);
 
-	const getNewIfscData = async () => {
-		setloading(true);
-
+	const getNewIfscData = async ifscCode => {
 		try {
+			setloading(true);
+			setIfscListLoading(true);
 			const ifscDataRes = await axios.get(IFSC_LIST_FETCH, {
 				params: { ifsc: ifscCode },
 			});
 
 			if (ifscDataRes?.data?.status === 'ok') {
 				const newIfscList = [];
+				if (ifscDataRes?.data?.IFSC_list?.[0]?.ref_id !== selectedBank?.value) {
+					addToast({
+						message: `Please Enter IFSC Code Of The Selected Bank`,
+						type: 'error',
+					});
+					return;
+				}
 				ifscDataRes?.data?.IFSC_list?.length === 0
 					? newIfscList.push({ value: '', name: '' })
 					: ifscDataRes?.data?.IFSC_list?.map(bank => {
@@ -43,28 +52,23 @@ export default function IfscList(props) {
 							});
 							return null;
 					  });
-				dispatch(setIfscList(newIfscList));
+				dispatch(setIfscList([...ifscList, ...newIfscList]));
 			}
 		} catch (err) {
 			console.error(err);
 		} finally {
 			setloading(false);
+			setIfscListLoading(false);
 		}
 	};
 
 	const onIfscChange = value => {
 		// const newOptions = _.cloneDeep(options);
-		if (value.length > 10) {
-			setifscCode(value);
-
-			getNewIfscData();
+		const isIfscCodePresentInCurrentList =
+			ifscList?.filter(ifsc => ifsc.value === value)?.length > 0;
+		if (value.length > 10 && !isIfscCodePresentInCurrentList) {
+			getNewIfscData(value);
 		}
-
-		// 11 is the length for any ifsc code
-		// if (value.length === 11) {
-		// 	newOptions.unshift({ value, name: value });
-		// 	setOptions(newOptions);
-		// }
 	};
 	// useEffect(() => {
 	// 	if (ifscList?.length > 0) {
@@ -96,12 +100,12 @@ export default function IfscList(props) {
 		<SearchSelect
 			field={field}
 			// ifscLIstField={true}
-			onBlurCallback={() => {
-				// if (field.ifsc_required) {
-				// getIfscData(value.value);
-				setifscCode(value?.value);
-				// }
-			}}
+			// onBlurCallback={() => {
+			// 	// if (field.ifsc_required) {
+			// 	// getIfscData(value.value);
+			// 	setifscCode(value?.value);
+			// 	// }
+			// }}
 			name={field.name}
 			placeholder={field.placeholder || ''}
 			options={ifscList}

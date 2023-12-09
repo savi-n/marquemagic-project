@@ -72,6 +72,7 @@ const DynamicForm = props => {
 	const [pennyDropStatusModalOpen, setPennyDropStatusModalOpen] = useState(
 		false
 	);
+	const [ifscListLoading, setIfscListLoading] = useState(false);
 	const [pennyDropStatus, setPennyDropStatus] = useState({
 		message: '',
 		data: {},
@@ -298,6 +299,16 @@ const DynamicForm = props => {
 					if (field.name === CONST.APPLICANT_FIELD_NAME) {
 						customFieldProps.options = selectedDirectorOptions;
 					}
+					if (field.name === 'ifsc_code') {
+						customFieldProps.selectedBank =
+							formState?.values?.[CONST.FIELD_NAME_BANK_NAME];
+						customFieldProps.setIfscListLoading = setIfscListLoading;
+						customFieldProps.disabled = ifscListLoading;
+					}
+
+					if (field.name === 'bank_name') {
+						customFieldProps.setIfscListLoading = setIfscListLoading;
+					}
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({
@@ -322,8 +333,8 @@ const DynamicForm = props => {
 					<Button
 						customStyle={{ maxWidth: 150 }}
 						onClick={handleSubmit(handleButtonClick)}
-						disabled={isSubmitting}
-						isLoader={isSubmitting}
+						disabled={isSubmitting || ifscListLoading}
+						isLoader={isSubmitting || ifscListLoading}
 						name={submitCTAName}
 					/>
 					{hideCancelCTA ? null : (

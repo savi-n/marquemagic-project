@@ -19,6 +19,7 @@ import iconDelete from 'assets/icons/grey_delete_icon.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 // import _ from 'lodash';
 import * as CONST from './const';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const CollateralDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -31,6 +32,7 @@ const CollateralDetails = () => {
 		selectedProduct,
 		userDetails,
 	} = app;
+	const { addToast } = useToasts();
 	const { businessName, loanId } = application;
 	const { directors } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
@@ -130,8 +132,13 @@ const CollateralDetails = () => {
 	};
 
 	const showDeleteButton = () => {
-		return selectedProduct?.product_details?.allow_users_to_view_internal_dedupe?.includes(
-			userDetails?.user_sub_type || userDetails?.usertype
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_collateral?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_collateral?.includes(
+				userDetails?.user_sub_type
+			)
 		);
 	};
 
@@ -382,6 +389,13 @@ const CollateralDetails = () => {
 												<UI_SECTIONS.AccordianIcon
 													src={iconDelete}
 													onClick={() => {
+														if (sectionData.length <= 1) {
+															addToast({
+																message: `Please Add More Than One Collateral To Delete The Current Collateral.`,
+																type: 'error',
+															});
+															return;
+														}
 														onDeleteSuccessCallback(prefillData?.id);
 													}}
 													alt='delete'

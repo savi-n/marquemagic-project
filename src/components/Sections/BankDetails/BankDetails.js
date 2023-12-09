@@ -20,6 +20,7 @@ import iconSuccess from 'assets/icons/success_icon.png';
 import iconWarning from 'assets/icons/amber_warning_icon.png';
 import DynamicForm from './DynamicForm';
 import * as UI_SECTIONS from 'components/Sections/ui';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const BankDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -32,6 +33,7 @@ const BankDetails = () => {
 		selectedProduct,
 		userDetails,
 	} = app;
+	const { addToast } = useToasts();
 	const { loanId } = application;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -131,8 +133,13 @@ const BankDetails = () => {
 	}, []);
 
 	const showDeleteButton = () => {
-		return selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
-			userDetails?.user_sub_type || userDetails?.usertype
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
+				userDetails?.user_sub_type
+			)
 		);
 	};
 
@@ -243,6 +250,13 @@ const BankDetails = () => {
 														<UI_SECTIONS.AccordianIcon
 															src={iconDelete}
 															onClick={() => {
+																if (sectionData.length === 1) {
+																	addToast({
+																		message: `Please Add More Than One Bank To Delete The Current Bank.`,
+																		type: 'error',
+																	});
+																	return;
+																}
 																onDeleteSuccessCallback(prefillData?.id);
 															}}
 															alt='delete'
