@@ -20,6 +20,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 // import _ from 'lodash';
 import * as CONST from './const';
 import { useToasts } from 'components/Toast/ToastProvider';
+import DeletionWarningModal from 'components/modals/DeleteWarningModal';
 
 const CollateralDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -84,6 +85,9 @@ const CollateralDetails = () => {
 	// 	},
 	// ]);
 	const [assets, setAssets] = useState([]);
+	const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] = useState(
+		false
+	);
 	// const { handleSubmit, register, formState } = useForm();
 	const MAX_ADD_COUNT = selectedSection?.max || 10;
 
@@ -144,9 +148,10 @@ const CollateralDetails = () => {
 
 	const deleteSectionDetails = async deleteSectionId => {
 		try {
+			setIsDeleteWarningModalOpen(false);
+			const deleteReqPayload = { id: deleteSectionId, loan_id: loanId };
 			setFetchingSectionData(true);
-			const fetchRes = await axios.post(DELETE_COLLATERAL, {
-				params: { id: deleteSectionId, loan_id: loanId },
+			const fetchRes = await axios.post(DELETE_COLLATERAL, deleteReqPayload, {
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 				},
@@ -265,245 +270,260 @@ const CollateralDetails = () => {
 	// console.log('CollateralDetails-allstates-', { selectedSection });
 
 	return (
-		<UI_SECTIONS.Wrapper style={{ paddingTop: 50 }}>
-			{fetchingSectionData ? (
-				<Loading />
-			) : (
-				<>
-					<Fragment>
-						<UI_SECTIONS.SubSectionHeader>
-							{selectedSection?.name || 'Collateral Details'}
-						</UI_SECTIONS.SubSectionHeader>
-						{/* combine local + db array */}
-						{sectionData?.map((section, sectionIndex) => {
-							const sectionId = section?.id;
-							const isAccordianOpen = sectionId === openAccordianId;
-							const isEditLoan = editSectionId === sectionId;
+		<>
+			<DeletionWarningModal
+				warningMessage={`You are trying to delete a collateral. Deleted
+				collateral details can not be restored. Please confirm if you want to delete it`}
+				show={isDeleteWarningModalOpen}
+				onClose={setIsDeleteWarningModalOpen}
+				onProceed={() => {
+					onDeleteSuccessCallback(isDeleteWarningModalOpen?.id);
+				}}
+			/>
+			<UI_SECTIONS.Wrapper style={{ paddingTop: 50 }}>
+				{fetchingSectionData ? (
+					<Loading />
+				) : (
+					<>
+						<Fragment>
+							<UI_SECTIONS.SubSectionHeader>
+								{selectedSection?.name || 'Collateral Details'}
+							</UI_SECTIONS.SubSectionHeader>
+							{/* combine local + db array */}
+							{sectionData?.map((section, sectionIndex) => {
+								const sectionId = section?.id;
+								const isAccordianOpen = sectionId === openAccordianId;
+								const isEditLoan = editSectionId === sectionId;
 
-							const collateralData =
-								section?.modified_collateral?.collateral_details ||
-								section?.initial_collateral?.collateral_details ||
-								{};
-							const addressData =
-								section?.modified_collateral?.property_address_details ||
-								section?.initial_collateral?.property_address_details ||
-								{};
+								const collateralData =
+									section?.modified_collateral?.collateral_details ||
+									section?.initial_collateral?.collateral_details ||
+									{};
+								const addressData =
+									section?.modified_collateral?.property_address_details ||
+									section?.initial_collateral?.property_address_details ||
+									{};
 
-							const newCollateralData =
-								Object.keys(collateralData)?.length === 0
-									? section?.modified_collateral || section?.initial_collateral
-									: collateralData;
+								const newCollateralData =
+									Object.keys(collateralData)?.length === 0
+										? section?.modified_collateral ||
+										  section?.initial_collateral
+										: collateralData;
 
-							const newAddressData =
-								Object.keys(addressData)?.length === 0 ? {} : addressData;
+								const newAddressData =
+									Object.keys(addressData)?.length === 0 ? {} : addressData;
 
-							const prefillData = {
-								...section,
-								...newAddressData,
-								...newCollateralData,
-								property_amount:
-									collateralData?.value || newCollateralData?.value || '',
-								collateral_type:
-									collateralData?.loan_type ||
-									newCollateralData?.loan_type ||
-									'',
-								collateral_sub_type:
-									collateralData?.collateral_sub_type ||
-									newCollateralData?.collateral_sub_type ||
-									'',
-								current_market_value:
-									collateralData?.loan_json ||
-									newCollateralData?.loan_json ||
-									'',
-								landmark:
-									addressData?.name_landmark ||
-									newCollateralData?.name_landmark ||
-									'',
-								address3:
-									addressData?.name_landmark ||
-									newCollateralData?.name_landmark ||
-									'',
-								pin_code:
-									addressData?.pincode || newCollateralData?.pincode || '',
-								nature_of_ownership:
-									addressData?.owned_type ||
-									newCollateralData?.owned_type ||
-									'',
-								property_occupant:
-									addressData?.current_occupant ||
-									newCollateralData?.current_occupant ||
-									'',
-							};
+								const prefillData = {
+									...section,
+									...newAddressData,
+									...newCollateralData,
+									property_amount:
+										collateralData?.value || newCollateralData?.value || '',
+									collateral_type:
+										collateralData?.loan_type ||
+										newCollateralData?.loan_type ||
+										'',
+									collateral_sub_type:
+										collateralData?.collateral_sub_type ||
+										newCollateralData?.collateral_sub_type ||
+										'',
+									current_market_value:
+										collateralData?.loan_json ||
+										newCollateralData?.loan_json ||
+										'',
+									landmark:
+										addressData?.name_landmark ||
+										newCollateralData?.name_landmark ||
+										'',
+									address3:
+										addressData?.name_landmark ||
+										newCollateralData?.name_landmark ||
+										'',
+									pin_code:
+										addressData?.pincode || newCollateralData?.pincode || '',
+									nature_of_ownership:
+										addressData?.owned_type ||
+										newCollateralData?.owned_type ||
+										'',
+									property_occupant:
+										addressData?.current_occupant ||
+										newCollateralData?.current_occupant ||
+										'',
+								};
 
-							// console.log('prefilldata-', prefillData);
-							return (
-								<UI_SECTIONS.AccordianWrapper key={`accordian-${sectionIndex}`}>
-									<UI_SECTIONS.AccordianHeader>
-										{isAccordianOpen ? null : (
-											<>
-												<UI_SECTIONS.AccordianHeaderData>
-													<span>Collateral Type:</span>
-													<strong>{prefillData?.collateral_type}</strong>
-												</UI_SECTIONS.AccordianHeaderData>
-												<UI_SECTIONS.AccordianHeaderData>
-													{/* <span>Type of Assets:</span>
+								// console.log('prefilldata-', prefillData);
+								return (
+									<UI_SECTIONS.AccordianWrapper
+										key={`accordian-${sectionIndex}`}
+									>
+										<UI_SECTIONS.AccordianHeader>
+											{isAccordianOpen ? null : (
+												<>
+													<UI_SECTIONS.AccordianHeaderData>
+														<span>Collateral Type:</span>
+														<strong>{prefillData?.collateral_type}</strong>
+													</UI_SECTIONS.AccordianHeaderData>
+													<UI_SECTIONS.AccordianHeaderData>
+														{/* <span>Type of Assets:</span>
 													<strong>{prefillData?.loan_asset_type_id}</strong> */}
-												</UI_SECTIONS.AccordianHeaderData>
-												<UI_SECTIONS.AccordianHeaderData>
-													<span>Amount:</span>
-													<strong>
-														{formatINR(prefillData?.property_amount)}
-													</strong>
-												</UI_SECTIONS.AccordianHeaderData>
-											</>
-										)}
-										<UI_SECTIONS.AccordianHeaderData
-											style={
-												isAccordianOpen
-													? { marginLeft: 'auto', flex: 'none' }
-													: { flex: 'none' }
-											}
-										>
-											{isViewLoan ? null : (
+													</UI_SECTIONS.AccordianHeaderData>
+													<UI_SECTIONS.AccordianHeaderData>
+														<span>Amount:</span>
+														<strong>
+															{formatINR(prefillData?.property_amount)}
+														</strong>
+													</UI_SECTIONS.AccordianHeaderData>
+												</>
+											)}
+											<UI_SECTIONS.AccordianHeaderData
+												style={
+													isAccordianOpen
+														? { marginLeft: 'auto', flex: 'none' }
+														: { flex: 'none' }
+												}
+											>
+												{isViewLoan ? null : (
+													<UI_SECTIONS.AccordianIcon
+														src={editIcon}
+														alt='edit'
+														onClick={() => {
+															if (isCreateFormOpen || isEditLoan) return;
+															toggleAccordian(sectionId, 'open');
+															setTimeout(() => {
+																setEditSectionId(sectionId);
+															}, 200);
+														}}
+														style={
+															isCreateFormOpen || isEditLoan
+																? {
+																		cursor: 'not-allowed',
+																		visibility: 'hidden',
+																  }
+																: {}
+														}
+													/>
+												)}
+												{!isViewLoan && showDeleteButton() && (
+													<UI_SECTIONS.AccordianIcon
+														src={iconDelete}
+														onClick={() => {
+															if (sectionData.length <= 1) {
+																addToast({
+																	message: `Please Add More Than One Collateral To Delete The Current Collateral.`,
+																	type: 'error',
+																});
+																return;
+															}
+															setIsDeleteWarningModalOpen(prefillData);
+															// onDeleteSuccessCallback(prefillData?.id);
+														}}
+														alt='delete'
+													/>
+												)}
+
 												<UI_SECTIONS.AccordianIcon
-													src={editIcon}
-													alt='edit'
+													src={expandIcon}
+													alt='toggle'
 													onClick={() => {
 														if (isCreateFormOpen || isEditLoan) return;
-														toggleAccordian(sectionId, 'open');
-														setTimeout(() => {
-															setEditSectionId(sectionId);
-														}, 200);
+														toggleAccordian(sectionId);
 													}}
-													style={
-														isCreateFormOpen || isEditLoan
+													style={{
+														transform: isAccordianOpen
+															? 'rotate(270deg)'
+															: 'rotate(90deg)',
+														...(isCreateFormOpen || isEditLoan
 															? {
 																	cursor: 'not-allowed',
 																	visibility: 'hidden',
 															  }
-															: {}
-													}
-												/>
-											)}
-											{!isViewLoan && showDeleteButton() && (
-												<UI_SECTIONS.AccordianIcon
-													src={iconDelete}
-													onClick={() => {
-														if (sectionData.length <= 1) {
-															addToast({
-																message: `Please Add More Than One Collateral To Delete The Current Collateral.`,
-																type: 'error',
-															});
-															return;
-														}
-														onDeleteSuccessCallback(prefillData?.id);
+															: {}),
 													}}
-													alt='delete'
+												/>
+											</UI_SECTIONS.AccordianHeaderData>
+										</UI_SECTIONS.AccordianHeader>
+										<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
+											{isAccordianOpen && !isCreateFormOpen && (
+												<DynamicForm
+													subSections={selectedSection?.sub_sections || []}
+													// subSections={selectedSection?.sub_sections || []}
+													prefillData={prefillData}
+													onSaveOrUpdateSuccessCallback={
+														onSaveOrUpdateSuccessCallback
+													}
+													loan_assets_id={loanAssetData?.[sectionIndex]?.id}
+													// assets={assets}
+													onCancelCallback={onCancelCallback}
+													isEditLoan={isEditLoan}
+													editSectionId={editSectionId}
+													isCreateFormOpen={isCreateFormOpen}
+													selectCollateralFieldOptions={newOptions}
 												/>
 											)}
-
-											<UI_SECTIONS.AccordianIcon
-												src={expandIcon}
-												alt='toggle'
-												onClick={() => {
-													if (isCreateFormOpen || isEditLoan) return;
-													toggleAccordian(sectionId);
-												}}
-												style={{
-													transform: isAccordianOpen
-														? 'rotate(270deg)'
-														: 'rotate(90deg)',
-													...(isCreateFormOpen || isEditLoan
-														? {
-																cursor: 'not-allowed',
-																visibility: 'hidden',
-														  }
-														: {}),
-												}}
-											/>
-										</UI_SECTIONS.AccordianHeaderData>
-									</UI_SECTIONS.AccordianHeader>
-									<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
-										{isAccordianOpen && !isCreateFormOpen && (
+											{/* {isResetFormComplete ? (
+											<DynamicForm fields={sub_section?.fields || []} />
+										) : null} */}
+										</UI_SECTIONS.AccordianBody>
+									</UI_SECTIONS.AccordianWrapper>
+								);
+							})}
+							<div style={{ marginTop: 30 }} />
+							{isCreateFormOpen && (
+								<UI_SECTIONS.AccordianWrapper>
+									<UI_SECTIONS.AccordianBody
+										isOpen={true}
+										style={{ padding: 30 }}
+									>
+										<UI_SECTIONS.DynamicFormWrapper>
 											<DynamicForm
 												subSections={selectedSection?.sub_sections || []}
-												// subSections={selectedSection?.sub_sections || []}
-												prefillData={prefillData}
 												onSaveOrUpdateSuccessCallback={
 													onSaveOrUpdateSuccessCallback
 												}
-												loan_assets_id={loanAssetData?.[sectionIndex]?.id}
-												// assets={assets}
+												assets={assets}
 												onCancelCallback={onCancelCallback}
-												isEditLoan={isEditLoan}
-												editSectionId={editSectionId}
+												submitCTAName='Save'
+												hideCancelCTA={!(sectionData?.length > 0)}
+												isEditLoan={true}
 												isCreateFormOpen={isCreateFormOpen}
 												selectCollateralFieldOptions={newOptions}
 											/>
-										)}
-										{/* {isResetFormComplete ? (
-											<DynamicForm fields={sub_section?.fields || []} />
-										) : null} */}
+										</UI_SECTIONS.DynamicFormWrapper>
 									</UI_SECTIONS.AccordianBody>
 								</UI_SECTIONS.AccordianWrapper>
-							);
-						})}
-						<div style={{ marginTop: 30 }} />
-						{isCreateFormOpen && (
-							<UI_SECTIONS.AccordianWrapper>
-								<UI_SECTIONS.AccordianBody
-									isOpen={true}
-									style={{ padding: 30 }}
-								>
-									<UI_SECTIONS.DynamicFormWrapper>
-										<DynamicForm
-											subSections={selectedSection?.sub_sections || []}
-											onSaveOrUpdateSuccessCallback={
-												onSaveOrUpdateSuccessCallback
-											}
-											assets={assets}
-											onCancelCallback={onCancelCallback}
-											submitCTAName='Save'
-											hideCancelCTA={!(sectionData?.length > 0)}
-											isEditLoan={true}
-											isCreateFormOpen={isCreateFormOpen}
-											selectCollateralFieldOptions={newOptions}
-										/>
-									</UI_SECTIONS.DynamicFormWrapper>
-								</UI_SECTIONS.AccordianBody>
-							</UI_SECTIONS.AccordianWrapper>
-						)}
-					</Fragment>
-					<UI_SECTIONS.AddDynamicSectionWrapper>
-						{isCreateFormOpen ||
-						isViewLoan ||
-						sectionData?.length >= MAX_ADD_COUNT ||
-						!!editSectionId ? null : (
-							<>
-								<UI_SECTIONS.PlusRoundButton
-									src={plusRoundIcon}
-									onClick={openCreateForm}
+							)}
+						</Fragment>
+						<UI_SECTIONS.AddDynamicSectionWrapper>
+							{isCreateFormOpen ||
+							isViewLoan ||
+							sectionData?.length >= MAX_ADD_COUNT ||
+							!!editSectionId ? null : (
+								<>
+									<UI_SECTIONS.PlusRoundButton
+										src={plusRoundIcon}
+										onClick={openCreateForm}
+									/>
+									<span>Click to add additional collateral</span>
+								</>
+							)}
+						</UI_SECTIONS.AddDynamicSectionWrapper>
+						<UI_SECTIONS.Footer>
+							{!isViewLoan && (
+								<Button
+									fill
+									name='Save and Proceed'
+									// isLoader={!!editSectionId}
+									disabled={isCreateFormOpen || !!editSectionId}
+									onClick={onSaveAndProceed}
 								/>
-								<span>Click to add additional collateral</span>
-							</>
-						)}
-					</UI_SECTIONS.AddDynamicSectionWrapper>
-					<UI_SECTIONS.Footer>
-						{!isViewLoan && (
-							<Button
-								fill
-								name='Save and Proceed'
-								// isLoader={!!editSectionId}
-								disabled={isCreateFormOpen || !!editSectionId}
-								onClick={onSaveAndProceed}
-							/>
-						)}
+							)}
 
-						<NavigateCTA />
-					</UI_SECTIONS.Footer>
-				</>
-			)}
-		</UI_SECTIONS.Wrapper>
+							<NavigateCTA />
+						</UI_SECTIONS.Footer>
+					</>
+				)}
+			</UI_SECTIONS.Wrapper>
+		</>
 	);
 };
 

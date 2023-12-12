@@ -21,6 +21,7 @@ import iconWarning from 'assets/icons/amber_warning_icon.png';
 import DynamicForm from './DynamicForm';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import { useToasts } from 'components/Toast/ToastProvider';
+import DeletionWarningModal from 'components/modals/DeleteWarningModal';
 
 const BankDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -41,6 +42,10 @@ const BankDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	const [isDeleteWarningModalOpen, setIsDeleteWarningModalOpen] = useState(
+		false
+	);
+
 	const MAX_ADD_COUNT = selectedSection?.max || 10;
 	const showPennyDropButtons =
 		selectedProduct?.product_details?.show_penny_drop_button || false;
@@ -79,9 +84,10 @@ const BankDetails = () => {
 	};
 	const deleteSectionDetails = async deleteSectionId => {
 		try {
+			setIsDeleteWarningModalOpen(false);
 			setFetchingSectionData(true);
-			const fetchRes = await axios.get(DELETE_LOAN_FIN, {
-				params: { id: deleteSectionId, loan_id: loanId },
+			const deleteReqBody = { id: deleteSectionId, loan_id: loanId };
+			const fetchRes = await axios.post(DELETE_LOAN_FIN, deleteReqBody, {
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 				},
@@ -146,220 +152,235 @@ const BankDetails = () => {
 	// console.log('bank-details-', { app, application });
 
 	return (
-		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
-			{fetchingSectionData ? (
-				<Loading />
-			) : (
-				<>
-					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-						return (
-							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-								{sub_section?.name ? (
-									<UI_SECTIONS.SubSectionHeader>
-										{sub_section.name}
-									</UI_SECTIONS.SubSectionHeader>
-								) : null}
-								{/* combine local + db array */}
-								{sectionData.map((section, sectionIndex) => {
-									const sectionId = section?.id;
-									const isAccordianOpen = sectionId === openAccordianId;
-									const isEditLoan = editSectionId === sectionId;
-									const prefillData = {
-										...(section || {}),
-										bank_name: `${section?.bank_id || ''}`,
-										ifsc_code: section?.IFSC || '',
-										start_date: section?.outstanding_start_date,
-										end_date: section?.outstanding_end_date,
-									};
-									return (
-										<UI_SECTIONS.AccordianWrapper>
-											<UI_SECTIONS.AccordianHeader
-												key={`accordian-${sectionIndex}`}
-											>
-												{isAccordianOpen ? null : (
-													<>
-														{!!showPennyDropButtons && (
+		<>
+			<DeletionWarningModal
+				warningMessage={`You are trying to delete a bank detail. Deleted bank details can not be restored. Please confirm if you want to delete it`}
+				show={isDeleteWarningModalOpen}
+				onClose={setIsDeleteWarningModalOpen}
+				onProceed={() => {
+					onDeleteSuccessCallback(isDeleteWarningModalOpen?.id);
+				}}
+			/>
+			<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
+				{fetchingSectionData ? (
+					<Loading />
+				) : (
+					<>
+						{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+							return (
+								<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+									{sub_section?.name ? (
+										<UI_SECTIONS.SubSectionHeader>
+											{sub_section.name}
+										</UI_SECTIONS.SubSectionHeader>
+									) : null}
+									{/* combine local + db array */}
+									{sectionData.map((section, sectionIndex) => {
+										const sectionId = section?.id;
+										const isAccordianOpen = sectionId === openAccordianId;
+										const isEditLoan = editSectionId === sectionId;
+										const prefillData = {
+											...(section || {}),
+											bank_name: `${section?.bank_id || ''}`,
+											ifsc_code: section?.IFSC || '',
+											start_date: section?.outstanding_start_date,
+											end_date: section?.outstanding_end_date,
+										};
+										return (
+											<UI_SECTIONS.AccordianWrapper>
+												<UI_SECTIONS.AccordianHeader
+													key={`accordian-${sectionIndex}`}
+												>
+													{isAccordianOpen ? null : (
+														<>
+															{!!showPennyDropButtons && (
+																<UI_SECTIONS.AccordianIcon
+																	style={{ marginRight: '10px' }}
+																	src={
+																		`${prefillData.bank_verification_flag}` ===
+																		'verified'
+																			? iconSuccess
+																			: iconWarning
+																	}
+																	alt={
+																		`${prefillData.bank_verification_flag}` ===
+																		'verified'
+																			? 'verified'
+																			: 'not verified'
+																	}
+																	title={
+																		`${prefillData.bank_verification_flag}` ===
+																		'verified'
+																			? 'Bank Is Penny Drop Verified'
+																			: 'Bank Is Not Penny Drop Verified'
+																	}
+																/>
+															)}
+															<UI_SECTIONS.AccordianHeaderData>
+																<span>Name:</span>
+																<strong>
+																	{prefillData?.account_holder_name}
+																</strong>
+															</UI_SECTIONS.AccordianHeaderData>
+															<UI_SECTIONS.AccordianHeaderData>
+																<span>AC#:</span>
+																<strong>{prefillData?.account_number}</strong>
+															</UI_SECTIONS.AccordianHeaderData>
+														</>
+													)}
+													<UI_SECTIONS.AccordianHeaderData
+														style={
+															isAccordianOpen
+																? { marginLeft: 'auto', flex: 'none' }
+																: { flex: 'none' }
+														}
+													>
+														{isViewLoan ||
+														(prefillData.enach_status &&
+															!(
+																prefillData.enach_status === `failed`
+															)) ? null : (
 															<UI_SECTIONS.AccordianIcon
-																style={{ marginRight: '10px' }}
-																src={
-																	`${prefillData.bank_verification_flag}` ===
-																	'verified'
-																		? iconSuccess
-																		: iconWarning
-																}
-																alt={
-																	`${prefillData.bank_verification_flag}` ===
-																	'verified'
-																		? 'verified'
-																		: 'not verified'
-																}
-																title={
-																	`${prefillData.bank_verification_flag}` ===
-																	'verified'
-																		? 'Bank Is Penny Drop Verified'
-																		: 'Bank Is Not Penny Drop Verified'
+																src={editIcon}
+																alt='edit'
+																onClick={() => {
+																	if (isCreateFormOpen || isEditLoan) return;
+																	toggleAccordian(sectionId, 'open');
+																	setTimeout(() => {
+																		setEditSectionId(sectionId);
+																	}, 200);
+																}}
+																style={
+																	isCreateFormOpen || isEditLoan
+																		? {
+																				cursor: 'not-allowed',
+																				visibility: 'hidden',
+																		  }
+																		: {}
 																}
 															/>
 														)}
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Name:</span>
-															<strong>
-																{prefillData?.account_holder_name}
-															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>AC#:</span>
-															<strong>{prefillData?.account_number}</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-													</>
-												)}
-												<UI_SECTIONS.AccordianHeaderData
-													style={
-														isAccordianOpen
-															? { marginLeft: 'auto', flex: 'none' }
-															: { flex: 'none' }
-													}
-												>
-													{isViewLoan ||
-													(prefillData.enach_status &&
-														!(prefillData.enach_status === `failed`)) ? null : (
+														{isViewLoan ||
+														!showDeleteButton() ||
+														(prefillData.enach_status &&
+															!(
+																prefillData.enach_status === `failed`
+															)) ? null : (
+															<UI_SECTIONS.AccordianIcon
+																src={iconDelete}
+																onClick={() => {
+																	if (sectionData.length === 1) {
+																		addToast({
+																			message: `Please Add More Than One Bank To Delete The Current Bank.`,
+																			type: 'error',
+																		});
+																		return;
+																	}
+																	// onDeleteSuccessCallback(prefillData?.id);
+																	setIsDeleteWarningModalOpen(prefillData);
+																}}
+																alt='delete'
+															/>
+														)}
+
 														<UI_SECTIONS.AccordianIcon
-															src={editIcon}
-															alt='edit'
+															src={expandIcon}
+															alt='toggle'
 															onClick={() => {
 																if (isCreateFormOpen || isEditLoan) return;
-																toggleAccordian(sectionId, 'open');
+																toggleAccordian(sectionId);
 																setTimeout(() => {
-																	setEditSectionId(sectionId);
-																}, 200);
+																	setEditSectionId('');
+																}, 100);
 															}}
-															style={
-																isCreateFormOpen || isEditLoan
+															style={{
+																transform: 'rotate(90deg)',
+																...(isCreateFormOpen || isEditLoan
 																	? {
 																			cursor: 'not-allowed',
 																			visibility: 'hidden',
 																	  }
-																	: {}
-															}
-														/>
-													)}
-													{isViewLoan ||
-													!showDeleteButton() ||
-													(prefillData.enach_status &&
-														!(prefillData.enach_status === `failed`)) ? null : (
-														<UI_SECTIONS.AccordianIcon
-															src={iconDelete}
-															onClick={() => {
-																if (sectionData.length === 1) {
-																	addToast({
-																		message: `Please Add More Than One Bank To Delete The Current Bank.`,
-																		type: 'error',
-																	});
-																	return;
-																}
-																onDeleteSuccessCallback(prefillData?.id);
+																	: {}),
 															}}
-															alt='delete'
+														/>
+													</UI_SECTIONS.AccordianHeaderData>
+												</UI_SECTIONS.AccordianHeader>
+												<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
+													{isAccordianOpen && !isCreateFormOpen && (
+														<DynamicForm
+															fields={sub_section?.fields || []}
+															prefillData={prefillData}
+															onSaveOrUpdateSuccessCallback={
+																onSaveOrUpdateSuccessCallback
+															}
+															onCancelCallback={onCancelCallback}
+															isEditLoan={isEditLoan}
+															editSectionId={editSectionId}
+															isCreateFormOpen={isCreateFormOpen}
 														/>
 													)}
-
-													<UI_SECTIONS.AccordianIcon
-														src={expandIcon}
-														alt='toggle'
-														onClick={() => {
-															if (isCreateFormOpen || isEditLoan) return;
-															toggleAccordian(sectionId);
-															setTimeout(() => {
-																setEditSectionId('');
-															}, 100);
-														}}
-														style={{
-															transform: 'rotate(90deg)',
-															...(isCreateFormOpen || isEditLoan
-																? {
-																		cursor: 'not-allowed',
-																		visibility: 'hidden',
-																  }
-																: {}),
-														}}
-													/>
-												</UI_SECTIONS.AccordianHeaderData>
-											</UI_SECTIONS.AccordianHeader>
-											<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
-												{isAccordianOpen && !isCreateFormOpen && (
+													{/* {isResetFormComplete ? (
+											<DynamicForm fields={sub_section?.fields || []} />
+										) : null} */}
+												</UI_SECTIONS.AccordianBody>
+											</UI_SECTIONS.AccordianWrapper>
+										);
+									})}
+									<div style={{ marginTop: 30 }} />
+									{isCreateFormOpen && (
+										<UI_SECTIONS.AccordianWrapper>
+											<UI_SECTIONS.AccordianBody
+												isOpen={true}
+												style={{ padding: 30 }}
+											>
+												<UI_SECTIONS.DynamicFormWrapper>
 													<DynamicForm
 														fields={sub_section?.fields || []}
-														prefillData={prefillData}
 														onSaveOrUpdateSuccessCallback={
 															onSaveOrUpdateSuccessCallback
 														}
 														onCancelCallback={onCancelCallback}
-														isEditLoan={isEditLoan}
-														editSectionId={editSectionId}
-														isCreateFormOpen={isCreateFormOpen}
+														submitCTAName='Save'
+														hideCancelCTA={!(sectionData?.length > 0)}
+														isEditLoan={true}
 													/>
-												)}
-												{/* {isResetFormComplete ? (
-											<DynamicForm fields={sub_section?.fields || []} />
-										) : null} */}
+												</UI_SECTIONS.DynamicFormWrapper>
 											</UI_SECTIONS.AccordianBody>
 										</UI_SECTIONS.AccordianWrapper>
-									);
-								})}
-								<div style={{ marginTop: 30 }} />
-								{isCreateFormOpen && (
-									<UI_SECTIONS.AccordianWrapper>
-										<UI_SECTIONS.AccordianBody
-											isOpen={true}
-											style={{ padding: 30 }}
-										>
-											<UI_SECTIONS.DynamicFormWrapper>
-												<DynamicForm
-													fields={sub_section?.fields || []}
-													onSaveOrUpdateSuccessCallback={
-														onSaveOrUpdateSuccessCallback
-													}
-													onCancelCallback={onCancelCallback}
-													submitCTAName='Save'
-													hideCancelCTA={!(sectionData?.length > 0)}
-													isEditLoan={true}
-												/>
-											</UI_SECTIONS.DynamicFormWrapper>
-										</UI_SECTIONS.AccordianBody>
-									</UI_SECTIONS.AccordianWrapper>
-								)}
-							</Fragment>
-						);
-					})}
-					<UI_SECTIONS.AddDynamicSectionWrapper>
-						{isCreateFormOpen ||
-						isViewLoan ||
-						sectionData?.length >= MAX_ADD_COUNT ||
-						!!editSectionId ? null : (
-							<>
-								<UI_SECTIONS.PlusRoundButton
-									src={plusRoundIcon}
-									onClick={openCreateForm}
+									)}
+								</Fragment>
+							);
+						})}
+						<UI_SECTIONS.AddDynamicSectionWrapper>
+							{isCreateFormOpen ||
+							isViewLoan ||
+							sectionData?.length >= MAX_ADD_COUNT ||
+							!!editSectionId ? null : (
+								<>
+									<UI_SECTIONS.PlusRoundButton
+										src={plusRoundIcon}
+										onClick={openCreateForm}
+									/>
+									<span>Click to add additional Bank Details</span>
+								</>
+							)}
+						</UI_SECTIONS.AddDynamicSectionWrapper>
+						<UI_SECTIONS.Footer>
+							{!isViewLoan && (
+								<Button
+									fill
+									name='Save and Proceed'
+									disabled={isCreateFormOpen || !!editSectionId}
+									onClick={onSaveAndProceed}
 								/>
-								<span>Click to add additional Bank Details</span>
-							</>
-						)}
-					</UI_SECTIONS.AddDynamicSectionWrapper>
-					<UI_SECTIONS.Footer>
-						{!isViewLoan && (
-							<Button
-								fill
-								name='Save and Proceed'
-								disabled={isCreateFormOpen || !!editSectionId}
-								onClick={onSaveAndProceed}
-							/>
-						)}
+							)}
 
-						<NavigateCTA />
-					</UI_SECTIONS.Footer>
-				</>
-			)}
-		</UI_SECTIONS.Wrapper>
+							<NavigateCTA />
+						</UI_SECTIONS.Footer>
+					</>
+				)}
+			</UI_SECTIONS.Wrapper>
+		</>
 	);
 };
 

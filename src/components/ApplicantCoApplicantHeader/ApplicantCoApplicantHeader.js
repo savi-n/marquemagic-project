@@ -111,11 +111,8 @@ const ApplicantCoApplicantHeader = props => {
 		try {
 			// setFetchingFormData(true);
 			// get method of the sections is here. modify the api of this particular section
-			const fetchRes = await axios.get(DELETE_CO_APPLICANT, {
-				params: {
-					business_id: businessId,
-					director_id: id,
-				},
+			const deleteReqBody = { business_id: businessId, director_id: id };
+			const fetchRes = await axios.post(DELETE_CO_APPLICANT, deleteReqBody, {
 				headers: {
 					Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
 				},
@@ -168,10 +165,22 @@ const ApplicantCoApplicantHeader = props => {
 		return isEntityMandatoryDocsSubmitted;
 	};
 
-	const showDelIconIfCoAppMandatory = selectedProduct?.product_details
-		?.is_coapplicant_mandatory
-		? 3
-		: 2;
+	const totalNumberOfCoApps = Object.keys(directors)?.filter(
+		directorId => directors[directorId]?.type_name === `Co-applicant`
+	).length;
+
+	const showDeleteIconIfCoApp = director => {
+		let showDeleteIconForCoApp = false;
+		if (director?.type_name === 'Co-applicant') {
+			if (totalNumberOfCoApps > 1) {
+				showDeleteIconForCoApp = true;
+				return showDeleteIconForCoApp;
+			} else {
+				return false;
+			}
+		}
+		return true;
+	};
 
 	const showCoApplicantDeleteBtn = () => {
 		return (
@@ -196,13 +205,14 @@ const ApplicantCoApplicantHeader = props => {
 						<DeleteCoApplicantModal
 							onNo={() => setIsDeleteDirectorModalOpen(false)}
 							onYes={() => {
-								deleteDirectorData(isDeleteDirectorModalOpen);
-
+								deleteDirectorData(isDeleteDirectorModalOpen?.id);
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
 								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
 							}}
-							label={isDeleteDirectorModalOpen}
+							label={`${isDeleteDirectorModalOpen?.type_name} ${
+								isDeleteDirectorModalOpen?.dfirstname
+							} ${isDeleteDirectorModalOpen?.dlastname}`}
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
@@ -269,13 +279,12 @@ const ApplicantCoApplicantHeader = props => {
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
 										{showCoApplicantDeleteBtn() &&
-										Object.keys(directors).length >=
-											showDelIconIfCoAppMandatory &&
+										showDeleteIconIfCoApp(director) &&
 										directorIndex > 0 &&
 										!isViewLoan ? (
 											<UI.BadgeDelete
 												src={iconDelete}
-												onClick={() => setIsDeleteDirectorModalOpen(directorId)}
+												onClick={() => setIsDeleteDirectorModalOpen(director)}
 												alt='delete'
 											/>
 										) : null}
