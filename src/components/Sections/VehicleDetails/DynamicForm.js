@@ -13,10 +13,12 @@ import {
 	isDirectorApplicant,
 	isFieldValid,
 	checkAllInputsForm,
+	getAllCompletedSections,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT, VEHICLE_RC } from '_config/app.config';
+import moment from 'moment';
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
@@ -46,12 +48,23 @@ const DynamicForm = props => {
 		selectedProduct,
 		isViewLoan: isViewLoanApp,
 		clientToken,
+		selectedSectionId,
 	} = app;
 	const { businessName } = application;
-	const { register, formState, handleSubmit } = useForm();
+	const {
+		register,
+		formState,
+		handleSubmit,
+		onChangeFormStateField,
+	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
-
+	const [fetchingVehicleData, setFetchingVehicleData] = useState(false);
+	const completedSections = getAllCompletedSections({
+		selectedProduct,
+		application,
+		selectedSectionId,
+	});
 	// console.log({ prefillData });
 	const prefilledEditOrViewLoanValues = field => {
 		// const preData = {
@@ -135,6 +148,77 @@ const DynamicForm = props => {
 			});
 		} catch (error) {
 			console.error('error', error);
+		}
+	};
+	const fetchVehicleData = async data => {
+		try {
+			setFetchingVehicleData(true);
+			const reqBody = {
+				vehicleNo: formState?.values?.[CONST.FIELD_NAME_VEHICLE_NUMBER],
+			};
+
+			const fetchRes = await axios.get(VEHICLE_RC, {
+				params: reqBody,
+				headers: {
+					Authorization: clientToken,
+				},
+			});
+			// console.log({ fetchRes, values: formState.values });
+
+			// Data prepopulation from the api
+			if (fetchRes?.data?.status === 'ok') {
+				const vehicleData = fetchRes?.data?.data?.result;
+				const prefillMapper = {
+					[CONST.FIELD_NAME_FUEL_TYPE]: vehicleData.type,
+					[CONST.FIELD_NAME_VEHICLE_CATEGORY]: vehicleData.vehicleCategory,
+					[CONST.FIELD_NAME_VEHICLE_MODEL]: vehicleData.model,
+					[CONST.FIELD_NAME_ENGINE_NUMBER]: vehicleData.engine,
+					[CONST.FIELD_NAME_CHASSIS_NUMBER]: vehicleData.chassis,
+					[CONST.FIELD_NAME_REG_DATE]:
+						(vehicleData.regDate &&
+							moment(vehicleData.regDate).format('YYYY-MM-DD')) ||
+						'',
+					[CONST.FIELD_NAME_BODY_TYPE]: vehicleData.bodyType,
+					[CONST.FIELD_NAME_NORMS_TYPE]: vehicleData.normsType,
+					[CONST.FIELD_NAME_REGISTERED_PLACE]: vehicleData.regAuthority,
+					[CONST.FIELD_NAME_TAX_UPTO]:
+						(vehicleData.vehicleTaxUpto &&
+							moment(vehicleData.vehicleTaxUpto).format('YYYY-MM-DD')) ||
+						'',
+					[CONST.FIELD_NAME_SEATING_CAPACITY]: vehicleData.vehicleSeatCapacity,
+
+					[CONST.FIELD_NAME_INSURANCE_COMPANY_NAME]:
+						vehicleData.vehicleInsuranceCompanyName,
+					[CONST.FIELD_NAME_INSURANCE_POLICY_NUMBER]:
+						vehicleData.vehicleInsurancePolicyNumber,
+
+					[CONST.FIELD_NAME_MANUFACTURER_NAME]:
+						vehicleData.vehicleManufacturerName,
+				};
+
+				CONST.PREFILL_FIELD_NAMES_ON_FETCH.map(fieldName => {
+					if (formState?.values?.hasOwnProperty(fieldName)) {
+						setTimeout(() => {
+							onChangeFormStateField(
+								{
+									name: fieldName,
+									value: prefillMapper?.[fieldName],
+								},
+								200
+							);
+						});
+					}
+					return null;
+				});
+			}
+		} catch (error) {
+			console.error(error.message);
+			addToast({
+				message: "Couldn't fetch the data. Please continue filling the form.",
+				type: 'error',
+			});
+		} finally {
+			setFetchingVehicleData(false);
 		}
 	};
 
@@ -225,6 +309,8 @@ const DynamicForm = props => {
 									return null;
 								}
 								const customFieldProps = {};
+								const customFieldPropsSubFields = {};
+
 								const newField = _.cloneDeep(field);
 								const business = {
 									name: businessName || 'Company/Business',
@@ -241,6 +327,24 @@ const DynamicForm = props => {
 								if (isViewLoan || isViewLoanApp) {
 									customFieldProps.disabled = true;
 								}
+
+								if (field?.name === CONST.FIELD_NAME_VEHICLE_NUMBER) {
+									customFieldPropsSubFields.loading = fetchingVehicleData;
+									customFieldProps.disabled =
+										fetchingVehicleData ||
+										!!completedSections?.includes(selectedSectionId);
+									customFieldPropsSubFields.disabled =
+										fetchingVehicleData ||
+										!!completedSections?.includes(selectedSectionId);
+									customFieldPropsSubFields.onClick = () => {
+										fetchVehicleData();
+									};
+								}
+
+								let newValueSelectField;
+								if (!!field.sub_fields) {
+									newValueSelectField = prefilledValues(field?.sub_fields[0]);
+								}
 								// console.log('render-field-', {
 								// 	field,
 								// 	customFieldProps,
@@ -250,12 +354,44 @@ const DynamicForm = props => {
 								// });
 								return (
 									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
-										{register({
-											...newField,
-											value: prefilledValues(newField),
-											...customFieldProps,
-											visibility: 'visible',
-										})}
+										<div
+											style={{
+												display: 'flex',
+												gap: '10px',
+												alignItems: 'center',
+											}}
+										>
+											{field?.sub_fields &&
+												field?.sub_fields[0].is_prefix &&
+												register({
+													...field.sub_fields[0],
+													value: newValueSelectField,
+													visibility: 'visible',
+													...customFieldProps,
+													...customFieldPropsSubFields,
+												})}
+											<div
+												style={{
+													width: '100%',
+												}}
+											>
+												{register({
+													...newField,
+													value: prefilledValues(newField),
+													...customFieldProps,
+													visibility: 'visible',
+												})}
+											</div>
+											{field?.sub_fields &&
+												!field?.sub_fields[0].is_prefix &&
+												register({
+													...field.sub_fields[0],
+													value: newValueSelectField,
+													visibility: 'visible',
+													...customFieldProps,
+													...customFieldPropsSubFields,
+												})}
+										</div>
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[newField.name]) &&
 											formState?.error?.[newField.name] && (
