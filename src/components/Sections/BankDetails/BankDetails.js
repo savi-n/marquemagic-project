@@ -20,6 +20,7 @@ import iconSuccess from 'assets/icons/success_icon.png';
 import iconWarning from 'assets/icons/amber_warning_icon.png';
 import DynamicForm from './DynamicForm';
 import * as UI_SECTIONS from 'components/Sections/ui';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const BankDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -30,13 +31,13 @@ const BankDetails = () => {
 		selectedSection,
 		userToken,
 		selectedProduct,
+		userDetails,
 	} = app;
+	const { addToast } = useToasts();
+	const { loanId } = application;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
-	const [loanSectionId, setloanSectionId] = useState('');
-	const [loanId, setloanId] = useState('');
-
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
@@ -76,11 +77,11 @@ const BankDetails = () => {
 			setFetchingSectionData(false);
 		}
 	};
-	const deleteSectionDetails = async () => {
+	const deleteSectionDetails = async deleteSectionId => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(DELETE_LOAN_FIN, {
-				params: { id: loanSectionId, loan_id: loanId },
+				params: { id: deleteSectionId, loan_id: loanId },
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 				},
@@ -112,8 +113,8 @@ const BankDetails = () => {
 		fetchSectionDetails();
 	};
 
-	const onDeleteSuccessCallback = () => {
-		deleteSectionDetails();
+	const onDeleteSuccessCallback = id => {
+		deleteSectionDetails(id);
 	};
 
 	const onCancelCallback = deleteEditSectionId => {
@@ -130,6 +131,17 @@ const BankDetails = () => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
+
+	const showDeleteButton = () => {
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_bank?.includes(
+				userDetails?.user_sub_type
+			)
+		);
+	};
 
 	// console.log('bank-details-', { app, application });
 
@@ -150,7 +162,6 @@ const BankDetails = () => {
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
 									const sectionId = section?.id;
-									const loanId = section?.loan_id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 									const prefillData = {
@@ -233,21 +244,20 @@ const BankDetails = () => {
 														/>
 													)}
 													{isViewLoan ||
+													!showDeleteButton() ||
 													(prefillData.enach_status &&
 														!(prefillData.enach_status === `failed`)) ? null : (
 														<UI_SECTIONS.AccordianIcon
 															src={iconDelete}
 															onClick={() => {
-																console.log(
-																	'delete icon clicked id is :' +
-																		sectionId +
-																		'and loan id is : ' +
-																		loanId
-																);
-																setloanSectionId(sectionId);
-																setloanId(loanId);
-
-																onDeleteSuccessCallback();
+																if (sectionData.length === 1) {
+																	addToast({
+																		message: `Please Add More Than One Bank To Delete The Current Bank.`,
+																		type: 'error',
+																	});
+																	return;
+																}
+																onDeleteSuccessCallback(prefillData?.id);
 															}}
 															alt='delete'
 														/>

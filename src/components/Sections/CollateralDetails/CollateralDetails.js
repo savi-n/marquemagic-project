@@ -19,6 +19,7 @@ import iconDelete from 'assets/icons/grey_delete_icon.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 // import _ from 'lodash';
 import * as CONST from './const';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const CollateralDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -28,16 +29,17 @@ const CollateralDetails = () => {
 		nextSectionId,
 		selectedSection,
 		userToken,
+		selectedProduct,
+		userDetails,
 	} = app;
-	const { businessName } = application;
+	const { addToast } = useToasts();
+	const { businessName, loanId } = application;
 	const { directors } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
-	const [loanSectionId, setloanSectionId] = useState('');
-	const [loanId, setloanId] = useState('');
 
 	const [sectionData, setSectionData] = useState([]);
 	const [loanAssetData, setLoanAssetData] = useState([]);
@@ -129,14 +131,22 @@ const CollateralDetails = () => {
 		}
 	};
 
-	const deleteSectionDetails = async () => {
-		console.log(
-			'this is id : ' + loanSectionId + ' and loan id is : ' + loanId
+	const showDeleteButton = () => {
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_collateral?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_collateral?.includes(
+				userDetails?.user_sub_type
+			)
 		);
+	};
+
+	const deleteSectionDetails = async deleteSectionId => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.post(DELETE_COLLATERAL, {
-				params: { id: loanSectionId, loan_id: loanId },
+				params: { id: deleteSectionId, loan_id: loanId },
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 				},
@@ -160,8 +170,8 @@ const CollateralDetails = () => {
 	const onSaveOrUpdateSuccessCallback = () => {
 		fetchSectionDetails();
 	};
-	const onDeleteSuccessCallback = () => {
-		deleteSectionDetails();
+	const onDeleteSuccessCallback = deleteSectionId => {
+		deleteSectionDetails(deleteSectionId);
 	};
 
 	const onCancelCallback = deleteEditSectionId => {
@@ -375,23 +385,22 @@ const CollateralDetails = () => {
 													}
 												/>
 											)}
-
-											<UI_SECTIONS.AccordianIcon
-												src={iconDelete}
-												onClick={() => {
-													console.log(
-														'delete icon clicked id is :' +
-															sectionId +
-															'and loan id is : ' +
-															loanId
-													);
-													setloanSectionId(sectionId);
-													setloanId(loanId);
-
-													onDeleteSuccessCallback();
-												}}
-												alt='delete'
-											/>
+											{!isViewLoan && showDeleteButton() && (
+												<UI_SECTIONS.AccordianIcon
+													src={iconDelete}
+													onClick={() => {
+														if (sectionData.length <= 1) {
+															addToast({
+																message: `Please Add More Than One Collateral To Delete The Current Collateral.`,
+																type: 'error',
+															});
+															return;
+														}
+														onDeleteSuccessCallback(prefillData?.id);
+													}}
+													alt='delete'
+												/>
+											)}
 
 											<UI_SECTIONS.AccordianIcon
 												src={expandIcon}
