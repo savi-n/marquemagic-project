@@ -149,7 +149,7 @@ const CollateralDetails = () => {
 	const deleteSectionDetails = async deleteSectionId => {
 		try {
 			setIsDeleteWarningModalOpen(false);
-			const deleteReqPayload = { id: deleteSectionId, loan_id: loanId };
+			const deleteReqPayload = { id: deleteSectionId, loanID: loanId };
 			setFetchingSectionData(true);
 			const fetchRes = await axios.post(DELETE_COLLATERAL, deleteReqPayload, {
 				headers: {
