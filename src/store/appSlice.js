@@ -38,6 +38,7 @@ const initialState = {
 	productList: [],
 	bankList: [],
 	ifscList: [],
+	singleIfscList: [],
 
 	selectedProduct: {
 		idBase64: '',
@@ -209,6 +210,10 @@ export const appSlice = createSlice({
 		setIfscList: (state, action) => {
 			state.ifscList = action.payload;
 		},
+
+		setSingleIfscList: (state, action) => {
+			state.singleIfscList = action.payload;
+		},
 		setDefaultLoader: (state, action) => {
 			state.defaultLoader = action.payload;
 		},
@@ -265,6 +270,7 @@ export const {
 	setDefaultLoader,
 	setIsDraftLoan,
 	resetEditOrViewLoan,
+	setSingleIfscList,
 } = appSlice.actions;
 
 export default appSlice.reducer;
