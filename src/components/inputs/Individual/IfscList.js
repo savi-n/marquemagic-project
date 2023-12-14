@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import SearchSelect from '../../SearchSelect';
 import { IFSC_LIST_FETCH } from '_config/app.config';
-import { setIfscList } from 'store/appSlice';
+import { setSingleIfscList } from 'store/appSlice';
 // import _ from 'lodash';
 import axios from 'axios';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -11,8 +11,8 @@ import { useToasts } from 'components/Toast/ToastProvider';
 export default function IfscList(props) {
 	const { addToast } = useToasts();
 	const { field, onSelectOptionCallback, value } = props;
-	const { ifscList } = useSelector(state => state.app);
-	const { selectedBank, setIfscListLoading } = field;
+	const { ifscList, singleIfscList } = useSelector(state => state.app);
+	const { selectedBank, setIfscListLoading, sectionIFSC } = field;
 
 	const onIfscSelectCallback = value => {
 		onSelectOptionCallback({ name: value.name, value: value.value.value });
@@ -26,23 +26,30 @@ export default function IfscList(props) {
 
 	const [loading, setloading] = useState(false);
 
+	const removeDuplicates = arr => {
+		const uniqueValues = new Set();
+
+		const uniqueArray = arr.filter(obj => {
+			if (!uniqueValues.has(obj.value)) {
+				uniqueValues.add(obj.value);
+				return true;
+			}
+			return false;
+		});
+
+		return uniqueArray;
+	};
+
 	const getNewIfscData = async ifscCode => {
 		try {
 			setloading(true);
 			setIfscListLoading(true);
 			const ifscDataRes = await axios.get(IFSC_LIST_FETCH, {
-				params: { ifsc: ifscCode },
+				params: { ifsc: ifscCode, bankId: selectedBank?.value },
 			});
 
 			if (ifscDataRes?.data?.status === 'ok') {
 				const newIfscList = [];
-				if (ifscDataRes?.data?.IFSC_list?.[0]?.ref_id !== selectedBank?.value) {
-					addToast({
-						message: `Please Enter IFSC Code Of The Selected Bank`,
-						type: 'error',
-					});
-					return;
-				}
 				ifscDataRes?.data?.IFSC_list?.length === 0
 					? newIfscList.push({ value: '', name: '' })
 					: ifscDataRes?.data?.IFSC_list?.map(bank => {
@@ -52,7 +59,7 @@ export default function IfscList(props) {
 							});
 							return null;
 					  });
-				dispatch(setIfscList([...ifscList, ...newIfscList]));
+				dispatch(setSingleIfscList(newIfscList));
 			}
 		} catch (err) {
 			console.error(err);
@@ -64,12 +71,17 @@ export default function IfscList(props) {
 
 	const onIfscChange = value => {
 		// const newOptions = _.cloneDeep(options);
+		const totalIfscList = removeDuplicates([...ifscList, ...singleIfscList]);
 		const isIfscCodePresentInCurrentList =
-			ifscList?.filter(ifsc => ifsc.value === value)?.length > 0;
+			totalIfscList?.filter(ifsc => ifsc.value === value)?.length > 0;
 		if (value.length > 10 && !isIfscCodePresentInCurrentList) {
 			getNewIfscData(value);
 		}
 	};
+
+	useEffect(() => {
+		getNewIfscData(value);
+	}, []);
 	// useEffect(() => {
 	// 	if (ifscList?.length > 0) {
 	// 		setOptions(
@@ -96,6 +108,14 @@ export default function IfscList(props) {
 		}
 	}, [ifscList]);
 
+	const combinedIfscOptions =
+		ifscList?.[0]?.value?.slice(0, 5) ===
+		singleIfscList?.[0]?.value?.slice(0, 5)
+			? removeDuplicates([...ifscList, ...singleIfscList])
+			: ifscList;
+
+	// console.log({ ifscList, singleIfscList });
+
 	return (
 		<SearchSelect
 			field={field}
@@ -108,9 +128,9 @@ export default function IfscList(props) {
 			// }}
 			name={field.name}
 			placeholder={field.placeholder || ''}
-			options={ifscList}
+			options={combinedIfscOptions}
 			onSelectOptionCallback={onIfscSelectCallback}
-			defaultValue={value}
+			defaultValue={value || sectionIFSC}
 			disabled={field?.disabled || isViewLoan}
 			onIfscChange={onIfscChange}
 			rules={field.rules}
