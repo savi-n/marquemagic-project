@@ -148,7 +148,7 @@ export default function SearchSelect(props) {
 		defaultValue = '',
 		customLabel = '',
 		errorMessage,
-		// onIfscChange,
+		onIfscChange,
 		subComponentOptions,
 	} = props;
 	const [optionShow, setOptionShow] = useState(false);
@@ -212,7 +212,7 @@ export default function SearchSelect(props) {
 			defaultSelected && onOptionSelect(null, defaultSelected);
 		}
 		// eslint-disable-next-line
-	}, [defaultValue, options?.length,ifscList]);
+	}, [defaultValue, options?.length, ifscList]);
 
 	useEffect(() => {
 		if (options?.length) setSelectOptions(options);
@@ -276,12 +276,13 @@ export default function SearchSelect(props) {
 	const onSearchChange = async event => {
 		const { value } = event.target;
 		if (field.name.includes('ifsc')) {
-			if (value.length > 11) return;
-			// onIfscChange(value);
+			if (value.length > 12) return;
+
+			onIfscChange(value);
 		}
 		if (field.name.includes('ifsc')) {
-			// length of ifsc is always 11
-			if (value.length === 11) {
+			// length of ifsc is always 12
+			if (value.length === 12) {
 				onOptionSelect(event, value);
 			}
 		}
