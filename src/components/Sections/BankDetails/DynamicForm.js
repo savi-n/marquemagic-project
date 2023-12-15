@@ -304,11 +304,17 @@ const DynamicForm = props => {
 							formState?.values?.[CONST.FIELD_NAME_BANK_NAME];
 						customFieldProps.setIfscListLoading = setIfscListLoading;
 						customFieldProps.disabled = ifscListLoading;
+						customFieldProps.sectionIFSC = prefillData?.IFSC;
 					}
 
 					if (field.name === 'bank_name') {
 						customFieldProps.setIfscListLoading = setIfscListLoading;
 					}
+
+					if (isViewLoan || isViewLoanApp) {
+						customFieldProps.disabled = true;
+					}
+
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({
