@@ -139,75 +139,75 @@ const BasicDetails = props => {
 		// resetForm,
 	} = useForm();
 
-	// ------------------------------------------------sample json -----------------------------------------------------------------------------------------
-	const response = [
-		{
-			headerName: 'Identification',
-			id: 'Identification',
-			matchLevel: [
-				{
-					name: 'Application Match',
-					data: [
-						{
-							loan_ref_id: 'LKKR00019297',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'RUGA00019298',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'CPRM00019299',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: {
-								id: 179622,
-								bank: 'Muthoot Fincorp Ltd',
-								ifsc: 'S0031-SULB',
-								branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
-							},
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'GUMG00019313',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'gjdgs@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '75%',
-						},
-					],
-				},
-			],
-		},
-	];
+	// // ------------------------------------------------sample json -----------------------------------------------------------------------------------------
+	// const response = [
+	// 	{
+	// 		headerName: 'Identification',
+	// 		id: 'Identification',
+	// 		matchLevel: [
+	// 			{
+	// 				name: 'Application Match',
+	// 				data: [
+	// 					{
+	// 						loan_ref_id: 'LKKR00019297',
+	// 						pan_no: 'fwqy12324',
+	// 						name: 'savisavi n',
+	// 						date_of_birth: '12/3/1994',
+	// 						mobile_number: '6564654665',
+	// 						email_id: 'savi@sdfsdf.com',
+	// 						product: 'Unsecured Business/Self-Employed',
+	// 						branch: '',
+	// 						stage: 'Application',
+	// 						match: '100%',
+	// 					},
+	// 					{
+	// 						loan_ref_id: 'RUGA00019298',
+	// 						pan_no: 'fwqy12324',
+	// 						name: 'savisavi n',
+	// 						date_of_birth: '12/3/1994',
+	// 						mobile_number: '6564654665',
+	// 						email_id: 'savi@sdfsdf.com',
+	// 						product: 'Unsecured Business/Self-Employed',
+	// 						branch: '',
+	// 						stage: 'Application',
+	// 						match: '100%',
+	// 					},
+	// 					{
+	// 						loan_ref_id: 'CPRM00019299',
+	// 						pan_no: 'fwqy12324',
+	// 						name: 'savisavi n',
+	// 						date_of_birth: '12/3/1994',
+	// 						mobile_number: '6564654665',
+	// 						email_id: 'savi@sdfsdf.com',
+	// 						product: 'Unsecured Business/Self-Employed',
+	// 						branch: {
+	// 							id: 179622,
+	// 							bank: 'Muthoot Fincorp Ltd',
+	// 							ifsc: 'S0031-SULB',
+	// 							branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
+	// 						},
+	// 						stage: 'Application',
+	// 						match: '100%',
+	// 					},
+	// 					{
+	// 						loan_ref_id: 'GUMG00019313',
+	// 						pan_no: 'fwqy12324',
+	// 						name: 'savisavi n',
+	// 						date_of_birth: '12/3/1994',
+	// 						mobile_number: '6564654665',
+	// 						email_id: 'gjdgs@sdfsdf.com',
+	// 						product: 'Unsecured Business/Self-Employed',
+	// 						branch: '',
+	// 						stage: 'Application',
+	// 						match: '75%',
+	// 					},
+	// 				],
+	// 			},
+	// 		],
+	// 	},
+	// ];
 
-	//--------------------------------------------------------------------------------------------------------------
+	// //--------------------------------------------------------------------------------------------------------------
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
@@ -1056,13 +1056,19 @@ const BasicDetails = props => {
 			const dedupeReqBody = {
 				isSelectedProductTypeBusiness:
 					`${selectedProduct?.loan_request_type}` === '1',
-				isSelectedProductTypeSalaried: false,
+				isSelectedProductTypeSalaried:
+					`${formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]}` === `7`,
 				object: {
 					pan_no: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME] || '',
 					date_of_birth: formState?.values?.[CONST.DOB_FIELD_NAME] || '',
 					email_id: formState?.values?.[CONST.EMAIL_ID_FIELD_NAME] || '',
 					mobile_number:
 						formState?.values?.[CONST.MOBILE_NUMBER_FIELD_NAME] || '',
+					first_name: formState?.values?.[CONST.FIRST_NAME_FIELD_NAME] || '',
+					last_name: formState?.values?.[CONST.LAST_NAME_FIELD_NAME] || '',
+					aadhar_number: '',
+					middle_name: formState?.values?.[CONST.MIDDLE_NAME_FIELD_NAME] || '',
+					ucic: formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] || '',
 				},
 				white_label_id: whiteLabelId,
 			};
@@ -2024,7 +2030,6 @@ const BasicDetails = props => {
 							) : (
 								<DedupeAccordian
 									dedupedata={dedupeModalData}
-									data={response}
 									fetchDedupeCheckData={fetchDedupeCheckData}
 								/>
 							)}
