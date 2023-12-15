@@ -780,6 +780,11 @@ const BusinessDetails = props => {
 					email_id: formState?.values?.[CONST.BUSINESS_EMAIL_FIELD] || '',
 					mobile_number:
 						formState?.values?.[CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME] || '',
+					first_name: formState?.values?.[CONST.BUSINESS_NAME_FIELD_NAME] || '',
+					last_name: '',
+					aadhar_number: '',
+					middle_name: '',
+					ucic: formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] || '',
 				},
 				white_label_id: whiteLabelId,
 			};
@@ -1260,7 +1265,6 @@ const BusinessDetails = props => {
 								<DedupeAccordian
 									selectedProduct={selectedProduct}
 									dedupedata={dedupeModalData}
-									data={response}
 									fetchDedupeCheckData={fetchDedupeCheckData}
 								/>
 							)}
