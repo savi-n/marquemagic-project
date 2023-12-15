@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
 import Button from 'components/Button';
-import Textarea from 'components/inputs/Textarea';
+// import Textarea from 'components/inputs/Textarea';
 
 const ModalBody = styled.div`
 	padding: 0 40px;
