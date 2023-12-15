@@ -93,12 +93,14 @@ const VALIDATION_RULES = {
 		// eslint-disable-next-line
 		// func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
 		func: validatePattern(
+			// eslint-disable-next-line no-useless-escape
 			/^(?!.*(\.{2}|^\.|^-|\.\-|\-$|\.$))[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
 		),
 		message: 'Invalid Email Address',
 	},
 	empty_or_email: {
 		func: validatePattern(
+			// eslint-disable-next-line no-useless-escape
 			/^(?!.*(\.{2}|^\.|^-|\.\-|\-$|\.$))[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
 		),
 		message: 'Invalid Email Address',

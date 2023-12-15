@@ -6,10 +6,10 @@ import { IFSC_LIST_FETCH } from '_config/app.config';
 import { setSingleIfscList } from 'store/appSlice';
 // import _ from 'lodash';
 import axios from 'axios';
-import { useToasts } from 'components/Toast/ToastProvider';
+// import { useToasts } from 'components/Toast/ToastProvider';
 
 export default function IfscList(props) {
-	const { addToast } = useToasts();
+	// const { addToast } = useToasts();
 	const { field, onSelectOptionCallback, value } = props;
 	const { ifscList, singleIfscList } = useSelector(state => state.app);
 	const { selectedBank, setIfscListLoading, sectionIFSC } = field;
@@ -81,6 +81,7 @@ export default function IfscList(props) {
 
 	useEffect(() => {
 		getNewIfscData(value);
+		// eslint-disable-next-line
 	}, []);
 	// useEffect(() => {
 	// 	if (ifscList?.length > 0) {
