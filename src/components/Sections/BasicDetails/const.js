@@ -37,6 +37,7 @@ export const PAN_NUMBER_FIELD_NAME = 'pan_number';
 export const MOBILE_NUMBER_FIELD_NAME = 'mobile_no';
 export const FIRST_NAME_FIELD_NAME = 'first_name';
 export const LAST_NAME_FIELD_NAME = 'last_name';
+export const MIDDLE_NAME_FIELD_NAME = 'last_name';
 export const FATHER_NAME_FIELD_NAME = 'father_name';
 export const PAN_NUMBER_CONFIRM_FIELD_NAME = 'pan_number_confirm';
 export const PROFILE_UPLOAD_FIELD_NAME = 'profile_upload';

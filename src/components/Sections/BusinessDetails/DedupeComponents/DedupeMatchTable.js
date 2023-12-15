@@ -2,6 +2,7 @@ import React from 'react';
 import * as UI from './ui';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { encryptReq } from 'utils/encrypt';
+import MatchParameterPopover from './MatchParameterPopover';
 
 const DedupeMatchTable = props => {
 	const { addToast } = useToasts();
@@ -29,10 +30,13 @@ const DedupeMatchTable = props => {
 	};
 	const columns = Object.keys(HEADER_MAPPING);
 
-	const pointerEventsAllowed = selectedProduct?.product_details?.allow_users_to_view_internal_dedupe?.includes(
-		userDetails?.user_sub_type || userDetails?.usertype
-		// 'bbm'
-	);
+	const pointerEventsAllowed =
+		selectedProduct?.product_details?.allow_users_to_view_internal_dedupe?.includes(
+			userDetails?.usertype
+		) ||
+		selectedProduct?.product_details?.allow_users_to_view_internal_dedupe?.includes(
+			userDetails?.user_sub_type
+		);
 
 	const redirectToProductPageInEditMode = loanData => {
 		if (!loanData?.loan_ref_id || !loanData?.product_id) {
@@ -67,7 +71,6 @@ const DedupeMatchTable = props => {
 				</UI.TableRow>
 			</thead>
 			<tbody>
-				{console.log(selectedProduct, userDetails, pointerEventsAllowed)}
 				{data.map((item, index) => (
 					<UI.TableRow
 						key={index}
@@ -84,14 +87,20 @@ const DedupeMatchTable = props => {
 						{columns.map(column => (
 							<UI.TableCell key={column}>
 								{column === 'match' ? (
-									<>
-										{item[column]}
-										<UI.ProgressBar>
-											<UI.ProgressFiller
-												percentage={parseInt(item[column], 10)}
-											/>
-										</UI.ProgressBar>
-									</>
+									<MatchParameterPopover data={item?.parameters}>
+										<span
+											style={{
+												pointerEvents: 'auto',
+											}}
+										>
+											{item[column]}
+											<UI.ProgressBar>
+												<UI.ProgressFiller
+													percentage={parseInt(item[column], 10)}
+												/>
+											</UI.ProgressBar>
+										</span>
+									</MatchParameterPopover>
 								) : (
 									item[column]?.branch || item[column] || '---'
 								)}

@@ -9,14 +9,12 @@ import * as UI from './ui';
 
 const DedupeAccordian = props => {
 	const {
-		data = [],
 		// fetchDedupeCheckData,
 		dedupedata,
 		selectedProduct,
 	} = props;
 	console.log(
 		'🚀 ~ file: DedupeAccordian.js:12 ~ DedupeAccordian ~ data:',
-		data,
 		dedupedata
 	);
 	const [
@@ -26,7 +24,7 @@ const DedupeAccordian = props => {
 	const [currentLevelData, setCurrentLevelData] = useState([]);
 
 	const [accordianStates, setAccordianStates] = useState(
-		data.reduce((acc, item) => {
+		dedupedata.reduce((acc, item) => {
 			acc[item.id] = false;
 			return acc;
 		}, {})
@@ -72,7 +70,7 @@ const DedupeAccordian = props => {
 					{/* <DedupeMatchTable data={dedupedata} /> */}
 				</section>
 			</Modal>
-			{data?.map((item, itemIndex) => {
+			{dedupedata?.map((item, itemIndex) => {
 				const isAccordianOpen = accordianStates[item.id];
 				return (
 					<UI_SECTIONS.AccordianWrapper key={`accordian-${itemIndex}`}>
@@ -106,16 +104,14 @@ const DedupeAccordian = props => {
 												<stron>{matchType?.name || 'Application Match'}</stron>
 											</UI.CustomerListCardItem>
 											<UI.CustomerListCardItem>
-												<strong>
-													{matchType?.data?.length || dedupedata?.length}
-												</strong>
+												<strong>{matchType?.data?.length}</strong>
 												{' duplicates found'}
 											</UI.CustomerListCardItem>
 											<UI.CustomerListCardItem>
 												<Button
 													onClick={() => {
 														// fetchDedupeCheckData();
-														setCurrentLevelData(dedupedata);
+														setCurrentLevelData(matchType?.data);
 														// setCurrentLevelData(matchType?.data);
 														setIsApplicationMatchModalOpen(true);
 													}}
