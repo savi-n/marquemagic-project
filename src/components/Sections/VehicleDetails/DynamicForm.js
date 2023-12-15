@@ -211,6 +211,12 @@ const DynamicForm = props => {
 					return null;
 				});
 			}
+			if (fetchRes?.data?.status === 'nok') {
+				addToast({
+					message: "Couldn't fetch the data. Please continue filling the form.",
+					type: 'error',
+				});
+			}
 		} catch (error) {
 			console.error(error.message);
 			addToast({
