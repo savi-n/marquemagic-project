@@ -25,8 +25,10 @@ const DedupeMatchTable = props => {
 		name: 'Name',
 		product: 'Product',
 		branch: 'Branch',
-		amount: 'Amount',
+		loan_amount: 'Loan Amount',
 		stage: 'Stage',
+		ucic_no: 'UCIC',
+		customer_type: 'Customer Type',
 	};
 	const columns = Object.keys(HEADER_MAPPING);
 

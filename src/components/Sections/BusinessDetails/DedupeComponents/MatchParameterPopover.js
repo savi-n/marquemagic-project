@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import iconSuccess from '../../../../assets/icons/green_tick_icon.png';
 
 const TooltipContainer = styled.div`
 	position: relative;
@@ -9,6 +10,11 @@ const TooltipContainer = styled.div`
 	&:hover .tooltip {
 		display: block;
 	}
+`;
+
+const ImgContainer = styled.img`
+	width: 20px;
+	height: 20px;
 `;
 
 const Tooltip = styled.div`
@@ -52,7 +58,9 @@ const MatchParameterPopover = ({ data, children }) => {
 						{keysToShow?.map(key => (
 							<tr key={key}>
 								<th>{key}</th>
-								<td>{data[key]}</td>
+								<td>
+									<ImgContainer src={iconSuccess} alt='Matched Parameter' />
+								</td>
 							</tr>
 						))}
 					</tbody>
