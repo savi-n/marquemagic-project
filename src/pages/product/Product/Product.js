@@ -105,7 +105,7 @@ const Product = props => {
 
 	useEffect(() => {
 		// console.log({ reqType: response?.data?.loan_request_type, response });
-		if (response?.status === 'ok') {
+		if (response) {
 			const selectedProductRes = _.cloneDeep(response.data);
 			// New Individual loan changes for displaying sections based on the config - starts
 			if (isViewLoan) {
