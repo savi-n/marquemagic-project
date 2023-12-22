@@ -2213,21 +2213,8 @@ const BasicDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											let infoMessage = '';
-											if (
-												`${
-													sectionData?.director_details?.additional_cust_id
-												}` === formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
-											) {
-												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
-											} else if (
-												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]
-											) {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											} else {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											}
-											customFieldProps.infoMessage = infoMessage;
+											customFieldProps.infoMessage =
+												CONST.ENTER_VALID_UCIC_HINT;
 										}
 
 										if (field?.name === CONST.DOB_FIELD_NAME) {
