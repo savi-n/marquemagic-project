@@ -9,7 +9,7 @@ const DedupeMatchTable = props => {
 
 	const { data, selectedProduct } = props;
 	if (!data || data.length === 0) {
-		return null;
+		return <UI.NoDataText>No Matches Found</UI.NoDataText>;
 	}
 
 	const userDetails = JSON.parse(sessionStorage?.getItem('userDetails'));

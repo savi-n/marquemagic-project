@@ -41,6 +41,11 @@ const TooltipTable = styled.table`
 	}
 `;
 
+const ToolTipHeaderRow = styled.tr`
+	border-bottom: solid 1px gray;
+	background-color: gray;
+`;
+
 const MatchParameterPopover = ({ data, children }) => {
 	console.log('am I rendered');
 	const keysToShow =
@@ -55,6 +60,11 @@ const MatchParameterPopover = ({ data, children }) => {
 			<Tooltip className='tooltip'>
 				<TooltipTable>
 					<tbody>
+						<thead>
+							<tr>
+								<td>Mathced Parameters</td>
+							</tr>
+						</thead>
 						{keysToShow?.map(key => (
 							<tr key={key}>
 								<th>{key}</th>

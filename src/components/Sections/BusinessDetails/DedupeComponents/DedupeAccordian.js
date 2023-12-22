@@ -109,11 +109,22 @@ const DedupeAccordian = props => {
 											</UI.CustomerListCardItem>
 											<UI.CustomerListCardItem>
 												<Button
+													width={'fit-content'}
 													onClick={() => {
 														// fetchDedupeCheckData();
 														setCurrentLevelData(matchType?.data);
 														// setCurrentLevelData(matchType?.data);
 														setIsApplicationMatchModalOpen(true);
+													}}
+												>
+													View
+												</Button>
+											</UI.CustomerListCardItem>
+											<UI.CustomerListCardItem>
+												<Button
+													width={'fit-content'}
+													onClick={() => {
+														alert('Clicked');
 													}}
 												>
 													Re-Initiate
