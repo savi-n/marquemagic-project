@@ -210,9 +210,9 @@ const ApplicantCoApplicantHeader = props => {
 								dispatch(setAddNewDirectorKey(''));
 								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
 							}}
-							label={`${isDeleteDirectorModalOpen?.type_name} ${
+							label={isDeleteDirectorModalOpen?.type_name ?`${isDeleteDirectorModalOpen?.type_name} ${
 								isDeleteDirectorModalOpen?.dfirstname
-							} ${isDeleteDirectorModalOpen?.dlastname}`}
+							} ${isDeleteDirectorModalOpen?.dlastname}` : `${isDeleteDirectorModalOpen}`}
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
