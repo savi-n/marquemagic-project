@@ -41,7 +41,7 @@ const TooltipTable = styled.table`
 	}
 `;
 
-const ToolTipHeaderRow = styled.tr`
+const ToolTipHeaderRow = styled.td`
 	border-bottom: solid 1px gray;
 	background-color: gray;
 `;
@@ -62,9 +62,9 @@ const MatchParameterPopover = ({ data, children }) => {
 					<tbody>
 						<thead>
 							<tr>
-								<td style={{ borderBottom: '1px solid gray' }}>
+								<ToolTipHeaderRow style={{ borderBottom: '1px solid gray' }}>
 									Matched Parameters
-								</td>
+								</ToolTipHeaderRow>
 							</tr>
 						</thead>
 						{keysToShow?.map(key => (
