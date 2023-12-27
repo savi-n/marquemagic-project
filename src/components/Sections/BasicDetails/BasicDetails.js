@@ -1929,8 +1929,7 @@ const BasicDetails = props => {
 						ButtonProceed={ButtonProceed}
 					/>
 					<DataDeletionWarningModal
-						warningMessage={`Once You Proceed, All The Filled Data Will Be
-					Lost. A New Loan Will Be Created With Details Fetched From The Entered New UCIC Number.`}
+						warningMessage={`You are changing the entered UCIC Number. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new UCIC Number and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
 						show={isDataDeletionWarningOpen}
 						onClose={setIsDataDeletionWarningOpen}
 						onProceed={onFetchFromCustomerId}
