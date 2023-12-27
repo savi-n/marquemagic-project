@@ -40,25 +40,29 @@ const DedupeMatchTable = props => {
 			userDetails?.user_sub_type
 		);
 
-	const redirectToProductPageInEditMode = loanData => {
-		if (!loanData?.loan_ref_id || !loanData?.product_id) {
-			addToast({
-				message: 'Something went wrong, try after sometimes',
-				type: 'error',
-			});
-			return;
+	const redirectToProductPageInViewMode = loanData => {
+		try {
+			if (!loanData?.loan_ref_id || !loanData?.loan_product_id) {
+				addToast({
+					message: 'Something went wrong, try after sometimes',
+					type: 'error',
+				});
+				return;
+			}
+			// sessionStorage.clear();
+			const editLoanRedirectObject = {
+				userId: userDetails?.id,
+				loan_ref_id: loanData?.loan_ref_id,
+				token: userToken,
+				view: true,
+			};
+			const redirectURL = `/nconboarding/applyloan/product/${btoa(
+				loanData?.loan_product_id
+			)}?token=${encryptReq(editLoanRedirectObject)}`;
+			window.open(redirectURL, '_self');
+		} catch (error) {
+			console.error(error);
 		}
-		// sessionStorage.clear();
-		const editLoanRedirectObject = {
-			userId: userDetails?.id,
-			loan_ref_id: loanData?.loan_ref_id,
-			token: userToken,
-			view: true,
-		};
-		const redirectURL = `/nconboarding/applyloan/product/${btoa(
-			loanData?.product_id
-		)}?token=${encryptReq(editLoanRedirectObject)}`;
-		window.open(redirectURL, '_self');
 	};
 
 	return (
@@ -83,7 +87,7 @@ const DedupeMatchTable = props => {
 								: ' rgba(236, 240, 241, 0.9)',
 						}}
 						onClick={() => {
-							redirectToProductPageInEditMode(item);
+							redirectToProductPageInViewMode(item);
 						}}
 					>
 						{columns.map(column => (

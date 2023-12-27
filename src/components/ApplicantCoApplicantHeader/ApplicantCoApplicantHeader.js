@@ -279,6 +279,7 @@ const ApplicantCoApplicantHeader = props => {
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
 										{showCoApplicantDeleteBtn() &&
+										selectedSectionId !== CONST.DOCUMENT_UPLOAD_SECTION_ID &&
 										showDeleteIconIfCoApp(director) &&
 										directorIndex > 0 &&
 										!isViewLoan ? (
