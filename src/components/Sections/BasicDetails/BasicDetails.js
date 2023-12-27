@@ -139,76 +139,6 @@ const BasicDetails = props => {
 		// resetForm,
 	} = useForm();
 
-	// // ------------------------------------------------sample json -----------------------------------------------------------------------------------------
-	// const response = [
-	// 	{
-	// 		headerName: 'Identification',
-	// 		id: 'Identification',
-	// 		matchLevel: [
-	// 			{
-	// 				name: 'Application Match',
-	// 				data: [
-	// 					{
-	// 						loan_ref_id: 'LKKR00019297',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'savi@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: '',
-	// 						stage: 'Application',
-	// 						match: '100%',
-	// 					},
-	// 					{
-	// 						loan_ref_id: 'RUGA00019298',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'savi@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: '',
-	// 						stage: 'Application',
-	// 						match: '100%',
-	// 					},
-	// 					{
-	// 						loan_ref_id: 'CPRM00019299',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'savi@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: {
-	// 							id: 179622,
-	// 							bank: 'Muthoot Fincorp Ltd',
-	// 							ifsc: 'S0031-SULB',
-	// 							branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
-	// 						},
-	// 						stage: 'Application',
-	// 						match: '100%',
-	// 					},
-	// 					{
-	// 						loan_ref_id: 'GUMG00019313',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'gjdgs@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: '',
-	// 						stage: 'Application',
-	// 						match: '75%',
-	// 					},
-	// 				],
-	// 			},
-	// 		],
-	// 	},
-	// ];
-
-	// //--------------------------------------------------------------------------------------------------------------
-
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [fetchingGeoLocation, setFetchingGeoLocation] = useState(false);
@@ -1956,6 +1886,11 @@ const BasicDetails = props => {
 	// 	isApplicant,
 	// });
 
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
+	};
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -2009,18 +1944,19 @@ const BasicDetails = props => {
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -2031,6 +1967,8 @@ const BasicDetails = props => {
 								<DedupeAccordian
 									dedupedata={dedupeModalData}
 									fetchDedupeCheckData={fetchDedupeCheckData}
+									selectedProduct={selectedProduct}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>
@@ -2282,21 +2220,8 @@ const BasicDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											let infoMessage = '';
-											if (
-												`${
-													sectionData?.director_details?.additional_cust_id
-												}` === formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
-											) {
-												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
-											} else if (
-												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]
-											) {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											} else {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											}
-											customFieldProps.infoMessage = infoMessage;
+											customFieldProps.infoMessage =
+												CONST.ENTER_VALID_UCIC_HINT;
 										}
 
 										if (field?.name === CONST.DOB_FIELD_NAME) {

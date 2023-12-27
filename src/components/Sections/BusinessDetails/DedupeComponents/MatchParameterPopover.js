@@ -62,12 +62,14 @@ const MatchParameterPopover = ({ data, children }) => {
 					<tbody>
 						<thead>
 							<tr>
-								<td>Mathced Parameters</td>
+								<td style={{ borderBottom: '1px solid gray' }}>
+									Matched Parameters
+								</td>
 							</tr>
 						</thead>
 						{keysToShow?.map(key => (
 							<tr key={key}>
-								<th>{key}</th>
+								<th>{key?.split('_').join(' ')}</th>
 								<td>
 									<ImgContainer src={iconSuccess} alt='Matched Parameter' />
 								</td>

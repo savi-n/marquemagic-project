@@ -102,75 +102,6 @@ const BusinessDetails = props => {
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
-	// ------------------------------------------------sample json -----------------------------------------------------------------------------------------
-	const response = [
-		{
-			headerName: 'Identification',
-			id: 'Identification',
-			matchLevel: [
-				{
-					name: 'Application Match',
-					data: [
-						{
-							loan_ref_id: 'LKKR00019297',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'RUGA00019298',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'CPRM00019299',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: {
-								id: 179622,
-								bank: 'Muthoot Fincorp Ltd',
-								ifsc: 'S0031-SULB',
-								branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
-							},
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'GUMG00019313',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'gjdgs@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '75%',
-						},
-					],
-				},
-			],
-		},
-	];
-
-	//--------------------------------------------------------------------------------------------------------------
 
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
@@ -782,7 +713,8 @@ const BusinessDetails = props => {
 						formState?.values?.[CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME] || '',
 					first_name: formState?.values?.[CONST.BUSINESS_NAME_FIELD_NAME] || '',
 					last_name: '',
-					aadhar_number: '',
+					aadhar_number:
+						formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] || '',
 					middle_name: '',
 					ucic: formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] || '',
 				},
@@ -804,9 +736,15 @@ const BusinessDetails = props => {
 				message: 'Dedupe Data Fetch Failed',
 				type: 'error',
 			});
+			setDedupeModalData([]);
 		} finally {
 			setIsDedupeCheckModalLoading(false);
 		}
+	};
+
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
 	};
 
 	// console.log(formState.values, 'form................');
@@ -1243,18 +1181,19 @@ const BusinessDetails = props => {
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -1266,6 +1205,7 @@ const BusinessDetails = props => {
 									selectedProduct={selectedProduct}
 									dedupedata={dedupeModalData}
 									fetchDedupeCheckData={fetchDedupeCheckData}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>
@@ -1491,20 +1431,9 @@ const BusinessDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											let infoMessage = '';
-											if (
-												`${sectionData?.business_details?.customer_id}` ===
-												formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
-											) {
-												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
-											} else if (
-												!formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME]
-											) {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											} else {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											}
-											customFieldProps.infoMessage = infoMessage;
+
+											customFieldProps.infoMessage =
+												CONST.ENTER_VALID_UCIC_HINT;
 										}
 										if (field?.name === CONST.BUSINESS_START_DATE) {
 											customFieldPropsSubFields.value =

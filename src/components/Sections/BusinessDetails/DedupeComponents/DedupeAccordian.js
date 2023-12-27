@@ -8,20 +8,13 @@ import DedupeMatchTable from './DedupeMatchTable';
 import * as UI from './ui';
 
 const DedupeAccordian = props => {
-	const {
-		// fetchDedupeCheckData,
-		dedupedata,
-		selectedProduct,
-	} = props;
-	console.log(
-		'🚀 ~ file: DedupeAccordian.js:12 ~ DedupeAccordian ~ data:',
-		dedupedata
-	);
+	const { fetchDedupeCheckData, dedupedata, selectedProduct } = props;
 	const [
 		isApplicationMatchModalOpen,
 		setIsApplicationMatchModalOpen,
 	] = useState(false);
 	const [currentLevelData, setCurrentLevelData] = useState([]);
+	const [matchType, setMatchType] = useState('');
 
 	const [accordianStates, setAccordianStates] = useState(
 		dedupedata.reduce((acc, item) => {
@@ -66,6 +59,7 @@ const DedupeAccordian = props => {
 					<DedupeMatchTable
 						data={currentLevelData}
 						selectedProduct={selectedProduct}
+						matchType={matchType}
 					/>
 					{/* <DedupeMatchTable data={dedupedata} /> */}
 				</section>
@@ -113,7 +107,7 @@ const DedupeAccordian = props => {
 													onClick={() => {
 														// fetchDedupeCheckData();
 														setCurrentLevelData(matchType?.data);
-														// setCurrentLevelData(matchType?.data);
+														setMatchType(matchType?.name);
 														setIsApplicationMatchModalOpen(true);
 													}}
 												>
@@ -124,7 +118,7 @@ const DedupeAccordian = props => {
 												<Button
 													width={'fit-content'}
 													onClick={() => {
-														alert('Clicked');
+														fetchDedupeCheckData();
 													}}
 												>
 													Re-Initiate
