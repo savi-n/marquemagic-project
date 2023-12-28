@@ -94,9 +94,27 @@ export const ProgressBar = styled.div`
 	border-radius: 5px; /* Makes it pill-shaped */
 	overflow: hidden; /* Ensures the inner filler doesn't overflow */
 `;
+
+const getBackgroundColor = percentage => {
+	if (percentage <= 30) {
+		return 'green';
+	} else if (percentage <= 60) {
+		return '#F3B664';
+	} else {
+		return 'red';
+	}
+};
+
 export const ProgressFiller = styled.div`
 	width: ${props => props.percentage}%;
 	height: 100%;
-	background-color: green;
-	border-radius: 5px; /* Maintains the pill shape */
+	background-color: ${props => getBackgroundColor(props.percentage)};
+	border-radius: 5px;
+`;
+
+export const NoDataText = styled.div`
+	text-align: center;
+	margin-bottom: 10px;
+	font-size: 18px;
+	font-weight: 500;
 `;
