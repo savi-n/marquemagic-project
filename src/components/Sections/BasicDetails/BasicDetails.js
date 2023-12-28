@@ -898,6 +898,8 @@ const BasicDetails = props => {
 				lat: geoLocation?.lat || '',
 				long: geoLocation?.long || '',
 				timestamp: geoLocation?.timestamp || '',
+				customer_category:
+					formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
