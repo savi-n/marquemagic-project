@@ -359,7 +359,7 @@ const DynamicForm = props => {
 					<>
 						{!(`${prefillData.bank_verification_flag}` === 'verified') && (
 							<Button
-								name='Trigger Penny Drop'
+								name='Initiate Penny Drop'
 								customStyle={{ maxWidth: '300px' }}
 								onClick={triggerPennyDrop}
 								isLoader={pennyDropApiLoading}
