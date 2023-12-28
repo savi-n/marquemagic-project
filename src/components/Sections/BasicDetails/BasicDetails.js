@@ -1886,6 +1886,11 @@ const BasicDetails = props => {
 	// 	isApplicant,
 	// });
 
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
+	};
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -1938,18 +1943,19 @@ const BasicDetails = props => {
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -1961,6 +1967,7 @@ const BasicDetails = props => {
 									dedupedata={dedupeModalData}
 									fetchDedupeCheckData={fetchDedupeCheckData}
 									selectedProduct={selectedProduct}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>
