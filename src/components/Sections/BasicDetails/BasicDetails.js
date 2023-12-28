@@ -1110,6 +1110,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
+				// kyc_risk_profile: 'Low Risk',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
