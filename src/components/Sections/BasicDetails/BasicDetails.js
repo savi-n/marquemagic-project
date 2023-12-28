@@ -898,6 +898,8 @@ const BasicDetails = props => {
 				lat: geoLocation?.lat || '',
 				long: geoLocation?.long || '',
 				timestamp: geoLocation?.timestamp || '',
+				customer_category:
+					formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -1108,6 +1110,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
+				// kyc_risk_profile: 'Low Risk',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
