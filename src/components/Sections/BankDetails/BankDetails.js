@@ -211,8 +211,8 @@ const BankDetails = () => {
 																	title={
 																		`${prefillData.bank_verification_flag}` ===
 																		'verified'
-																			? 'Bank Is Penny Drop Verified'
-																			: 'Bank Is Not Penny Drop Verified'
+																			? 'Bank is Penny Drop verified.'
+																			: 'Bank is not Penny Drop verified.'
 																	}
 																/>
 															)}
