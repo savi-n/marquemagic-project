@@ -984,6 +984,13 @@ const BasicDetails = props => {
 
 	const fetchDedupeCheckData = async () => {
 		try {
+			if (!formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME]) {
+				addToast({
+					type: 'error',
+					message: 'Please enter PAN number.',
+				});
+				return;
+			}
 			setIsDedupeCheckModalLoading(true);
 			const dedupeReqBody = {
 				isSelectedProductTypeBusiness:
@@ -2161,6 +2168,7 @@ const BasicDetails = props => {
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
 										}
 										if (
 											isPanUploadMandatory &&
