@@ -293,9 +293,6 @@ const DynamicForm = props => {
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
-					if (isViewLoan || isViewLoanApp) {
-						customFieldProps.disabled = true;
-					}
 					if (field.name === CONST.APPLICANT_FIELD_NAME) {
 						customFieldProps.options = selectedDirectorOptions;
 					}
