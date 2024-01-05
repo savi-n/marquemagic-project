@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-// import axios from 'axios';
+import axios from 'axios';
 
 import DeleteCoApplicantModal from 'components/modals/DeleteCoApplicantModal';
 import Loading from 'components/Loading';
@@ -15,12 +15,16 @@ import {
 	setSelectedDirectorId,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
-import { getSelectedDirectorIndex } from 'utils/formatData';
+import {
+	getSelectedDirectorIndex,
+	// isDirectorApplicant,
+} from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
 import * as CONST from './const';
+import { DELETE_CO_APPLICANT } from '_config/app.config';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, application } = useSelector(state => state);
@@ -31,7 +35,14 @@ const ApplicantCoApplicantHeader = props => {
 		addNewDirectorKey,
 	} = useSelector(state => state.directors);
 
-	const { selectedSectionId, selectedProduct, isLocalhost } = app;
+	const {
+		selectedSectionId,
+		selectedProduct,
+		isLocalhost,
+		isViewLoan,
+		// isEditLoan,
+		userDetails,
+	} = app;
 	// const [flag,setFlag]={};
 	const {
 		cacheDocuments,
@@ -39,6 +50,7 @@ const ApplicantCoApplicantHeader = props => {
 		loanRefId,
 		// businessType,
 		businessName,
+		businessId,
 	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -86,11 +98,36 @@ const ApplicantCoApplicantHeader = props => {
 	}, []);
 
 	const onClickDirectorAvatar = id => {
+		console.log('this is inside okCLick');
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
+
 		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
+	};
+
+	const deleteDirectorData = async id => {
+		try {
+			// setFetchingFormData(true);
+			// get method of the sections is here. modify the api of this particular section
+			const deleteReqBody = { business_id: businessId, director_id: id };
+			const fetchRes = await axios.post(DELETE_CO_APPLICANT, deleteReqBody, {
+				headers: {
+					Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
+				},
+			});
+			// console.log('=>', fetchRes);
+			if (fetchRes?.data?.status === 'ok') {
+				console.log(fetchRes?.data?.data);
+				fetchDirectors();
+				onClickDirectorAvatar('');
+			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			// setFetchingFormData(false);
+		}
 	};
 
 	const isEntityMandatoryUploaded = () => {
@@ -128,6 +165,34 @@ const ApplicantCoApplicantHeader = props => {
 		return isEntityMandatoryDocsSubmitted;
 	};
 
+	const totalNumberOfCoApps = Object.keys(directors)?.filter(
+		directorId => directors[directorId]?.type_name === `Co-applicant`
+	).length;
+
+	const showDeleteIconIfCoApp = director => {
+		let showDeleteIconForCoApp = false;
+		if (director?.type_name === 'Co-applicant') {
+			if (totalNumberOfCoApps > 1) {
+				showDeleteIconForCoApp = true;
+				return showDeleteIconForCoApp;
+			} else {
+				return false;
+			}
+		}
+		return true;
+	};
+
+	const showCoApplicantDeleteBtn = () => {
+		return (
+			selectedProduct?.product_details?.allow_users_to_delete_co_applicants?.includes(
+				userDetails?.usertype
+			) ||
+			selectedProduct?.product_details?.allow_users_to_delete_co_applicants?.includes(
+				userDetails?.user_sub_type
+			)
+		);
+	};
+
 	return (
 		<UI.Wrapper>
 			{fetchingDirectors ? (
@@ -140,11 +205,14 @@ const ApplicantCoApplicantHeader = props => {
 						<DeleteCoApplicantModal
 							onNo={() => setIsDeleteDirectorModalOpen(false)}
 							onYes={() => {
+								deleteDirectorData(isDeleteDirectorModalOpen?.id);
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
 								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
 							}}
-							label={isDeleteDirectorModalOpen}
+							label={isDeleteDirectorModalOpen?.type_name ?`${isDeleteDirectorModalOpen?.type_name} ${
+								isDeleteDirectorModalOpen?.dfirstname
+							} ${isDeleteDirectorModalOpen?.dlastname}` : `${isDeleteDirectorModalOpen}`}
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
@@ -210,6 +278,18 @@ const ApplicantCoApplicantHeader = props => {
 										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
+										{showCoApplicantDeleteBtn() &&
+										selectedSectionId !== CONST.DOCUMENT_UPLOAD_SECTION_ID &&
+										showDeleteIconIfCoApp(director) &&
+										directorIndex > 0 &&
+										!isViewLoan ? (
+											<UI.BadgeDelete
+												src={iconDelete}
+												onClick={() => setIsDeleteDirectorModalOpen(director)}
+												alt='delete'
+											/>
+										) : null}
+
 										<UI.Avatar
 											src={
 												+selectedDirectorId === +directorId

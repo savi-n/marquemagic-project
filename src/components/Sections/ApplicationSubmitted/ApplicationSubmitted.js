@@ -49,7 +49,7 @@ const CaptionImg = styled.div`
 const ApplicationSubmitted = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedProduct, permission } = app;
-	const { loanRefId, loanId } = application;
+	const { loanRefId, loanId, leadId } = application;
 	const [count] = useState(0);
 	const isUseEffectCalledOnce = useRef(false);
 	const solutionType = permission?.solution_type || '';
@@ -104,7 +104,11 @@ const ApplicationSubmitted = props => {
 				console.error(err.message);
 			}
 		};
-		if ((isEditLoan && isDraftLoan) || (!isEditLoan && !isViewLoan))
+		if (
+			(isEditLoan && isDraftLoan) ||
+			(!isEditLoan && !isViewLoan) ||
+			(isEditLoan && leadId)
+		)
 			moveToApplicationStage();
 		// eslint-disable-next-line
 	}, []);

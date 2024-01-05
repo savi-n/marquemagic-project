@@ -9,6 +9,7 @@ import axios from 'axios';
 // import { useToasts } from 'components/Toast/ToastProvider';
 
 export default function IfscList(props) {
+	// const { addToast } = useToasts();
 	const { field, onSelectOptionCallback, value } = props;
 	const { ifscList, singleIfscList } = useSelector(state => state.app);
 	const { selectedBank, setIfscListLoading, sectionIFSC } = field;
@@ -69,6 +70,7 @@ export default function IfscList(props) {
 	};
 
 	const onIfscChange = value => {
+		// const newOptions = _.cloneDeep(options);
 		const totalIfscList = removeDuplicates([...ifscList, ...singleIfscList]);
 		const isIfscCodePresentInCurrentList =
 			totalIfscList?.filter(ifsc => ifsc.value === value)?.length > 0;
@@ -79,6 +81,7 @@ export default function IfscList(props) {
 
 	useEffect(() => {
 		getNewIfscData(value);
+		// eslint-disable-next-line
 	}, []);
 	// useEffect(() => {
 	// 	if (ifscList?.length > 0) {

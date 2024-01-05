@@ -179,9 +179,10 @@ const AddressDetails = props => {
 				try {
 					setVerifyingWithOtp(true);
 					// const reqBody = {};
-					const sessionIdRes = await axios.post(
-						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT
-					);
+					const apiUrl =
+						selectedSection?.aadhaar_redirect_api_url ||
+						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT;
+					const sessionIdRes = await axios.post(apiUrl);
 					const sessionId = await sessionIdRes?.data?.data?.SessionId;
 					if (!sessionId || sessionIdRes.status === 'nok') {
 						addToast({
@@ -273,7 +274,10 @@ const AddressDetails = props => {
 
 	const handleBankRedirection = async url => {
 		try {
-			const resp = await axios.post(API.GENERATE_SESSION_ID_AADHAAR_REDIRECT);
+			const apiUrl =
+				selectedSection?.aadhaar_redirect_api_url ||
+				API.GENERATE_SESSION_ID_AADHAAR_REDIRECT;
+			const resp = await axios.post(apiUrl);
 			const session_id = resp?.data?.data?.SessionId;
 			if (session_id) {
 				window.open(
@@ -352,7 +356,7 @@ const AddressDetails = props => {
 						return null;
 					});
 
-					if (!(otpVerifiedForAadhar || isFetchAddressPressed)) {
+					if (!(otpVerifiedForAadhar || isFetchAddressPressed) && !isTestMode) {
 						addToast({
 							message: 'Please Upload Aadhar or Verify Aadhar Number With OTP',
 							type: 'error',
@@ -720,6 +724,7 @@ const AddressDetails = props => {
 				permanent_pin_code: sectionData?.director_details?.permanent_pincode,
 				permanent_city: sectionData?.director_details?.permanent_city,
 				permanent_state: sectionData?.director_details?.permanent_state,
+				permanent_district: sectionData?.director_details?.permanent_district,
 				permanent_property_type:
 					sectionData?.director_details?.permanent_residential_type,
 				permanent_property_tenure: sectionData?.director_details
@@ -766,6 +771,7 @@ const AddressDetails = props => {
 				present_address3: sectionData?.director_details?.locality,
 				present_pin_code: sectionData?.director_details?.pincode,
 				present_city: sectionData?.director_details?.city,
+				present_district: sectionData?.director_details?.district,
 				present_state: sectionData?.director_details?.state,
 				present_property_type: sectionData?.director_details?.residential_type,
 				present_property_tenure: sectionData?.director_details

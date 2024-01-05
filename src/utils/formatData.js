@@ -253,7 +253,7 @@ export const formatCompanyRocData = (data, panNum) => {
 		Email: data.company_master_data.email_id,
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
 		panNumber: panNum,
-		CIN: data.company_master_data['cin '],
+		CIN: data.company_master_data['cin'],
 		CompanyCategory: data.company_master_data.company_category,
 		Address: data.company_master_data.registered_address,
 		ClassOfCompany: data.company_master_data.class_of_company,

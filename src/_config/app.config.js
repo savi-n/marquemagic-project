@@ -8,6 +8,7 @@ const OTP_API_END_POINT = process.env.REACT_APP_OTP_URL;
 const APP_DOMAIN = process.env.REACT_APP_DOMAIN;
 const CUSTOMER_FETCH_API_END_POINT =
 	process.env.REACT_APP_CUSTOMER_FETCH_API_URL;
+const COMMON_SERVICES_API_END_POINT = process.env.REACT_APP_COMMON_API_URL;
 
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
@@ -76,6 +77,7 @@ const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 const INDUSTRY_LIST_FETCH = `${API_END_POINT}/industry_list`;
 const SUB_INDUSTRY_FETCH = `${API_END_POINT}/subindustry_list`;
 const BUSINESS_DETIALS = `${API_END_POINT}/business_details`;
+const LEADS_DETIALS = `${API_END_POINT}/leadsData`;
 const BUSINESS_ADDRESS_DETAILS = `${API_END_POINT}/business_address_details`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
@@ -120,6 +122,15 @@ const REDIRECT_CREATE =
 const SKIP_SECTION = `${API_END_POINT}/skip_section`;
 
 const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
+const VEHICLE_RC = `${API_END_POINT}/api/vehicleRC`;
+const LEADS_DATA = `${API_END_POINT}/leadsData`;
+const DELETE_CO_APPLICANT = `${API_END_POINT}/delete_director`;
+const DELETE_LOAN_FIN = `${API_END_POINT}/deleteLoanFinancial`;
+const DELETE_COLLATERAL = `${API_END_POINT}/cubCollateral/deleteCollateral`;
+
+
+const TRIGGER_PENNY_DROP = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/trigger`;
+const PENNY_DROP_STATUS_FETCH = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/status`;
 const NC_STATUS_CODE = {
 	OK: 'ok',
 	NC200: 'NC200',
@@ -256,4 +267,12 @@ export {
 	SKIP_SECTION,
 	INDUSTRY_LIST_FETCH,
 	SUB_INDUSTRY_FETCH,
+	LEADS_DETIALS,
+	VEHICLE_RC,
+	LEADS_DATA,
+	DELETE_LOAN_FIN,
+	DELETE_CO_APPLICANT,
+	DELETE_COLLATERAL,
+	TRIGGER_PENNY_DROP,
+	PENNY_DROP_STATUS_FETCH,
 };

@@ -67,6 +67,7 @@ import {
 } from 'utils/helper';
 import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
+import DataDeletionWarningModal from './DataDeletionWarningModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -110,6 +111,7 @@ const BasicDetails = props => {
 		loanId,
 		businessId,
 		dedupePrefilledValues,
+		leadId,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -124,6 +126,9 @@ const BasicDetails = props => {
 	const [profilePicGeolocation, setProfilePicGeolocation] = useState({});
 	const [geoLocationData, setGeoLocationData] = useState(geoLocation);
 	const [mandatoryGeoTag, setMandatoryGeoTag] = useState([]);
+	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
+		false
+	);
 	const {
 		handleSubmit,
 		register,
@@ -133,76 +138,6 @@ const BasicDetails = props => {
 		setErrorFormStateField,
 		// resetForm,
 	} = useForm();
-
-	// ------------------------------------------------sample json -----------------------------------------------------------------------------------------
-	const response = [
-		{
-			headerName: 'Identification',
-			id: 'Identification',
-			matchLevel: [
-				{
-					name: 'Application Match',
-					data: [
-						{
-							loan_ref_id: 'LKKR00019297',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'RUGA00019298',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'CPRM00019299',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: {
-								id: 179622,
-								bank: 'Muthoot Fincorp Ltd',
-								ifsc: 'S0031-SULB',
-								branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
-							},
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'GUMG00019313',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'gjdgs@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '75%',
-						},
-					],
-				},
-			],
-		},
-	];
-
-	//--------------------------------------------------------------------------------------------------------------
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
@@ -307,7 +242,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -621,7 +556,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -706,6 +641,9 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
+
+			if (leadId) basicDetailsReqBody.lead_id = leadId;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -916,6 +854,7 @@ const BasicDetails = props => {
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
 		try {
+			setIsDataDeletionWarningOpen(false);
 			if (formState?.values?.['income_type']?.length === 0) {
 				addToast({
 					type: 'error',
@@ -959,6 +898,8 @@ const BasicDetails = props => {
 				lat: geoLocation?.lat || '',
 				long: geoLocation?.long || '',
 				timestamp: geoLocation?.timestamp || '',
+				customer_category:
+					formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -1043,17 +984,30 @@ const BasicDetails = props => {
 
 	const fetchDedupeCheckData = async () => {
 		try {
+			if (!formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME]) {
+				addToast({
+					type: 'error',
+					message: 'Please enter PAN number.',
+				});
+				return;
+			}
 			setIsDedupeCheckModalLoading(true);
 			const dedupeReqBody = {
 				isSelectedProductTypeBusiness:
 					`${selectedProduct?.loan_request_type}` === '1',
-				isSelectedProductTypeSalaried: false,
+				isSelectedProductTypeSalaried:
+					`${formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]}` === `7`,
 				object: {
 					pan_no: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME] || '',
 					date_of_birth: formState?.values?.[CONST.DOB_FIELD_NAME] || '',
 					email_id: formState?.values?.[CONST.EMAIL_ID_FIELD_NAME] || '',
 					mobile_number:
 						formState?.values?.[CONST.MOBILE_NUMBER_FIELD_NAME] || '',
+					first_name: formState?.values?.[CONST.FIRST_NAME_FIELD_NAME] || '',
+					last_name: formState?.values?.[CONST.LAST_NAME_FIELD_NAME] || '',
+					aadhar_number: '',
+					middle_name: formState?.values?.[CONST.MIDDLE_NAME_FIELD_NAME] || '',
+					ucic: formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] || '',
 				},
 				white_label_id: whiteLabelId,
 			};
@@ -1163,6 +1117,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
+				// kyc_risk_profile: 'Low Risk',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
@@ -1250,7 +1205,7 @@ const BasicDetails = props => {
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -1588,8 +1543,12 @@ const BasicDetails = props => {
 					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					// );
 					if (tempCompletedSections?.loan_details) {
+						// Since the leads section will always be completed when the loan is in draft or application stage. Leads section id is included in the completed sections.
 						dispatch(
-							setNewCompletedSections(tempCompletedSections?.loan_details)
+							setNewCompletedSections([
+								...tempCompletedSections?.loan_details,
+								CONST_SECTIONS.LEADS_SECTION_ID,
+							])
 						);
 					}
 					if (
@@ -1937,6 +1896,11 @@ const BasicDetails = props => {
 	// 	isApplicant,
 	// });
 
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
+	};
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -1950,6 +1914,16 @@ const BasicDetails = props => {
 		/>
 	);
 
+	const showDataDeletionWarningModal = () => {
+		if (formState?.values?.['income_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Income Type',
+			});
+			return;
+		}
+		setIsDataDeletionWarningOpen(true);
+	};
 	// console.log(formState.values, 'form state');
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
@@ -1969,21 +1943,29 @@ const BasicDetails = props => {
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
 					/>
+					<DataDeletionWarningModal
+						warningMessage={`You are changing the entered UCIC Number. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new UCIC Number and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
+						show={isDataDeletionWarningOpen}
+						onClose={setIsDataDeletionWarningOpen}
+						onProceed={onFetchFromCustomerId}
+					/>
+
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -1993,8 +1975,9 @@ const BasicDetails = props => {
 							) : (
 								<DedupeAccordian
 									dedupedata={dedupeModalData}
-									data={response}
 									fetchDedupeCheckData={fetchDedupeCheckData}
+									selectedProduct={selectedProduct}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>
@@ -2185,6 +2168,7 @@ const BasicDetails = props => {
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
 										}
 										if (
 											isPanUploadMandatory &&
@@ -2227,7 +2211,9 @@ const BasicDetails = props => {
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
-											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubfields.onClick = isApplicant
+												? showDataDeletionWarningModal
+												: onFetchFromCustomerId;
 											customFieldPropsSubfields.loading = loading;
 											customFieldPropsSubfields.disabled =
 												`${
@@ -2244,21 +2230,8 @@ const BasicDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											let infoMessage = '';
-											if (
-												`${
-													sectionData?.director_details?.additional_cust_id
-												}` === formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
-											) {
-												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
-											} else if (
-												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]
-											) {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											} else {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											}
-											customFieldProps.infoMessage = infoMessage;
+											customFieldProps.infoMessage =
+												CONST.ENTER_VALID_UCIC_HINT;
 										}
 
 										if (field?.name === CONST.DOB_FIELD_NAME) {

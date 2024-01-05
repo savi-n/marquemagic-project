@@ -59,6 +59,7 @@ import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 import { isInvalidPan } from 'utils/validation';
 import DedupeAccordian from './DedupeComponents/DedupeAccordian';
+import DataDeletionWarningModal from '../BasicDetails/DataDeletionWarningModal';
 
 const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -92,6 +93,7 @@ const BusinessDetails = props => {
 		loanRefId,
 		dedupePrefilledValues,
 		geoLocation,
+		leadId,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
@@ -100,75 +102,6 @@ const BusinessDetails = props => {
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
-	// ------------------------------------------------sample json -----------------------------------------------------------------------------------------
-	const response = [
-		{
-			headerName: 'Identification',
-			id: 'Identification',
-			matchLevel: [
-				{
-					name: 'Application Match',
-					data: [
-						{
-							loan_ref_id: 'LKKR00019297',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'RUGA00019298',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'CPRM00019299',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'savi@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: {
-								id: 179622,
-								bank: 'Muthoot Fincorp Ltd',
-								ifsc: 'S0031-SULB',
-								branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
-							},
-							stage: 'Application',
-							match: '100%',
-						},
-						{
-							loan_ref_id: 'GUMG00019313',
-							pan_no: 'fwqy12324',
-							name: 'savisavi n',
-							date_of_birth: '12/3/1994',
-							mobile_number: '6564654665',
-							email_id: 'gjdgs@sdfsdf.com',
-							product: 'Unsecured Business/Self-Employed',
-							branch: '',
-							stage: 'Application',
-							match: '75%',
-						},
-					],
-				},
-			],
-		},
-	];
-
-	//--------------------------------------------------------------------------------------------------------------
 
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
@@ -204,6 +137,9 @@ const BusinessDetails = props => {
 		false
 	);
 	const [dedupeModalData, setDedupeModalData] = useState([]);
+	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
+		false
+	);
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -260,6 +196,7 @@ const BusinessDetails = props => {
 	};
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
+		setIsDataDeletionWarningOpen(false);
 		if (formState?.values?.['business_type']?.length === 0) {
 			addToast({
 				type: 'error',
@@ -523,7 +460,7 @@ const BusinessDetails = props => {
 			}
 
 			let newBorrowerUserId = '';
-			if (!isEditOrViewLoan && !borrowerUserId) {
+			if (!borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -586,10 +523,17 @@ const BusinessDetails = props => {
 				delete buissnessDetailsReqBody.data.business_details.gstin;
 			}
 			// changes for gst selection ends
-
 			if (!!companyRocData && Object.values(companyRocData)?.length > 0)
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
+
+			// console.log({
+			// 	1: !!companyRocData,
+			// 	2: Object.values(companyRocData)?.length > 0,
+			// 	buissnessDetailsReqBody,
+			// 	companyRocData,
+			// });
+			if (leadId) buissnessDetailsReqBody.lead_id = leadId;
 
 			// buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
 			const buissnessDetailsRes = await axios.post(
@@ -625,7 +569,6 @@ const BusinessDetails = props => {
 			if (
 				!!companyRocData &&
 				Object.values(companyRocData)?.length > 0 &&
-				!isEditLoan &&
 				!isViewLoan &&
 				!completedSections?.includes(selectedSectionId)
 			) {
@@ -768,6 +711,12 @@ const BusinessDetails = props => {
 					email_id: formState?.values?.[CONST.BUSINESS_EMAIL_FIELD] || '',
 					mobile_number:
 						formState?.values?.[CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME] || '',
+					first_name: formState?.values?.[CONST.BUSINESS_NAME_FIELD_NAME] || '',
+					last_name: '',
+					aadhar_number:
+						formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] || '',
+					middle_name: '',
+					ucic: formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] || '',
 				},
 				white_label_id: whiteLabelId,
 			};
@@ -787,9 +736,15 @@ const BusinessDetails = props => {
 				message: 'Dedupe Data Fetch Failed',
 				type: 'error',
 			});
+			setDedupeModalData([]);
 		} finally {
 			setIsDedupeCheckModalLoading(false);
 		}
+	};
+
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
 	};
 
 	// console.log(formState.values, 'form................');
@@ -969,9 +924,14 @@ const BusinessDetails = props => {
 					// const tempCompletedSections = JSON.parse(
 					// 	fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					// );
+
 					if (tempCompletedSections?.loan_details) {
+						// Since the leads section will always be completed when the loan is in draft or application stage. Leads section id is included in the completed sections.
 						dispatch(
-							setNewCompletedSections(tempCompletedSections?.loan_details)
+							setNewCompletedSections([
+								...tempCompletedSections?.loan_details,
+								CONST_SECTIONS.LEADS_SECTION_ID,
+							])
 						);
 					}
 					if (
@@ -1142,6 +1102,17 @@ const BusinessDetails = props => {
 		/>
 	);
 
+	const showDataDeletionWarningModal = () => {
+		if (formState?.values?.['business_type']?.length === 0) {
+			addToast({
+				type: 'error',
+				message: 'Please select Business Type',
+			});
+			return;
+		}
+		setIsDataDeletionWarningOpen(true);
+	};
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData ? (
@@ -1158,6 +1129,13 @@ const BusinessDetails = props => {
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
 					/>
+					<DataDeletionWarningModal
+						warningMessage={`You are changing the entered UCIC Number. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new UCIC Number and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
+						show={isDataDeletionWarningOpen}
+						onClose={setIsDataDeletionWarningOpen}
+						onProceed={onFetchFromCustomerId}
+					/>
+
 					<Modal
 						show={isGstModalOpen}
 						onClose={() => {
@@ -1202,18 +1180,19 @@ const BusinessDetails = props => {
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -1224,8 +1203,8 @@ const BusinessDetails = props => {
 								<DedupeAccordian
 									selectedProduct={selectedProduct}
 									dedupedata={dedupeModalData}
-									data={response}
 									fetchDedupeCheckData={fetchDedupeCheckData}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>
@@ -1375,8 +1354,7 @@ const BusinessDetails = props => {
 											(field?.name === CONST.BUSINESS_EMAIL_FIELD ||
 												field?.name ===
 													CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME) &&
-											(isEditOrViewLoan ||
-												completedSections?.includes(selectedSectionId))
+											completedSections?.includes(selectedSectionId)
 										) {
 											customFieldProps.disabled = true;
 										}
@@ -1436,9 +1414,12 @@ const BusinessDetails = props => {
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
-											customFieldPropsSubFields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubFields.onClick = showDataDeletionWarningModal;
 											customFieldPropsSubFields.loading = loading;
 											customFieldPropsSubFields.disabled =
+												`${sectionData?.business_details?.customer_id}` ===
+													formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
+												!formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME] ||
 												loading ||
 												!!completedSections?.includes(selectedSectionId);
 											customFieldProps.disabled = !!completedSections?.includes(
@@ -1449,10 +1430,11 @@ const BusinessDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
+
 											customFieldProps.infoMessage =
-												'Select the Business Type to fetch the data from Customer ID.';
+												CONST.ENTER_VALID_UCIC_HINT;
 										}
-										if (field.name === CONST.BUSINESS_START_DATE) {
+										if (field?.name === CONST.BUSINESS_START_DATE) {
 											customFieldPropsSubFields.value =
 												getTotalYearsCompleted(
 													moment(
@@ -1648,10 +1630,7 @@ const BusinessDetails = props => {
 								onClick={
 									// () => onPanEnter(formState.values?.['pan_number'])
 									handleSubmit(() => {
-										if (
-											isEditOrViewLoan ||
-											completedSections?.includes(selectedSectionId)
-										) {
+										if (completedSections?.includes(selectedSectionId)) {
 											onSaveAndProceed();
 											return;
 										}

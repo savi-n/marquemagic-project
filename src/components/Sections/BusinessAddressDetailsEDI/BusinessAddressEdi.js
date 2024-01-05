@@ -23,7 +23,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
 // import { API_END_POINT } from '_config/app.config';
-import { scrollToTopRootElement } from 'utils/helper';
+import { extractPincode, scrollToTopRootElement } from 'utils/helper';
 import useForm from 'hooks/useFormIndividual';
 // import { encryptBase64 } from 'utils/encrypt';
 import Button from 'components/Button';
@@ -49,6 +49,7 @@ const BusinessAddressDetailsEdi = props => {
 		isViewLoan,
 		selectedSection,
 		userToken,
+		clientToken,
 	} = app;
 	const {
 		// cacheDocuments,
@@ -62,7 +63,7 @@ const BusinessAddressDetailsEdi = props => {
 		handleSubmit,
 		register,
 		formState,
-		// onChangeFormStateField,
+		onChangeFormStateField,
 	} = useForm();
 	const [editSectionIds, setEditSectionIds] = useState({
 		businessAddressIdAid1: '',
@@ -84,8 +85,45 @@ const BusinessAddressDetailsEdi = props => {
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
 	] = useState(false);
+	const [fetchingGstAddress, setFetchingGstAddress] = useState(false);
+	const [gstNumbers, setGstNumbers] = useState([]);
+
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
+
+	const fetchAllGstNumbers = async panNum => {
+		if (panNum) {
+			try {
+				setLoading(true);
+				const { data } = await axios.post(
+					`${API.API_END_POINT}/api/panToGst`,
+					{
+						pan: panNum,
+					},
+					{
+						headers: {
+							Authorization: clientToken,
+						},
+					}
+				);
+				setGstNumbers(data?.data);
+			} catch (error) {
+				console.error('error-BusinessAddressDetails', {
+					error: error,
+					res: error?.response,
+					resres: error?.response?.response,
+					resData: error?.response?.data,
+				});
+				// setGstNumbers(error?.response?.data?.data);
+				// addToast({
+				// 	message: getApiErrorMessage(error),
+				// 	type: 'error',
+				// });
+			} finally {
+				setLoading(false);
+			}
+		}
+	};
 	const onSaveAndProceed = async () => {
 		try {
 			const { businessAddressIdAid1, businessAddressIdAid2 } = editSectionIds;
@@ -166,6 +204,8 @@ const BusinessAddressDetailsEdi = props => {
 				values: formState.values,
 			});
 			addressDetailsReqBody.data.business_address_details = newLoanAddressDetails;
+			addressDetailsReqBody.data.gstin = formState?.values['select_gstin'];
+
 			const addressDetailsRes = await axios.post(
 				`${API.API_END_POINT}/business_address_details`,
 				addressDetailsReqBody
@@ -243,12 +283,18 @@ const BusinessAddressDetailsEdi = props => {
 				return item.aid === 1;
 			});
 			// -- TEST MODE
+			let rocRegAddress = '';
+			if (sectionData?.address.length <= 0) {
+				rocRegAddress = sectionData?.registered_address;
+			}
+
 			// Baas!
 			const preData = {
-				registered_address1: registeredAddress?.[0]?.line1,
+				registered_address1: rocRegAddress || registeredAddress?.[0]?.line1,
 				registered_address2: registeredAddress?.[0]?.line2,
 				registered_address3: registeredAddress?.[0]?.locality,
-				registered_pin_code: registeredAddress?.[0]?.pincode,
+				registered_pin_code:
+					extractPincode(rocRegAddress) || registeredAddress?.[0]?.pincode,
 				registered_city: registeredAddress?.[0]?.city,
 				registered_state: registeredAddress?.[0]?.state,
 				registered_residential_type: registeredAddress?.[0]?.residential_type,
@@ -260,6 +306,7 @@ const BusinessAddressDetailsEdi = props => {
 				operating_city: prefferedAddress?.[0]?.city,
 				operating_state: prefferedAddress?.[0]?.state,
 				operating_residential_type: prefferedAddress?.[0]?.residential_type,
+				select_gstin: sectionData?.gstin || '',
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
@@ -286,6 +333,9 @@ const BusinessAddressDetailsEdi = props => {
 					return null;
 				});
 				setSectionData(fetchRes?.data?.data);
+				if (fetchRes?.data?.data?.pan) {
+					fetchAllGstNumbers(fetchRes?.data?.data?.pan);
+				}
 				setEditSectionIds({
 					businessAddressIdAid1: fetchRes?.data?.data?.address?.filter(
 						address => address.aid === 1
@@ -345,6 +395,93 @@ const BusinessAddressDetailsEdi = props => {
 	// 	// eslint-disable-next-line
 	// }, [isSameAsAboveAddressChecked]);
 	// // if (!selectedDirectorId) return null;
+
+	const gstOptions = gstNumbers?.map(gstNum => {
+		return {
+			name: `${gstNum.gstin} - ${gstNum.state_name} - ${gstNum.status}`,
+			value: gstNum.gstin,
+		};
+	});
+
+	const handleGstChange = async gstinValue => {
+		if (gstinValue) {
+			try {
+				setFetchingGstAddress(true);
+				const gstAddressResponse = await axios.post(
+					`${API.ENDPOINT_BANK}/GSTData`,
+
+					{
+						gst: gstinValue,
+					},
+					{
+						headers: {
+							Authorization: clientToken,
+						},
+					}
+				);
+
+				const newAddress = {
+					line1: gstAddressResponse?.data?.data?.pradr?.addr?.bnm || '',
+					line2: gstAddressResponse?.data?.data?.pradr?.addr?.bno || '',
+					line3: gstAddressResponse?.data?.data?.pradr?.addr?.st || '',
+					pincode: gstAddressResponse?.data?.data?.pradr?.addr?.pncd || '',
+				};
+
+				populateFromResponse(newAddress);
+			} catch (error) {
+				console.error('error-BusinessAddressDetails', {
+					error: error,
+					res: error?.response,
+					resres: error?.response?.response,
+					resData: error?.response?.data,
+				});
+				addToast({
+					message: getApiErrorMessage(error),
+					type: 'error',
+				});
+			} finally {
+				setFetchingGstAddress(false);
+			}
+		}
+	};
+
+	const populateFromResponse = businessAddress => {
+		// console.log({ businessAddress });
+		// if (sectionData?.length === 0) {
+		setTimeout(() => {
+			onChangeFormStateField({
+				name: 'registered_pin_code',
+				value:
+					+businessAddress?.pincode ||
+					extractPincode(businessAddress?.line1) || // if there is single line of ROC address,
+					'',
+			});
+			onChangeFormStateField({
+				name: 'registered_address1',
+				value: businessAddress?.line1 || '',
+			});
+
+			if (businessAddress?.line2) {
+				onChangeFormStateField({
+					name: 'registered_address2',
+					value: businessAddress?.line2 || '',
+				});
+			}
+
+			if (businessAddress?.line3) {
+				onChangeFormStateField({
+					name: 'registered_address3',
+					value: businessAddress?.line3 || '',
+				});
+			}
+		}, 0);
+		// }
+	};
+
+	useEffect(() => {
+		handleGstChange(formState?.values?.select_gstin);
+		// eslint-disable-next-line
+	}, [formState?.values?.select_gstin]);
 
 	return (
 		<UI_SECTIONS.Wrapper>
@@ -434,6 +571,11 @@ const BusinessAddressDetailsEdi = props => {
 											field.name.includes(CONST.PREFIX_OPERATING)
 										) {
 											customFieldProps.disabled = true;
+										}
+
+										if (field.name === 'select_gstin') {
+											customFieldProps.isGSTselector = true;
+											customFieldProps.options = gstOptions;
 										}
 
 										// Untill permanent address1 is not filled disable present address proof
@@ -535,9 +677,13 @@ const BusinessAddressDetailsEdi = props => {
 						{!isViewLoan && (
 							<Button
 								fill
-								name='Save and Proceed'
-								isLoader={loading}
-								disabled={loading}
+								name={
+									fetchingGstAddress || loading
+										? 'Fetching Address...'
+										: 'Save and Proceed'
+								}
+								isLoader={loading || fetchingGstAddress}
+								disabled={loading || fetchingGstAddress}
 								onClick={
 									sectionRequired
 										? handleSubmit(onSaveAndProceed)
