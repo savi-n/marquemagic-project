@@ -713,7 +713,8 @@ const BusinessDetails = props => {
 						formState?.values?.[CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME] || '',
 					first_name: formState?.values?.[CONST.BUSINESS_NAME_FIELD_NAME] || '',
 					last_name: '',
-					aadhar_number: '',
+					aadhar_number:
+						formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] || '',
 					middle_name: '',
 					ucic: formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] || '',
 				},
@@ -735,9 +736,15 @@ const BusinessDetails = props => {
 				message: 'Dedupe Data Fetch Failed',
 				type: 'error',
 			});
+			setDedupeModalData([]);
 		} finally {
 			setIsDedupeCheckModalLoading(false);
 		}
+	};
+
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
 	};
 
 	// console.log(formState.values, 'form................');
@@ -1123,8 +1130,7 @@ const BusinessDetails = props => {
 						ButtonProceed={ButtonProceed}
 					/>
 					<DataDeletionWarningModal
-						warningMessage={`Once You Proceed, All The Filled Data Will Be
-					Lost. A New Loan Will Be Created With Details Fetched From The Entered New UCIC Number.`}
+						warningMessage={`You are changing the entered UCIC Number. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new UCIC Number and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
 						show={isDataDeletionWarningOpen}
 						onClose={setIsDataDeletionWarningOpen}
 						onProceed={onFetchFromCustomerId}
@@ -1174,18 +1180,19 @@ const BusinessDetails = props => {
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -1197,6 +1204,7 @@ const BusinessDetails = props => {
 									selectedProduct={selectedProduct}
 									dedupedata={dedupeModalData}
 									fetchDedupeCheckData={fetchDedupeCheckData}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>

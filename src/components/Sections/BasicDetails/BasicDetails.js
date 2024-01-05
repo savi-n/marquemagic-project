@@ -898,6 +898,8 @@ const BasicDetails = props => {
 				lat: geoLocation?.lat || '',
 				long: geoLocation?.long || '',
 				timestamp: geoLocation?.timestamp || '',
+				customer_category:
+					formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -982,6 +984,13 @@ const BasicDetails = props => {
 
 	const fetchDedupeCheckData = async () => {
 		try {
+			if (!formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME]) {
+				addToast({
+					type: 'error',
+					message: 'Please enter PAN number.',
+				});
+				return;
+			}
 			setIsDedupeCheckModalLoading(true);
 			const dedupeReqBody = {
 				isSelectedProductTypeBusiness:
@@ -1108,6 +1117,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
+				// kyc_risk_profile: 'Low Risk',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
@@ -1886,6 +1896,11 @@ const BasicDetails = props => {
 	// 	isApplicant,
 	// });
 
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
+	};
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -1929,8 +1944,7 @@ const BasicDetails = props => {
 						ButtonProceed={ButtonProceed}
 					/>
 					<DataDeletionWarningModal
-						warningMessage={`Once You Proceed, All The Filled Data Will Be
-					Lost. A New Loan Will Be Created With Details Fetched From The Entered New UCIC Number.`}
+						warningMessage={`You are changing the entered UCIC Number. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new UCIC Number and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
 						show={isDataDeletionWarningOpen}
 						onClose={setIsDataDeletionWarningOpen}
 						onProceed={onFetchFromCustomerId}
@@ -1939,18 +1953,19 @@ const BasicDetails = props => {
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -1962,6 +1977,7 @@ const BasicDetails = props => {
 									dedupedata={dedupeModalData}
 									fetchDedupeCheckData={fetchDedupeCheckData}
 									selectedProduct={selectedProduct}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>
@@ -2152,6 +2168,7 @@ const BasicDetails = props => {
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
 										}
 										if (
 											isPanUploadMandatory &&
