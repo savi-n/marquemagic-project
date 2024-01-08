@@ -44,7 +44,7 @@ const ConsentDetails = props => {
 		try {
 			setLoading(true);
 			const consentRes = await axios.post(
-				`${API.API_END_POINT}/api/consentDetails`,
+				API.CONSET_DETAILS,
 				{
 					business_id: businessId,
 					loan_id: loanId,
