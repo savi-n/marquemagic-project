@@ -96,7 +96,7 @@ const BusinessAddressDetailsEdi = props => {
 			try {
 				setLoading(true);
 				const { data } = await axios.post(
-					`${API.API_END_POINT}/api/panToGst`,
+					API.PAN_TO_GST,
 					{
 						pan: panNum,
 					},
