@@ -595,10 +595,18 @@ const LeadDetails = props => {
 			setLoading(true);
 			setAssetManufacturerOptions([]);
 			setAssetModelOptions([]);
-			
+
 			const isVehicleType = assetTypeOptions
-				?.filter(type => type.name === 'LCV' || type.name === 'M&HCV')
+				?.filter(type =>
+					selectedProduct.product_details.vehicle_type_api.includes(type.name)
+				)
 				?.some(type => type.value === assetTypeFormState);
+			const isEquipmentType = assetTypeOptions
+				?.filter(type =>
+					selectedProduct.product_details.equipment_type_api.includes(type.name)
+				)
+				?.some(type => type.value === assetTypeFormState);
+
 			const assetTypeName = assetTypeOptions.find(
 				type => type.value === assetTypeFormState
 			)?.name;
@@ -608,7 +616,7 @@ const LeadDetails = props => {
 				response = await axios.get(`${API_END_POINT}/getVehicleType`, {
 					params: { assettype: assetTypeName },
 				});
-			else
+			if (isEquipmentType)
 				response = await axios.get(`${API_END_POINT}/getEquipmentType`, {
 					params: { equipmenttype: assetTypeName },
 				});
