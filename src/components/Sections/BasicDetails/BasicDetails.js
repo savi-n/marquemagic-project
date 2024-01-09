@@ -139,76 +139,6 @@ const BasicDetails = props => {
 		// resetForm,
 	} = useForm();
 
-	// // ------------------------------------------------sample json -----------------------------------------------------------------------------------------
-	// const response = [
-	// 	{
-	// 		headerName: 'Identification',
-	// 		id: 'Identification',
-	// 		matchLevel: [
-	// 			{
-	// 				name: 'Application Match',
-	// 				data: [
-	// 					{
-	// 						loan_ref_id: 'LKKR00019297',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'savi@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: '',
-	// 						stage: 'Application',
-	// 						match: '100%',
-	// 					},
-	// 					{
-	// 						loan_ref_id: 'RUGA00019298',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'savi@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: '',
-	// 						stage: 'Application',
-	// 						match: '100%',
-	// 					},
-	// 					{
-	// 						loan_ref_id: 'CPRM00019299',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'savi@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: {
-	// 							id: 179622,
-	// 							bank: 'Muthoot Fincorp Ltd',
-	// 							ifsc: 'S0031-SULB',
-	// 							branch: 'S0031-SULB-BANGALORE-SUNKADAKATTE',
-	// 						},
-	// 						stage: 'Application',
-	// 						match: '100%',
-	// 					},
-	// 					{
-	// 						loan_ref_id: 'GUMG00019313',
-	// 						pan_no: 'fwqy12324',
-	// 						name: 'savisavi n',
-	// 						date_of_birth: '12/3/1994',
-	// 						mobile_number: '6564654665',
-	// 						email_id: 'gjdgs@sdfsdf.com',
-	// 						product: 'Unsecured Business/Self-Employed',
-	// 						branch: '',
-	// 						stage: 'Application',
-	// 						match: '75%',
-	// 					},
-	// 				],
-	// 			},
-	// 		],
-	// 	},
-	// ];
-
-	// //--------------------------------------------------------------------------------------------------------------
-
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [fetchingGeoLocation, setFetchingGeoLocation] = useState(false);
@@ -968,6 +898,8 @@ const BasicDetails = props => {
 				lat: geoLocation?.lat || '',
 				long: geoLocation?.long || '',
 				timestamp: geoLocation?.timestamp || '',
+				customer_category:
+					formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -1052,6 +984,13 @@ const BasicDetails = props => {
 
 	const fetchDedupeCheckData = async () => {
 		try {
+			if (!formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME]) {
+				addToast({
+					type: 'error',
+					message: 'Please enter PAN number.',
+				});
+				return;
+			}
 			setIsDedupeCheckModalLoading(true);
 			const dedupeReqBody = {
 				isSelectedProductTypeBusiness:
@@ -1178,6 +1117,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
+				// kyc_risk_profile: 'Low Risk',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
@@ -1956,6 +1896,11 @@ const BasicDetails = props => {
 	// 	isApplicant,
 	// });
 
+	const closeDedupeModal = () => {
+		setIsDedupeCheckModalOpen(false);
+		setDedupeModalData([]);
+	};
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -1999,8 +1944,7 @@ const BasicDetails = props => {
 						ButtonProceed={ButtonProceed}
 					/>
 					<DataDeletionWarningModal
-						warningMessage={`Once You Proceed, All The Filled Data Will Be
-					Lost. A New Loan Will Be Created With Details Fetched From The Entered New UCIC Number.`}
+						warningMessage={`You are changing the entered UCIC Number. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new UCIC Number and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
 						show={isDataDeletionWarningOpen}
 						onClose={setIsDataDeletionWarningOpen}
 						onProceed={onFetchFromCustomerId}
@@ -2009,18 +1953,19 @@ const BasicDetails = props => {
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
-							setIsDedupeCheckModalOpen(false);
+							closeDedupeModal();
 						}}
 						customStyle={{
 							width: '85%',
 							minWidth: '65%',
 							minHeight: 'auto',
+							paddingBottom: '50px',
 						}}
 					>
 						<section>
 							<UI.ImgClose
 								onClick={() => {
-									setIsDedupeCheckModalOpen(false);
+									closeDedupeModal();
 								}}
 								src={imgClose}
 								alt='close'
@@ -2031,6 +1976,8 @@ const BasicDetails = props => {
 								<DedupeAccordian
 									dedupedata={dedupeModalData}
 									fetchDedupeCheckData={fetchDedupeCheckData}
+									selectedProduct={selectedProduct}
+									closeDedupeModal={closeDedupeModal}
 								/>
 							)}
 						</section>
@@ -2221,6 +2168,7 @@ const BasicDetails = props => {
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
 										}
 										if (
 											isPanUploadMandatory &&
@@ -2282,21 +2230,8 @@ const BasicDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
-											let infoMessage = '';
-											if (
-												`${
-													sectionData?.director_details?.additional_cust_id
-												}` === formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]
-											) {
-												infoMessage = CONST.ENTER_DIFFERENT_UCIC_HINT;
-											} else if (
-												!formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]
-											) {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											} else {
-												infoMessage = CONST.NO_INCOME_TYPE_SELECTED_HINT;
-											}
-											customFieldProps.infoMessage = infoMessage;
+											customFieldProps.infoMessage =
+												CONST.ENTER_VALID_UCIC_HINT;
 										}
 
 										if (field?.name === CONST.DOB_FIELD_NAME) {

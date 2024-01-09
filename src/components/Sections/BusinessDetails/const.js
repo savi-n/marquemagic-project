@@ -61,7 +61,6 @@ export const BUSINESS_START_DATE = 'business_vintage';
 export const SUB_INDUSTRY_TYPE_FIELD_NAME = 'sub_industry_type';
 export const INDUSTRY_TYPE_FIELD_NAME = 'industry_type';
 
-export const NO_INCOME_TYPE_SELECTED_HINT =
-	'Select the business type to fetch the data from Customer ID.';
-export const ENTER_DIFFERENT_UCIC_HINT =
-	'Please Enter Different UCIC Number To Fetch Data Again';
+// export const NO_INCOME_TYPE_SELECTED_HINT =
+// 	'Select the business type to fetch the data from Customer ID.';
+export const ENTER_VALID_UCIC_HINT = 'Enter the valid UCIC number';

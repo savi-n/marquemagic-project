@@ -146,10 +146,18 @@ const CollateralDetails = () => {
 		);
 	};
 
-	const deleteSectionDetails = async deleteSectionId => {
+	const deleteSectionDetails = async data => {
 		try {
+			const { prefillData, loan_assets_id } = data;
+			const deleteSectionId = prefillData?.id;
 			setIsDeleteWarningModalOpen(false);
-			const deleteReqPayload = { id: deleteSectionId, loanID: loanId };
+			const deleteReqPayload = {
+				id: deleteSectionId,
+				loanID: loanId,
+				assets_id: loan_assets_id,
+				insert_loan_assets_data:
+					selectedProduct?.product_details?.insert_loan_assets_data,
+			};
 			setFetchingSectionData(true);
 			const fetchRes = await axios.post(DELETE_COLLATERAL, deleteReqPayload, {
 				headers: {
@@ -175,8 +183,8 @@ const CollateralDetails = () => {
 	const onSaveOrUpdateSuccessCallback = () => {
 		fetchSectionDetails();
 	};
-	const onDeleteSuccessCallback = deleteSectionId => {
-		deleteSectionDetails(deleteSectionId);
+	const onDeleteSuccessCallback = data => {
+		deleteSectionDetails(data);
 	};
 
 	const onCancelCallback = deleteEditSectionId => {
@@ -277,7 +285,7 @@ const CollateralDetails = () => {
 				show={isDeleteWarningModalOpen}
 				onClose={setIsDeleteWarningModalOpen}
 				onProceed={() => {
-					onDeleteSuccessCallback(isDeleteWarningModalOpen?.id);
+					onDeleteSuccessCallback(isDeleteWarningModalOpen);
 				}}
 			/>
 			<UI_SECTIONS.Wrapper style={{ paddingTop: 50 }}>
@@ -414,7 +422,11 @@ const CollateralDetails = () => {
 																});
 																return;
 															}
-															setIsDeleteWarningModalOpen(prefillData);
+															setIsDeleteWarningModalOpen({
+																prefillData,
+																loan_assets_id:
+																	loanAssetData?.[sectionIndex]?.id,
+															});
 															// onDeleteSuccessCallback(prefillData?.id);
 														}}
 														alt='delete'
