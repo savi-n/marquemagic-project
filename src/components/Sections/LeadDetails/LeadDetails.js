@@ -104,6 +104,9 @@ const LeadDetails = props => {
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
+	const [assetManufacturerOptions, setAssetManufacturerOptions] = useState([]);
+	const [assetModelOptions, setAssetModelOptions] = useState([]);
+	const [assetTypeOptions, setAssetTypeOptions] = useState([]);
 
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
@@ -576,6 +579,63 @@ const LeadDetails = props => {
 		//eslint-disable-next-line
 	}, []);
 
+	const assetTypeFormState = formState?.values?.['asset_type'];
+	const getOptionsFromResponse = (data, value) => {
+		return _.uniqBy(
+			data.map(item => ({
+				value: item[value],
+				name: item[value],
+			})),
+			'value'
+		);
+	};
+
+	const fetchAssetOptions = async () => {
+		try {
+			setLoading(true);
+			setAssetManufacturerOptions([]);
+			setAssetModelOptions([]);
+			
+			const isVehicleType = assetTypeOptions
+				?.filter(type => type.name === 'LCV' || type.name === 'M&HCV')
+				?.some(type => type.value === assetTypeFormState);
+			const assetTypeName = assetTypeOptions.find(
+				type => type.value === assetTypeFormState
+			)?.name;
+			let response;
+
+			if (isVehicleType)
+				response = await axios.get(`${API_END_POINT}/getVehicleType`, {
+					params: { assettype: assetTypeName },
+				});
+			else
+				response = await axios.get(`${API_END_POINT}/getEquipmentType`, {
+					params: { equipmenttype: assetTypeName },
+				});
+			const result = response.data.data;
+			setAssetManufacturerOptions(
+				getOptionsFromResponse(
+					result,
+					isVehicleType ? 'Manufacturer' : 'manufacturer'
+				)
+			);
+			setAssetModelOptions(
+				getOptionsFromResponse(
+					result,
+					isVehicleType ? 'VehicleModel' : 'equipmentmodel'
+				)
+			);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (assetTypeFormState) fetchAssetOptions();
+	}, [assetTypeFormState]);
+
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
 		getConnectorsWithCode(connectorCode);
@@ -840,6 +900,20 @@ const LeadDetails = props => {
 													).format('YYYY-MM-DD')
 												) || '';
 											customFieldPropsSubFields.disabled = true;
+										}
+
+										if (field?.name === CONST.ASSET_TYPE_FIELD_NAME) {
+											if (!assetTypeOptions.length)
+												setAssetTypeOptions(field?.options);
+										}
+
+										if (field?.name === CONST.ASSET_MANUFACTURER_FIELD_NAME) {
+											customFieldProps.disabled = !assetManufacturerOptions.length;
+											customFieldProps.options = assetManufacturerOptions;
+										}
+										if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
+											customFieldProps.disabled = !assetModelOptions.length;
+											customFieldProps.options = assetModelOptions;
 										}
 
 										if (field?.for_type_name) {
