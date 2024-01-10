@@ -614,11 +614,11 @@ const LeadDetails = props => {
 
 			if (isVehicleType)
 				response = await axios.get(`${API_END_POINT}/getVehicleType`, {
-					params: { assettype: assetTypeName },
+					params: { assettype: assetTypeName, registrable: 'Registrable' },
 				});
 			if (isEquipmentType)
 				response = await axios.get(`${API_END_POINT}/getEquipmentType`, {
-					params: { equipmenttype: assetTypeName },
+					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
 				});
 			const result = response.data.data;
 			setAssetManufacturerOptions(
