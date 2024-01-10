@@ -42,6 +42,7 @@ const DynamicForm = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
+	
 	const {
 		isTestMode,
 		selectedSection,
@@ -346,7 +347,9 @@ const DynamicForm = props => {
 										fetchVehicleData();
 									};
 								}
-
+if(field?.name === CONST.FIELD_NAME_VALUATION_PRICE){
+	customFieldProps.disabled =true
+}
 								let newValueSelectField;
 								if (!!field.sub_fields) {
 									newValueSelectField = prefilledValues(field?.sub_fields[0]);
