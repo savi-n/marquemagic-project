@@ -136,12 +136,12 @@ const VehicleDetails = props => {
 							const isEditLoan = editSectionId === sectionId;
 							const prefillData = section
 								? {
-										...section,
+										...section?.loan_json?.rc_verification , ...section?.loan_json?.auto_inspect ,...section,
 										director_id:
 											section?.director_id === 0
 												? '0'
 												: `${section?.director_id}`,
-										...(section?.loan_json || {}),
+										...(section || {}),
 								  }
 								: {};
 

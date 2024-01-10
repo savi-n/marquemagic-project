@@ -46,6 +46,7 @@ export const FIELD_NAME_SEATING_CAPACITY = 'seating_capacity';
 export const FIELD_NAME_INSURANCE_COMPANY_NAME = 'insurance_company_name';
 export const FIELD_NAME_INSURANCE_POLICY_NUMBER = 'insurance_policy_no';
 export const FIELD_NAME_MANUFACTURER_NAME = 'manufacturer_name';
+export const FIELD_NAME_VALUATION_PRICE ='valuation_price'
 
 export const PREFILL_FIELD_NAMES_ON_FETCH = [
 	FIELD_NAME_FUEL_TYPE,
