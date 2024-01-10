@@ -28,13 +28,18 @@ export const initialFormState = {
 	max_speed: '130 mph',
 };
 
+export const SUB_SECTION_NAME_VEHICLE_DETAILS = 'vehicle_details';
 export const FIELD_NAME_VEHICLE_NUMBER = 'registration_number';
 export const FIELD_NAME_VEHICLE_FOR = 'vehicle_for';
 
 // Fields for fetching and prefilling the data using the vehicle registration number
 export const FIELD_NAME_FUEL_TYPE = 'fuel_type';
+export const FIELD_NAME_VEHICLE_TYPE = 'vehicle_type';
 export const FIELD_NAME_VEHICLE_CATEGORY = 'vehicle_category';
 export const FIELD_NAME_VEHICLE_MODEL = 'vehicle_model';
+export const FIELD_NAME_EQUIPMENT_TYPE = 'equipment_type';
+export const FIELD_NAME_EQUIPMENT_CATEGORY = 'equipment_category';
+export const FIELD_NAME_EQUIPMENT_MODEL = 'equipment_model';
 export const FIELD_NAME_ENGINE_NUMBER = 'engine_number';
 export const FIELD_NAME_CHASSIS_NUMBER = 'chassis_numer';
 export const FIELD_NAME_REG_DATE = 'registration_date';
@@ -46,7 +51,7 @@ export const FIELD_NAME_SEATING_CAPACITY = 'seating_capacity';
 export const FIELD_NAME_INSURANCE_COMPANY_NAME = 'insurance_company_name';
 export const FIELD_NAME_INSURANCE_POLICY_NUMBER = 'insurance_policy_no';
 export const FIELD_NAME_MANUFACTURER_NAME = 'manufacturer_name';
-export const FIELD_NAME_VALUATION_PRICE ='valuation_price'
+export const FIELD_NAME_VALUATION_PRICE = 'valuation_price';
 
 export const PREFILL_FIELD_NAMES_ON_FETCH = [
 	FIELD_NAME_FUEL_TYPE,
