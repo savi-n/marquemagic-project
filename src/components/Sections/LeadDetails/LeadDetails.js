@@ -10,6 +10,7 @@ import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import { getTotalYearsCompleted } from 'utils/helper';
+import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import moment from 'moment';
 
 import {
@@ -57,6 +58,7 @@ import * as CONST from './const';
 import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
 import { useLayoutEffect } from 'react';
+import DynamicForm from './DynamicForm';
 // import LeadAssetsDetails from './LeadAssetsDetails';
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -89,13 +91,13 @@ const LeadDetails = props => {
 		leadId,
 		loanProductId,
 	} = application;
-	// const naviagteToNextSection = () => {
-	// 	dispatch(setSelectedSectionId(nextSectionId));
-	// };
 
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
+	const assetsDetails = selectedSection.sub_sections.find(
+		section => section.id === CONST.FIELD_NAME_ASSETS_DETAILS
+	);
 
 	const [loading, setLoading] = useState(false);
 
@@ -107,10 +109,12 @@ const LeadDetails = props => {
 	const [assetManufacturerOptions, setAssetManufacturerOptions] = useState([]);
 	const [assetModelOptions, setAssetModelOptions] = useState([]);
 	const [assetTypeOptions, setAssetTypeOptions] = useState([]);
-
+	const [assetSectionData, setAssetSectionData] = useState([assetsDetails]);
+	const [isAssetFormOpen, setIsAssetFormOpen] = useState(true);
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const MAX_ADD_COUNT = assetsDetails.max || 10;
 
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
@@ -132,8 +136,7 @@ const LeadDetails = props => {
 			},
 		};
 	}
-	// console.log({ userDetails });
-	// console.log('selectedSection=>', selectedSection);
+
 	const branchField =
 		selectedSection?.sub_sections
 			?.filter(item => {
@@ -345,13 +348,7 @@ const LeadDetails = props => {
 			// console.log('====================================');
 		}
 	};
-	// console.log({
-	// 	selectedDedupeData,
-	// 	dedupeApiData,
-	// 	documentMapping,
-	// 	id: selectedProduct?.id,
-	// });
-	// console.log({ borrowerUserId, isEditOrViewLoan });
+
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -511,7 +508,6 @@ const LeadDetails = props => {
 			});
 		}
 	};
-	// console.log(formState);
 
 	const validateToken = async () => {
 		try {
@@ -643,6 +639,11 @@ const LeadDetails = props => {
 	useEffect(() => {
 		if (assetTypeFormState) fetchAssetOptions();
 	}, [assetTypeFormState]);
+
+	const openAssetForm = () => {
+		setAssetSectionData(prev => [...prev, assetsDetails]);
+		setIsAssetFormOpen(true);
+	};
 
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
@@ -786,21 +787,111 @@ const LeadDetails = props => {
 						/>
 					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
-					{/* {console.log(formState.values.email)}; */}
+
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-						// if (sub_section?.id === CONST.FIELD_NAME_ASSETS_DETAILS) {
-						// 	return (
-						// 		<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						// 			<LeadAssetsDetails
-						// 				sectionIndex={sectionIndex}
-						// 				sub_section={sub_section}
-						// 				formState={formState}
-						// 				prefilledValues={prefilledValues}
-						// 				registerField={register}
-						// 			/>
-						// 		</Fragment>
-						// 	);
-						// }
+						if (
+							sub_section.is_dynamic &&
+							sub_section.id === CONST.FIELD_NAME_ASSETS_DETAILS
+						) {
+							return (
+								<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+									{sub_section?.name ? (
+										<UI_SECTIONS.SubSectionHeader>
+											{sub_section.name}
+										</UI_SECTIONS.SubSectionHeader>
+									) : null}
+									<UI_SECTIONS.FormWrapGrid>
+										{assetSectionData.map(assetSection => {
+											return assetSection?.fields?.map(
+												(eachField, fieldIndex) => {
+													const field = _.cloneDeep(eachField);
+													if (
+														field?.visibility === false ||
+														!field?.name ||
+														!field?.type
+													)
+														return null;
+													const newValue = prefilledValues(field);
+													let newValueSelectField;
+													if (!!field.sub_fields) {
+														newValueSelectField = prefilledValues(
+															field?.sub_fields[0]
+														);
+													}
+													const customFieldProps = {};
+													const customFieldPropsSubFields = {};
+
+													if (field?.name === CONST.ASSET_TYPE_FIELD_NAME) {
+														if (!assetTypeOptions.length)
+															setAssetTypeOptions(field?.options);
+													}
+
+													if (
+														field?.name === CONST.ASSET_MANUFACTURER_FIELD_NAME
+													) {
+														customFieldProps.disabled = !assetManufacturerOptions.length;
+														customFieldProps.options = assetManufacturerOptions;
+													}
+													if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
+														customFieldProps.disabled = !assetModelOptions.length;
+														customFieldProps.options = assetModelOptions;
+													}
+													return (
+														<DynamicForm
+															key={`field-${fieldIndex}-${field.name}`}
+															field={field}
+															formState={formState}
+															register={register}
+															customFieldProps={customFieldProps}
+															customFieldPropsSubFields={
+																customFieldPropsSubFields
+															}
+															newValue={newValue}
+															newValueSelectField={newValueSelectField}
+														/>
+													);
+												}
+											);
+										})}
+									</UI_SECTIONS.FormWrapGrid>
+									<div>
+										<UI_SECTIONS.AddDynamicSectionWrapper>
+											{isAssetFormOpen ? (
+												<div>
+													<Button
+														onClick={() => {
+															setIsAssetFormOpen(false);
+														}}
+													>
+														Save
+													</Button>
+													{assetSectionData.length > 1 && (
+														<Button
+															onClick={() => {
+																setAssetSectionData(prev => prev.slice(0, -1));
+																setIsAssetFormOpen(false);
+															}}
+														>
+															Cancel
+														</Button>
+													)}
+												</div>
+											) : isViewLoan ||
+											  assetSectionData?.length >= MAX_ADD_COUNT ? null : (
+												<>
+													<UI_SECTIONS.PlusRoundButton
+														src={plusRoundIcon}
+														onClick={openAssetForm}
+													/>
+													<span>Click to Add Assets</span>
+												</>
+											)}
+										</UI_SECTIONS.AddDynamicSectionWrapper>
+									</div>
+								</Fragment>
+							);
+						}
+
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -910,20 +1001,6 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.disabled = true;
 										}
 
-										if (field?.name === CONST.ASSET_TYPE_FIELD_NAME) {
-											if (!assetTypeOptions.length)
-												setAssetTypeOptions(field?.options);
-										}
-
-										if (field?.name === CONST.ASSET_MANUFACTURER_FIELD_NAME) {
-											customFieldProps.disabled = !assetManufacturerOptions.length;
-											customFieldProps.options = assetManufacturerOptions;
-										}
-										if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
-											customFieldProps.disabled = !assetModelOptions.length;
-											customFieldProps.options = assetModelOptions;
-										}
-
 										if (field?.for_type_name) {
 											if (
 												!field?.for_type?.includes(
@@ -943,63 +1020,16 @@ const LeadDetails = props => {
 										}
 
 										return (
-											<UI_SECTIONS.FieldWrapGrid
+											<DynamicForm
 												key={`field-${fieldIndex}-${field.name}`}
-											>
-												<div
-													style={{
-														display: 'flex',
-														gap: '10px',
-														alignItems: 'center',
-													}}
-												>
-													{field?.sub_fields &&
-														field?.sub_fields[0].is_prefix &&
-														register({
-															...field.sub_fields[0],
-															value: newValueSelectField,
-															visibility: 'visible',
-															...customFieldProps,
-															...customFieldPropsSubFields,
-														})}
-													<div
-														style={{
-															width: '100%',
-														}}
-													>
-														{register({
-															...field,
-															value: newValue,
-															visibility: 'visible',
-															...customFieldProps,
-														})}
-													</div>
-													{field?.sub_fields &&
-														!field?.sub_fields[0].is_prefix &&
-														register({
-															...field.sub_fields[0],
-															value: newValueSelectField,
-															visibility: 'visible',
-															...customFieldProps,
-															...customFieldPropsSubFields,
-														})}
-												</div>
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field?.name]) &&
-													formState?.error?.[field?.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[field?.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field?.sub_fields?.[0]?.name]) &&
-													formState?.error?.[field?.sub_fields?.[0]?.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[field?.sub_fields[0]?.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-											</UI_SECTIONS.FieldWrapGrid>
-											//end
+												field={field}
+												formState={formState}
+												register={register}
+												customFieldProps={customFieldProps}
+												customFieldPropsSubFields={customFieldPropsSubFields}
+												newValue={newValue}
+												newValueSelectField={newValueSelectField}
+											/>
 										);
 									})}
 								</UI_SECTIONS.FormWrapGrid>
@@ -1019,11 +1049,6 @@ const LeadDetails = props => {
 								})}
 							/>
 						)}
-						{/* {isViewLoan && (
-							<>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)} */}
 					</UI_SECTIONS.Footer>
 				</>
 			)}
