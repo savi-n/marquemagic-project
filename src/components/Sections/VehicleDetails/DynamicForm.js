@@ -247,10 +247,10 @@ const DynamicForm = props => {
 
 	const vehicleTypeFormState =
 		formState?.values?.[CONST.FIELD_NAME_VEHICLE_TYPE];
-	const vehicleTypeOptions = selectedSection.sub_sections
-		.find(subSec => subSec.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS)
-		?.fields?.find(field => field.name === CONST.FIELD_NAME_VEHICLE_TYPE)
-		.options;
+	const vehicleTypeOptions = selectedSection?.sub_sections
+		?.find(subSec => subSec?.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS)
+		?.fields?.find(field => field?.name === CONST.FIELD_NAME_VEHICLE_TYPE)
+		?.options;
 
 	const fetchVehicleOptions = async () => {
 		try {
@@ -260,12 +260,12 @@ const DynamicForm = props => {
 
 			const isVehicleType = vehicleTypeOptions
 				?.filter(type =>
-					selectedProduct.product_details.vehicle_type_api.includes(type.name)
+					selectedProduct?.product_details?.vehicle_type_api?.includes(type.name)
 				)
-				?.some(type => type.value === vehicleTypeFormState);
+				?.some(type => type?.value === vehicleTypeFormState);
 
 			const vehicleName = vehicleTypeOptions.find(
-				type => type.value === vehicleTypeFormState
+				type => type?.value === vehicleTypeFormState
 			)?.name;
 
 			if (isVehicleType) {
@@ -291,10 +291,10 @@ const DynamicForm = props => {
 
 	const equipmentTypeFormState =
 		formState?.values?.[CONST.FIELD_NAME_EQUIPMENT_TYPE];
-	const equipmentTypeOptions = selectedSection.sub_sections
-		.find(subSec => subSec.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS)
-		?.fields?.find(field => field.name === CONST.FIELD_NAME_EQUIPMENT_TYPE)
-		.options;
+	const equipmentTypeOptions = selectedSection?.sub_sections
+		?.find(subSec => subSec?.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS)
+		?.fields?.find(field => field?.name === CONST.FIELD_NAME_EQUIPMENT_TYPE)
+		?.options;
 
 	const fetchEquipmentOptions = async () => {
 		try {
@@ -304,12 +304,12 @@ const DynamicForm = props => {
 
 			const isEquipmentType = equipmentTypeOptions
 				?.filter(type =>
-					selectedProduct.product_details.equipment_type_api.includes(type.name)
+					selectedProduct?.product_details?.equipment_type_api?.includes(type.name)
 				)
-				?.some(type => type.value === equipmentTypeFormState);
+				?.some(type => type?.value === equipmentTypeFormState);
 
 			const equipmentName = equipmentTypeOptions.find(
-				type => type.value === equipmentTypeFormState
+				type => type?.value === equipmentTypeFormState
 			)?.name;
 
 			if (isEquipmentType) {
@@ -453,20 +453,20 @@ const DynamicForm = props => {
 								}
 
 								if (field?.name === CONST.FIELD_NAME_VEHICLE_CATEGORY) {
-									customFieldProps.disabled = !vehicleCategoryOptions.length;
+									customFieldProps.disabled = !vehicleCategoryOptions?.length;
 									customFieldProps.options = vehicleCategoryOptions;
 								}
 								if (field?.name === CONST.FIELD_NAME_VEHICLE_MODEL) {
-									customFieldProps.disabled = !vehicleModelOptions.length;
+									customFieldProps.disabled = !vehicleModelOptions?.length;
 									customFieldProps.options = vehicleModelOptions;
 								}
 
 								if (field?.name === CONST.FIELD_NAME_EQUIPMENT_CATEGORY) {
-									customFieldProps.disabled = !equipmentCategoryOptions.length;
+									customFieldProps.disabled = !equipmentCategoryOptions?.length;
 									customFieldProps.options = equipmentCategoryOptions;
 								}
 								if (field?.name === CONST.FIELD_NAME_EQUIPMENT_MODEL) {
-									customFieldProps.disabled = !equipmentModelOptions.length;
+									customFieldProps.disabled = !equipmentModelOptions?.length;
 									customFieldProps.options = equipmentModelOptions;
 								}
 
