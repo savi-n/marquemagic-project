@@ -598,17 +598,17 @@ const LeadDetails = props => {
 
 			const isVehicleType = assetTypeOptions
 				?.filter(type =>
-					selectedProduct.product_details.vehicle_type_api.includes(type.name)
+					selectedProduct?.product_details?.vehicle_type_api?.includes(type.name)
 				)
-				?.some(type => type.value === assetTypeFormState);
+				?.some(type => type?.value === assetTypeFormState);
 			const isEquipmentType = assetTypeOptions
 				?.filter(type =>
-					selectedProduct.product_details.equipment_type_api.includes(type.name)
+					selectedProduct?.product_details?.equipment_type_api?.includes(type.name)
 				)
-				?.some(type => type.value === assetTypeFormState);
+				?.some(type => type?.value === assetTypeFormState);
 
 			const assetTypeName = assetTypeOptions.find(
-				type => type.value === assetTypeFormState
+				type => type?.value === assetTypeFormState
 			)?.name;
 			let response;
 
@@ -620,7 +620,7 @@ const LeadDetails = props => {
 				response = await axios.get(`${API_END_POINT}/getEquipmentType`, {
 					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
 				});
-			const result = response.data.data;
+			const result = response?.data?.data;
 			setAssetManufacturerOptions(
 				getOptionsFromResponse(
 					result,
@@ -916,11 +916,11 @@ const LeadDetails = props => {
 										}
 
 										if (field?.name === CONST.ASSET_MANUFACTURER_FIELD_NAME) {
-											customFieldProps.disabled = !assetManufacturerOptions.length;
+											customFieldProps.disabled = !assetManufacturerOptions?.length;
 											customFieldProps.options = assetManufacturerOptions;
 										}
 										if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
-											customFieldProps.disabled = !assetModelOptions.length;
+											customFieldProps.disabled = !assetModelOptions?.length;
 											customFieldProps.options = assetModelOptions;
 										}
 
