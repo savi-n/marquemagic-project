@@ -11,6 +11,8 @@ import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import { getTotalYearsCompleted } from 'utils/helper';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
+import editIcon from 'assets/icons/edit-icon.png';
+import expandIcon from 'assets/icons/right_arrow_active.png';
 import moment from 'moment';
 
 import {
@@ -95,9 +97,10 @@ const LeadDetails = props => {
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
-	const assetsDetails = selectedSection.sub_sections.find(
+	const assetsDetails = selectedSection?.sub_sections?.find(
 		section => section.id === CONST.FIELD_NAME_ASSETS_DETAILS
 	);
+	const assetFields = assetsDetails?.fields;
 
 	const [loading, setLoading] = useState(false);
 
@@ -109,9 +112,12 @@ const LeadDetails = props => {
 	const [assetManufacturerOptions, setAssetManufacturerOptions] = useState([]);
 	const [assetModelOptions, setAssetModelOptions] = useState([]);
 	const [assetTypeOptions, setAssetTypeOptions] = useState([]);
-	const [assetSectionData, setAssetSectionData] = useState([assetsDetails]);
 	const [isAssetFormOpen, setIsAssetFormOpen] = useState(true);
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
+	const [assetListFormState, setAssetListFormState] = useState([]);
+	const [assetEditIndex, setAssetEditIndex] = useState(undefined);
+	const [assetViewIndex, setAssetViewIndex] = useState(undefined);
+	const [isAssetViewMode, setIsAssetViewMode] = useState(false);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const MAX_ADD_COUNT = assetsDetails.max || 10;
@@ -363,19 +369,25 @@ const LeadDetails = props => {
 				isLeadCategoryChanged = true;
 			}
 
+			const formValuesForPayload = {};
+			Object.keys(formState?.values).forEach(key => {
+				if (assetFields?.some(field => field.name === key)) return;
+				formValuesForPayload[key] = formState?.values[key];
+			});
+
 			const leadsDetailsReqBody = {
-				...formState.values,
+				...formValuesForPayload,
+				assets: assetListFormState?.length ? assetListFormState : null,
 				white_label_id: whiteLabelId,
 				product_id: selectedProduct?.id,
 				parent_id: selectedProduct?.parent_id || '',
 			};
+
 			if (leadId) leadsDetailsReqBody.id = leadId;
-			// console.log('leadsDetailsReqBody=>', leadsDetailsReqBody);
 			const leadsDetailsRes = await axios.post(
 				`${API.LEADS_DETIALS}`,
 				leadsDetailsReqBody
 			);
-			// console.log('leadsDetailsRes=>', { leadsDetailsRes });
 			// return;
 			if (leadsDetailsRes?.data?.status === 'ok') {
 				// TODO: Manoranjan - discuss with madhuri regarding user and add the below check (already added the condition - just reverify)
@@ -547,6 +559,7 @@ const LeadDetails = props => {
 			// console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
+				setAssetListFormState(fetchRes?.data?.data?.assets || []);
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -576,9 +589,9 @@ const LeadDetails = props => {
 	}, []);
 
 	const assetTypeFormState = formState?.values?.['asset_type'];
-	const getOptionsFromResponse = (data, value) => {
+	const getOptionsFromResponse = (data = [], value) => {
 		return _.uniqBy(
-			data.map(item => ({
+			data?.map(item => ({
 				value: item[value],
 				name: item[value],
 			})),
@@ -642,11 +655,34 @@ const LeadDetails = props => {
 
 	useEffect(() => {
 		if (assetTypeFormState) fetchAssetOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [assetTypeFormState]);
 
 	const openAssetForm = () => {
-		setAssetSectionData(prev => [...prev, assetsDetails]);
 		setIsAssetFormOpen(true);
+	};
+
+	const saveAssetForm = () => {
+		let savedAsset = {};
+		assetsDetails?.fields?.forEach(field => {
+			const fieldName = field?.name;
+			savedAsset[fieldName] = formState?.values[fieldName];
+			onChangeFormStateField({
+				name: fieldName,
+				value: '',
+			});
+		});
+
+		setAssetListFormState(prev => {
+			if (assetEditIndex !== undefined) {
+				const updatedList = [...prev];
+				updatedList[assetEditIndex] = savedAsset;
+				setAssetEditIndex(undefined);
+				return updatedList;
+			}
+			return [...prev, { ...savedAsset }];
+		});
+		setIsAssetFormOpen(false);
 	};
 
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
@@ -804,10 +840,91 @@ const LeadDetails = props => {
 											{sub_section.name}
 										</UI_SECTIONS.SubSectionHeader>
 									) : null}
+
+									{assetListFormState.map((assetItem, assetIndex) => {
+										return (
+											<UI_SECTIONS.AccordianWrapper
+												key={`accordian-${assetIndex}`}
+											>
+												<UI_SECTIONS.AccordianHeader>
+													<UI_SECTIONS.AccordianHeaderData>
+														<span>Type of Asset:</span>
+														<strong>
+															{
+																assetTypeOptions?.find(
+																	option =>
+																		option.value === assetItem?.asset_type
+																)?.name
+															}
+														</strong>
+													</UI_SECTIONS.AccordianHeaderData>
+													<UI_SECTIONS.AccordianHeaderData>
+														<span>Asset Price:</span>
+														<strong>{assetItem?.asset_price}</strong>
+													</UI_SECTIONS.AccordianHeaderData>
+													<UI_SECTIONS.AccordianHeaderData
+														style={{
+															marginLeft: 'auto',
+															flex: 'none',
+														}}
+													>
+														{isViewLoan ? null : (
+															<UI_SECTIONS.AccordianIcon
+																src={editIcon}
+																alt='edit'
+																onClick={() => {
+																	setAssetEditIndex(assetIndex);
+																	Object.keys(assetItem).forEach(item => {
+																		onChangeFormStateField({
+																			name: item,
+																			value: assetItem?.[item],
+																		});
+																	});
+																	setIsAssetFormOpen(true);
+																}}
+															/>
+														)}
+														<UI_SECTIONS.AccordianIcon
+															src={expandIcon}
+															alt='toggle'
+															onClick={() => {
+																if (isAssetViewMode) {
+																	setAssetViewIndex(undefined);
+																	Object.keys(assetItem).forEach(item => {
+																		onChangeFormStateField({
+																			name: item,
+																			value: '',
+																		});
+																	});
+																	setIsAssetViewMode(false);
+																} else {
+																	setAssetViewIndex(assetIndex);
+																	Object.keys(assetItem).forEach(item => {
+																		onChangeFormStateField({
+																			name: item,
+																			value: assetItem?.[item],
+																		});
+																	});
+																	setIsAssetViewMode(true);
+																}
+															}}
+															style={{
+																transform:
+																	isAssetViewMode &&
+																	assetViewIndex === assetIndex
+																		? 'rotate(-90deg)'
+																		: 'rotate(90deg)',
+																cursor: 'not-allowed',
+															}}
+														/>
+													</UI_SECTIONS.AccordianHeaderData>
+												</UI_SECTIONS.AccordianHeader>
+											</UI_SECTIONS.AccordianWrapper>
+										);
+									})}
 									<UI_SECTIONS.FormWrapGrid>
-										{assetSectionData.map(assetSection => {
-											return assetSection?.fields?.map(
-												(eachField, fieldIndex) => {
+										{assetsDetails && (isAssetFormOpen || isAssetViewMode)
+											? assetsDetails?.fields?.map(eachField => {
 													const field = _.cloneDeep(eachField);
 													if (
 														field?.visibility === false ||
@@ -840,9 +957,13 @@ const LeadDetails = props => {
 														customFieldProps.disabled = !assetModelOptions.length;
 														customFieldProps.options = assetModelOptions;
 													}
+
+													customFieldProps.disabled =
+														isAssetViewMode || isViewLoan;
+
 													return (
 														<DynamicForm
-															key={`field-${fieldIndex}-${field.name}`}
+															key={`field-${field?.id}-${field.name}`}
 															field={field}
 															formState={formState}
 															register={register}
@@ -854,34 +975,46 @@ const LeadDetails = props => {
 															newValueSelectField={newValueSelectField}
 														/>
 													);
-												}
-											);
-										})}
+											  })
+											: null}
 									</UI_SECTIONS.FormWrapGrid>
 									<div>
 										<UI_SECTIONS.AddDynamicSectionWrapper>
 											{isAssetFormOpen ? (
-												<div>
+												<div
+													style={{
+														display: 'flex',
+														gap: '20px',
+													}}
+												>
 													<Button
-														onClick={() => {
-															setIsAssetFormOpen(false);
-														}}
+														onClick={saveAssetForm}
+														disabled={loading || formState?.error?.asset_type}
+														loading={loading}
 													>
-														Save
+														Save Asset
 													</Button>
-													{assetSectionData.length > 1 && (
+													{assetListFormState.length >= 1 && isAssetFormOpen ? (
 														<Button
 															onClick={() => {
-																setAssetSectionData(prev => prev.slice(0, -1));
+																setAssetEditIndex(undefined);
+																assetFields.forEach(item => {
+																	onChangeFormStateField({
+																		name: item,
+																		value: '',
+																	});
+																});
 																setIsAssetFormOpen(false);
 															}}
+															disabled={loading}
+															loading={loading}
 														>
 															Cancel
 														</Button>
-													)}
+													) : null}
 												</div>
 											) : isViewLoan ||
-											  assetSectionData?.length >= MAX_ADD_COUNT ? null : (
+											  assetListFormState?.length >= MAX_ADD_COUNT ? null : (
 												<>
 													<UI_SECTIONS.PlusRoundButton
 														src={plusRoundIcon}
