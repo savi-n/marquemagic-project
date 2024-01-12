@@ -65,6 +65,8 @@ const DynamicForm = props => {
 	const [vehicleModelOptions, setVehicleModelOptions] = useState([]);
 	const [equipmentCategoryOptions, setEquipmentCategoryOptions] = useState([]);
 	const [equipmentModelOptions, setEquipmentModelOptions] = useState([]);
+	const [tonnageCategoryOptions, setTonnageCategoryOptions] = useState([]);
+	const [manufacturerOptions, setManufacturerOptions] = useState([]);
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
@@ -257,10 +259,13 @@ const DynamicForm = props => {
 			setIsSubmitting(true);
 			setVehicleCategoryOptions([]);
 			setVehicleModelOptions([]);
+			setManufacturerOptions([]);
 
 			const isVehicleType = vehicleTypeOptions
 				?.filter(type =>
-					selectedProduct?.product_details?.vehicle_type_api?.includes(type.name)
+					selectedProduct?.product_details?.vehicle_type_api?.includes(
+						type.name
+					)
 				)
 				?.some(type => type?.value === vehicleTypeFormState);
 
@@ -277,6 +282,7 @@ const DynamicForm = props => {
 					getOptionsFromResponse(result, 'VehicleCategory')
 				);
 				setVehicleModelOptions(getOptionsFromResponse(result, 'VehicleModel'));
+				setManufacturerOptions(getOptionsFromResponse(result, 'Manufacturer'));
 			}
 		} catch (error) {
 			console.log(error);
@@ -287,7 +293,8 @@ const DynamicForm = props => {
 
 	useEffect(() => {
 		if (vehicleTypeFormState) fetchVehicleOptions();
-	}, [vehicleTypeFormState]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [vehicleTypeFormState, formState?.values?.['registrable']]);
 
 	const equipmentTypeFormState =
 		formState?.values?.[CONST.FIELD_NAME_EQUIPMENT_TYPE];
@@ -301,10 +308,14 @@ const DynamicForm = props => {
 			setIsSubmitting(true);
 			setEquipmentCategoryOptions([]);
 			setEquipmentModelOptions([]);
+			setManufacturerOptions([]);
+			setTonnageCategoryOptions([]);
 
 			const isEquipmentType = equipmentTypeOptions
 				?.filter(type =>
-					selectedProduct?.product_details?.equipment_type_api?.includes(type.name)
+					selectedProduct?.product_details?.equipment_type_api?.includes(
+						type.name
+					)
 				)
 				?.some(type => type?.value === equipmentTypeFormState);
 
@@ -326,6 +337,8 @@ const DynamicForm = props => {
 				setEquipmentModelOptions(
 					getOptionsFromResponse(result, 'equipmentmodel')
 				);
+				setManufacturerOptions(getOptionsFromResponse(result, 'manufacturer'));
+				setTonnageCategoryOptions(getOptionsFromResponse(result, 'tonnage'));
 			}
 		} catch (error) {
 			console.log(error);
@@ -336,7 +349,8 @@ const DynamicForm = props => {
 
 	useEffect(() => {
 		if (equipmentTypeFormState) fetchEquipmentOptions();
-	}, [equipmentTypeFormState]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [equipmentTypeFormState, formState?.values?.['registrable']]);
 
 	const onSaveOrUpdate = async data => {
 		try {
@@ -469,18 +483,19 @@ const DynamicForm = props => {
 									customFieldProps.disabled = !equipmentModelOptions?.length;
 									customFieldProps.options = equipmentModelOptions;
 								}
+								if (field?.name === CONST.FIELD_NAME_MANUFACTURER_NAME) {
+									customFieldProps.disabled = !manufacturerOptions?.length;
+									customFieldProps.options = manufacturerOptions;
+								}
+								if (field?.name === CONST.FIELD_NAME_TONNAGE_CATEGORY) {
+									customFieldProps.disabled = !tonnageCategoryOptions?.length;
+									customFieldProps.options = tonnageCategoryOptions;
+								}
 
 								let newValueSelectField;
 								if (!!field.sub_fields) {
 									newValueSelectField = prefilledValues(field?.sub_fields[0]);
 								}
-								// console.log('render-field-', {
-								// 	field,
-								// 	customFieldProps,
-								// 	isViewLoan,
-								// 	newField,
-								// 	formState,
-								// });
 								return (
 									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 										<div
