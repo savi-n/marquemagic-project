@@ -10,6 +10,7 @@ import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import { getTotalYearsCompleted } from 'utils/helper';
+import { DDUPE_CHECK } from '_config/app.config';
 import moment from 'moment';
 
 import {
@@ -57,6 +58,7 @@ import * as CONST from './const';
 import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
 import { useLayoutEffect } from 'react';
+import CustomerListModal from "./CustomerListModal"
 // import LeadAssetsDetails from './LeadAssetsDetails';
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -120,7 +122,10 @@ const LeadDetails = props => {
 			: {};
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [branchOptions, setBranchOptions] = useState([]);
+	const [customerListModalOpen,setIsCustomerListModalOpen]=useState(false);
+	const [customerList,setCustomerList]=useState('');
 
+console.log("customerListModalOpen",customerListModalOpen);
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 	if (
 		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
@@ -423,28 +428,29 @@ const LeadDetails = props => {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
 					} else {
-						try {
-							const token = {
-								userId: userDetails?.id,
-								token: userToken,
-								create: true,
-								selected_product_ids_from_lead: {
-									parent_product_id: selectedProduct?.parent_id,
-									selected_product_id: selectedProduct?.id,
-								},
-								lead_id: leadsDetailsRes?.data?.data?.id,
-							};
-							const encryptedToken = encryptReq(token);
-							window.open(
-								`${window.origin}/nconboarding/applyloan/?uid=${
-									userDetails?.id
-								}&token=${encryptedToken}`,
-								'_self'
-							);
-							return;
-						} catch (error) {
-							console.error('header-getAppylyloanUrl-error  ', error);
-						}
+						// try {
+						// 	const token = {
+						// 		userId: userDetails?.id,
+						// 		token: userToken,
+						// 		create: true,
+						// 		selected_product_ids_from_lead: {
+						// 			parent_product_id: selectedProduct?.parent_id,
+						// 			selected_product_id: selectedProduct?.id,
+						// 		},
+						// 		lead_id: leadsDetailsRes?.data?.data?.id,
+						// 	};
+						// 	const encryptedToken = encryptReq(token);
+						// 	window.open(
+						// 		`${window.origin}/nconboarding/applyloan/?uid=${
+						// 			userDetails?.id
+						// 		}&token=${encryptedToken}`,
+						// 		'_self'
+						// 	);
+						// 	return;
+						// } catch (error) {
+						// 	console.error('header-getAppylyloanUrl-error  ', error);
+						// }
+						searchCustomerFromFetchApi()
 					}
 				}
 			}
@@ -479,6 +485,89 @@ const LeadDetails = props => {
 			return null;
 		});
 	};
+	
+console.log("DDUPE_CHECK",DDUPE_CHECK);
+	const searchCustomerFromFetchApi = async() => {
+		console.log("ui122");
+		try {
+			// setFetchingCustomerDetails(true);
+			// setLoading(true)
+			
+			const apiUrl = selectedDedupeData?.search_api  || DDUPE_CHECK;
+	
+
+			const reqBody = {
+				
+				loan_product_id:
+				selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
+				selectedProduct?.product_id?.[formState?.values?.['business_type']] ||
+				'',
+				white_label_id: whiteLabelId,
+				id_no: formState?.values?.['pan_no'] || '',
+				pan_number: formState?.values['pan_number']?.toUpperCase() || '',
+				mobile_num: formState?.values['mobile_no'] || '',
+				dob: formState?.values['ddob'] || '',
+				businesstype: formState?.values['businesstype'] || '',
+				isApplicant: true, //implemented based on savitha's changes - bad practice
+				customer_id: formState?.values['customer_id'] || '',
+				loan_product_details_id: selectedProduct?.id || undefined,
+				parent_product_id: selectedProduct?.parent_id || undefined,
+				// type_name:
+				// 	`${productForModal?.loan_request_type ||
+				// 		product?.loan_request_type}` === '2'
+				// 		? 'Applicant'
+				// 		: CONST.TYPE_NAME_MAPPING[(formState?.values['businesstype'])] ||
+				// 		  '',
+				// origin: API.ORIGIN,
+				// lat: geoRes?.lat || '',
+				// long: geoRes?.long || '',
+				// timestamp: geoRes?.timestamp || '',
+			};
+
+			// const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
+			// const apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK || '';
+
+			if (apiUrl) {
+				const ddupeRes = await axios.post(apiUrl, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+				
+
+				
+					// console.log({ ddupeRes }, 'search-called ---- else part');
+					if (ddupeRes?.data?.status === 'nok') {
+						addToast({
+							message:
+							ddupeRes?.data?.message ||
+							ddupeRes?.data?.Message ||
+							'No Customer data found, please press SKIP and proceed to enter details.',
+							type: 'error',
+						});
+						return;
+					}
+					ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+					setIsCustomerListModalOpen(true);
+
+					
+				
+			}
+		} catch (e) {
+			console.error(e.message);
+			addToast({
+				message:
+					e?.response?.data?.message ||
+					e?.response?.data?.Message ||
+					e.message ||
+					'Error in fetching the customer details. Please verify the entered details.',
+				type: 'error',
+			});
+		} finally {
+			// setFetchingCustomerDetails(false);
+			// setLoading(false)
+		}
+	}
 
 	const prefilledValues = field => {
 		try {
@@ -765,10 +854,21 @@ const LeadDetails = props => {
 		}
 	};
 
+		
 	// TODO : Bikash will suggest to call the api for branch, connectors etc.
 
 	return (
+
 		<UI_SECTIONS.Wrapper>
+
+{customerListModalOpen && ( 
+		<CustomerListModal 
+					customerList={customerList}
+					show={customerListModalOpen}
+					></CustomerListModal>
+					
+	)}
+
 			{fetchingSectionData ? (
 				<Loading />
 			) : (
