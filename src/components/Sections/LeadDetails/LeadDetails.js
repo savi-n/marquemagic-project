@@ -1069,6 +1069,11 @@ const LeadDetails = props => {
 											};
 										}
 
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											customFieldProps.infoMessage =
+												'Example : UDYAM-XY-07-1234567';
+										}
+
 										if (field?.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
 											field.options = connectorOptions;
 										}
