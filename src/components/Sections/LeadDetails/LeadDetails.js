@@ -598,12 +598,16 @@ const LeadDetails = props => {
 
 			const isVehicleType = assetTypeOptions
 				?.filter(type =>
-					selectedProduct?.product_details?.vehicle_type_api?.includes(type.name)
+					selectedProduct?.product_details?.vehicle_type_api?.includes(
+						type.name
+					)
 				)
 				?.some(type => type?.value === assetTypeFormState);
 			const isEquipmentType = assetTypeOptions
 				?.filter(type =>
-					selectedProduct?.product_details?.equipment_type_api?.includes(type.name)
+					selectedProduct?.product_details?.equipment_type_api?.includes(
+						type.name
+					)
 				)
 				?.some(type => type?.value === assetTypeFormState);
 
@@ -839,6 +843,11 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+										}
+
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											customFieldProps.infoMessage =
+												'Example : UDYAM-XY-07-1234567';
 										}
 
 										if (field?.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
