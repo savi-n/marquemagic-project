@@ -168,7 +168,10 @@ const CustomerVerificationOTPModal = props => {
 				reqBody
 			);
 			// console.log('customerotpres-', customerVerifyRes);
-			redirectToProductPageInEditMode(customerVerifyRes?.data || {});
+			if(customerVerifyRes?.data?.status === 'ok'){
+
+				redirectToProductPageInEditMode(customerVerifyRes?.data || {});
+			}
 		} catch (error) {
 			console.error({ error, res: error?.response });
 			if (
