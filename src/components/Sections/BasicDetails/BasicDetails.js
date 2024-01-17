@@ -68,6 +68,7 @@ import {
 import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 import DataDeletionWarningModal from './DataDeletionWarningModal';
+import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -150,6 +151,12 @@ const BasicDetails = props => {
 		false
 	);
 	const [dedupeModalData, setDedupeModalData] = useState([]);
+	const [sendOtpRes, setSendOtpRes] = useState(null);
+	const [
+		isCustomerVerificationOTPModal,
+		setIsCustomerVerificationOTPModal,
+	] = useState(false);
+	const [customerId, setCustomerId] = useState('');
 
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
@@ -854,6 +861,7 @@ const BasicDetails = props => {
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
 		try {
+			setCustomerId(formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]);
 			setIsDataDeletionWarningOpen(false);
 			if (formState?.values?.['income_type']?.length === 0) {
 				addToast({
@@ -863,68 +871,88 @@ const BasicDetails = props => {
 				return;
 			}
 
-			// if (!isApplicant) {
-			// 	const validateDirectors = validateAllTheDirectors({
-			// 		directors,
-			// 	});
-			// 	// console.log({ validateDirectors });
+			if (selectedDedupeData?.is_otp_required) {
+				try {
+					const sendOtpRes = await axios.post(
+						selectedDedupeData?.generate_otp,
+						{
+							customer_id:
+								formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
+								customerId ||
+								'',
 
-			// 	if (validateDirectors?.allowProceed === false) {
-			// 		addToast({
-			// 			message: `Please fill all the details in ${
-			// 				validateDirectors?.directorName
-			// 			}`,
-			// 			type: 'error',
-			// 		});
-			// 		return;
-			// 	}
-			// }
+							loan_product_id:
+								selectedProduct?.product_id?.[
+									formState?.values?.['income_type']
+								],
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
 
-			setLoading(true);
-			const reqBody = {
-				customer_id: formState?.values?.['customer_id'],
-				white_label_id: whiteLabelId,
-				businesstype: formState?.values?.['income_type'],
-				loan_product_id:
-					selectedProduct?.product_id?.[formState?.values?.['income_type']],
-				loan_product_details_id: selectedProduct?.id || undefined,
-				parent_product_id: selectedProduct?.parent_id || undefined,
-				loan_id: loanId,
-				business_id: businessId,
-				isApplicant,
-				type_name: addNewDirectorKey || selectedDirector?.type_name,
-				origin: API.ORIGIN,
-				did: selectedDirectorId || undefined,
-				lat: geoLocation?.lat || '',
-				long: geoLocation?.long || '',
-				timestamp: geoLocation?.timestamp || '',
-				customer_category:
-					formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
-			};
-			const fetchDataRes = await axios.post(
-				selectedDedupeData?.verify,
-				reqBody,
-				{
-					headers: {
-						Authorization: `Bearer ${userToken}`,
-					},
+					setSendOtpRes(sendOtpRes?.data?.data || {});
+					setIsCustomerVerificationOTPModal(true);
+					addToast({
+						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+						type: 'success',
+					});
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
+						type: 'error',
+					});
 				}
-			);
+			} else {
+				setLoading(true);
+				const reqBody = {
+					customer_id: formState?.values?.['customer_id'],
+					white_label_id: whiteLabelId,
+					businesstype: formState?.values?.['income_type'],
+					loan_product_id:
+						selectedProduct?.product_id?.[formState?.values?.['income_type']],
+					loan_product_details_id: selectedProduct?.id || undefined,
+					parent_product_id: selectedProduct?.parent_id || undefined,
+					loan_id: loanId,
+					business_id: businessId,
+					isApplicant,
+					type_name: addNewDirectorKey || selectedDirector?.type_name,
+					origin: API.ORIGIN,
+					did: selectedDirectorId || undefined,
+					lat: geoLocation?.lat || '',
+					long: geoLocation?.long || '',
+					timestamp: geoLocation?.timestamp || '',
+					customer_category:
+						formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
+				};
+				const fetchDataRes = await axios.post(
+					selectedDedupeData?.verify,
+					reqBody,
+					{
+						headers: {
+							Authorization: `Bearer ${userToken}`,
+						},
+					}
+				);
 
-			if (fetchDataRes?.data?.status === 'nok') {
-				addToast({
-					message:
-						fetchDataRes?.data?.message ||
-						'No Customer Data Found Against The Provided Customer ID',
-					type: 'error',
-				});
-			}
-			if (fetchDataRes?.data?.status === 'ok') {
-				addToast({
-					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
-					type: 'success',
-				});
-				redirectToProductPageInEditMode(fetchDataRes?.data);
+				if (fetchDataRes?.data?.status === 'nok') {
+					addToast({
+						message:
+							fetchDataRes?.data?.message ||
+							'No Customer Data Found Against The Provided Customer ID',
+						type: 'error',
+					});
+				}
+				if (fetchDataRes?.data?.status === 'ok') {
+					addToast({
+						message: fetchDataRes?.data?.message || 'Data fetched successfull!',
+						type: 'success',
+					});
+					redirectToProductPageInEditMode(fetchDataRes?.data);
+				}
 			}
 			// console.log({ fetchDataRes });
 		} catch (err) {
@@ -1950,6 +1978,24 @@ const BasicDetails = props => {
 						onProceed={onFetchFromCustomerId}
 					/>
 
+					{isCustomerVerificationOTPModal && (
+						<CustomerVerificationOTPModal
+							show={isCustomerVerificationOTPModal}
+							customerId={customerId}
+							onClose={() => {
+								setIsCustomerVerificationOTPModal(false);
+							}}
+							resendOtp={onFetchFromCustomerId}
+							redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+							sendOtpRes={sendOtpRes}
+							product={selectedProduct}
+							customerDetailsFormData={formState?.values}
+							selectedDedupeData={selectedDedupeData}
+							isApplicant={isApplicant}
+							selectedDirectorId={selectedDirectorId}
+						/>
+					)}
+
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
@@ -2231,7 +2277,7 @@ const BasicDetails = props => {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
 											customFieldProps.infoMessage =
-												CONST.ENTER_VALID_UCIC_HINT;
+												field?.infoMessage || CONST.ENTER_VALID_UCIC_HINT;
 										}
 
 										if (field?.name === CONST.DOB_FIELD_NAME) {
