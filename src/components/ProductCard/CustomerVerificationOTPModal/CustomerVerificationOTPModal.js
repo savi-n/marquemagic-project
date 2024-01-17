@@ -10,7 +10,7 @@ import Modal from 'components/Modal';
 import Button from 'components/Button';
 import CustomerVerificationOTPInput from './CustomerVerificationOTPInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
-import { RESEND_OTP_TIMER, DDUPE_VERIFY_OTP } from '_config/app.config';
+import { RESEND_OTP_TIMER, DDUPE_VERIFY_OTP, ORIGIN } from '_config/app.config';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
 import * as UI from '../ui';
@@ -119,7 +119,7 @@ const CustomerVerificationOTPModal = props => {
 	} = props;
 
 	const { app, application } = useSelector(state => state);
-	const { loanId, businessId } = application;
+	const { loanId, businessId, geoLocation } = application;
 	const { selectedProduct, whiteLabelId } = app;
 	const [inputCustomerOTP, setInputCustomerOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
@@ -158,9 +158,13 @@ const CustomerVerificationOTPModal = props => {
 				white_label_id: whiteLabelId,
 				loan_product_details_id: selectedProduct?.id || '',
 				parent_product_id: selectedProduct?.parent_id || undefined,
-				isApplicant,
+				isApplicant: isApplicant || true,
 				did: selectedDirectorId || undefined,
 				loan_id: loanId,
+				origin: ORIGIN,
+				lat: geoLocation?.lat || '',
+				long: geoLocation?.long || '',
+				timestamp: geoLocation?.timestamp || '',
 				business_id: businessId,
 			};
 			const customerVerifyRes = await axios.post(
@@ -168,8 +172,7 @@ const CustomerVerificationOTPModal = props => {
 				reqBody
 			);
 			// console.log('customerotpres-', customerVerifyRes);
-			if(customerVerifyRes?.data?.status === 'ok'){
-
+			if (customerVerifyRes?.data?.status === 'ok') {
 				redirectToProductPageInEditMode(customerVerifyRes?.data || {});
 			}
 		} catch (error) {
