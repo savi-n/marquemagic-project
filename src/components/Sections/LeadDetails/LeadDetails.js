@@ -1294,7 +1294,7 @@ const LeadDetails = props => {
 								fill
 								name={'Save and Proceed'}
 								isLoader={loading}
-								disabled={loading}
+								disabled={loading || isAssetCreateFormOpen}
 								onClick={handleSubmit(() => {
 									onSaveAndProceed();
 									return;

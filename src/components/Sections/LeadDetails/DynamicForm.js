@@ -1,5 +1,6 @@
 import React from 'react';
 import * as UI_SECTIONS from 'components/Sections/ui';
+import { useSelector } from 'react-redux';
 
 const DynamicForm = ({
 	field,
@@ -10,6 +11,16 @@ const DynamicForm = ({
 	newValue,
 	newValueSelectField,
 }) => {
+	const { userDetails } = useSelector(state => state.app);
+	const notAllowedUsers = field?.field_not_allowed_for_users;
+
+	if (
+		notAllowedUsers &&
+		(notAllowedUsers.includes(userDetails?.usertype) ||
+			notAllowedUsers.includes(userDetails?.user_sub_type))
+	) {
+		return null;
+	}
 	return (
 		<UI_SECTIONS.FieldWrapGrid>
 			<div
