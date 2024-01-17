@@ -114,9 +114,12 @@ const CustomerVerificationOTPModal = props => {
 		sendOtpRes,
 		customerId,
 		selectedDedupeData,
-		isApplicant
+		isApplicant,
+		selectedDirectorId,
 	} = props;
-	const { app } = useSelector(state => state);
+
+	const { app, application } = useSelector(state => state);
+	const { loanId, businessId } = application;
 	const { selectedProduct, whiteLabelId } = app;
 	const [inputCustomerOTP, setInputCustomerOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
@@ -144,15 +147,26 @@ const CustomerVerificationOTPModal = props => {
 				// customer_id: '137453244', // TODO: to be removed after testing
 				otp: inputCustomerOTP || '',
 				reference_id: sendOtpRes?.Validate_Customer_Resp?.ReferenceId || '',
-				businesstype: customerDetailsFormData?.businesstype || customerDetailsFormData?.income_type || '',
+				businesstype:
+					customerDetailsFormData?.businesstype ||
+					customerDetailsFormData?.income_type ||
+					'',
 				loan_product_id:
-					product?.product_id?.[`${customerDetailsFormData?.businesstype}`] ||product?.product_id?.[`${customerDetailsFormData?.income_type}`] || '',
-					loan_product_details_id:selectedProduct?.id,
+					product?.product_id?.[`${customerDetailsFormData?.businesstype}`] ||
+					product?.product_id?.[`${customerDetailsFormData?.income_type}`] ||
+					'',
 				white_label_id: whiteLabelId,
-				isApplicant:isApplicant
-				
+				loan_product_details_id: selectedProduct?.id || '',
+				parent_product_id: selectedProduct?.parent_id || undefined,
+				isApplicant,
+				did: selectedDirectorId || undefined,
+				loan_id: loanId,
+				business_id: businessId,
 			};
-			const customerVerifyRes = await axios.post(selectedDedupeData?.verify||DDUPE_VERIFY_OTP, reqBody);
+			const customerVerifyRes = await axios.post(
+				selectedDedupeData?.verify || DDUPE_VERIFY_OTP,
+				reqBody
+			);
 			// console.log('customerotpres-', customerVerifyRes);
 			if(customerVerifyRes?.data?.status === 'ok'){
 

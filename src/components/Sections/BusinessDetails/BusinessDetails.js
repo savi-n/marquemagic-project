@@ -1477,6 +1477,8 @@ const BusinessDetails = props => {
 										// }
 
 										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											customFieldProps.infoMessage =
+												'Example : UDYAM-XY-07-1234567';
 											if (
 												sectionData?.business_details?.udyam_number &&
 												sectionData?.business_details?.udyam_response
