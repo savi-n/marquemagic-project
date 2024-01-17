@@ -984,6 +984,7 @@ const BasicDetails = props => {
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
+			lead_id: leadId || undefined,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
 			selectedProduct?.id
