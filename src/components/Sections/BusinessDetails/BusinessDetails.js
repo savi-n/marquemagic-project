@@ -298,6 +298,7 @@ const BusinessDetails = props => {
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
+			lead_id: leadId || undefined,
 			loan_product_details_id: selectedProduct?.id,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(

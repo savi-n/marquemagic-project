@@ -16,8 +16,6 @@ import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import moment from 'moment';
 
-
-
 import {
 	// setIsDraftLoan,
 	// setLoginCreateUserRes,
@@ -66,7 +64,7 @@ import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
 import { useLayoutEffect } from 'react';
 // import CustomerListModal from "./CustomerListModal"
-import CustomerListModal from "../../../components/ProductCard/CustomerListModal"
+import CustomerListModal from '../../../components/ProductCard/CustomerListModal';
 import CustomerVerificationOTPModal from '../../../components/ProductCard/CustomerVerificationOTPModal';
 import DynamicForm from './DynamicForm';
 // import LeadAssetsDetails from './LeadAssetsDetails';
@@ -128,7 +126,6 @@ const LeadDetails = props => {
 	const [assetTypeOptions, setAssetTypeOptions] = useState([]);
 	const [sendingOTP, setSendingOTP] = useState(false);
 	const [sendOtpRes, setSendOtpRes] = useState(null);
-	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 
 	const [
 		isCustomerVerificationOTPModal,
@@ -154,8 +151,8 @@ const LeadDetails = props => {
 			: {};
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [branchOptions, setBranchOptions] = useState([]);
-	const [isCustomerListModalOpen,setIsCustomerListModalOpen]=useState(false);
-	const [customerList,setCustomerList]=useState('');
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [customerList, setCustomerList] = useState('');
 	const [customerId, setCustomerId] = useState('');
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
@@ -428,7 +425,6 @@ const LeadDetails = props => {
 					}
 					return;
 				} else {
-					
 					if (
 						Object.keys(selectedDedupeData)?.length === 0 ||
 						(isEditLoan && !isLeadCategoryChanged) ||
@@ -438,7 +434,9 @@ const LeadDetails = props => {
 					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
-					} else if(selectedProduct?.product_details?.lead_to_dedupe_screen === true) {
+					} else if (
+						selectedProduct?.product_details?.lead_to_dedupe_screen === true
+					) {
 						try {
 							const token = {
 								userId: userDetails?.id,
@@ -461,16 +459,11 @@ const LeadDetails = props => {
 						} catch (error) {
 							console.error('header-getAppylyloanUrl-error  ', error);
 						}
-					}
-						else{
-
-							searchCustomerFromFetchApi();
-						}
-					
-						
+					} else {
+						searchCustomerFromFetchApi();
 					}
 				}
-			
+			}
 
 			// dispatch(setCompletedApplicationSection(selectedSectionId));
 			// dispatch(setSelectedSectionId(nextSectionId));
@@ -499,15 +492,15 @@ const LeadDetails = props => {
 			return null;
 		});
 	};
-	const searchCustomerFromFetchApi = async() => {
+	const searchCustomerFromFetchApi = async () => {
 		try {
-			const url =selectedDedupeData?.search_api;
-			const apiUrl = url  || DDUPE_CHECK;
+			const url = selectedDedupeData?.search_api;
+			const apiUrl = url || DDUPE_CHECK;
 			const reqBody = {
 				loan_product_id:
-				selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
-				selectedProduct?.product_id?.[formState?.values?.['business_type']] ||
-				'',
+					selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
+					selectedProduct?.product_id?.[formState?.values?.['business_type']] ||
+					'',
 				customer_type: formState?.values['customer_type'] || '',
 				white_label_id: whiteLabelId,
 				id_no: formState?.values?.['pan_number'] || '',
@@ -523,8 +516,6 @@ const LeadDetails = props => {
 				customer_id: formState?.values['customer_id'] || '',
 				loan_product_details_id: selectedProduct?.id || undefined,
 				parent_product_id: selectedProduct?.parent_id || undefined,
-				
-			
 			};
 
 			if (apiUrl) {
@@ -533,11 +524,10 @@ const LeadDetails = props => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				});
-				
-				
-					if (ddupeRes?.data?.status === 'nok') {
-						addToast({
-							message:
+
+				if (ddupeRes?.data?.status === 'nok') {
+					addToast({
+						message:
 							ddupeRes?.data?.message ||
 							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
@@ -552,7 +542,6 @@ const LeadDetails = props => {
 					
 					setIsCustomerListModalOpen(true);
 
-					
 				
 			}
 		} catch (e) {
@@ -569,7 +558,7 @@ const LeadDetails = props => {
 			// setFetchingCustomerDetails(false);
 			// setLoading(false)
 		}
-	}
+	};
 
 	const prefilledValues = field => {
 		try {
@@ -890,9 +879,9 @@ const LeadDetails = props => {
 			setLoading(false);
 		}
 	};
-	
+
 	const redirectToProductPageInEditMode = (
-		loanData,
+		loanData
 		// productForModal = product
 	) => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
@@ -915,118 +904,120 @@ const LeadDetails = props => {
 		window.open(redirectURL, '_self');
 	};
 
-		const onProceedSelectCustomer=async()=>{
-			try {
-				setSendingOTP(true);
-				
-				const customerId = selectedCustomer?.customer_id
-				setCustomerId(customerId);
-				if (selectedDedupeData?.is_otp_required) {
-					try {
-						const sendOtpRes = await axios.post(
-							selectedDedupeData?.generate_otp,
-							{
-								customer_id: customerId,
-								loan_product_id:
-								selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
-								selectedProduct?.product_id?.[formState?.values?.['business_type']] ||'',
-							},
-							{
-								headers: {
-									Authorization: `Bearer ${userToken}`,
-								},
-							}
-						);
-	
-						setSendOtpRes(sendOtpRes?.data?.data || {});
-						setIsCustomerListModalOpen(false);
-						setIsCustomerVerificationOTPModal(true);
-						addToast({
-							message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
-							type: 'success',
-						});
-					} catch (err) {
-						console.error(err.message);
-						addToast({
-							message: err.message || 'Otp generation failed!',
-							type: 'error',
-						});
-					}
-				}else{
-			try {
-				const reqBody = {
-					customer_id: customerId,
-					white_label_id: whiteLabelId,
-					loan_product_id:
-					selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
-					selectedProduct?.product_id?.[formState?.values?.['business_type']] ||'',
-					loan_product_details_id:
-					selectedProduct?.id || selectedProduct?.id || undefined,
-					isApplicant: true, //implemented based on savitha's changes - bad practice					
-					origin: API.ORIGIN,
-				
-				};
-				const verifyData = await axios.post(
-					selectedDedupeData?.verify,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
+	const onProceedSelectCustomer = async () => {
+		try {
+			setSendingOTP(true);
+
+			const customerId = selectedCustomer?.customer_id;
+			setCustomerId(customerId);
+			if (selectedDedupeData?.is_otp_required) {
+				try {
+					const sendOtpRes = await axios.post(
+						selectedDedupeData?.generate_otp,
+						{
+							customer_id: customerId,
+							loan_product_id:
+								selectedProduct?.product_id?.[
+									formState?.values?.['income_type']
+								] ||
+								selectedProduct?.product_id?.[
+									formState?.values?.['business_type']
+								] ||
+								'',
 						},
-					}
-				);
-				
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
 
-				if (verifyData?.data?.status === 'ok') {
-					dispatch(setLeadDetailData(verifyData?.data));
-					dispatch(setSelectedSectionId(nextSectionId));   
-
-				}
-
-				if (verifyData?.data?.status === 'nok') {
+					setSendOtpRes(sendOtpRes?.data?.data || {});
+					setIsCustomerListModalOpen(false);
+					setIsCustomerVerificationOTPModal(true);
 					addToast({
-						message:
-							verifyData?.data?.message ||
-							verifyData?.data?.Message ||
-							'Something Went Wrong, Please check the selected/entered details.',
+						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+						type: 'success',
+					});
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
 						type: 'error',
 					});
 				}
-			} catch (err) {
-				console.error(err.message);
-				
+			} else {
+				try {
+					const reqBody = {
+						customer_id: customerId,
+						white_label_id: whiteLabelId,
+						loan_product_id:
+							selectedProduct?.product_id?.[
+								formState?.values?.['income_type']
+							] ||
+							selectedProduct?.product_id?.[
+								formState?.values?.['business_type']
+							] ||
+							'',
+						loan_product_details_id:
+							selectedProduct?.id || selectedProduct?.id || undefined,
+						isApplicant: true, //implemented based on savitha's changes - bad practice
+						origin: API.ORIGIN,
+					};
+					const verifyData = await axios.post(
+						selectedDedupeData?.verify,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+
+					if (verifyData?.data?.status === 'ok') {
+						dispatch(setLeadDetailData(verifyData?.data));
+						dispatch(setSelectedSectionId(nextSectionId));
+					}
+
+					if (verifyData?.data?.status === 'nok') {
+						addToast({
+							message:
+								verifyData?.data?.message ||
+								verifyData?.data?.Message ||
+								'Something Went Wrong, Please check the selected/entered details.',
+							type: 'error',
+						});
+					}
+				} catch (err) {
+					console.error(err.message);
+				}
 			}
+		} catch (e) {
+			console.error('error-onSelectCustomer-', e);
+		} finally {
+			setSendingOTP(false);
 		}
-	} catch (e) {
-		console.error('error-onSelectCustomer-', e);
-	} finally {
-		setSendingOTP(false);
-	}
-};
+	};
 	// TODO : Bikash will suggest to call the api for branch, connectors etc.
 
 	return (
-
 		<UI_SECTIONS.Wrapper>
+			{isCustomerListModalOpen && (
+				<CustomerListModal
+					show={isCustomerListModalOpen}
+					onClose={() => {
+						setIsCustomerListModalOpen(false);
+						setSelectedCustomer(null);
+					}}
+					customerList={customerList}
+					selectedCustomer={selectedCustomer}
+					setSelectedCustomer={setSelectedCustomer}
+					onProceedSelectCustomer={onProceedSelectCustomer}
+					sendingOTP={sendingOTP}
+				/>
+			)}
 
-{isCustomerListModalOpen && ( 
-		<CustomerListModal 
-		show={isCustomerListModalOpen}
-		onClose={() => {
-			setIsCustomerListModalOpen(false);
-			setSelectedCustomer(null);
-		}}
-		customerList={customerList}
-		selectedCustomer={selectedCustomer}
-		setSelectedCustomer={setSelectedCustomer}
-		onProceedSelectCustomer={onProceedSelectCustomer}
-		sendingOTP={sendingOTP}
-					></CustomerListModal>
-					
-					
-	)}
-
-{isCustomerVerificationOTPModal && (
+			{isCustomerVerificationOTPModal && (
 				<CustomerVerificationOTPModal
 					show={isCustomerVerificationOTPModal}
 					customerId={customerId}
@@ -1042,13 +1033,11 @@ const LeadDetails = props => {
 					customerDetailsFormData={formState?.values}
 					selectedDedupeData={selectedDedupeData}
 					product={selectedProduct}
-					setCustomerDetailsFormData={setCustomerDetailsFormData}
 					isApplicant={true}
-
 					sendOtpRes={sendOtpRes}
 					// subProduct={subProduct}
 				/>
-)}
+			)}
 			{fetchingSectionData ? (
 				<Loading />
 			) : (
