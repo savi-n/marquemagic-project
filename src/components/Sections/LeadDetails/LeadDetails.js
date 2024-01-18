@@ -531,14 +531,25 @@ const LeadDetails = props => {
 							ddupeRes?.data?.message ||
 							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
-						type: 'error',
-					});
-					return;
-				}
+							type: 'error',
+						});
+						
+						return;
+					}
+					if (ddupeRes?.data?.status === 'ok') {
+						ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+					
+					setIsCustomerListModalOpen(true);
+							
+						}
+						else{
+							dispatch(setCompletedApplicationSection(selectedSectionId));
+							dispatch(setSelectedSectionId(nextSectionId));
+						}
+				
+					
 
-				ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
-
-				setIsCustomerListModalOpen(true);
+				
 			}
 		} catch (e) {
 			console.error(e.message);
