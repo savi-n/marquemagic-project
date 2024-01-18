@@ -1242,7 +1242,10 @@ const LeadDetails = props => {
 																<Button
 																	onClick={saveAssetForm}
 																	disabled={
-																		loading || formState?.error?.asset_type
+																		loading ||
+																		assetFields.some(
+																			field => formState?.error?.[`${field}`]
+																		)
 																	}
 																	loading={loading}
 																>
