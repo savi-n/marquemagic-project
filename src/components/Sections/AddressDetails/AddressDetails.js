@@ -138,6 +138,9 @@ const AddressDetails = props => {
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
+	const disableFieldIfPrefilled =
+		selectedProduct?.product_details?.disable_fields_if_prefilled;
+
 	if (
 		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
 		!selectedVerifyOtp
@@ -202,7 +205,6 @@ const AddressDetails = props => {
 					const redirectRes = await axios.post(API.AADHAAR_REDIRECT, reqBody);
 					setIsBiometricModalOpen(true);
 					setBiometricRes(redirectRes?.data || {});
-					// console.log('redirectRes-', redirectRes);
 				} catch (error) {
 					console.error('error-addressdetails-aadhaarurlredirect-', error);
 				} finally {
@@ -218,7 +220,6 @@ const AddressDetails = props => {
 					aadhaarNo: formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP],
 					product_id: loanProductId,
 				};
-				// console.log(aadhaarOtpReqBody, '555', clientToken);
 				// --------------------
 				const aadharOtpReq = await axios.post(
 					API.AADHAAR_GENERATE_OTP,
@@ -289,9 +290,6 @@ const AddressDetails = props => {
 			}
 		} catch (err) {
 			console.error(err);
-			// console.log('====================================');
-			console.error(err);
-			// console.log('====================================');
 		}
 	};
 
@@ -317,11 +315,6 @@ const AddressDetails = props => {
 				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
 					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
-				// console.log('onproceed-', {
-				// 	isPermanentSelectedAddressProofTypeAadhaar,
-				// 	selectedIncomeType:
-				// 		formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME],
-				// });
 
 				// Below code is for Aadhar - Verify with OTP button making it mandatory
 				// based on rules passed to it
@@ -364,7 +357,6 @@ const AddressDetails = props => {
 						return;
 					}
 				}
-				// console.log(isVeriftOtpRules, '-3');
 				if (
 					!isPermanentSelectedAddressProofTypeAadhaar &&
 					isVerifyWithOtpRequired
@@ -458,11 +450,6 @@ const AddressDetails = props => {
 			)?.[0]?.doc_ref_id;
 			// -- KYC VERIFICATION RELATED CHANGES CR
 
-			// console.log('addressDetailsReqBody-', {
-			// 	addressDetailsReqBody,
-			// });
-			// return;
-
 			const addressDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				addressDetailsReqBody
@@ -531,7 +518,6 @@ const AddressDetails = props => {
 					return null;
 				});
 				documentUploadReqBody.data.document_upload = newOtherUploadedDocumentsTemp;
-				// console.log('other-documentUploadReqBody-', { documentUploadReqBody });
 				// return;
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
@@ -564,9 +550,6 @@ const AddressDetails = props => {
 							request_ids_obj: newKycUploadCacheDocumentsTemp,
 							user_id: createdByUserId,
 						};
-						// console.log('uploadCacheDocumentsTempReqBody-', {
-						// 	uploadCacheDocumentsTempReqBody,
-						// });
 						await axios.post(
 							API.UPLOAD_CACHE_DOCS,
 							uploadCacheDocumentsTempReqBody,
@@ -617,9 +600,6 @@ const AddressDetails = props => {
 	};
 
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
-		// console.log('prePopulateAddressDetailsFromVerifyOtpRes-aadhaarOtpRes-', {
-		// 	aadhaarOtpRes,
-		// });
 		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
 		Object.keys(formatedData || {}).map(key => {
 			onChangeFormStateField({
@@ -630,7 +610,6 @@ const AddressDetails = props => {
 		});
 	};
 
-	// console.log(selectedDirector);
 	const prefilledValues = field => {
 		try {
 			// custom prefill only for this section
@@ -891,16 +870,6 @@ const AddressDetails = props => {
 		}
 		// eslint-disable-next-line
 	}, [isSameAsAboveAddressChecked]);
-	// console.log('AddressDetails-allstates-', {
-	// 	app,
-	// 	application,
-	// 	selectedDirector,
-	// 	isSameAsAboveAddressChecked,
-	// 	formState,
-	// 	selectedSection,
-	// 	isCountryIndia,
-	// 	selectedPermanentAadhaarField,
-	// });
 
 	if (!selectedDirectorId) return null;
 
@@ -1157,8 +1126,6 @@ const AddressDetails = props => {
 															}}
 															key={`field-${fieldIndex}-${field.name}`}
 														>
-															{/* {console.log(field.name,isIdProofUploadField)} */}
-
 															<AddressProofUpload
 																field={field}
 																register={register}
@@ -1281,6 +1248,20 @@ const AddressDetails = props => {
 												}
 											}
 
+											//Disable if the field is prefilled.
+											if (
+												sub_section?.id ===
+													CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID ||
+												CONST.PRESENT_ADDRESS_DETAILS_SECTION_ID
+											) {
+												if (
+													formState?.values?.[field?.name] &&
+													disableFieldIfPrefilled
+												)
+													customFieldProps.disabled = true;
+												else customFieldProps.disabled = false;
+											}
+
 											// TO overwrite all above condition and disable everything
 											if (isViewLoan) {
 												customFieldProps.disabled = true;
@@ -1294,8 +1275,7 @@ const AddressDetails = props => {
 											) {
 												customFieldProps.disabled = true;
 											}
-											//here
-											// console.log(sub_section);
+
 											if (
 												sub_section.id ===
 													CONST_ADDRESS_DETAILS.SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD &&
