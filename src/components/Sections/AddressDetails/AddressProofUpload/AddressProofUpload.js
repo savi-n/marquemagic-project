@@ -93,7 +93,10 @@ const AddressProofUpload = props => {
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	let refCounter = 0;
 
-	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
+	const aadhaarProofOTPField =
+		addressProofUploadSection?.fields?.filter(field =>
+			field?.name?.includes(CONST.AADHAAR_FIELD_NAME_FOR_OTP)
+		) || [];
 	const prefillDataOnUpload =
 		selectedProduct?.product_details?.prefill_data_on_upload;
 
@@ -971,94 +974,110 @@ const AddressProofUpload = props => {
 				{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
 					<>
 						{selectedAddressProofId === 'permanent_aadhar' && <UI.OR>or</UI.OR>}
-						<UI.AadhaarNumberOtpFieldWrapper>
-							{register({
-								...aadhaarProofOTPField,
-								value: prefilledValues(aadhaarProofOTPField),
-								visibility: 'visible',
-								...customFieldProps,
-							})}
-							{(selectedVerifyOtp?.res?.status === 'ok' ||
-								selectedDirector?.is_aadhaar_otp_verified === true) && (
-								<UI.GreenTickImage src={GreenTick} alt='green tick' />
-							)}
-
-							{aadhaarProofOTPField?.sub_fields
-								?.filter(f => !f?.is_prefix)
-								?.map(subField => {
-									if (
-										!isFieldValid({
-											field: subField,
-											isApplicant,
-											formState: {},
-										})
-									) {
-										return null;
-									}
-									if (subField?.type === 'button') {
-										return (
-											<Button
-												name={
-													<span>
-														{subField?.placeholder}
-														{!!subField?.rules?.required && (
-															<sup style={{ color: 'red' }}>&nbsp;*</sup>
-														)}
-													</span>
-												}
-												isLoader={verifyingWithOtp}
-												disabled={
-													// isSectionCompleted ||
-													directorDetails?.is_aadhaar_otp_verified ||
-													selectedVerifyOtp?.res?.status === 'ok' ||
-													!formState.values[aadhaarProofOTPField.name] ||
-													isViewLoan ||
-													verifyingWithOtp
-													// (directors?.filter(
-													// 	director =>
-													// 		`${director?.id}` ===
-													// 		`${selectedDirector?.directorId}`
-													// ).length > 0 &&
-													// 	isEditLoan)
-												}
-												type='button'
-												customStyle={{
-													whiteSpace: 'nowrap',
-													width: '150px',
-													minWidth: '150px',
-													height: '45px',
-												}}
-												onClick={() => {
-													onClickVerifyWithOtp(aadhaarProofOTPField);
-												}}
-											/>
-										);
-									}
-									if (subField?.type === 'link') {
-										return (
-											<Button
-												name={subField?.placeholder}
-												type='button'
-												customStyle={{
-													whiteSpace: 'nowrap',
-													width: '150px',
-													minWidth: '150px',
-													height: '45px',
-												}}
-												onClick={() => window.open(subField?.link, '_blank')}
-											/>
-										);
-									}
+						{aadhaarProofOTPField.map((aadharField, fieldIndex) => {
+							if (aadharField?.for_type_name) {
+								if (
+									!aadharField?.for_type?.includes(
+										formState?.values?.[aadharField?.for_type_name]
+									)
+								)
 									return null;
-								})}
-							{(formState?.submit?.isSubmited ||
-								formState?.touched?.[aadhaarProofOTPField.name]) &&
-								formState?.error?.[aadhaarProofOTPField.name] && (
-									<UI_SECTIONS.ErrorMessageSubFields>
-										{formState?.error?.[aadhaarProofOTPField.name]}
-									</UI_SECTIONS.ErrorMessageSubFields>
-								)}
-						</UI.AadhaarNumberOtpFieldWrapper>
+							}
+							return (
+								<UI.AadhaarNumberOtpFieldWrapper
+									key={`${aadharField?.name}-${fieldIndex}`}
+								>
+									{register({
+										...aadharField,
+										value: prefilledValues(aadharField),
+										visibility: 'visible',
+										...customFieldProps,
+									})}
+									{(selectedVerifyOtp?.res?.status === 'ok' ||
+										selectedDirector?.is_aadhaar_otp_verified === true) && (
+										<UI.GreenTickImage src={GreenTick} alt='green tick' />
+									)}
+
+									{aadharField?.sub_fields
+										?.filter(f => !f?.is_prefix)
+										?.map(subField => {
+											if (
+												!isFieldValid({
+													field: subField,
+													isApplicant,
+													formState: {},
+												})
+											) {
+												return null;
+											}
+											if (subField?.type === 'button') {
+												return (
+													<Button
+														name={
+															<span>
+																{subField?.placeholder}
+																{!!subField?.rules?.required && (
+																	<sup style={{ color: 'red' }}>&nbsp;*</sup>
+																)}
+															</span>
+														}
+														isLoader={verifyingWithOtp}
+														disabled={
+															// isSectionCompleted ||
+															directorDetails?.is_aadhaar_otp_verified ||
+															selectedVerifyOtp?.res?.status === 'ok' ||
+															!formState.values[aadharField.name] ||
+															isViewLoan ||
+															verifyingWithOtp
+															// (directors?.filter(
+															// 	director =>
+															// 		`${director?.id}` ===
+															// 		`${selectedDirector?.directorId}`
+															// ).length > 0 &&
+															// 	isEditLoan)
+														}
+														type='button'
+														customStyle={{
+															whiteSpace: 'nowrap',
+															width: '150px',
+															minWidth: '150px',
+															height: '45px',
+														}}
+														onClick={() => {
+															onClickVerifyWithOtp(aadharField);
+														}}
+													/>
+												);
+											}
+											if (subField?.type === 'link') {
+												return (
+													<Button
+														name={subField?.placeholder}
+														type='button'
+														customStyle={{
+															whiteSpace: 'nowrap',
+															width: '150px',
+															minWidth: '150px',
+															height: '45px',
+														}}
+														onClick={() =>
+															window.open(subField?.link, '_blank')
+														}
+													/>
+												);
+											}
+											return null;
+										})}
+									{(formState?.submit?.isSubmited ||
+										formState?.touched?.[aadharField.name]) &&
+										formState?.error?.[aadharField.name] && (
+											<UI_SECTIONS.ErrorMessageSubFields>
+												{formState?.error?.[aadharField.name]}
+											</UI_SECTIONS.ErrorMessageSubFields>
+										)}
+								</UI.AadhaarNumberOtpFieldWrapper>
+							);
+						})}
 					</>
 				)}
 			</UI.DropZoneOtpFieldWrapper>
