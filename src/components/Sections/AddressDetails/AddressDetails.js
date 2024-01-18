@@ -5,6 +5,7 @@ import React, { useEffect, useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import moment from 'moment';
+import * as _ from 'lodash';
 
 import Button from 'components/Button';
 import AadhaarOTPModal from './AadhaarOTPModal';
@@ -137,6 +138,7 @@ const AddressDetails = props => {
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
+	const [initialAddress, setInitialAddress] = useState(null);
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 	const disableFieldIfPrefilled =
 		selectedProduct?.product_details?.disable_fields_if_prefilled;
@@ -661,11 +663,10 @@ const AddressDetails = props => {
 					return `${item?.aid}` === '1';
 				}
 			);
+			const initData = _.cloneDeep(initialAddress);
 			// -- TEST MODE
 			const preData = {
-				permanent_address_proof_address_type:
-					sectionData?.director_details?.address_type,
-
+				...initData,
 				permanent_address_proof_type:
 					process.env.REACT_APP_MUTHOOT_WHITELABEL === `${whiteLabelId}` &&
 					sectionData?.director_details?.additional_cust_id &&
@@ -679,33 +680,13 @@ const AddressDetails = props => {
 					!sectionData?.director_details?.ekyc_data?.classification_type
 						? CONST.PRESENT_OTHERS_RADIO
 						: ekycArrayPresentAddress?.classification_type,
-
-				permanent_aadhaar: sectionData?.director_details?.daadhaar,
 				permanent_address_proof_id_others:
 					ekycArrayPermanentAddress?.length > 0
 						? sectionData?.director_details?.ekyc_data?.filter(item => {
 								return `${item?.aid}` === '2';
 						  })?.[0]?.doc_ref_id
 						: '',
-				permanent_address_proof_id_document_name_others:
-					sectionData?.director_details?.permanent_ddocname,
-				permanent_address_proof_id_passport:
-					sectionData?.director_details?.dpassport,
-				permanent_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
-				permanent_address_proof_id_voter:
-					sectionData?.director_details?.dvoterid,
 
-				permanent_address_type:
-					sectionData?.director_details?.permanent_address_type,
-				permanent_address1: sectionData?.director_details?.permanent_address1,
-				permanent_address2: sectionData?.director_details?.permanent_address2,
-				permanent_address3: sectionData?.director_details?.permanent_locality,
-				permanent_pin_code: sectionData?.director_details?.permanent_pincode,
-				permanent_city: sectionData?.director_details?.permanent_city,
-				permanent_state: sectionData?.director_details?.permanent_state,
-				permanent_district: sectionData?.director_details?.permanent_district,
-				permanent_property_type:
-					sectionData?.director_details?.permanent_residential_type,
 				permanent_property_tenure: sectionData?.director_details
 					?.permanent_residential_stability
 					? moment(
@@ -737,22 +718,6 @@ const AddressDetails = props => {
 								return `${item?.aid}` === '1';
 						  })?.[0]?.doc_ref_id
 						: '',
-
-				present_address_proof_id_passport:
-					sectionData?.director_details?.dpassport,
-				present_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
-				present_address_proof_id_voter: sectionData?.director_details?.dvoterid,
-				present_address_proof_id_document_name_others:
-					sectionData?.director_details?.ddocname,
-				present_address_type: sectionData?.director_details?.address_type,
-				present_address1: sectionData?.director_details?.address1,
-				present_address2: sectionData?.director_details?.address2,
-				present_address3: sectionData?.director_details?.locality,
-				present_pin_code: sectionData?.director_details?.pincode,
-				present_city: sectionData?.director_details?.city,
-				present_district: sectionData?.director_details?.district,
-				present_state: sectionData?.director_details?.state,
-				present_property_type: sectionData?.director_details?.residential_type,
 				present_property_tenure: sectionData?.director_details
 					?.residential_stability
 					? moment(sectionData?.director_details?.residential_stability).format(
@@ -781,6 +746,85 @@ const AddressDetails = props => {
 			console.error('error-fetchSectionDetails-', error);
 		}
 	};
+
+	useEffect(() => {
+		setInitialAddress({
+			permanent_address_proof_address_type:
+				sectionData?.director_details?.address_type,
+
+			permanent_address_proof_type:
+				process.env.REACT_APP_MUTHOOT_WHITELABEL === `${whiteLabelId}` &&
+				sectionData?.director_details?.additional_cust_id &&
+				!sectionData?.director_details?.ekyc_data?.classification_type
+					? CONST.PERMANENT_OTHERS_RADIO
+					: '',
+
+			present_address_proof_type:
+				process.env.REACT_APP_MUTHOOT_WHITELABEL === `${whiteLabelId}` &&
+				sectionData?.director_details?.additional_cust_id &&
+				!sectionData?.director_details?.ekyc_data?.classification_type
+					? CONST.PRESENT_OTHERS_RADIO
+					: '',
+
+			permanent_aadhaar: sectionData?.director_details?.daadhaar,
+			permanent_address_proof_id_others: '',
+			permanent_address_proof_id_document_name_others:
+				sectionData?.director_details?.permanent_ddocname,
+			permanent_address_proof_id_passport:
+				sectionData?.director_details?.dpassport,
+			permanent_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
+			permanent_address_proof_id_voter: sectionData?.director_details?.dvoterid,
+
+			permanent_address_type:
+				sectionData?.director_details?.permanent_address_type,
+			permanent_address1: sectionData?.director_details?.permanent_address1,
+			permanent_address2: sectionData?.director_details?.permanent_address2,
+			permanent_address3: sectionData?.director_details?.permanent_locality,
+			permanent_pin_code: sectionData?.director_details?.permanent_pincode,
+			permanent_city: sectionData?.director_details?.permanent_city,
+			permanent_state: sectionData?.director_details?.permanent_state,
+			permanent_district: sectionData?.director_details?.permanent_district,
+			permanent_property_type:
+				sectionData?.director_details?.permanent_residential_type,
+			permanent_property_tenure: sectionData?.director_details
+				?.permanent_residential_stability
+				? moment(
+						sectionData?.director_details?.permanent_residential_stability
+				  ).format('YYYY-MM')
+				: '',
+			permanent_address_proof_valid_till: '',
+
+			permanent_address_proof_issued_on: '',
+
+			present_aadhaar: sectionData?.director_details?.daadhaar,
+			present_address_proof_id_others: '',
+
+			present_address_proof_id_passport:
+				sectionData?.director_details?.dpassport,
+			present_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
+			present_address_proof_id_voter: sectionData?.director_details?.dvoterid,
+			present_address_proof_id_document_name_others:
+				sectionData?.director_details?.ddocname,
+			present_address_type: sectionData?.director_details?.address_type,
+			present_address1: sectionData?.director_details?.address1,
+			present_address2: sectionData?.director_details?.address2,
+			present_address3: sectionData?.director_details?.locality,
+			present_pin_code: sectionData?.director_details?.pincode,
+			present_city: sectionData?.director_details?.city,
+			present_district: sectionData?.director_details?.district,
+			present_state: sectionData?.director_details?.state,
+			present_property_type: sectionData?.director_details?.residential_type,
+			present_property_tenure: sectionData?.director_details
+				?.residential_stability
+				? moment(sectionData?.director_details?.residential_stability).format(
+						'YYYY-MM'
+				  )
+				: '',
+			present_address_proof_issued_on: '',
+			present_address_proof_valid_till: '',
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [sectionData]);
 
 	// fetch section data starts
 	const fetchSectionDetails = async () => {
@@ -1255,7 +1299,7 @@ const AddressDetails = props => {
 												CONST.PRESENT_ADDRESS_DETAILS_SECTION_ID
 											) {
 												if (
-													formState?.values?.[field?.name] &&
+													initialAddress?.[field?.name] &&
 													disableFieldIfPrefilled
 												)
 													customFieldProps.disabled = true;
