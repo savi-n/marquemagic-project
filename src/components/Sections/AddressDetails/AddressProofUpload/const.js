@@ -7,6 +7,7 @@ export const EXTRACTION_KEY_PASSPORT = 'passport';
 
 export const PERMANENT_ADDRESS_PROOF_PASSPORT = 'permanent_passport';
 export const PRESENT_ADDRESS_PROOF_PASSPORT = 'present_passport';
+export const AADHAAR_FIELD_NAME_FOR_OTP = 'permanent_aadhaar';
 
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,
