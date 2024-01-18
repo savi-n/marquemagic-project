@@ -65,17 +65,6 @@ const AddressProofUpload = props => {
 		directorDetails,
 	} = props;
 
-	// console.log({
-	// 	selectedAddressProofFieldName,
-	// 	selectedAddressProofId,
-	// 	addressProofUploadSection,
-	// 	prefilledValues,
-	// 	cacheDocumentsTemp,
-	// 	setCacheDocumentsTemp,
-	// 	selectedDocTypeId,
-	// 	val: formState.values,
-	// 	directorDetails,
-	// });
 	let { addressProofError } = props;
 	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId } = useSelector(
@@ -105,6 +94,8 @@ const AddressProofUpload = props => {
 	let refCounter = 0;
 
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
+	const prefillDataOnUpload =
+		selectedProduct?.product_details?.prefill_data_on_upload;
 
 	const isFileFromDeviceStorageAllowed =
 		selectedProduct?.product_details?.is_file_from_storage_allowed;
@@ -121,10 +112,6 @@ const AddressProofUpload = props => {
 		try {
 			const { req_type, extractionRes, doc_ref_id } = data;
 			const { extractionData } = extractionRes;
-			// console.log('verifyKycAddressProof-', {
-			// 	data,
-			// 	selectedProduct,
-			// });
 			if (!selectedProduct?.product_details?.kyc_verification) return {};
 			const reqBody = {
 				business_id: application?.businessId,
@@ -164,7 +151,6 @@ const AddressProofUpload = props => {
 
 	const prepopulateAddressDetails = data => {
 		const { extractionData } = data?.extractionRes;
-		// console.log('prepopulateAddressDetails-', extractionData);
 
 		// AADHAAR NUMBER
 		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
@@ -217,7 +203,6 @@ const AddressProofUpload = props => {
 		// const dob = extractionData?.DOB || extractionData?.dob;
 
 		const fullAddress = extractionData?.address || extractionData?.Address;
-		// console.log(fullAddress,"fullAddress");
 		const addressArray = fullAddress.split(/[;,]+/);
 		if (!!addressArray?.[0]) {
 			onChangeFormStateField({
@@ -295,9 +280,6 @@ const AddressProofUpload = props => {
 				return;
 			}
 
-			// console.log('onClickFetchAddress-selectedAddressProofFiles-', {
-			// 	selectedAddressProofFiles,
-			// });
 			// Front + Back Extract
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
@@ -427,11 +409,6 @@ const AddressProofUpload = props => {
 					selectedDocTypeId,
 				};
 
-				// console.log('%c front and back', 'color: red', {
-				// 	frontFile,
-				// 	backFile,
-				// });
-
 				const newCacheDocumentTemp = [];
 				cacheDocumentsTemp?.map(doc => {
 					if (doc.id === frontFile.id) {
@@ -444,7 +421,9 @@ const AddressProofUpload = props => {
 					return null;
 				});
 				setCacheDocumentsTemp(newCacheDocumentTemp);
-				prepopulateAddressDetails(backFile);
+				if (prefillDataOnUpload) {
+					prepopulateAddressDetails(backFile);
+				}
 				await verifyKycAddressProof(backFile);
 				// setCacheDocumentsTemp([backFile])
 				// const newAddressProofExtractionData = {
@@ -537,16 +516,15 @@ const AddressProofUpload = props => {
 			});
 			setCacheDocumentsTemp(newCacheDocumentTemp);
 
-			// console.log('%c front only file', 'color: red', { frontOnlyFile });
-
 			// const newAddressProofExtractionData = {
 			// 	...(frontOnlyExtractionRes?.data?.extractionData || {}),
 			// 	doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
 			// 	requestId: frontOnlyExtractionRes?.data?.request_id,
 			// };
 
-			prepopulateAddressDetails(frontOnlyFile);
-			// console.log(frontOnlyFile);
+			if (prefillDataOnUpload) {
+				prepopulateAddressDetails(frontOnlyFile);
+			}
 			await verifyKycAddressProof(frontOnlyFile);
 			// await verifyKycAddressProof(REQ_TYPE, newAddressProofExtractionData);
 		} catch (error) {
@@ -559,12 +537,9 @@ const AddressProofUpload = props => {
 	const deleteDocument = async file => {
 		try {
 			setOpeningRemovingDocument(file?.document_key || file?.doc_type_id);
-			// console.log('before-delete-', cacheDocumentsTemp);
 			const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp).filter(
 				doc => doc.id !== file.id
 			);
-			// console.log('after-delete-', newCacheDocumentTemp);
-			// return;
 			setCacheDocumentsTemp(newCacheDocumentTemp);
 			setAddressProofError('');
 			if (selectedVerifyOtp?.res?.status === 'ok') {
@@ -590,8 +565,6 @@ const AddressProofUpload = props => {
 		const finalFilesToUpload = validatedResp
 			?.filter(item => item.status !== 'fail')
 			.map(fileItem => fileItem.file);
-
-		// console.log(validatedResp, 'validate resp');
 
 		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
 
@@ -621,7 +594,6 @@ const AddressProofUpload = props => {
 			// 	..._.cloneDeep(uploadingProgressFiles.current),
 			// 	...filesToUpload,
 			// ];
-			// console.log('file-upload-before-promise-', newUploadingFiles);
 			// selectedFiles.current = newUploadingFiles;
 			// setUploadingFiles(newUploadingFiles);
 			// setDocs([...docs, filesToUpload[0]]);
@@ -684,37 +656,12 @@ const AddressProofUpload = props => {
 		if (disabled) return false;
 
 		let files = [...event.dataTransfer.files];
-		// console.log('after-', {
-		// 	pan,
-		// 	upload,
-		// 	files,
-		// 	event,
-		// 	eventFiles: event.dataTransfer.files,
-		// });
 		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-			// console.log('before-handleUpload-', {
-			// 	files,
-			// });
 			files = await handleUpload(files);
-			// console.log('after-handleUpload-', {
-			// 	files,
-			// });
 			if (files) {
 				const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 				files.map(f => newCacheDocumentTemp.push(f));
 				setCacheDocumentsTemp(newCacheDocumentTemp);
-				// console.log('before current-files-', {
-				// 	current: selectedFiles.current,
-				// 	files,
-				// });
-				// console.log('FileUpload-handleDrop-', {
-				// 	pan,
-				// 	disabled,
-				// 	upload,
-				// 	files,
-				// 	uploadingFiles,
-				// 	selectedFiles: selectedFiles.current,
-				// });
 				event.dataTransfer.clearData();
 				refCounter = 0;
 			}
@@ -760,15 +707,6 @@ const AddressProofUpload = props => {
 				type: 'error',
 			});
 		}
-
-		// console.log('FileUpload-onChange-', {
-		// 	pan,
-		// 	disabled,
-		// 	upload,
-		// 	files,
-		// 	uploadingFiles,
-		// 	selectedFiles: selectedFiles.current,
-		// });
 	};
 
 	const onDocTypeChange = (file, docType) => {
@@ -788,16 +726,13 @@ const AddressProofUpload = props => {
 
 	const openDocument = async file => {
 		try {
-			// console.log('open-doc-', file);
 			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
 			reqBody.loan_id = loanId;
 			reqBody.userid = businessUserId;
-			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(VIEW_DOCUMENT, reqBody);
-			// console.log('openDocument-res-', docRes);
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 			setOpeningRemovingDocument(false);
 		} catch (error) {
@@ -824,10 +759,6 @@ const AddressProofUpload = props => {
 			});
 			return null;
 		});
-		// console.log('resetAllStates-', {
-		// 	cacheDocumentsTemp,
-		// 	newCacheDocumentTemp,
-		// });
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 		setOtherCacheDocumentsTemp(newCacheDocumentTemp);
 	};
@@ -921,7 +852,6 @@ const AddressProofUpload = props => {
 	) {
 		customFieldProps.disabled = true;
 	}
-	// console.log(cacheDocumentsTemp, 'cache doc temp');
 
 	return (
 		<UI.Wrapper>
