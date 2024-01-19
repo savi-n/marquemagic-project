@@ -1359,7 +1359,6 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
-										console.log(gstin);
 										if (
 											field?.name === CONST.GSTIN_FIELD_NAME &&
 											gstin?.data?.data?.length > 0 &&
