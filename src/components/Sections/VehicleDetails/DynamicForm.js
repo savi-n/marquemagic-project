@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
@@ -42,6 +42,7 @@ const DynamicForm = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
+
 	const {
 		isTestMode,
 		selectedSection,
@@ -60,6 +61,12 @@ const DynamicForm = props => {
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [fetchingVehicleData, setFetchingVehicleData] = useState(false);
+	const [vehicleCategoryOptions, setVehicleCategoryOptions] = useState([]);
+	const [vehicleModelOptions, setVehicleModelOptions] = useState([]);
+	const [equipmentCategoryOptions, setEquipmentCategoryOptions] = useState([]);
+	const [equipmentModelOptions, setEquipmentModelOptions] = useState([]);
+	const [tonnageCategoryOptions, setTonnageCategoryOptions] = useState([]);
+	const [manufacturerOptions, setManufacturerOptions] = useState([]);
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
@@ -163,7 +170,6 @@ const DynamicForm = props => {
 					Authorization: clientToken,
 				},
 			});
-			// console.log({ fetchRes, values: formState.values });
 
 			// Data prepopulation from the api
 			if (fetchRes?.data?.status === 'ok') {
@@ -228,9 +234,126 @@ const DynamicForm = props => {
 		}
 	};
 
+	const getOptionsFromResponse = (data, value) => {
+		return _.uniqBy(
+			data.map(item => ({
+				value: item[value],
+				name: item[value],
+			})),
+			'value'
+		);
+	};
+
+	const registrableFormState =
+		formState?.values?.['registrable'] || 'Registrable';
+
+	const vehicleTypeFormState =
+		formState?.values?.[CONST.FIELD_NAME_VEHICLE_TYPE];
+	const vehicleTypeOptions = selectedSection?.sub_sections
+		?.find(subSec => subSec?.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS)
+		?.fields?.find(field => field?.name === CONST.FIELD_NAME_VEHICLE_TYPE)
+		?.options;
+
+	const fetchVehicleOptions = async () => {
+		try {
+			setIsSubmitting(true);
+			setVehicleCategoryOptions([]);
+			setVehicleModelOptions([]);
+			setManufacturerOptions([]);
+
+			const isVehicleType = vehicleTypeOptions
+				?.filter(type =>
+					selectedProduct?.product_details?.vehicle_type_api?.includes(
+						type.name
+					)
+				)
+				?.some(type => type?.value === vehicleTypeFormState);
+
+			const vehicleName = vehicleTypeOptions.find(
+				type => type?.value === vehicleTypeFormState
+			)?.name;
+
+			if (isVehicleType) {
+				const response = await axios.get(`${API_END_POINT}/getVehicleType`, {
+					params: { assettype: vehicleName, registrable: registrableFormState },
+				});
+				const result = response.data.data;
+				setVehicleCategoryOptions(
+					getOptionsFromResponse(result, 'VehicleCategory')
+				);
+				setVehicleModelOptions(getOptionsFromResponse(result, 'VehicleModel'));
+				setManufacturerOptions(getOptionsFromResponse(result, 'Manufacturer'));
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	useEffect(() => {
+		if (vehicleTypeFormState) fetchVehicleOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [vehicleTypeFormState, formState?.values?.['registrable']]);
+
+	const equipmentTypeFormState =
+		formState?.values?.[CONST.FIELD_NAME_EQUIPMENT_TYPE];
+	const equipmentTypeOptions = selectedSection?.sub_sections
+		?.find(subSec => subSec?.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS)
+		?.fields?.find(field => field?.name === CONST.FIELD_NAME_EQUIPMENT_TYPE)
+		?.options;
+
+	const fetchEquipmentOptions = async () => {
+		try {
+			setIsSubmitting(true);
+			setEquipmentCategoryOptions([]);
+			setEquipmentModelOptions([]);
+			setManufacturerOptions([]);
+			setTonnageCategoryOptions([]);
+
+			const isEquipmentType = equipmentTypeOptions
+				?.filter(type =>
+					selectedProduct?.product_details?.equipment_type_api?.includes(
+						type.name
+					)
+				)
+				?.some(type => type?.value === equipmentTypeFormState);
+
+			const equipmentName = equipmentTypeOptions.find(
+				type => type?.value === equipmentTypeFormState
+			)?.name;
+
+			if (isEquipmentType) {
+				const response = await axios.get(`${API_END_POINT}/getEquipmentType`, {
+					params: {
+						equipmenttype: equipmentName,
+						registrable: registrableFormState,
+					},
+				});
+				const result = response.data.data;
+				setEquipmentCategoryOptions(
+					getOptionsFromResponse(result, 'equipmentcategory')
+				);
+				setEquipmentModelOptions(
+					getOptionsFromResponse(result, 'equipmentmodel')
+				);
+				setManufacturerOptions(getOptionsFromResponse(result, 'manufacturer'));
+				setTonnageCategoryOptions(getOptionsFromResponse(result, 'tonnage'));
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	useEffect(() => {
+		if (equipmentTypeFormState) fetchEquipmentOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [equipmentTypeFormState, formState?.values?.['registrable']]);
+
 	const onSaveOrUpdate = async data => {
 		try {
-			// console.log('onProceed-Date-DynamicForm-', data);
 			setIsSubmitting(true);
 			const reqBody = formatSectionReqBody({
 				section: selectedSection,
@@ -281,7 +404,6 @@ const DynamicForm = props => {
 					type: 'success',
 				});
 			}
-			// console.log('submitRes-', submitRes);
 		} catch (error) {
 			console.error('error-onSaveOrUpdate-', error);
 			addToast({
@@ -293,12 +415,6 @@ const DynamicForm = props => {
 		}
 	};
 
-	// console.log('DynamicForms-allstates-', {
-	// 	fields,
-	// 	app,
-	// 	selectedSection,
-	// 	prefillData,
-	// });
 	return (
 		<React.Fragment>
 			{subSections?.map((subSection, subSectionIndex) => {
@@ -346,18 +462,40 @@ const DynamicForm = props => {
 										fetchVehicleData();
 									};
 								}
+								if (field?.name === CONST.FIELD_NAME_VALUATION_PRICE) {
+									customFieldProps.disabled = true;
+								}
+
+								if (field?.name === CONST.FIELD_NAME_VEHICLE_CATEGORY) {
+									customFieldProps.disabled = !vehicleCategoryOptions?.length;
+									customFieldProps.options = vehicleCategoryOptions;
+								}
+								if (field?.name === CONST.FIELD_NAME_VEHICLE_MODEL) {
+									customFieldProps.disabled = !vehicleModelOptions?.length;
+									customFieldProps.options = vehicleModelOptions;
+								}
+
+								if (field?.name === CONST.FIELD_NAME_EQUIPMENT_CATEGORY) {
+									customFieldProps.disabled = !equipmentCategoryOptions?.length;
+									customFieldProps.options = equipmentCategoryOptions;
+								}
+								if (field?.name === CONST.FIELD_NAME_EQUIPMENT_MODEL) {
+									customFieldProps.disabled = !equipmentModelOptions?.length;
+									customFieldProps.options = equipmentModelOptions;
+								}
+								if (field?.name === CONST.FIELD_NAME_MANUFACTURER_NAME) {
+									customFieldProps.disabled = !manufacturerOptions?.length;
+									customFieldProps.options = manufacturerOptions;
+								}
+								if (field?.name === CONST.FIELD_NAME_TONNAGE_CATEGORY) {
+									customFieldProps.disabled = !tonnageCategoryOptions?.length;
+									customFieldProps.options = tonnageCategoryOptions;
+								}
 
 								let newValueSelectField;
 								if (!!field.sub_fields) {
 									newValueSelectField = prefilledValues(field?.sub_fields[0]);
 								}
-								// console.log('render-field-', {
-								// 	field,
-								// 	customFieldProps,
-								// 	isViewLoan,
-								// 	newField,
-								// 	formState,
-								// });
 								return (
 									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 										<div

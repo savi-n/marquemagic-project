@@ -10,12 +10,18 @@ import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import { getTotalYearsCompleted } from 'utils/helper';
+import { DDUPE_CHECK } from '_config/app.config';
+import plusRoundIcon from 'assets/icons/plus_icon_round.png';
+import editIcon from 'assets/icons/edit-icon.png';
+import expandIcon from 'assets/icons/right_arrow_active.png';
 import moment from 'moment';
 
 import {
 	// setIsDraftLoan,
 	// setLoginCreateUserRes,
 	setSelectedSectionId,
+	setLeadDetailData,
+
 	// setUserToken,
 } from 'store/appSlice';
 // import {
@@ -57,6 +63,10 @@ import * as CONST from './const';
 import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
 import { useLayoutEffect } from 'react';
+// import CustomerListModal from "./CustomerListModal"
+import CustomerListModal from '../../../components/ProductCard/CustomerListModal';
+import CustomerVerificationOTPModal from '../../../components/ProductCard/CustomerVerificationOTPModal';
+import DynamicForm from './DynamicForm';
 // import LeadAssetsDetails from './LeadAssetsDetails';
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -89,13 +99,20 @@ const LeadDetails = props => {
 		leadId,
 		loanProductId,
 	} = application;
-	// const naviagteToNextSection = () => {
-	// 	dispatch(setSelectedSectionId(nextSectionId));
-	// };
 
 	const dispatch = useDispatch();
+	const {
+		handleSubmit,
+		register,
+		formState,
+		onChangeFormStateField,
+	} = useForm();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
+	const assetsDetails = selectedSection?.sub_sections?.find(
+		section => section.id === CONST.FIELD_NAME_ASSETS_DETAILS
+	);
+	const assetFields = assetsDetails?.fields;
 
 	const [loading, setLoading] = useState(false);
 
@@ -104,10 +121,27 @@ const LeadDetails = props => {
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
+	const [assetManufacturerOptions, setAssetManufacturerOptions] = useState([]);
+	const [assetModelOptions, setAssetModelOptions] = useState([]);
+	const [assetTypeOptions, setAssetTypeOptions] = useState([]);
+	const [sendingOTP, setSendingOTP] = useState(false);
+	const [sendOtpRes, setSendOtpRes] = useState(null);
 
+	const [
+		isCustomerVerificationOTPModal,
+		setIsCustomerVerificationOTPModal,
+	] = useState(false);
+	const [isAssetEditMode, setIsAssetEditMode] = useState(false);
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
+	const [assetListFormState, setAssetListFormState] = useState([]);
+	const [isAssetCreateFormOpen, setIsAssetCreateFormOpen] = useState(true);
+	const [assetEditIndex, setAssetEditIndex] = useState(undefined);
+	const [assetViewIndex, setAssetViewIndex] = useState(undefined);
+	const [isAssetViewMode, setIsAssetViewMode] = useState(false);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const [selectedCustomer, setSelectedCustomer] = useState(null);
+	const MAX_ADD_COUNT = assetsDetails.max || 10;
 
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
@@ -117,6 +151,9 @@ const LeadDetails = props => {
 			: {};
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [branchOptions, setBranchOptions] = useState([]);
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [customerList, setCustomerList] = useState('');
+	const [customerId, setCustomerId] = useState('');
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 	if (
@@ -129,8 +166,7 @@ const LeadDetails = props => {
 			},
 		};
 	}
-	// console.log({ userDetails });
-	// console.log('selectedSection=>', selectedSection);
+
 	const branchField =
 		selectedSection?.sub_sections
 			?.filter(item => {
@@ -139,13 +175,6 @@ const LeadDetails = props => {
 			?.fields?.filter(field => {
 				return field?.name === CONST.BRANCH_FIELD_NAME;
 			})?.[0] || {};
-
-	const {
-		handleSubmit,
-		register,
-		formState,
-		onChangeFormStateField,
-	} = useForm();
 
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
@@ -217,7 +246,6 @@ const LeadDetails = props => {
 					aadhaarNo: formState.values[CONST.AADHAR_OTP_FIELD_NAME],
 					product_id: loanProductId,
 				};
-				// console.log(aadhaarOtpReqBody, '555', clientToken);
 				// --------------------
 				const aadharOtpReq = await axios.post(
 					API.AADHAAR_GENERATE_OTP,
@@ -280,7 +308,6 @@ const LeadDetails = props => {
 				const branchRes = await axios.get(
 					`${API.API_END_POINT}/getBranchList?bankId=${bankRefId}`
 				);
-				// console.log('branchRes-', { branchRes });
 				const newBranchOptions = [];
 				branchRes?.data?.branchList?.map(branch => {
 					newBranchOptions?.push({
@@ -291,7 +318,7 @@ const LeadDetails = props => {
 					return null;
 				});
 				setBranchOptions(newBranchOptions);
-			} // console.log('branchRes-', { branchRes });
+			}
 		} catch (error) {
 			console.error('error-getBranchOptions-', error);
 		} finally {
@@ -303,7 +330,6 @@ const LeadDetails = props => {
 		try {
 			setLoading(true);
 			const connectorRes = await axios.get(`${API.API_END_POINT}/connectors`);
-			// console.log('connectorRes-', { connectorRes });
 			const newConnectorOptions = [];
 			connectorRes?.data?.data?.map(connector => {
 				newConnectorOptions.push({
@@ -337,18 +363,9 @@ const LeadDetails = props => {
 			}
 		} catch (err) {
 			console.error(err);
-			// console.log('====================================');
-			console.error(err);
-			// console.log('====================================');
 		}
 	};
-	// console.log({
-	// 	selectedDedupeData,
-	// 	dedupeApiData,
-	// 	documentMapping,
-	// 	id: selectedProduct?.id,
-	// });
-	// console.log({ borrowerUserId, isEditOrViewLoan });
+
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -363,19 +380,25 @@ const LeadDetails = props => {
 				isLeadCategoryChanged = true;
 			}
 
+			const formValuesForPayload = {};
+			Object.keys(formState?.values).forEach(key => {
+				if (assetFields?.some(field => field.name === key)) return;
+				formValuesForPayload[key] = formState?.values[key];
+			});
+
 			const leadsDetailsReqBody = {
-				...formState.values,
+				...formValuesForPayload,
+				assets: assetListFormState?.length ? assetListFormState : null,
 				white_label_id: whiteLabelId,
 				product_id: selectedProduct?.id,
 				parent_id: selectedProduct?.parent_id || '',
 			};
+
 			if (leadId) leadsDetailsReqBody.id = leadId;
-			// console.log('leadsDetailsReqBody=>', leadsDetailsReqBody);
 			const leadsDetailsRes = await axios.post(
 				`${API.LEADS_DETIALS}`,
 				leadsDetailsReqBody
 			);
-			// console.log('leadsDetailsRes=>', { leadsDetailsRes });
 			// return;
 			if (leadsDetailsRes?.data?.status === 'ok') {
 				// TODO: Manoranjan - discuss with madhuri regarding user and add the below check (already added the condition - just reverify)
@@ -402,14 +425,6 @@ const LeadDetails = props => {
 					}
 					return;
 				} else {
-					// console.log({
-					// 	1: Object.keys(selectedDedupeData)?.length === 0,
-					// 	2: isEditLoan && !isLeadCategoryChanged,
-					// 	3:
-					// 		selectedSection?.validate_lead_status === true &&
-					// 		formState?.values?.['lead_category'] !==
-					// 			CONST.LEAD_STATUS_HOT_OPTION_VALUE,
-					// });
 					if (
 						Object.keys(selectedDedupeData)?.length === 0 ||
 						(isEditLoan && !isLeadCategoryChanged) ||
@@ -419,7 +434,9 @@ const LeadDetails = props => {
 					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
-					} else {
+					} else if (
+						selectedProduct?.product_details?.lead_to_dedupe_screen === true
+					) {
 						try {
 							const token = {
 								userId: userDetails?.id,
@@ -442,12 +459,14 @@ const LeadDetails = props => {
 						} catch (error) {
 							console.error('header-getAppylyloanUrl-error  ', error);
 						}
+					} else {
+						searchCustomerFromFetchApi();
 					}
 				}
 			}
 
-			dispatch(setCompletedApplicationSection(selectedSectionId));
-			dispatch(setSelectedSectionId(nextSectionId));
+			// dispatch(setCompletedApplicationSection(selectedSectionId));
+			// dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LeadDetails-onProceed-', {
 				error: error,
@@ -464,9 +483,6 @@ const LeadDetails = props => {
 		}
 	};
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
-		// console.log('prePopulateAddressDetailsFromVerifyOtpRes-aadhaarOtpRes-', {
-		// 	aadhaarOtpRes,
-		// });
 		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
 		Object.keys(formatedData || {}).map(key => {
 			onChangeFormStateField({
@@ -475,6 +491,80 @@ const LeadDetails = props => {
 			});
 			return null;
 		});
+	};
+	const searchCustomerFromFetchApi = async () => {
+		try {
+			const url = selectedDedupeData?.search_api;
+			const apiUrl = url || DDUPE_CHECK;
+			const reqBody = {
+				loan_product_id:
+					selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
+					selectedProduct?.product_id?.[formState?.values?.['business_type']] ||
+					'',
+				customer_type: formState?.values['customer_type'] || '',
+				white_label_id: whiteLabelId,
+				id_no: formState?.values?.['pan_number'] || '',
+				pan_number: formState?.values['pan_number']?.toUpperCase() || '',
+				pan: formState?.values['pan_number']?.toUpperCase() || '',
+
+				mobile_no: formState?.values['mobile_no'] || '',
+				mobile_num: formState?.values['mobile_no'] || '',
+
+				dob: formState?.values['business_vintage'] || '',
+				businesstype: formState?.values['income_type'] || '',
+				isApplicant: true, //implemented based on savitha's changes - bad practice
+				customer_id: formState?.values['customer_id'] || '',
+				loan_product_details_id: selectedProduct?.id || undefined,
+				parent_product_id: selectedProduct?.parent_id || undefined,
+			};
+
+			if (apiUrl) {
+				const ddupeRes = await axios.post(apiUrl, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+
+				if (ddupeRes?.data?.status === 'nok') {
+					addToast({
+						message:
+							ddupeRes?.data?.message ||
+							ddupeRes?.data?.Message ||
+							'No Customer data found, please press SKIP and proceed to enter details.',
+							type: 'error',
+						});
+						
+						return;
+					}
+					if (ddupeRes?.data?.status === 'ok') {
+						ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+					
+					setIsCustomerListModalOpen(true);
+							
+						}
+						else{
+							dispatch(setCompletedApplicationSection(selectedSectionId));
+							dispatch(setSelectedSectionId(nextSectionId));
+						}
+				
+					
+
+				
+			}
+		} catch (e) {
+			console.error(e.message);
+			addToast({
+				message:
+					e?.response?.data?.message ||
+					e?.response?.data?.Message ||
+					e.message ||
+					'Error in fetching the customer details. Please verify the entered details.',
+				type: 'error',
+			});
+		} finally {
+			// setFetchingCustomerDetails(false);
+			// setLoading(false)
+		}
 	};
 
 	const prefilledValues = field => {
@@ -508,7 +598,6 @@ const LeadDetails = props => {
 			});
 		}
 	};
-	// console.log(formState);
 
 	const validateToken = async () => {
 		try {
@@ -545,9 +634,12 @@ const LeadDetails = props => {
 					white_label_id: whiteLabelId,
 				},
 			});
-			// console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
-				setSectionData(fetchRes?.data?.data);
+				const responseData = fetchRes?.data?.data;
+				setSectionData(responseData);
+				const otherData = responseData?.other_data || '';
+				const tempSectionData = otherData ? JSON.parse(otherData) : {};
+				setAssetListFormState(tempSectionData?.assets || []);
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -571,10 +663,114 @@ const LeadDetails = props => {
 		getConnectors();
 		//new get api
 		if (leadId) fetchSectionDetails();
-		// log is required to monitor the modes
-		// console.log({ isViewLoan, isEditLoan });
 		//eslint-disable-next-line
 	}, []);
+
+	const assetTypeFormState = formState?.values?.['asset_type'];
+	const getOptionsFromResponse = (data = [], value) => {
+		return _.uniqBy(
+			data?.map(item => ({
+				value: item[value],
+				name: item[value],
+			})),
+			'value'
+		);
+	};
+
+	const fetchAssetOptions = async () => {
+		try {
+			setLoading(true);
+			setAssetManufacturerOptions([]);
+			setAssetModelOptions([]);
+
+			const isVehicleType = assetTypeOptions
+				?.filter(type =>
+					selectedProduct?.product_details?.vehicle_type_api?.includes(
+						type.name
+					)
+				)
+				?.some(type => type?.value === assetTypeFormState);
+			const isEquipmentType = assetTypeOptions
+				?.filter(type =>
+					selectedProduct?.product_details?.equipment_type_api?.includes(
+						type.name
+					)
+				)
+				?.some(type => type?.value === assetTypeFormState);
+
+			const assetTypeName = assetTypeOptions.find(
+				type => type?.value === assetTypeFormState
+			)?.name;
+			let response;
+
+			if (isVehicleType)
+				response = await axios.get(`${API_END_POINT}/getVehicleType`, {
+					params: { assettype: assetTypeName, registrable: 'Registrable' },
+				});
+			if (isEquipmentType)
+				response = await axios.get(`${API_END_POINT}/getEquipmentType`, {
+					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
+				});
+			const result = response?.data?.data;
+			setAssetManufacturerOptions(
+				getOptionsFromResponse(
+					result,
+					isVehicleType ? 'Manufacturer' : 'manufacturer'
+				)
+			);
+			setAssetModelOptions(
+				getOptionsFromResponse(
+					result,
+					isVehicleType ? 'VehicleModel' : 'equipmentmodel'
+				)
+			);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (assetTypeFormState) fetchAssetOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [assetTypeFormState]);
+
+	const openAssetForm = () => {
+		if (isAssetEditMode) {
+			setIsAssetEditMode(false);
+			setAssetEditIndex(undefined);
+		}
+		if (isAssetViewMode) {
+			setIsAssetViewMode(false);
+			setAssetViewIndex(undefined);
+		}
+		setIsAssetCreateFormOpen(true);
+	};
+
+	const saveAssetForm = () => {
+		let savedAsset = {};
+		assetsDetails?.fields?.forEach(field => {
+			const fieldName = field?.name;
+			savedAsset[fieldName] = formState?.values[fieldName];
+			onChangeFormStateField({
+				name: fieldName,
+				value: '',
+			});
+		});
+
+		setAssetListFormState(prev => {
+			if (assetEditIndex !== undefined) {
+				const updatedList = [...prev];
+				updatedList[assetEditIndex] = savedAsset;
+				setAssetEditIndex(undefined);
+				return updatedList;
+			}
+			return [...prev, { ...savedAsset }];
+		});
+		if (isAssetCreateFormOpen) setIsAssetCreateFormOpen(false);
+		else setIsAssetEditMode(false);
+	};
 
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
@@ -631,12 +827,6 @@ const LeadDetails = props => {
 			});
 		}
 
-		// if (formState.values[CONST.LOAN_SOURCE] === 'branch') {
-		// onChangeFormStateField({
-		// 	name: CONST.BRANCH_FIELD_NAME,
-		// 	value: '179423',
-		// });
-		// }
 		//eslint-disable-next-line
 	}, [formState.values[CONST.LOAN_SOURCE]]);
 
@@ -697,10 +887,164 @@ const LeadDetails = props => {
 		}
 	};
 
+	const redirectToProductPageInEditMode = (
+		loanData
+		// productForModal = product
+	) => {
+		if (!loanData?.data?.loan_data?.loan_ref_id) {
+			addToast({
+				message: 'Something went wrong, try after sometime',
+				type: 'error',
+			});
+			return;
+		}
+		// sessionStorage.clear();
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
+			token: userToken,
+			edit: true,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			selectedProduct?.id || ''
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		window.open(redirectURL, '_self');
+	};
+
+	const onProceedSelectCustomer = async () => {
+		try {
+			setSendingOTP(true);
+
+			const customerId = selectedCustomer?.customer_id;
+			setCustomerId(customerId);
+			if (selectedDedupeData?.is_otp_required) {
+				try {
+					const sendOtpRes = await axios.post(
+						selectedDedupeData?.generate_otp,
+						{
+							customer_id: customerId,
+							loan_product_id:
+								selectedProduct?.product_id?.[
+									formState?.values?.['income_type']
+								] ||
+								selectedProduct?.product_id?.[
+									formState?.values?.['business_type']
+								] ||
+								'',
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+
+					setSendOtpRes(sendOtpRes?.data?.data || {});
+					setIsCustomerListModalOpen(false);
+					setIsCustomerVerificationOTPModal(true);
+					addToast({
+						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+						type: 'success',
+					});
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
+						type: 'error',
+					});
+				}
+			} else {
+				try {
+					const reqBody = {
+						customer_id: customerId,
+						white_label_id: whiteLabelId,
+						loan_product_id:
+							selectedProduct?.product_id?.[
+								formState?.values?.['income_type']
+							] ||
+							selectedProduct?.product_id?.[
+								formState?.values?.['business_type']
+							] ||
+							'',
+						loan_product_details_id:
+							selectedProduct?.id || selectedProduct?.id || undefined,
+						isApplicant: true, //implemented based on savitha's changes - bad practice
+						origin: API.ORIGIN,
+					};
+					const verifyData = await axios.post(
+						selectedDedupeData?.verify,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+
+					if (verifyData?.data?.status === 'ok') {
+						dispatch(setLeadDetailData(verifyData?.data));
+						dispatch(setSelectedSectionId(nextSectionId));
+					}
+
+					if (verifyData?.data?.status === 'nok') {
+						addToast({
+							message:
+								verifyData?.data?.message ||
+								verifyData?.data?.Message ||
+								'Something Went Wrong, Please check the selected/entered details.',
+							type: 'error',
+						});
+					}
+				} catch (err) {
+					console.error(err.message);
+				}
+			}
+		} catch (e) {
+			console.error('error-onSelectCustomer-', e);
+		} finally {
+			setSendingOTP(false);
+		}
+	};
 	// TODO : Bikash will suggest to call the api for branch, connectors etc.
 
 	return (
 		<UI_SECTIONS.Wrapper>
+			{isCustomerListModalOpen && (
+				<CustomerListModal
+					show={isCustomerListModalOpen}
+					onClose={() => {
+						setIsCustomerListModalOpen(false);
+						setSelectedCustomer(null);
+					}}
+					customerList={customerList}
+					selectedCustomer={selectedCustomer}
+					setSelectedCustomer={setSelectedCustomer}
+					onProceedSelectCustomer={onProceedSelectCustomer}
+					sendingOTP={sendingOTP}
+				/>
+			)}
+
+			{isCustomerVerificationOTPModal && (
+				<CustomerVerificationOTPModal
+					show={isCustomerVerificationOTPModal}
+					customerId={customerId}
+					onClose={() => {
+						setIsCustomerVerificationOTPModal(false);
+						setIsCustomerListModalOpen(false);
+						// setIsCustomerDetailsFormModalOpen(false);
+						// setIsCustomerDetailsFormModalOpenDuplicate(false);
+					}}
+					selectedCustomer={selectedCustomer}
+					resendOtp={onProceedSelectCustomer}
+					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+					customerDetailsFormData={formState?.values}
+					selectedDedupeData={selectedDedupeData}
+					product={selectedProduct}
+					isApplicant={true}
+					sendOtpRes={sendOtpRes}
+					// subProduct={subProduct}
+				/>
+			)}
 			{fetchingSectionData ? (
 				<Loading />
 			) : (
@@ -718,21 +1062,335 @@ const LeadDetails = props => {
 						/>
 					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
-					{/* {console.log(formState.values.email)}; */}
+
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-						// if (sub_section?.id === CONST.FIELD_NAME_ASSETS_DETAILS) {
-						// 	return (
-						// 		<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						// 			<LeadAssetsDetails
-						// 				sectionIndex={sectionIndex}
-						// 				sub_section={sub_section}
-						// 				formState={formState}
-						// 				prefilledValues={prefilledValues}
-						// 				registerField={register}
-						// 			/>
-						// 		</Fragment>
-						// 	);
-						// }
+						if (
+							sub_section.is_dynamic &&
+							sub_section.id === CONST.FIELD_NAME_ASSETS_DETAILS
+						) {
+							return (
+								<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+									{sub_section?.name ? (
+										<UI_SECTIONS.SubSectionHeader>
+											{sub_section.name}
+										</UI_SECTIONS.SubSectionHeader>
+									) : null}
+
+									{assetListFormState.map((assetItem, assetIndex) => {
+										return (
+											<div key={`accordian-${assetIndex}`}>
+												{assetItem?.asset_type && (
+													<UI_SECTIONS.AccordianWrapper>
+														<UI_SECTIONS.AccordianHeader>
+															<UI_SECTIONS.AccordianHeaderData>
+																<span>Type of Asset:</span>
+																<strong>
+																	{
+																		assetTypeOptions?.find(
+																			option =>
+																				option.value === assetItem?.asset_type
+																		)?.name
+																	}
+																</strong>
+															</UI_SECTIONS.AccordianHeaderData>
+															<UI_SECTIONS.AccordianHeaderData>
+																<span>Asset Price:</span>
+																<strong>{assetItem?.asset_price}</strong>
+															</UI_SECTIONS.AccordianHeaderData>
+															<UI_SECTIONS.AccordianHeaderData
+																style={{
+																	marginLeft: 'auto',
+																	flex: 'none',
+																}}
+															>
+																{isViewLoan ? null : (
+																	<UI_SECTIONS.AccordianIcon
+																		src={editIcon}
+																		alt='edit'
+																		onClick={() => {
+																			if (isAssetCreateFormOpen) {
+																				setIsAssetCreateFormOpen(false);
+																			}
+																			if (isAssetViewMode) {
+																				setIsAssetViewMode(false);
+																				setAssetViewIndex(undefined);
+																			}
+																			setAssetEditIndex(assetIndex);
+																			Object.keys(assetItem).forEach(item => {
+																				onChangeFormStateField({
+																					name: item,
+																					value: assetItem?.[item],
+																				});
+																			});
+																			setIsAssetEditMode(true);
+																		}}
+																	/>
+																)}
+																<UI_SECTIONS.AccordianIcon
+																	src={expandIcon}
+																	alt='toggle'
+																	onClick={() => {
+																		if (isAssetCreateFormOpen) {
+																			setIsAssetCreateFormOpen(false);
+																		}
+																		if (isAssetEditMode) {
+																			setIsAssetEditMode(false);
+																			setAssetEditIndex(undefined);
+																		}
+																		if (
+																			isAssetViewMode &&
+																			assetViewIndex === assetIndex
+																		) {
+																			setAssetViewIndex(undefined);
+																			Object.keys(assetItem).forEach(item => {
+																				onChangeFormStateField({
+																					name: item,
+																					value: '',
+																				});
+																			});
+																			setIsAssetViewMode(false);
+																		} else {
+																			setAssetViewIndex(assetIndex);
+																			Object.keys(assetItem).forEach(item => {
+																				onChangeFormStateField({
+																					name: item,
+																					value: assetItem?.[item],
+																				});
+																			});
+																			setIsAssetViewMode(true);
+																		}
+																	}}
+																	style={{
+																		transform:
+																			isAssetViewMode &&
+																			assetViewIndex === assetIndex
+																				? 'rotate(-90deg)'
+																				: 'rotate(90deg)',
+																		cursor: 'pointer',
+																	}}
+																/>
+															</UI_SECTIONS.AccordianHeaderData>
+														</UI_SECTIONS.AccordianHeader>
+													</UI_SECTIONS.AccordianWrapper>
+												)}
+
+												{assetsDetails &&
+												((isAssetEditMode && assetEditIndex === assetIndex) ||
+													(isAssetViewMode &&
+														assetViewIndex === assetIndex)) ? (
+													<UI_SECTIONS.AccordianWrapper style={{ padding: 30 }}>
+														<UI_SECTIONS.FormWrapGrid>
+															{assetsDetails?.fields?.map(eachField => {
+																const field = _.cloneDeep(eachField);
+																if (
+																	field?.visibility === false ||
+																	!field?.name ||
+																	!field?.type
+																)
+																	return null;
+																const newValue = prefilledValues(field);
+																let newValueSelectField;
+																if (!!field.sub_fields) {
+																	newValueSelectField = prefilledValues(
+																		field?.sub_fields[0]
+																	);
+																}
+																const customFieldProps = {};
+																const customFieldPropsSubFields = {};
+
+																if (
+																	field?.name === CONST.ASSET_TYPE_FIELD_NAME
+																) {
+																	if (!assetTypeOptions.length)
+																		setAssetTypeOptions(field?.options);
+																}
+
+																customFieldProps.disabled =
+																	isAssetViewMode || isViewLoan;
+
+																if (
+																	field?.name ===
+																	CONST.ASSET_MANUFACTURER_FIELD_NAME
+																) {
+																	customFieldProps.disabled =
+																		!assetManufacturerOptions.length ||
+																		isAssetViewMode;
+																	customFieldProps.options = assetManufacturerOptions;
+																}
+																if (
+																	field?.name === CONST.ASSET_MODEL_FIELD_NAME
+																) {
+																	customFieldProps.disabled =
+																		!assetModelOptions.length ||
+																		isAssetViewMode;
+																	customFieldProps.options = assetModelOptions;
+																}
+
+																return (
+																	<DynamicForm
+																		key={`field-${field?.id}-${field.name}`}
+																		field={field}
+																		formState={formState}
+																		register={register}
+																		customFieldProps={customFieldProps}
+																		customFieldPropsSubFields={
+																			customFieldPropsSubFields
+																		}
+																		newValue={newValue}
+																		newValueSelectField={newValueSelectField}
+																	/>
+																);
+															})}
+														</UI_SECTIONS.FormWrapGrid>
+
+														{isAssetEditMode || !assetItem?.asset_type ? (
+															<UI_SECTIONS.AddDynamicSectionWrapper
+																style={{
+																	display: 'flex',
+																	gap: '20px',
+																}}
+															>
+																<Button
+																	onClick={saveAssetForm}
+																	disabled={
+																		loading ||
+																		assetFields.some(
+																			field => formState?.error?.[`${field}`]
+																		)
+																	}
+																	loading={loading}
+																>
+																	Save Asset
+																</Button>
+																{assetListFormState.length >= 1 &&
+																isAssetEditMode ? (
+																	<Button
+																		onClick={() => {
+																			setAssetEditIndex(undefined);
+																			assetFields.forEach(item => {
+																				onChangeFormStateField({
+																					name: item,
+																					value: '',
+																				});
+																			});
+																			setIsAssetEditMode(false);
+																		}}
+																		disabled={loading}
+																		loading={loading}
+																	>
+																		Cancel
+																	</Button>
+																) : null}
+															</UI_SECTIONS.AddDynamicSectionWrapper>
+														) : null}
+													</UI_SECTIONS.AccordianWrapper>
+												) : null}
+											</div>
+										);
+									})}
+									{isAssetCreateFormOpen && (
+										<UI_SECTIONS.AccordianWrapper style={{ padding: 30 }}>
+											<UI_SECTIONS.FormWrapGrid>
+												{assetsDetails?.fields?.map(eachField => {
+													const field = _.cloneDeep(eachField);
+													if (
+														field?.visibility === false ||
+														!field?.name ||
+														!field?.type
+													)
+														return null;
+													const newValue = prefilledValues(field);
+													let newValueSelectField;
+													if (!!field.sub_fields) {
+														newValueSelectField = prefilledValues(
+															field?.sub_fields[0]
+														);
+													}
+													const customFieldProps = {};
+													const customFieldPropsSubFields = {};
+
+													if (field?.name === CONST.ASSET_TYPE_FIELD_NAME) {
+														if (!assetTypeOptions.length)
+															setAssetTypeOptions(field?.options);
+													}
+
+													customFieldProps.disabled =
+														isAssetViewMode || isViewLoan;
+
+													if (
+														field?.name === CONST.ASSET_MANUFACTURER_FIELD_NAME
+													) {
+														customFieldProps.disabled =
+															!assetManufacturerOptions.length ||
+															isAssetViewMode;
+														customFieldProps.options = assetManufacturerOptions;
+													}
+													if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
+														customFieldProps.disabled =
+															!assetModelOptions.length || isAssetViewMode;
+														customFieldProps.options = assetModelOptions;
+													}
+
+													return (
+														<DynamicForm
+															key={`field-${field?.id}-${field.name}`}
+															field={field}
+															formState={formState}
+															register={register}
+															customFieldProps={customFieldProps}
+															customFieldPropsSubFields={
+																customFieldPropsSubFields
+															}
+															newValue={newValue}
+															newValueSelectField={newValueSelectField}
+														/>
+													);
+												})}
+											</UI_SECTIONS.FormWrapGrid>
+											<UI_SECTIONS.AddDynamicSectionWrapper
+												style={{
+													display: 'flex',
+													gap: '20px',
+													marginBottom: 10,
+												}}
+											>
+												<Button
+													onClick={saveAssetForm}
+													disabled={loading || formState?.error?.asset_type}
+													loading={loading}
+												>
+													Save Asset
+												</Button>
+												{assetListFormState.length >= 1 &&
+												isAssetCreateFormOpen ? (
+													<Button
+														onClick={() => {
+															setIsAssetCreateFormOpen(false);
+														}}
+														disabled={loading}
+														loading={loading}
+													>
+														Cancel
+													</Button>
+												) : null}
+											</UI_SECTIONS.AddDynamicSectionWrapper>
+										</UI_SECTIONS.AccordianWrapper>
+									)}
+									{isViewLoan ||
+									assetListFormState?.length >= MAX_ADD_COUNT ||
+									isAssetCreateFormOpen ? null : (
+										<UI_SECTIONS.AddDynamicSectionWrapper>
+											<UI_SECTIONS.PlusRoundButton
+												src={plusRoundIcon}
+												onClick={openAssetForm}
+											/>
+											<span>Click to Add Assets</span>
+										</UI_SECTIONS.AddDynamicSectionWrapper>
+									)}
+								</Fragment>
+							);
+						}
+
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -771,6 +1429,11 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+										}
+
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											customFieldProps.infoMessage =
+												'Example : UDYAM-XY-07-1234567';
 										}
 
 										if (field?.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
@@ -861,87 +1524,35 @@ const LeadDetails = props => {
 										}
 
 										return (
-											<UI_SECTIONS.FieldWrapGrid
+											<DynamicForm
 												key={`field-${fieldIndex}-${field.name}`}
-											>
-												<div
-													style={{
-														display: 'flex',
-														gap: '10px',
-														alignItems: 'center',
-													}}
-												>
-													{field?.sub_fields &&
-														field?.sub_fields[0].is_prefix &&
-														register({
-															...field.sub_fields[0],
-															value: newValueSelectField,
-															visibility: 'visible',
-															...customFieldProps,
-															...customFieldPropsSubFields,
-														})}
-													<div
-														style={{
-															width: '100%',
-														}}
-													>
-														{register({
-															...field,
-															value: newValue,
-															visibility: 'visible',
-															...customFieldProps,
-														})}
-													</div>
-													{field?.sub_fields &&
-														!field?.sub_fields[0].is_prefix &&
-														register({
-															...field.sub_fields[0],
-															value: newValueSelectField,
-															visibility: 'visible',
-															...customFieldProps,
-															...customFieldPropsSubFields,
-														})}
-												</div>
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field?.name]) &&
-													formState?.error?.[field?.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[field?.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field?.sub_fields?.[0]?.name]) &&
-													formState?.error?.[field?.sub_fields?.[0]?.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[field?.sub_fields[0]?.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-											</UI_SECTIONS.FieldWrapGrid>
-											//end
+												field={field}
+												formState={formState}
+												register={register}
+												customFieldProps={customFieldProps}
+												customFieldPropsSubFields={customFieldPropsSubFields}
+												newValue={newValue}
+												newValueSelectField={newValueSelectField}
+											/>
 										);
 									})}
 								</UI_SECTIONS.FormWrapGrid>
 							</Fragment>
 						);
 					})}
-					<UI_SECTIONS.Footer>
+					<UI_SECTIONS.Footer style={{ marginTop: 20 }}>
 						{!isViewLoan && (
 							<Button
 								fill
 								name={'Save and Proceed'}
 								isLoader={loading}
-								disabled={loading}
+								disabled={loading || isAssetCreateFormOpen}
 								onClick={handleSubmit(() => {
 									onSaveAndProceed();
 									return;
 								})}
 							/>
 						)}
-						{/* {isViewLoan && (
-							<>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)} */}
 					</UI_SECTIONS.Footer>
 				</>
 			)}

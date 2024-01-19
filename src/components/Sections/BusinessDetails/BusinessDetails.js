@@ -298,6 +298,7 @@ const BusinessDetails = props => {
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
+			lead_id: leadId || undefined,
 			loan_product_details_id: selectedProduct?.id,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
@@ -1477,6 +1478,8 @@ const BusinessDetails = props => {
 										// }
 
 										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											customFieldProps.infoMessage =
+												'Example : UDYAM-XY-07-1234567';
 											if (
 												sectionData?.business_details?.udyam_number &&
 												sectionData?.business_details?.udyam_response

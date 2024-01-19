@@ -153,9 +153,9 @@ const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
 const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
 
 //-------------------Sails Plaid-------------------------------------
-const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
-const VEHICLE_RC = `${API_END_POINT}/api/vehicleRC`;
-const PAN_TO_GST = `${API_END_POINT}/api/panToGst`;
+const VERIFY_KYC = `${ENDPOINT_BANK}/verifyKycData`;
+const VEHICLE_RC = `${ENDPOINT_BANK}/vehicleRC`;
+const PAN_TO_GST = `${ENDPOINT_BANK}/panToGst`;
 const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
 const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
 const AADHAAR_GENERATE_OTP = `${ENDPOINT_BANK}/aadhaar/generateOTP`;
@@ -167,8 +167,8 @@ const CUB_ACCOUNT_MINI_STATEMENT = `${ENDPOINT_BANK}/cub/accountMiniStatement`;
 const UPLOAD_CUB_STATEMENT = `${ENDPOINT_BANK}/uploadToSailsExp`;
 const BANK_LIST_API = `${ENDPOINT_BANK}/bank_list`;
 const FETCH_CIBIL_SCORE = `${ENDPOINT_BANK}/equifax/fetchData`;
-const CONSET_DETAILS = `${API_END_POINT}/api/consentDetails`;
-const GET_CONSENT = `${API_END_POINT}/api/getConsent`;
+const CONSET_DETAILS = `${ENDPOINT_BANK}/consentDetails`;
+const GET_CONSENT = `${ENDPOINT_BANK}/getConsent`;
 
 // ----------------------- Sails Plaid API ends -----------------------------------------------------------------
 

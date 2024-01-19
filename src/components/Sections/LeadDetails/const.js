@@ -12,10 +12,14 @@ export const initialFormState = {
 export const FIRST_NAME_FIELD_NAME = 'first_name';
 export const LAST_NAME_FIELD_NAME = 'last_name';
 export const PAN_NUMBER_FIELD_NAME = 'pan_number';
+export const UDYAM_NUMBER_FIELD_NAME = 'udyam_number';
 export const AADHAR_OTP_FIELD_NAME = 'aadhaar';
 export const FIELD_NAME_ASSETS_FOR = 'assets_for';
 export const FIELD_NAME_ASSETS_DETAILS = 'assets_details';
 export const BUSINESS_NAME_FIELD_NAME = 'business_name';
+export const ASSET_TYPE_FIELD_NAME = 'asset_type';
+export const ASSET_MANUFACTURER_FIELD_NAME = 'manufacturer';
+export const ASSET_MODEL_FIELD_NAME = 'model';
 
 export const BRANCH_FIELD_NAME = 'branch';
 export const CONNECTOR_NAME_FIELD_NAME = 'connector_name';
