@@ -40,6 +40,7 @@ export const SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD =
 	'present_address_proof_upload';
 
 export const PERMANENT_ADDRESS_DETAILS_SECTION_ID = 'permanent_address_details';
+export const PRESENT_ADDRESS_DETAILS_SECTION_ID = 'present_address_details';
 export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
 export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';
 export const AADHAAR_FIELD_NAME = 'aadhaar';
