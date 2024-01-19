@@ -8,7 +8,11 @@ import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
 import { scrollToTopRootElement } from 'utils/helper';
 import { APPLICATION_SUBMITTED_SECTION_ID } from '../const';
-import { TO_APPLICATION_STAGE_URL } from '_config/app.config';
+import {
+	TO_APPLICATION_STAGE_URL,
+	SEND_EMAIL,
+	SEND_SMS,
+} from '_config/app.config';
 import axios from 'axios';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 
@@ -48,7 +52,7 @@ const CaptionImg = styled.div`
 
 const ApplicationSubmitted = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, permission } = app;
+	const { selectedProduct, permission, userToken } = app;
 	const { loanRefId, loanId, leadId } = application;
 	const [count] = useState(0);
 	const isUseEffectCalledOnce = useRef(false);
@@ -82,6 +86,33 @@ const ApplicationSubmitted = props => {
 
 	const { isViewLoan, isEditLoan, isDraftLoan } = app;
 
+	const makeCallToApi = async url => {
+		try {
+			await axios.post(
+				`${url}`,
+				{
+					loan_ref_id: loanRefId,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
+			);
+		} catch (error) {
+			console.error(error.response);
+		}
+	};
+
+	const checkIfSmsEmailExist = () => {
+		if (selectedProduct?.product_details?.fed_mortgage_sms) {
+			makeCallToApi(SEND_SMS);
+		}
+		if (selectedProduct?.product_details?.fed_mortgage_email) {
+			makeCallToApi(SEND_EMAIL);
+		}
+	};
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		if (isUseEffectCalledOnce.current) return;
@@ -100,6 +131,7 @@ const ApplicationSubmitted = props => {
 					applicationStageReqBody.is_mandatory_documents_uploaded = true;
 				}
 				axios.post(`${TO_APPLICATION_STAGE_URL}`, applicationStageReqBody);
+				checkIfSmsEmailExist();
 			} catch (err) {
 				console.error(err.message);
 			}
