@@ -1359,10 +1359,11 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
+										console.log(gstin);
 										if (
 											field?.name === CONST.GSTIN_FIELD_NAME &&
-											gstin?.data?.length > 0 &&
-											!!gstin?.data
+											gstin?.data?.data?.length > 0 &&
+											!!gstin?.data?.data
 										) {
 											customFieldProps.type = 'disabledtextfieldmodal';
 											customFieldProps.onClick = handleGstSubmit;
