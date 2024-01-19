@@ -514,7 +514,7 @@ const BusinessDetails = props => {
 			// TODO:Bikash - modify gst component such that it should have the all the gst's as value.
 			if (!completedSections?.includes(selectedSectionId)) {
 				const firstActiveGst = gstin?.data?.data?.filter(
-					gstObj => gstObj?.status !== 'Inactive'
+					gstObj => gstObj?.data?.sts !== 'Inactive'
 				)?.[0]?.gstin;
 
 				buissnessDetailsReqBody.data.business_details.gstin = firstActiveGst;
@@ -1169,7 +1169,7 @@ const BusinessDetails = props => {
 											<UI.TableRow key={idx}>
 												<UI.TableColumn>{gstItem.gstin}</UI.TableColumn>
 												<UI.TableColumn>{gstItem.state_name}</UI.TableColumn>
-												<UI.TableColumn>{gstItem.status}</UI.TableColumn>
+												<UI.TableColumn>{gstItem?.data?.sts}</UI.TableColumn>
 											</UI.TableRow>
 										);
 									})}
