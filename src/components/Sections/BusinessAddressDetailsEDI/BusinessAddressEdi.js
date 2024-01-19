@@ -284,7 +284,7 @@ const BusinessAddressDetailsEdi = props => {
 			});
 			// -- TEST MODE
 			let rocRegAddress = '';
-			if (sectionData?.address.length <= 0) {
+			if (sectionData?.address?.length <= 0) {
 				rocRegAddress = sectionData?.registered_address;
 			}
 
@@ -398,7 +398,7 @@ const BusinessAddressDetailsEdi = props => {
 
 	const gstOptions = gstNumbers?.map(gstNum => {
 		return {
-			name: `${gstNum.gstin} - ${gstNum.state_name} - ${gstNum.status}`,
+			name: `${gstNum.gstin} - ${gstNum.state_name} - ${gstNum?.data?.sts}`,
 			value: gstNum.gstin,
 		};
 	});
