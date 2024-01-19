@@ -1234,6 +1234,7 @@ const AddressDetails = props => {
 													);
 												}
 											}
+
 											//setOtherPresentCacheDocTemp
 											if (
 												!!selectedVerifyOtp?.res &&
@@ -1245,7 +1246,22 @@ const AddressDetails = props => {
 												cacheDocumentsTemp?.filter(doc => !!doc?.extractionRes)
 													.length > 0
 											) {
-												customFieldProps.disabled = false;
+												//Disable if the field is prefilled.
+												if (
+													sub_section?.id ===
+														CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID ||
+													sub_section?.id ===
+														CONST.PRESENT_ADDRESS_DETAILS_SECTION_ID
+												) {
+													if (
+														initialAddress?.[field?.name] &&
+														disableFieldIfPrefilled
+													) {
+														customFieldProps.disabled = true;
+													} else {
+														customFieldProps.disabled = false;
+													}
+												}
 											} else if (selectedAddressProofId?.includes('others')) {
 												customFieldProps.disabled = false;
 											} else {
@@ -1290,20 +1306,6 @@ const AddressDetails = props => {
 												} else {
 													customFieldProps.disabled = true;
 												}
-											}
-
-											//Disable if the field is prefilled.
-											if (
-												sub_section?.id ===
-													CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID ||
-												CONST.PRESENT_ADDRESS_DETAILS_SECTION_ID
-											) {
-												if (
-													initialAddress?.[field?.name] &&
-													disableFieldIfPrefilled
-												)
-													customFieldProps.disabled = true;
-												else customFieldProps.disabled = false;
 											}
 
 											// TO overwrite all above condition and disable everything
