@@ -73,6 +73,8 @@ const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
 
 const CIN_UPDATE = `${API_END_POINT}/cin-update`;
+const SEND_SMS = `${API_END_POINT}/sendSms`;
+const SEND_EMAIL = `${API_END_POINT}/sendEmail`;
 
 const AUTHENTICATION_GENERATE_OTP = `${API_END_POINT}/users/sendOTP`;
 const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
@@ -279,4 +281,6 @@ export {
 	PENNY_DROP_STATUS_FETCH,
 	CONSET_DETAILS,
 	GET_CONSENT,
+	SEND_SMS,
+	SEND_EMAIL,
 };
