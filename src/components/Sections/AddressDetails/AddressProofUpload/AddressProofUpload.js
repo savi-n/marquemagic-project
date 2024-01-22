@@ -424,7 +424,8 @@ const AddressProofUpload = props => {
 					return null;
 				});
 				setCacheDocumentsTemp(newCacheDocumentTemp);
-				if (prefillDataOnUpload) {
+
+				if (prefillDataOnUpload === undefined || prefillDataOnUpload) {
 					prepopulateAddressDetails(backFile);
 				}
 				await verifyKycAddressProof(backFile);
@@ -525,7 +526,7 @@ const AddressProofUpload = props => {
 			// 	requestId: frontOnlyExtractionRes?.data?.request_id,
 			// };
 
-			if (prefillDataOnUpload) {
+			if (prefillDataOnUpload === undefined || prefillDataOnUpload) {
 				prepopulateAddressDetails(frontOnlyFile);
 			}
 			await verifyKycAddressProof(frontOnlyFile);
