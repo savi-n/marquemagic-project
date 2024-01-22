@@ -533,19 +533,17 @@ const LeadDetails = props => {
 							'No Customer data found, please press SKIP and proceed to enter details.',
 							type: 'error',
 						});
-						
+						dispatch(setCompletedApplicationSection(selectedSectionId));
+							dispatch(setSelectedSectionId(nextSectionId));
 						return;
 					}
-					if (ddupeRes?.data?.status === 'ok') {
+					else{
 						ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
 					
-					setIsCustomerListModalOpen(true);
-							
-						}
-						else{
-							dispatch(setCompletedApplicationSection(selectedSectionId));
-							dispatch(setSelectedSectionId(nextSectionId));
-						}
+						setIsCustomerListModalOpen(true);
+					}
+					
+						
 				
 					
 
