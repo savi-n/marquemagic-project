@@ -140,6 +140,7 @@ const BusinessDetails = props => {
 	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
 		false
 	);
+	const [leadData,setleadData]=useState({});
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -807,6 +808,9 @@ const BusinessDetails = props => {
 					sectionData?.business_details?.additional_cust_id ||
 					sectionData?.business_details?.customer_id ||
 					'',
+					businessname:sectionData?.business_details?.businessname ||leadData?.business_name,
+					businesspancardnumber:sectionData?.business_details?.businessname|| leadData?.pan_number,
+					contact:sectionData?.business_details?.contact || leadData?.mobile_no ,
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
@@ -974,6 +978,28 @@ const BusinessDetails = props => {
 			setFetchingSectionData(false);
 		}
 	};
+	const fetchleaddata = async () => {
+		try {
+		  setFetchingSectionData(true);
+		  const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
+			params: {
+			  id: leadId,
+			  white_label_id: whiteLabelId,
+			},
+		  });
+		  const otherData = fetchRes?.data?.data.other_data;
+		  const tempSectionData = otherData ? JSON.parse(otherData) : {};
+		  if (fetchRes?.data?.status === "ok") {
+			setleadData(tempSectionData);
+		  }
+		} catch (error) {
+		  console.error("eor-fetchSectionDetails-", error);
+		}
+		finally {
+			setFetchingSectionData(false);
+		  }
+	  };
+	  
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -988,6 +1014,7 @@ const BusinessDetails = props => {
 		}
 		//new get api
 		if (loanRefId) fetchSectionDetails();
+		if(leadId) fetchleaddata();
 		//eslint-disable-next-line
 	}, []);
 
