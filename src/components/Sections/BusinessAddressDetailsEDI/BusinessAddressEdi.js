@@ -55,6 +55,8 @@ const BusinessAddressDetailsEdi = props => {
 		// cacheDocuments,
 		// loanRefId,
 		businessId,
+		leadAllDetails,
+
 	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -90,7 +92,7 @@ const BusinessAddressDetailsEdi = props => {
 
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
-
+console.log("leadAllDetails",leadAllDetails);
 	const fetchAllGstNumbers = async panNum => {
 		if (panNum) {
 			try {
@@ -290,13 +292,15 @@ const BusinessAddressDetailsEdi = props => {
 
 			// Baas!
 			const preData = {
-				registered_address1: rocRegAddress || registeredAddress?.[0]?.line1,
+				registered_address1: rocRegAddress || registeredAddress?.[0]?.line1 || leadAllDetails?.address
+				,
 				registered_address2: registeredAddress?.[0]?.line2,
 				registered_address3: registeredAddress?.[0]?.locality,
 				registered_pin_code:
-					extractPincode(rocRegAddress) || registeredAddress?.[0]?.pincode,
-				registered_city: registeredAddress?.[0]?.city,
-				registered_state: registeredAddress?.[0]?.state,
+					extractPincode(rocRegAddress) || registeredAddress?.[0]?.pincode || leadAllDetails?.true_caller_location
+					,
+				registered_city: registeredAddress?.[0]?.city || leadAllDetails?.city,
+				registered_state: registeredAddress?.[0]?.state || leadAllDetails?.state,
 				registered_residential_type: registeredAddress?.[0]?.residential_type,
 
 				operating_address1: prefferedAddress?.[0]?.line1,

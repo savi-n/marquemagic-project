@@ -35,6 +35,7 @@ import {
 	setNewCompletedSections,
 	setBusinessMobile,
 	setBusinessName,
+	SetLeadDataDetails,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -94,15 +95,18 @@ const BusinessDetails = props => {
 		dedupePrefilledValues,
 		geoLocation,
 		leadId,
+		leadAllDetails,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
 	// 	dedupePrefilledValues
 	// );
+	console.log("selectedProduct",selectedProduct?.product_details?.disable_fields_if_prefilled
+	);
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
-
+console.log("leadAllDetails",leadAllDetails);
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
@@ -748,10 +752,11 @@ const BusinessDetails = props => {
 		setIsDedupeCheckModalOpen(false);
 		setDedupeModalData([]);
 	};
-
+;
 	// console.log(formState.values, 'form................');
 	const prefilledValues = field => {
 		try {
+			console.log("leadAllDetails",leadAllDetails)
 			// TEST MODE
 			if (isTestMode && CONST.initialFormState?.[field?.db_key]) {
 				return CONST.initialFormState?.[field?.db_key];
@@ -766,11 +771,12 @@ const BusinessDetails = props => {
 				!!dedupePrefilledValues
 					? dedupePrefilledValues
 					: null;
+					console.log("sectoondata",sectionData);
 			const preData = {
 				...sectionData?.business_details,
 				...sectionData?.loan_data,
 				...sectionData?.user_data,
-				business_email: sectionData?.user_data?.email,
+				business_email: sectionData?.user_data?.email || leadAllDetails?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 				// industry_type:
@@ -778,7 +784,7 @@ const BusinessDetails = props => {
 				// 	sectionData?.business_details?.businessindustry || '',
 				businesspancardnumber:
 					sectionData?.business_details?.businesspancardnumber ||
-					dedupeData?.pan_number,
+					dedupeData?.pan_number || leadAllDetails?.pan_number,
 
 				// userdata - (Savitha confirmed about the below prefilling data)
 				// fieldName : business mobile number - dbKey: contact  || prefillData : userData.contact
@@ -802,19 +808,20 @@ const BusinessDetails = props => {
 				industry_type: selectedIndustryFromGetResp() || '',
 				businessstartdate:
 					companyRocData?.DateOfIncorporation ||
-					sectionData?.business_details?.businessstartdate ||
+					sectionData?.business_details?.businessstartdate || leadAllDetails?.business_vintage ||
 					'',
 				customer_id:
 					sectionData?.business_details?.additional_cust_id ||
 					sectionData?.business_details?.customer_id ||
 					'',
-					businessname:sectionData?.business_details?.businessname ||leadData?.business_name,
-					businesspancardnumber:sectionData?.business_details?.businessname|| leadData?.pan_number,
-					contact:sectionData?.business_details?.contact || leadData?.mobile_no ,
+					businessname:sectionData?.business_details?.businessname ||leadAllDetails?.business_name,
+					contact:sectionData?.business_details?.contact || leadAllDetails?.mobile_no ,
+					udyam_number:sectionData?.business_details?.udyam_number || leadAllDetails?.udyam_number,
 			};
 
+console.log("preData",preData);
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
-
+			
 			return field?.value || '';
 		} catch (err) {
 			console.error('error-BusinessDetials', {
@@ -823,7 +830,6 @@ const BusinessDetails = props => {
 			});
 		}
 	};
-
 	const validateToken = async () => {
 		try {
 			const params = queryString.parse(window.location.search);
@@ -978,27 +984,27 @@ const BusinessDetails = props => {
 			setFetchingSectionData(false);
 		}
 	};
-	const fetchleaddata = async () => {
-		try {
-		  setFetchingSectionData(true);
-		  const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
-			params: {
-			  id: leadId,
-			  white_label_id: whiteLabelId,
-			},
-		  });
-		  const otherData = fetchRes?.data?.data.other_data;
-		  const tempSectionData = otherData ? JSON.parse(otherData) : {};
-		  if (fetchRes?.data?.status === "ok") {
-			setleadData(tempSectionData);
-		  }
-		} catch (error) {
-		  console.error("eor-fetchSectionDetails-", error);
-		}
-		finally {
-			setFetchingSectionData(false);
-		  }
-	  };
+	// const fetchleaddata = async () => {
+	// 	try {
+	// 	  setFetchingSectionData(true);
+	// 	  const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
+	// 		params: {
+	// 		  id: leadId,
+	// 		  white_label_id: whiteLabelId,
+	// 		},
+	// 	  });
+	// 	  const otherData = fetchRes?.data?.data.other_data;
+	// 	  const tempSectionData = otherData ? JSON.parse(otherData) : {};
+	// 	  if (fetchRes?.data?.status === "ok") {
+	// 		setleadData(tempSectionData);
+	// 	  }
+	// 	} catch (error) {
+	// 	  console.error("eor-fetchSectionDetails-", error);
+	// 	}
+	// 	finally {
+	// 		setFetchingSectionData(false);
+	// 	  }
+	//   };
 	  
 	useEffect(() => {
 		scrollToTopRootElement();
@@ -1014,7 +1020,7 @@ const BusinessDetails = props => {
 		}
 		//new get api
 		if (loanRefId) fetchSectionDetails();
-		if(leadId) fetchleaddata();
+		// if(leadId) fetchleaddata();
 		//eslint-disable-next-line
 	}, []);
 
@@ -1529,6 +1535,27 @@ const BusinessDetails = props => {
 											// console.log("Contact")
 											customFieldProps.onblur = handleBlurEmail;
 										}
+										if(selectedProduct?.product_details?.disable_fields_if_prefilled && prefilledValues(field)){
+											console.log(prefilledValues(field),'>>>>>>>>>>>>>>>>',formState)
+											const fieldsToDisable = [
+												CONST.BUSINESS_NAME_FIELD_NAME,
+												// CONST.BUSINESS_START_DATE,
+												CONST.NUMBER_OF_EMPOYEE,
+												CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME,
+												CONST.BUSINESS_EMAIL_FIELD,
+												CONST.CONTACT_EMAIL_FIELD,
+												CONST.MOBILE_NUMBER_FIELD_NAME,
+												// CONST.TITLE_FIELD,
+												CONST.EXISTING_CUSTOMER_FIELD_NAME,
+												// CONST.FIRST_NAME_FIELD_NAME,
+											];
+										
+											if (fieldsToDisable.includes(field.name)) {
+												customFieldProps.disabled = true;
+											}
+										} 
+										
+									
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
 											customFieldProps.onFocus = handleBlurEmail;
 

@@ -52,6 +52,8 @@ const VehicleDetails = props => {
 		setOpenAccordianId('');
 		setIsCreateFormOpen(true);
 	};
+	console.log("sectionData",sectionData[1]
+	);
 
 	const fetchSectionDetails = async () => {
 		try {
@@ -62,8 +64,12 @@ const VehicleDetails = props => {
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
+			const leadData=fetchRes?.data?.data.leads_data[0]			;
+			const otherData = leadData?.other_data || '';
+			console.log("otherData",leadData);
+			const tempSectionData = otherData ? JSON.parse(otherData) : {};
 			if (fetchRes?.data?.data?.vehicle_details?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.vehicle_details);
+				setSectionData([...fetchRes?.data?.data?.vehicle_details,...tempSectionData?.assets]);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -132,6 +138,14 @@ const VehicleDetails = props => {
 										...section?.loan_json?.rc_verification,
 										...section?.loan_json?.auto_inspect,
 										...section,
+										asset_type:
+										section?.loan_json?.rc_verification?.asset_type || section[1]?.asset_type,
+										equipment_type:
+										section?.loan_json?.rc_verification?.asset_type || section[1]?.equipment_type_asset,
+										vehicle_type:
+										section?.loan_json?.rc_verification?.vehicle_type || section[1]?.vehicle_type_asset,
+										// "manufacturer_name
+										
 										director_id:
 											section?.director_id === 0
 												? '0'

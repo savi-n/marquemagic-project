@@ -34,6 +34,7 @@ import {
 	// setLeadId,
 	setCompletedApplicationSection,
 	setLeadId,
+	SetLeadDataDetails,
 	// setBusinessType,
 	// setNewCompletedSections,
 	// setBusinessMobile,
@@ -75,7 +76,7 @@ const LeadDetails = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-
+console.log("setLeadDetailData",app);
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -154,6 +155,7 @@ const LeadDetails = props => {
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState('');
 	const [customerId, setCustomerId] = useState('');
+	const [nonExsitingCustomerModal,setNonExsitingCustomerModal]=useState(false);
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 	if (
@@ -405,7 +407,16 @@ const LeadDetails = props => {
 				// 1 condition to check whether this user is allowed to proceed further
 				// 2 condition to check whether dedupe is present. if not present move to next section
 				// 3 if dedupe is present, redirect to dedupe screen
+				console.log('leadsDetailsRes',leadsDetailsRes?.data?.data?.other_data[0]
+
+				)
+				const otherData = leadsDetailsRes?.data?.data?.other_data
+				|| '';
+				const tempLeadData = otherData ? JSON.parse(otherData) : {};
+				
+				console.log("tempLeadData",tempLeadData);
 				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
+				dispatch(SetLeadDataDetails({leadAllDetails: tempLeadData}))
 				if (
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.usertype
@@ -492,6 +503,11 @@ const LeadDetails = props => {
 			return null;
 		});
 	};
+
+	const proceedNonExsitingCustomer=()=>{
+		dispatch(setCompletedApplicationSection(selectedSectionId));
+		dispatch(setSelectedSectionId(nextSectionId));
+	}
 	const searchCustomerFromFetchApi = async () => {
 		try {
 			const url = selectedDedupeData?.search_api;
@@ -533,8 +549,8 @@ const LeadDetails = props => {
 							'No Customer data found, please press SKIP and proceed to enter details.',
 							type: 'error',
 						});
-						dispatch(setCompletedApplicationSection(selectedSectionId));
-							dispatch(setSelectedSectionId(nextSectionId));
+						setNonExsitingCustomerModal(true);
+					
 						return;
 					}
 					else{
@@ -1007,6 +1023,17 @@ const LeadDetails = props => {
 
 	return (
 		<UI_SECTIONS.Wrapper>
+
+			{nonExsitingCustomerModal && (
+				<CustomerListModal
+				NonexistCustomer="true"
+				show={nonExsitingCustomerModal}
+					onClose={() => {
+						setNonExsitingCustomerModal(false);
+					}}
+					onProceedSelectCustomer={proceedNonExsitingCustomer}
+				/>
+			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
 					show={isCustomerListModalOpen}
