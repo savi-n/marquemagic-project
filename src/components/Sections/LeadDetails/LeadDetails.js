@@ -89,7 +89,6 @@ const LeadDetails = props => {
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const [assetManufacturerOptions, setAssetManufacturerOptions] = useState([]);
 	const [assetModelOptions, setAssetModelOptions] = useState([]);
-	const [assetTypeOptions, setAssetTypeOptions] = useState([]);
 	const [sendingOTP, setSendingOTP] = useState(false);
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 
@@ -107,6 +106,16 @@ const LeadDetails = props => {
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const [selectedCustomer, setSelectedCustomer] = useState(null);
 	const MAX_ADD_COUNT = assetsDetails.max || 10;
+	const assetTypeOptions = {
+		vehicle:
+			assetsDetails?.fields?.find(
+				field => field?.name === CONST.VEHICLE_TYPE_FIELD_NAME
+			)?.options || [],
+		equipment:
+			assetsDetails?.fields?.find(
+				field => field?.name === CONST.EQUIPMENT_TYPE_FIELD_NAME
+			)?.options || [],
+	};
 
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
@@ -613,7 +622,10 @@ const LeadDetails = props => {
 		//eslint-disable-next-line
 	}, []);
 
-	const assetTypeFormState = formState?.values?.['asset_type'];
+	const vehicleTypeFormState =
+		formState?.values?.[CONST.VEHICLE_TYPE_FIELD_NAME];
+	const equipmentTypeFormState =
+		formState?.values?.[CONST.EQUIPMENT_TYPE_FIELD_NAME];
 	const getOptionsFromResponse = (data = [], value) => {
 		return _.uniqBy(
 			data?.map(item => ({
@@ -624,53 +636,25 @@ const LeadDetails = props => {
 		);
 	};
 
-	const fetchAssetOptions = async () => {
+	const fetchVehicleOptions = async () => {
 		try {
 			setLoading(true);
 			setAssetManufacturerOptions([]);
 			setAssetModelOptions([]);
 
-			const isVehicleType = assetTypeOptions
-				?.filter(type =>
-					selectedProduct?.product_details?.vehicle_type_api?.includes(
-						type.name
-					)
-				)
-				?.some(type => type?.value === assetTypeFormState);
-			const isEquipmentType = assetTypeOptions
-				?.filter(type =>
-					selectedProduct?.product_details?.equipment_type_api?.includes(
-						type.name
-					)
-				)
-				?.some(type => type?.value === assetTypeFormState);
-
-			const assetTypeName = assetTypeOptions.find(
-				type => type?.value === assetTypeFormState
+			const assetTypeName = assetTypeOptions?.vehicle?.find(
+				type => type?.value === vehicleTypeFormState
 			)?.name;
-			let response;
 
-			if (isVehicleType)
-				response = await axios.get(`${API.API_END_POINT}/getVehicleType`, {
-					params: { assettype: assetTypeName, registrable: 'Registrable' },
-				});
-			if (isEquipmentType)
-				response = await axios.get(`${API.API_END_POINT}/getEquipmentType`, {
-					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
-				});
+			const response = await axios.get(`${API.API_END_POINT}/getVehicleType`, {
+				params: { assettype: assetTypeName, registrable: 'Registrable' },
+			});
+
 			const result = response?.data?.data;
 			setAssetManufacturerOptions(
-				getOptionsFromResponse(
-					result,
-					isVehicleType ? 'Manufacturer' : 'manufacturer'
-				)
+				getOptionsFromResponse(result, 'Manufacturer')
 			);
-			setAssetModelOptions(
-				getOptionsFromResponse(
-					result,
-					isVehicleType ? 'VehicleModel' : 'equipmentmodel'
-				)
-			);
+			setAssetModelOptions(getOptionsFromResponse(result, 'VehicleModel'));
 		} catch (error) {
 			addToast({
 				message: 'Error obtaining options for Asset Details',
@@ -682,9 +666,45 @@ const LeadDetails = props => {
 	};
 
 	useEffect(() => {
-		if (assetTypeFormState) fetchAssetOptions();
+		if (vehicleTypeFormState) fetchVehicleOptions();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [assetTypeFormState]);
+	}, [vehicleTypeFormState]);
+
+	const fetchEquipmentOptions = async () => {
+		try {
+			setLoading(true);
+			setAssetManufacturerOptions([]);
+			setAssetModelOptions([]);
+
+			const assetTypeName = assetTypeOptions?.equipment?.find(
+				type => type?.value === equipmentTypeFormState
+			)?.name;
+
+			const response = await axios.get(
+				`${API.API_END_POINT}/getEquipmentType`,
+				{
+					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
+				}
+			);
+			const result = response?.data?.data;
+			setAssetManufacturerOptions(
+				getOptionsFromResponse(result, 'manufacturer')
+			);
+			setAssetModelOptions(getOptionsFromResponse(result, 'equipmentmodel'));
+		} catch (error) {
+			addToast({
+				message: 'Error obtaining options for Asset Details',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (equipmentTypeFormState) fetchEquipmentOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [equipmentTypeFormState]);
 
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
@@ -1082,14 +1102,6 @@ const LeadDetails = props => {
 							sub_section.is_dynamic &&
 							sub_section.id === CONST.FIELD_NAME_ASSETS_DETAILS
 						) {
-							if (!assetTypeOptions?.length) {
-								setAssetTypeOptions(
-									sub_section?.fields?.find(
-										field => field?.name === CONST.ASSET_TYPE_FIELD_NAME
-									)?.options || []
-								);
-							}
-
 							return (
 								<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 									{sub_section?.name ? (
@@ -1099,6 +1111,17 @@ const LeadDetails = props => {
 									) : null}
 
 									{assetListFormState.map((assetItem, assetIndex) => {
+										const assetType = assetItem?.vehicle_type_asset
+											? assetTypeOptions?.vehicle?.find(
+													option =>
+														option.value === assetItem?.vehicle_type_asset
+											  )?.name
+											: assetItem?.equipment_type_asset
+											? assetTypeOptions?.equipment?.find(
+													option =>
+														option.value === assetItem?.equipment_type_asset
+											  )?.name
+											: '';
 										return (
 											<div key={`accordian-${assetIndex}`}>
 												{assetItem?.asset_type && (
@@ -1106,14 +1129,7 @@ const LeadDetails = props => {
 														<UI_SECTIONS.AccordianHeader>
 															<UI_SECTIONS.AccordianHeaderData>
 																<span>Type of Asset:</span>
-																<strong>
-																	{
-																		assetTypeOptions?.find(
-																			option =>
-																				option.value === assetItem?.asset_type
-																		)?.name
-																	}
-																</strong>
+																<strong>{assetType}</strong>
 															</UI_SECTIONS.AccordianHeaderData>
 															<UI_SECTIONS.AccordianHeaderData>
 																<span>Loan Amount:</span>
@@ -1217,7 +1233,7 @@ const LeadDetails = props => {
 															})}
 														</UI_SECTIONS.FormWrapGrid>
 
-														{isAssetEditMode || !assetItem?.asset_type ? (
+														{isAssetEditMode ? (
 															<LeadsAssetFormFooter
 																onCancel={() => {
 																	setSelectedAssetIndex(undefined);

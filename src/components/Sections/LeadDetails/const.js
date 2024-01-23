@@ -18,6 +18,8 @@ export const FIELD_NAME_ASSETS_FOR = 'assets_for';
 export const FIELD_NAME_ASSETS_DETAILS = 'assets_details';
 export const BUSINESS_NAME_FIELD_NAME = 'business_name';
 export const ASSET_TYPE_FIELD_NAME = 'asset_type';
+export const VEHICLE_TYPE_FIELD_NAME = 'vehicle_type_asset';
+export const EQUIPMENT_TYPE_FIELD_NAME = 'equipment_type_asset';
 export const ASSET_MANUFACTURER_FIELD_NAME = 'manufacturer';
 export const ASSET_MODEL_FIELD_NAME = 'model';
 
