@@ -1100,6 +1100,14 @@ const BasicDetails = props => {
 			// console.log({
 			// 	sectionData,
 			// });
+			let kyc_risk_profile = '';
+			try {
+				kyc_risk_profile =
+					sectionData?.director_details?.others_info &&
+					JSON.parse(sectionData?.director_details?.others_info)?.kyc_risk;
+			} catch (error) {
+				console.error('Error in parsing JSON', error);
+			}
 			const preData = {
 				...sectionData?.director_details,
 				...sectionData?.loan_request_Data,
@@ -1146,7 +1154,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
-				// kyc_risk_profile: 'Low Risk',
+				kyc_risk_profile: kyc_risk_profile || '',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
