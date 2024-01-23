@@ -1,37 +1,18 @@
 // TODO: Manoranjan - Please integrate all the required api's 1.Get method 2. Post method 3. Aadhar otp verification 4. dedupe flow
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import queryString from 'query-string';
 import _ from 'lodash';
+import moment from 'moment';
+
 import useForm from 'hooks/useFormIndividual';
-import Button from 'components/Button';
-import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
-import { verifyUiUxToken } from 'utils/request';
-import { API_END_POINT } from '_config/app.config';
-import { getTotalYearsCompleted } from 'utils/helper';
-import { DDUPE_CHECK } from '_config/app.config';
+import * as API from '_config/app.config';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
-import moment from 'moment';
-
+import { setSelectedSectionId, setLeadDetailData } from 'store/appSlice';
 import {
-	// setIsDraftLoan,
-	// setLoginCreateUserRes,
-	setSelectedSectionId,
-	setLeadDetailData,
-
-	// setUserToken,
-} from 'store/appSlice';
-// import {
-// 	setNewCompletedDirectorSections,
-// 	getDirectors,
-// 	setSmeType,
-// } from 'store/directorsSlice';
-import {
-	// setLoanIds,
-	// setLeadId,
 	setCompletedApplicationSection,
 	setLeadId,
 	SetLeadDataDetails,
@@ -41,7 +22,6 @@ import {
 	// setBusinessName,
 } from 'store/applicationSlice';
 import {
-	// formatSectionReqBody,
 	getApiErrorMessage,
 	getAllCompletedSections,
 	getSelectedSubField,
@@ -49,26 +29,27 @@ import {
 	isDirectorApplicant,
 	formatAadhaarOtpResponse,
 } from 'utils/formatData';
+import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
+import { verifyUiUxToken } from 'utils/request';
+import { getTotalYearsCompleted, scrollToTopRootElement } from 'utils/helper';
+import { isInvalidAadhaar, isInvalidPan } from 'utils/validation';
+import Button from 'components/Button';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { scrollToTopRootElement } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
-import * as API from '_config/app.config';
-import { isInvalidAadhaar, isInvalidPan } from 'utils/validation';
-
-// import * as UI from './ui';
 import * as CONST from './const';
 import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
-import { useLayoutEffect } from 'react';
-// import CustomerListModal from "./CustomerListModal"
 import CustomerListModal from '../../../components/ProductCard/CustomerListModal';
 import CustomerVerificationOTPModal from '../../../components/ProductCard/CustomerVerificationOTPModal';
 import DynamicForm from './DynamicForm';
-// import LeadAssetsDetails from './LeadAssetsDetails';
+import Modal from 'components/Modal';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
+import * as UI from './ui';
+
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedDirectorId, directors } = useSelector(
@@ -87,19 +68,11 @@ console.log("setLeadDetailData",app);
 		userToken,
 		isViewLoan,
 		isEditLoan,
-		// isEditOrViewLoan,
 		permission,
 		userDetails,
 		isTestMode,
 	} = app;
-	const {
-		// borrowerUserId,
-		// businessUserId,
-		// businessType,
-		loanRefId,
-		leadId,
-		loanProductId,
-	} = application;
+	const { loanRefId, leadId, loanProductId } = application;
 
 	const dispatch = useDispatch();
 	const {
@@ -124,7 +97,6 @@ console.log("setLeadDetailData",app);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const [assetManufacturerOptions, setAssetManufacturerOptions] = useState([]);
 	const [assetModelOptions, setAssetModelOptions] = useState([]);
-	const [assetTypeOptions, setAssetTypeOptions] = useState([]);
 	const [sendingOTP, setSendingOTP] = useState(false);
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 
@@ -136,13 +108,22 @@ console.log("setLeadDetailData",app);
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	const [assetListFormState, setAssetListFormState] = useState([]);
 	const [isAssetCreateFormOpen, setIsAssetCreateFormOpen] = useState(true);
-	const [assetEditIndex, setAssetEditIndex] = useState(undefined);
-	const [assetViewIndex, setAssetViewIndex] = useState(undefined);
+	const [selectedAssetIndex, setSelectedAssetIndex] = useState(undefined);
 	const [isAssetViewMode, setIsAssetViewMode] = useState(false);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const [selectedCustomer, setSelectedCustomer] = useState(null);
 	const MAX_ADD_COUNT = assetsDetails.max || 10;
+	const assetTypeOptions = {
+		vehicle:
+			assetsDetails?.fields?.find(
+				field => field?.name === CONST.VEHICLE_TYPE_FIELD_NAME
+			)?.options || [],
+		equipment:
+			assetsDetails?.fields?.find(
+				field => field?.name === CONST.EQUIPMENT_TYPE_FIELD_NAME
+			)?.options || [],
+	};
 
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
@@ -155,9 +136,10 @@ console.log("setLeadDetailData",app);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState('');
 	const [customerId, setCustomerId] = useState('');
-	const [nonExsitingCustomerModal,setNonExsitingCustomerModal]=useState(false);
+	const [NewToBankCustomerModal,setNewToBankCustomerModal]=useState(false);
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
+
 	if (
 		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
 		!selectedVerifyOtp
@@ -196,7 +178,6 @@ console.log("setLeadDetailData",app);
 		fields: selectedPermanentAadhaarField?.sub_fields || [],
 		isApplicant,
 	});
-	// const sectionRequired = selectedSection?.is_section_mandatory !== false;
 	const onClickVerifyWithOtp = async field => {
 		if (field?.redirect_url) {
 			handleBankRedirection(field.redirect_url);
@@ -217,7 +198,6 @@ console.log("setLeadDetailData",app);
 			if (selectedVerifyWithOtpSubField?.redirect_url) {
 				try {
 					setVerifyingWithOtp(true);
-					// const reqBody = {};
 					const apiUrl =
 						selectedSection?.aadhaar_redirect_api_url ||
 						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT;
@@ -401,7 +381,6 @@ console.log("setLeadDetailData",app);
 				`${API.LEADS_DETIALS}`,
 				leadsDetailsReqBody
 			);
-			// return;
 			if (leadsDetailsRes?.data?.status === 'ok') {
 				// TODO: Manoranjan - discuss with madhuri regarding user and add the below check (already added the condition - just reverify)
 				// 1 condition to check whether this user is allowed to proceed further
@@ -475,9 +454,6 @@ console.log("setLeadDetailData",app);
 					}
 				}
 			}
-
-			// dispatch(setCompletedApplicationSection(selectedSectionId));
-			// dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LeadDetails-onProceed-', {
 				error: error,
@@ -504,14 +480,14 @@ console.log("setLeadDetailData",app);
 		});
 	};
 
-	const proceedNonExsitingCustomer=()=>{
+	const setProceedNewToBankFlow=()=>{
 		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	}
 	const searchCustomerFromFetchApi = async () => {
 		try {
 			const url = selectedDedupeData?.search_api;
-			const apiUrl = url || DDUPE_CHECK;
+			const apiUrl = url || API.DDUPE_CHECK;
 			const reqBody = {
 				loan_product_id:
 					selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
@@ -549,7 +525,7 @@ console.log("setLeadDetailData",app);
 							'No Customer data found, please press SKIP and proceed to enter details.',
 							type: 'error',
 						});
-						setNonExsitingCustomerModal(true);
+						setNewToBankCustomerModal(true);
 					
 						return;
 					}
@@ -563,10 +539,9 @@ console.log("setLeadDetailData",app);
 				
 					
 
-				
+					
 			}
 		} catch (e) {
-			console.error(e.message);
 			addToast({
 				message:
 					e?.response?.data?.message ||
@@ -575,9 +550,6 @@ console.log("setLeadDetailData",app);
 					'Error in fetching the customer details. Please verify the entered details.',
 				type: 'error',
 			});
-		} finally {
-			// setFetchingCustomerDetails(false);
-			// setLoading(false)
 		}
 	};
 
@@ -596,7 +568,6 @@ console.log("setLeadDetailData",app);
 			const otherData = sectionData?.other_data || '';
 			const tempSectionData = otherData ? JSON.parse(otherData) : {};
 			const preData = {
-				// ...sectionData,
 				...tempSectionData,
 				branch: tempSectionData?.branch?.id,
 				leadid: sectionData?.id,
@@ -642,7 +613,7 @@ console.log("setLeadDetailData",app);
 		try {
 			setFetchingSectionData(true);
 			// get method of the sections is here. modify the api of this particular section
-			const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
+			const fetchRes = await axios.get(`${API.API_END_POINT}/leadsData`, {
 				params: {
 					id: leadId,
 					white_label_id: whiteLabelId,
@@ -654,6 +625,7 @@ console.log("setLeadDetailData",app);
 				const otherData = responseData?.other_data || '';
 				const tempSectionData = otherData ? JSON.parse(otherData) : {};
 				setAssetListFormState(tempSectionData?.assets || []);
+				setIsAssetCreateFormOpen(!tempSectionData?.assets?.length);
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -680,7 +652,10 @@ console.log("setLeadDetailData",app);
 		//eslint-disable-next-line
 	}, []);
 
-	const assetTypeFormState = formState?.values?.['asset_type'];
+	const vehicleTypeFormState =
+		formState?.values?.[CONST.VEHICLE_TYPE_FIELD_NAME];
+	const equipmentTypeFormState =
+		formState?.values?.[CONST.EQUIPMENT_TYPE_FIELD_NAME];
 	const getOptionsFromResponse = (data = [], value) => {
 		return _.uniqBy(
 			data?.map(item => ({
@@ -691,100 +666,75 @@ console.log("setLeadDetailData",app);
 		);
 	};
 
-	const fetchAssetOptions = async () => {
+	const fetchVehicleOptions = async () => {
 		try {
 			setLoading(true);
 			setAssetManufacturerOptions([]);
 			setAssetModelOptions([]);
 
-			const isVehicleType = assetTypeOptions
-				?.filter(type =>
-					selectedProduct?.product_details?.vehicle_type_api?.includes(
-						type.name
-					)
-				)
-				?.some(type => type?.value === assetTypeFormState);
-			const isEquipmentType = assetTypeOptions
-				?.filter(type =>
-					selectedProduct?.product_details?.equipment_type_api?.includes(
-						type.name
-					)
-				)
-				?.some(type => type?.value === assetTypeFormState);
-
-			const assetTypeName = assetTypeOptions.find(
-				type => type?.value === assetTypeFormState
+			const assetTypeName = assetTypeOptions?.vehicle?.find(
+				type => type?.value === vehicleTypeFormState
 			)?.name;
-			let response;
 
-			if (isVehicleType)
-				response = await axios.get(`${API_END_POINT}/getVehicleType`, {
-					params: { assettype: assetTypeName, registrable: 'Registrable' },
-				});
-			if (isEquipmentType)
-				response = await axios.get(`${API_END_POINT}/getEquipmentType`, {
-					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
-				});
+			const response = await axios.get(`${API.API_END_POINT}/getVehicleType`, {
+				params: { assettype: assetTypeName, registrable: 'Registrable' },
+			});
+
 			const result = response?.data?.data;
 			setAssetManufacturerOptions(
-				getOptionsFromResponse(
-					result,
-					isVehicleType ? 'Manufacturer' : 'manufacturer'
-				)
+				getOptionsFromResponse(result, 'Manufacturer')
 			);
-			setAssetModelOptions(
-				getOptionsFromResponse(
-					result,
-					isVehicleType ? 'VehicleModel' : 'equipmentmodel'
-				)
-			);
+			setAssetModelOptions(getOptionsFromResponse(result, 'VehicleModel'));
 		} catch (error) {
-			console.log(error);
+			addToast({
+				message: 'Error obtaining options for Asset Details',
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	useEffect(() => {
-		if (assetTypeFormState) fetchAssetOptions();
+		if (vehicleTypeFormState) fetchVehicleOptions();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [assetTypeFormState]);
+	}, [vehicleTypeFormState]);
 
-	const openAssetForm = () => {
-		if (isAssetEditMode) {
-			setIsAssetEditMode(false);
-			setAssetEditIndex(undefined);
-		}
-		if (isAssetViewMode) {
-			setIsAssetViewMode(false);
-			setAssetViewIndex(undefined);
-		}
-		setIsAssetCreateFormOpen(true);
-	};
+	const fetchEquipmentOptions = async () => {
+		try {
+			setLoading(true);
+			setAssetManufacturerOptions([]);
+			setAssetModelOptions([]);
 
-	const saveAssetForm = () => {
-		let savedAsset = {};
-		assetsDetails?.fields?.forEach(field => {
-			const fieldName = field?.name;
-			savedAsset[fieldName] = formState?.values[fieldName];
-			onChangeFormStateField({
-				name: fieldName,
-				value: '',
+			const assetTypeName = assetTypeOptions?.equipment?.find(
+				type => type?.value === equipmentTypeFormState
+			)?.name;
+
+			const response = await axios.get(
+				`${API.API_END_POINT}/getEquipmentType`,
+				{
+					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
+				}
+			);
+			const result = response?.data?.data;
+			setAssetManufacturerOptions(
+				getOptionsFromResponse(result, 'manufacturer')
+			);
+			setAssetModelOptions(getOptionsFromResponse(result, 'equipmentmodel'));
+		} catch (error) {
+			addToast({
+				message: 'Error obtaining options for Asset Details',
+				type: 'error',
 			});
-		});
-
-		setAssetListFormState(prev => {
-			if (assetEditIndex !== undefined) {
-				const updatedList = [...prev];
-				updatedList[assetEditIndex] = savedAsset;
-				setAssetEditIndex(undefined);
-				return updatedList;
-			}
-			return [...prev, { ...savedAsset }];
-		});
-		if (isAssetCreateFormOpen) setIsAssetCreateFormOpen(false);
-		else setIsAssetEditMode(false);
+		} finally {
+			setLoading(false);
+		}
 	};
+
+	useEffect(() => {
+		if (equipmentTypeFormState) fetchEquipmentOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [equipmentTypeFormState]);
 
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
@@ -901,10 +851,7 @@ console.log("setLeadDetailData",app);
 		}
 	};
 
-	const redirectToProductPageInEditMode = (
-		loanData
-		// productForModal = product
-	) => {
+	const redirectToProductPageInEditMode = loanData => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
 			addToast({
 				message: 'Something went wrong, try after sometime',
@@ -912,7 +859,6 @@ console.log("setLeadDetailData",app);
 			});
 			return;
 		}
-		// sessionStorage.clear();
 		const editLoanRedirectObject = {
 			userId: userDetails?.id,
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
@@ -1019,20 +965,144 @@ console.log("setLeadDetailData",app);
 			setSendingOTP(false);
 		}
 	};
-	// TODO : Bikash will suggest to call the api for branch, connectors etc.
+
+	const openAssetForm = () => {
+		if (isAssetEditMode) {
+			setIsAssetEditMode(false);
+		}
+		if (isAssetViewMode) {
+			setIsAssetViewMode(false);
+		}
+		setSelectedAssetIndex(undefined);
+		setIsAssetCreateFormOpen(true);
+	};
+
+	const handleSaveAssetForm = () => {
+		let savedAsset = {};
+		assetsDetails?.fields?.forEach(field => {
+			const fieldName = field?.name;
+			savedAsset[fieldName] = formState?.values[fieldName];
+			onChangeFormStateField({
+				name: fieldName,
+				value: '',
+			});
+		});
+
+		setAssetListFormState(prev => {
+			if (selectedAssetIndex !== undefined) {
+				const updatedList = [...prev];
+				updatedList[selectedAssetIndex] = savedAsset;
+				setSelectedAssetIndex(undefined);
+				return updatedList;
+			}
+			return [...prev, { ...savedAsset }];
+		});
+		if (isAssetCreateFormOpen) setIsAssetCreateFormOpen(false);
+		else setIsAssetEditMode(false);
+	};
+
+	const handleEditAssetForm = (assetItem, assetIndex) => {
+		if (isAssetCreateFormOpen) {
+			setIsAssetCreateFormOpen(false);
+		}
+		if (isAssetViewMode) {
+			setIsAssetViewMode(false);
+		}
+		setSelectedAssetIndex(assetIndex);
+		Object.keys(assetItem).forEach(item => {
+			onChangeFormStateField({
+				name: item,
+				value: assetItem?.[item],
+			});
+		});
+		setIsAssetEditMode(true);
+	};
+
+	const handleToggleAssetForm = (assetItem, assetIndex) => {
+		if (isAssetCreateFormOpen) {
+			setIsAssetCreateFormOpen(false);
+		}
+		if (isAssetEditMode) {
+			setIsAssetEditMode(false);
+		}
+		if (isAssetViewMode && selectedAssetIndex === assetIndex) {
+			setSelectedAssetIndex(undefined);
+			Object.keys(assetItem).forEach(item => {
+				onChangeFormStateField({
+					name: item,
+					value: '',
+				});
+			});
+			setIsAssetViewMode(false);
+		} else {
+			setSelectedAssetIndex(assetIndex);
+			Object.keys(assetItem).forEach(item => {
+				onChangeFormStateField({
+					name: item,
+					value: assetItem?.[item],
+				});
+			});
+			setIsAssetViewMode(true);
+		}
+	};
+
+	const LeadsAssetFormFooter = ({ onCancel, showCancel = false }) => {
+		return (
+			<UI_SECTIONS.AddDynamicSectionWrapper
+				style={{
+					display: 'flex',
+					gap: '20px',
+					marginBottom: 10,
+				}}
+			>
+				<Button
+					onClick={handleSaveAssetForm}
+					disabled={
+						loading ||
+						assetFields.some(field => formState?.error?.[field?.name])
+					}
+					loading={loading}
+				>
+					Save Asset
+				</Button>
+				{showCancel ? (
+					<Button onClick={onCancel} disabled={loading} loading={loading}>
+						Cancel
+					</Button>
+				) : null}
+			</UI_SECTIONS.AddDynamicSectionWrapper>
+		);
+	};
 
 	return (
 		<UI_SECTIONS.Wrapper>
 
-			{nonExsitingCustomerModal && (
-				<CustomerListModal
-				NonexistCustomer="true"
-				show={nonExsitingCustomerModal}
-					onClose={() => {
-						setNonExsitingCustomerModal(false);
-					}}
-					onProceedSelectCustomer={proceedNonExsitingCustomer}
-				/>
+			{NewToBankCustomerModal && (				
+				<Modal
+			show={NewToBankCustomerModal}
+			width='40%'
+			height='50%'
+			customStyle={{
+				padding: '40px',
+			}}
+		>
+			<UI.ImgClose onClick={() => {
+						setNewToBankCustomerModal(false);
+					}} src={imgClose} alt='close' />
+			<UI.CustomerListWrapper>
+				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
+				<UI.CustomerListModalSubHeader>
+				Looks like you Do Not have Current relationship with us Please Click On Proceed to Move as an NTB User.
+				</UI.CustomerListModalSubHeader>
+				<UI.NonCustomerDetailsFormModalFooter>
+					<Button
+						name='Proceed'
+						onClick={setProceedNewToBankFlow}
+						fill
+					/>
+				</UI.NonCustomerDetailsFormModalFooter>
+			</UI.CustomerListWrapper>		
+		</Modal>
 			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
@@ -1056,8 +1126,6 @@ console.log("setLeadDetailData",app);
 					onClose={() => {
 						setIsCustomerVerificationOTPModal(false);
 						setIsCustomerListModalOpen(false);
-						// setIsCustomerDetailsFormModalOpen(false);
-						// setIsCustomerDetailsFormModalOpenDuplicate(false);
 					}}
 					selectedCustomer={selectedCustomer}
 					resendOtp={onProceedSelectCustomer}
@@ -1067,7 +1135,6 @@ console.log("setLeadDetailData",app);
 					product={selectedProduct}
 					isApplicant={true}
 					sendOtpRes={sendOtpRes}
-					// subProduct={subProduct}
 				/>
 			)}
 			{fetchingSectionData ? (
@@ -1102,6 +1169,17 @@ console.log("setLeadDetailData",app);
 									) : null}
 
 									{assetListFormState.map((assetItem, assetIndex) => {
+										const assetType = assetItem?.vehicle_type_asset
+											? assetTypeOptions?.vehicle?.find(
+													option =>
+														option.value === assetItem?.vehicle_type_asset
+											  )?.name
+											: assetItem?.equipment_type_asset
+											? assetTypeOptions?.equipment?.find(
+													option =>
+														option.value === assetItem?.equipment_type_asset
+											  )?.name
+											: '';
 										return (
 											<div key={`accordian-${assetIndex}`}>
 												{assetItem?.asset_type && (
@@ -1109,18 +1187,11 @@ console.log("setLeadDetailData",app);
 														<UI_SECTIONS.AccordianHeader>
 															<UI_SECTIONS.AccordianHeaderData>
 																<span>Type of Asset:</span>
-																<strong>
-																	{
-																		assetTypeOptions?.find(
-																			option =>
-																				option.value === assetItem?.asset_type
-																		)?.name
-																	}
-																</strong>
+																<strong>{assetType}</strong>
 															</UI_SECTIONS.AccordianHeaderData>
 															<UI_SECTIONS.AccordianHeaderData>
-																<span>Asset Price:</span>
-																<strong>{assetItem?.asset_price}</strong>
+																<span>Loan Amount:</span>
+																<strong>{assetItem?.loan_amount}</strong>
 															</UI_SECTIONS.AccordianHeaderData>
 															<UI_SECTIONS.AccordianHeaderData
 																style={{
@@ -1132,63 +1203,21 @@ console.log("setLeadDetailData",app);
 																	<UI_SECTIONS.AccordianIcon
 																		src={editIcon}
 																		alt='edit'
-																		onClick={() => {
-																			if (isAssetCreateFormOpen) {
-																				setIsAssetCreateFormOpen(false);
-																			}
-																			if (isAssetViewMode) {
-																				setIsAssetViewMode(false);
-																				setAssetViewIndex(undefined);
-																			}
-																			setAssetEditIndex(assetIndex);
-																			Object.keys(assetItem).forEach(item => {
-																				onChangeFormStateField({
-																					name: item,
-																					value: assetItem?.[item],
-																				});
-																			});
-																			setIsAssetEditMode(true);
-																		}}
+																		onClick={() =>
+																			handleEditAssetForm(assetItem, assetIndex)
+																		}
 																	/>
 																)}
 																<UI_SECTIONS.AccordianIcon
 																	src={expandIcon}
 																	alt='toggle'
-																	onClick={() => {
-																		if (isAssetCreateFormOpen) {
-																			setIsAssetCreateFormOpen(false);
-																		}
-																		if (isAssetEditMode) {
-																			setIsAssetEditMode(false);
-																			setAssetEditIndex(undefined);
-																		}
-																		if (
-																			isAssetViewMode &&
-																			assetViewIndex === assetIndex
-																		) {
-																			setAssetViewIndex(undefined);
-																			Object.keys(assetItem).forEach(item => {
-																				onChangeFormStateField({
-																					name: item,
-																					value: '',
-																				});
-																			});
-																			setIsAssetViewMode(false);
-																		} else {
-																			setAssetViewIndex(assetIndex);
-																			Object.keys(assetItem).forEach(item => {
-																				onChangeFormStateField({
-																					name: item,
-																					value: assetItem?.[item],
-																				});
-																			});
-																			setIsAssetViewMode(true);
-																		}
-																	}}
+																	onClick={() =>
+																		handleToggleAssetForm(assetItem, assetIndex)
+																	}
 																	style={{
 																		transform:
 																			isAssetViewMode &&
-																			assetViewIndex === assetIndex
+																			selectedAssetIndex === assetIndex
 																				? 'rotate(-90deg)'
 																				: 'rotate(90deg)',
 																		cursor: 'pointer',
@@ -1200,9 +1229,10 @@ console.log("setLeadDetailData",app);
 												)}
 
 												{assetsDetails &&
-												((isAssetEditMode && assetEditIndex === assetIndex) ||
+												((isAssetEditMode &&
+													selectedAssetIndex === assetIndex) ||
 													(isAssetViewMode &&
-														assetViewIndex === assetIndex)) ? (
+														selectedAssetIndex === assetIndex)) ? (
 													<UI_SECTIONS.AccordianWrapper style={{ padding: 30 }}>
 														<UI_SECTIONS.FormWrapGrid>
 															{assetsDetails?.fields?.map(eachField => {
@@ -1222,13 +1252,6 @@ console.log("setLeadDetailData",app);
 																}
 																const customFieldProps = {};
 																const customFieldPropsSubFields = {};
-
-																if (
-																	field?.name === CONST.ASSET_TYPE_FIELD_NAME
-																) {
-																	if (!assetTypeOptions.length)
-																		setAssetTypeOptions(field?.options);
-																}
 
 																customFieldProps.disabled =
 																	isAssetViewMode || isViewLoan;
@@ -1268,45 +1291,23 @@ console.log("setLeadDetailData",app);
 															})}
 														</UI_SECTIONS.FormWrapGrid>
 
-														{isAssetEditMode || !assetItem?.asset_type ? (
-															<UI_SECTIONS.AddDynamicSectionWrapper
-																style={{
-																	display: 'flex',
-																	gap: '20px',
+														{isAssetEditMode ? (
+															<LeadsAssetFormFooter
+																onCancel={() => {
+																	setSelectedAssetIndex(undefined);
+																	assetFields.forEach(item => {
+																		onChangeFormStateField({
+																			name: item,
+																			value: '',
+																		});
+																	});
+																	setIsAssetEditMode(false);
 																}}
-															>
-																<Button
-																	onClick={saveAssetForm}
-																	disabled={
-																		loading ||
-																		assetFields.some(
-																			field => formState?.error?.[`${field}`]
-																		)
-																	}
-																	loading={loading}
-																>
-																	Save Asset
-																</Button>
-																{assetListFormState.length >= 1 &&
-																isAssetEditMode ? (
-																	<Button
-																		onClick={() => {
-																			setAssetEditIndex(undefined);
-																			assetFields.forEach(item => {
-																				onChangeFormStateField({
-																					name: item,
-																					value: '',
-																				});
-																			});
-																			setIsAssetEditMode(false);
-																		}}
-																		disabled={loading}
-																		loading={loading}
-																	>
-																		Cancel
-																	</Button>
-																) : null}
-															</UI_SECTIONS.AddDynamicSectionWrapper>
+																showCancel={
+																	assetListFormState.length >= 1 &&
+																	isAssetEditMode
+																}
+															/>
 														) : null}
 													</UI_SECTIONS.AccordianWrapper>
 												) : null}
@@ -1333,11 +1334,6 @@ console.log("setLeadDetailData",app);
 													}
 													const customFieldProps = {};
 													const customFieldPropsSubFields = {};
-
-													if (field?.name === CONST.ASSET_TYPE_FIELD_NAME) {
-														if (!assetTypeOptions.length)
-															setAssetTypeOptions(field?.options);
-													}
 
 													customFieldProps.disabled =
 														isAssetViewMode || isViewLoan;
@@ -1372,33 +1368,13 @@ console.log("setLeadDetailData",app);
 													);
 												})}
 											</UI_SECTIONS.FormWrapGrid>
-											<UI_SECTIONS.AddDynamicSectionWrapper
-												style={{
-													display: 'flex',
-													gap: '20px',
-													marginBottom: 10,
-												}}
-											>
-												<Button
-													onClick={saveAssetForm}
-													disabled={loading || formState?.error?.asset_type}
-													loading={loading}
-												>
-													Save Asset
-												</Button>
-												{assetListFormState.length >= 1 &&
-												isAssetCreateFormOpen ? (
-													<Button
-														onClick={() => {
-															setIsAssetCreateFormOpen(false);
-														}}
-														disabled={loading}
-														loading={loading}
-													>
-														Cancel
-													</Button>
-												) : null}
-											</UI_SECTIONS.AddDynamicSectionWrapper>
+											<LeadsAssetFormFooter
+												onCancel={() => setIsAssetCreateFormOpen(false)}
+												showCancel={
+													assetListFormState.length >= 1 &&
+													isAssetCreateFormOpen
+												}
+											/>
 										</UI_SECTIONS.AccordianWrapper>
 									)}
 									{isViewLoan ||

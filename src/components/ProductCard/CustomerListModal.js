@@ -14,51 +14,14 @@ export default function CustomerListModal(props) {
 		setSelectedCustomer,
 		onProceedSelectCustomer,
 		sendingOTP,
-		NonexistCustomer,
 	} = props;
 
 	// console.log('CustomerListModal-allstates-', { customerList });
 
 	return (
 <>
-{NonexistCustomer ? <>
 
-	<Modal
-			show={show}
-			onClose={onClose}
-			width='40%'
-			height='50%'
-			customStyle={{
-				padding: '40px',
-			}}
-		>
-			
-			
-			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
-			<UI.CustomerListWrapper>
-				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
-				<UI.CustomerListModalSubHeader>
-				Looks like you Do Not have Current relationship with us Please Click On Proceed to Move as an NTB User.
-
-				</UI.CustomerListModalSubHeader>
-				
-				
-				<UI.NonCustomerDetailsFormModalFooter>
-					<Button
-						isLoader={sendingOTP}
-						name='Proceed'
-						onClick={onProceedSelectCustomer}
-						fill
-					/>
-				</UI.NonCustomerDetailsFormModalFooter>
-			</UI.CustomerListWrapper>
-		
-			
-		</Modal>
-</>:<>
-
-
-<Modal
+            <Modal
 			show={show}
 			onClose={onClose}
 			width='80%'
@@ -121,7 +84,7 @@ export default function CustomerListModal(props) {
 		
 			
 		</Modal>
-</>}
+
 		
 		</>
 	);

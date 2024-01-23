@@ -101,12 +101,10 @@ const BusinessDetails = props => {
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
 	// 	dedupePrefilledValues
 	// );
-	console.log("selectedProduct",selectedProduct?.product_details?.disable_fields_if_prefilled
-	);
+
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
-console.log("leadAllDetails",leadAllDetails);
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
@@ -1535,25 +1533,23 @@ console.log("preData",preData);
 											// console.log("Contact")
 											customFieldProps.onblur = handleBlurEmail;
 										}
-										if(selectedProduct?.product_details?.disable_fields_if_prefilled && prefilledValues(field)){
-											console.log(prefilledValues(field),'>>>>>>>>>>>>>>>>',formState)
-											const fieldsToDisable = [
-												CONST.BUSINESS_NAME_FIELD_NAME,
-												// CONST.BUSINESS_START_DATE,
-												CONST.NUMBER_OF_EMPOYEE,
-												CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME,
-												CONST.BUSINESS_EMAIL_FIELD,
-												CONST.CONTACT_EMAIL_FIELD,
-												CONST.MOBILE_NUMBER_FIELD_NAME,
-												// CONST.TITLE_FIELD,
-												CONST.EXISTING_CUSTOMER_FIELD_NAME,
-												// CONST.FIRST_NAME_FIELD_NAME,
-											];
+										// if(selectedProduct?.product_details?.disable_fields_if_prefilled && !completedSections?.includes(selectedSectionId)){
+										// 	console.log(prefilledValues(field),'>>>>>>>>>>>>>>>>',formState)
+										// 	const fieldsToDisable = [
+										// 		CONST.BUSINESS_NAME_FIELD_NAME,
+										// 		// CONST.BUSINESS_START_DATE,
+										// 		CONST.NUMBER_OF_EMPOYEE,
+										// 		CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME,
+										// 		CONST.BUSINESS_EMAIL_FIELD,
+										// 		CONST.CONTACT_EMAIL_FIELD,
+										// 		CONST.MOBILE_NUMBER_FIELD_NAME,
+										// 		CONST.EXISTING_CUSTOMER_FIELD_NAME,
+										// 	];
 										
-											if (fieldsToDisable.includes(field.name)) {
-												customFieldProps.disabled = true;
-											}
-										} 
+										// 	if (fieldsToDisable.includes(field.name) && sectionData?.business_details?.[field?.db_key] ) {
+										// 		customFieldProps.disabled = true;
+										// 	}
+										// } 
 										
 									
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
