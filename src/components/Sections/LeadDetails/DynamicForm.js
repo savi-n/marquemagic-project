@@ -1,6 +1,7 @@
 import React from 'react';
-import * as UI_SECTIONS from 'components/Sections/ui';
 import { useSelector } from 'react-redux';
+
+import * as UI_SECTIONS from 'components/Sections/ui';
 
 const DynamicForm = ({
 	field,
@@ -21,6 +22,11 @@ const DynamicForm = ({
 	) {
 		return null;
 	}
+	if (field?.for_type_name) {
+		if (!field?.for_type?.includes(formState?.values?.[field?.for_type_name]))
+			return null;
+	}
+
 	return (
 		<UI_SECTIONS.FieldWrapGrid>
 			<div
