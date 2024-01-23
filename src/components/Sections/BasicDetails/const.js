@@ -57,3 +57,16 @@ export const APPLICATION_GEO_ERROR_HINT = `Please Allow Location Access From Bro
 // export const NO_INCOME_TYPE_SELECTED_HINT =
 // 	'Select the income type to fetch the data from Customer ID.';
 export const ENTER_VALID_UCIC_HINT = 'Enter the valid UCIC number';
+
+export const FIELDS_TO_DISABLE_IF_PREFILLED = [
+	PAN_NUMBER_FIELD_NAME,
+	MOBILE_NUMBER_FIELD_NAME,
+	FIRST_NAME_FIELD_NAME,
+	LAST_NAME_FIELD_NAME,
+	MIDDLE_NAME_FIELD_NAME,
+	FATHER_NAME_FIELD_NAME,
+	INCOME_TYPE_FIELD_NAME,
+	DOB_FIELD_NAME,
+	EMAIL_ID_FIELD_NAME,
+	CUSTOMER_ID_FIELD_NAME,
+];

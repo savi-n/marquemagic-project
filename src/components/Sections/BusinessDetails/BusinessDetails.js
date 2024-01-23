@@ -1081,7 +1081,37 @@ const BusinessDetails = props => {
 			item => item?.IndustryName === industryName
 		)?.[0]?.id;
 	};
+// for fed use case when the data is fetched from customer id from fed portal
 
+const disableFieldIfPrefilledFromThirdPartyData = field => {
+	/*
+This function checks if a form field should be disabled based on the configuration for disabling fields
+when prefilled from third-party data. It considers the selected product, completed sections, and specific
+fields to determine if the given field should be disabled.
+
+@param {Object} field - The form field object being evaluated.
+
+@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+*/
+
+	// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+	if (
+		selectedProduct?.product_details?.disable_fields_if_prefilled &&
+		!completedSections?.includes(selectedSectionId)
+	) {
+		// Check if the current field is listed in the predefined fields to disable if prefilled
+		// and if the corresponding data is available in the business details of the section
+		if (
+			CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
+			sectionData?.business_details?.[field.db_key]
+		) {
+			return true; // Disable the field if conditions are met
+		}
+		return false;
+	}
+
+	return false; // Do not disable the field by default
+};
 	useEffect(() => {
 		const res = extractAndFormatSubOption();
 		setSubComponentOptions(res);
@@ -1521,14 +1551,27 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
+										if (
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled &&
+											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
+												field?.name
+											)
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubFields.disabled = true;
 										}
+
 										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
 											// console.log("Contact")
 											customFieldProps.onblur = handleBlurEmail;
 										}
+										
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
 											customFieldProps.onFocus = handleBlurEmail;
 
