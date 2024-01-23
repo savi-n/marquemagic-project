@@ -586,6 +586,7 @@ const LeadDetails = props => {
 				const otherData = responseData?.other_data || '';
 				const tempSectionData = otherData ? JSON.parse(otherData) : {};
 				setAssetListFormState(tempSectionData?.assets || []);
+				setIsAssetCreateFormOpen(!tempSectionData?.assets?.length);
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
