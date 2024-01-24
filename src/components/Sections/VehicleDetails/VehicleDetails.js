@@ -62,8 +62,8 @@ const VehicleDetails = props => {
 		setOpenAccordianId('');
 		setIsCreateFormOpen(true);
 	};
-
 	const fetchSectionDetails = async () => {
+
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
@@ -71,14 +71,23 @@ const VehicleDetails = props => {
 					application,
 				})}`
 			);
-			if (fetchRes?.data?.data?.vehicle_details?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.vehicle_details);
+			const leadData=fetchRes?.data?.data.leads_data?.[0]			;
+			const otherData = leadData?.other_data || '';
+			const tempSectionData = otherData ? JSON.parse(otherData) : {};
+
+			if (fetchRes?.data?.data?.vehicle_details?.length > 0 || tempSectionData?.assets?.length >0 ) {
+				setSectionData([...fetchRes?.data?.data?.vehicle_details,...tempSectionData?.assets]);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
 			} else {
 				setSectionData([]);
-				openCreateForm();
+				if(tempSectionData?.assets?.length===0){
+
+					openCreateForm();
+					// setIsCreateFormOpen(true);
+				}
+
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -116,6 +125,7 @@ const VehicleDetails = props => {
 	};
 
 	useLayoutEffect(() => {
+		console.log("called");
 		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
@@ -133,7 +143,8 @@ const VehicleDetails = props => {
 						</UI_SECTIONS.SubSectionHeader>
 						{/* combine local + db array */}
 						{sectionData.map((section, sectionIndex) => {
-							const sectionId = section?.id;
+							const sectionId = section?.id || sectionIndex;
+							// const leadDataSectionId=sectionIndex;
 							const isAccordianOpen = sectionId === openAccordianId;
 							const isEditLoan = editSectionId === sectionId;
 							const prefillData = section
@@ -141,6 +152,19 @@ const VehicleDetails = props => {
 										...section?.loan_json?.rc_verification,
 										...section?.loan_json?.auto_inspect,
 										...section,
+										asset_type:
+										section?.loan_json?.rc_verification?.asset_type || section?.asset_type,
+										equipment_type:
+										section?.loan_json?.rc_verification?.asset_type || section?.equipment_type_asset,
+										vehicle_type:
+										section?.loan_json?.rc_verification?.vehicle_type || section?.vehicle_type_asset,
+										manufacturer_name:section?.loan_json?.rc_verification?.manufacturer_name || section?.manufacturer,
+										equipment_model:
+										section?.loan_json?.rc_verification?.equipment_model || section?.model
+										,
+										vehicle_model:
+										section?.loan_json?.rc_verification?.vehicle_model || section?.model
+										,
 										director_id:
 											section?.director_id === 0
 												? '0'
@@ -164,7 +188,7 @@ const VehicleDetails = props => {
 									<UI_SECTIONS.AccordianHeader
 										key={`accordian-${sectionIndex}`}
 									>
-										{isAccordianOpen ? null : (
+										{isAccordianOpen  ? null : (
 											<>
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>

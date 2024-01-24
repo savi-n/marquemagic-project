@@ -373,7 +373,7 @@ const DynamicForm = props => {
 
 			reqBody.data = tempData;
 
-			if (editSectionId) {
+			if (Number[editSectionId] > 10) {
 				reqBody.data[0].id = editSectionId;
 			}
 
