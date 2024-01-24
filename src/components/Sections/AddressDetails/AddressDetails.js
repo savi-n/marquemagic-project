@@ -327,7 +327,11 @@ const AddressDetails = props => {
 				})?.rules?.required;
 
 				// Aadhaar number Validations only if verify with OTP was not mandatory
-				if (!isVerifyWithOtpRequired && sectionRequired) {
+				if (
+					!isVerifyWithOtpRequired &&
+					sectionRequired &&
+					formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP] === ''
+				) {
 					const aadhaarErrorMessage = isInvalidAadhaar(
 						formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
 					);
