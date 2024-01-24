@@ -793,6 +793,30 @@ const LeadDetails = props => {
 					}
 					firstName = nameSplit.join(' ');
 				}
+				//Company Search API
+				const companyNameSearchRes = await axios.post(API.SEARCH_COMPANY_NAME, {
+					search: panExtractionMsg?.upstreamName.trim(),
+				});
+
+				const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
+
+				//ROC Data API
+				const cinNumberResponse =
+					newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER &&
+					(await axios.post(
+						API.ROC_DATA_FETCH,
+						{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
+						{
+							headers: {
+								Authorization: clientToken,
+							},
+						}
+					));
+				const companyData = cinNumberResponse?.data?.data;
+				const companyStartDate =
+					companyData?.company_master_data?.date_of_incorporation;
+				const [date, month, year] = companyStartDate?.split(/\/|-/);
+				const bussinessStartDate = `${year}-${month}-${date}`;
 
 				if (`${selectedProduct?.loan_request_type}` === '2') {
 					onChangeFormStateField({
@@ -807,6 +831,10 @@ const LeadDetails = props => {
 					onChangeFormStateField({
 						name: CONST.BUSINESS_NAME_FIELD_NAME,
 						value: name || '',
+					});
+					onChangeFormStateField({
+						name: CONST.BUSINESS_START_DATE,
+						value: bussinessStartDate || '',
 					});
 				}
 			}
