@@ -61,6 +61,8 @@ const LoanDetails = () => {
 		businessId,
 		userId,
 		sections,
+		leadAllDetails,
+
 	} = application;
 
 	const applicant =
@@ -79,6 +81,7 @@ const LoanDetails = () => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	console.log("leadAllDetails",leadAllDetails);
 	//const [loadingFile, setLoadingFile] = useState(false);
 
 	//default logged in user's branch id can be taken from session storage userDetails
@@ -402,9 +405,11 @@ const LoanDetails = () => {
 				sectionData?.loan_additional_data?.source_fund_requirements
 			);
 		}
+		console.log("sectionData",sectionData);
 		const preData = {
 			...loanDetails,
-			loan_amount: loanDetails?.loan_amount,
+			loan_amount: loanDetails?.loan_amount || leadAllDetails?.loan_amount
+			,
 			tenure: loanDetails?.applied_tenure,
 			// this is specifically for housing loan , where the branch field is coming inside loan details sub section
 			branch_id: loanDetails?.branch_id?.id //todo
@@ -430,6 +435,10 @@ const LoanDetails = () => {
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
 			branch: loanDetails?.branch_id?.id ? `${loanDetails?.branch_id?.id}` : '',
+			sales_promo_code:loanDetails?.sales_promo_code || leadAllDetails?.sales_promo_code|| '',
+			dsa_ddsa_name:loanDetails?.dsa_ddsa_name || leadAllDetails?.dsa_ddsa_name || '',
+			dsa_ddsa_vendor_name:loanDetails?.dsa_ddsa_vendor_name|| leadAllDetails?.dsa_ddsa_vendor_name||'',
+			dealer_se_code:loanDetails?.dealer_se_code || leadAllDetails?.dealer_se_code || '',
 			loan_type: loanDetails?.loan_usage_type
 				? `${loanDetails?.loan_usage_type}`
 				: '',
