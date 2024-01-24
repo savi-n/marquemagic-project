@@ -15,6 +15,11 @@ import { setSelectedSectionId, setLeadDetailData } from 'store/appSlice';
 import {
 	setCompletedApplicationSection,
 	setLeadId,
+	SetLeadDataDetails,
+	// setBusinessType,
+	// setNewCompletedSections,
+	// setBusinessMobile,
+	// setBusinessName,
 } from 'store/applicationSlice';
 import {
 	getApiErrorMessage,
@@ -41,6 +46,9 @@ import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
 import CustomerListModal from '../../../components/ProductCard/CustomerListModal';
 import CustomerVerificationOTPModal from '../../../components/ProductCard/CustomerVerificationOTPModal';
 import DynamicForm from './DynamicForm';
+import Modal from 'components/Modal';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
+import * as UI from './ui';
 
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -49,7 +57,7 @@ const LeadDetails = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-
+console.log("setLeadDetailData",app);
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -128,6 +136,7 @@ const LeadDetails = props => {
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState('');
 	const [customerId, setCustomerId] = useState('');
+	const [NewToBankCustomerModal,setNewToBankCustomerModal]=useState(false);
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 
@@ -377,7 +386,16 @@ const LeadDetails = props => {
 				// 1 condition to check whether this user is allowed to proceed further
 				// 2 condition to check whether dedupe is present. if not present move to next section
 				// 3 if dedupe is present, redirect to dedupe screen
+				console.log('leadsDetailsRes',leadsDetailsRes?.data?.data?.other_data[0]
+
+				)
+				const otherData = leadsDetailsRes?.data?.data?.other_data
+				|| '';
+				const tempLeadData = otherData ? JSON.parse(otherData) : {};
+				
+				console.log("tempLeadData",tempLeadData);
 				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
+				dispatch(SetLeadDataDetails({leadAllDetails: tempLeadData}))
 				if (
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.usertype
@@ -461,6 +479,11 @@ const LeadDetails = props => {
 			return null;
 		});
 	};
+
+	const setProceedNewToBankFlow=()=>{
+		dispatch(setCompletedApplicationSection(selectedSectionId));
+		dispatch(setSelectedSectionId(nextSectionId));
+	}
 	const searchCustomerFromFetchApi = async () => {
 		try {
 			const url = selectedDedupeData?.search_api;
@@ -500,16 +523,23 @@ const LeadDetails = props => {
 							ddupeRes?.data?.message ||
 							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
-						type: 'error',
-					});
-					dispatch(setCompletedApplicationSection(selectedSectionId));
-					dispatch(setSelectedSectionId(nextSectionId));
-					return;
-				} else {
-					ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+							type: 'error',
+						});
+						setNewToBankCustomerModal(true);
+					
+						return;
+					}
+					else{
+						ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+					
+						setIsCustomerListModalOpen(true);
+					}
+					
+						
+				
+					
 
-					setIsCustomerListModalOpen(true);
-				}
+					
 			}
 		} catch (e) {
 			addToast({
@@ -804,9 +834,41 @@ const LeadDetails = props => {
 						value: lastName || '',
 					});
 				} else {
+					//Company Search API
+					const companyNameSearchRes = await axios.post(
+						API.SEARCH_COMPANY_NAME,
+						{
+							search: panExtractionMsg?.upstreamName.trim(),
+						}
+					);
+
+					const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
+
+					//ROC Data API
+					const cinNumberResponse =
+						newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER &&
+						(await axios.post(
+							API.ROC_DATA_FETCH,
+							{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						));
+					const companyData = cinNumberResponse?.data?.data;
+					const companyStartDate =
+						companyData?.company_master_data?.date_of_incorporation;
+					const [date, month, year] = companyStartDate?.split(/\/|-/);
+					const bussinessStartDate = `${year}-${month}-${date}`;
+
 					onChangeFormStateField({
 						name: CONST.BUSINESS_NAME_FIELD_NAME,
 						value: name || '',
+					});
+					onChangeFormStateField({
+						name: CONST.BUSINESS_START_DATE,
+						value: bussinessStartDate || '',
 					});
 				}
 			}
@@ -1046,6 +1108,34 @@ const LeadDetails = props => {
 
 	return (
 		<UI_SECTIONS.Wrapper>
+
+			{NewToBankCustomerModal && (				
+				<Modal
+			show={NewToBankCustomerModal}
+			width='40%'
+			height='50%'
+			customStyle={{
+				padding: '40px',
+			}}
+		>
+			<UI.ImgClose onClick={() => {
+						setNewToBankCustomerModal(false);
+					}} src={imgClose} alt='close' />
+			<UI.CustomerListWrapper>
+				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
+				<UI.CustomerListModalSubHeader>
+				Looks like you Do Not have Current relationship with us Please Click On Proceed to Move as an NTB User.
+				</UI.CustomerListModalSubHeader>
+				<UI.NonCustomerDetailsFormModalFooter>
+					<Button
+						name='Proceed'
+						onClick={setProceedNewToBankFlow}
+						fill
+					/>
+				</UI.NonCustomerDetailsFormModalFooter>
+			</UI.CustomerListWrapper>		
+		</Modal>
+			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
 					show={isCustomerListModalOpen}
