@@ -52,9 +52,8 @@ const VehicleDetails = props => {
 		setOpenAccordianId('');
 		setIsCreateFormOpen(true);
 	};
-	
-
 	const fetchSectionDetails = async () => {
+
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
@@ -62,20 +61,21 @@ const VehicleDetails = props => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
-			const leadData=fetchRes?.data?.data.leads_data[0]			;
+			const leadData=fetchRes?.data?.data.leads_data?.[0]			;
 			const otherData = leadData?.other_data || '';
 			const tempSectionData = otherData ? JSON.parse(otherData) : {};
-			if (fetchRes?.data?.data?.vehicle_details?.length > 0) {
+
+			if (fetchRes?.data?.data?.vehicle_details?.length > 0 || tempSectionData?.assets?.length >0 ) {
 				setSectionData([...fetchRes?.data?.data?.vehicle_details,...tempSectionData?.assets]);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
 			} else {
 				setSectionData([]);
-				if(tempSectionData?.assets?.length<=0){
+				if(tempSectionData?.assets?.length===0){
 
 					openCreateForm();
+					// setIsCreateFormOpen(true);
 				}
 
 			}
@@ -115,6 +115,7 @@ const VehicleDetails = props => {
 	};
 
 	useLayoutEffect(() => {
+		console.log("called");
 		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line

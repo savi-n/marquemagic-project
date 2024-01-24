@@ -42,7 +42,7 @@ const BusinessAddressDetailsEdi = props => {
 		: isDirectorApplicant(selectedDirector);
 
 	const {
-		// selectedProduct,
+		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
 		isTestMode,
@@ -259,7 +259,42 @@ console.log("leadAllDetails",leadAllDetails);
 			setLoading(false);
 		}
 	};
+	const disableFieldIfPrefilledFromThirdPartyData = field => {
+		/*
+	This function checks if a form field should be disabled based on the configuration for disabling fields
+	when prefilled from third-party data. It considers the selected product, completed sections, and specific
+	fields to determine if the given field should be disabled.
 
+	@param {Object} field - The form field object being evaluated.
+
+	@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+	*/
+
+		const registeredAddress = sectionData?.address?.filter(item => {
+			return item.aid === 2;
+		})?.[0];
+		const operatingAddress = sectionData?.address?.filter(item => {
+			return item.aid === 1;
+		})?.[0];
+
+		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		if (
+			selectedProduct?.product_details?.disable_fields_if_prefilled &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// Check if the current field is listed in the predefined fields to disable if prefilled
+			// and if the corresponding data is available in the business details of the section
+			if (
+				registeredAddress?.[field?.db_key] ||
+				operatingAddress?.[field?.db_key]
+			) {
+				return true;
+			}
+			return false;
+		}
+
+		return false; // Do not disable the field by default
+	};
 	const prefilledValues = field => {
 		try {
 			// custom prefill only for this section
@@ -580,6 +615,15 @@ console.log("leadAllDetails",leadAllDetails);
 										if (field.name === 'select_gstin') {
 											customFieldProps.isGSTselector = true;
 											customFieldProps.options = gstOptions;
+										}
+										if (
+											field &&
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
 										}
 
 										// Untill permanent address1 is not filled disable present address proof

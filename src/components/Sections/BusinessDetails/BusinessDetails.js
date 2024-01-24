@@ -754,7 +754,6 @@ const BusinessDetails = props => {
 	// console.log(formState.values, 'form................');
 	const prefilledValues = field => {
 		try {
-			console.log("leadAllDetails",leadAllDetails)
 			// TEST MODE
 			if (isTestMode && CONST.initialFormState?.[field?.db_key]) {
 				return CONST.initialFormState?.[field?.db_key];
@@ -769,7 +768,6 @@ const BusinessDetails = props => {
 				!!dedupePrefilledValues
 					? dedupePrefilledValues
 					: null;
-					console.log("sectoondata",sectionData);
 			const preData = {
 				...sectionData?.business_details,
 				...sectionData?.loan_data,
@@ -817,7 +815,6 @@ const BusinessDetails = props => {
 					udyam_number:sectionData?.business_details?.udyam_number || leadAllDetails?.udyam_number,
 			};
 
-console.log("preData",preData);
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
 			
 			return field?.value || '';
@@ -1085,7 +1082,41 @@ console.log("preData",preData);
 			item => item?.IndustryName === industryName
 		)?.[0]?.id;
 	};
+// for fed use case when the data is fetched from customer id from fed portal
+console.log(leadAllDetails,"email")
+const disableFieldIfPrefilledFromThirdPartyData = field => {
+	/*
+This function checks if a form field should be disabled based on the configuration for disabling fields
+when prefilled from third-party data. It considers the selected product, completed sections, and specific
+fields to determine if the given field should be disabled.
 
+@param {Object} field - The form field object being evaluated.
+
+@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+*/
+// if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+// 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+// 		if (field?.db_key === 'email') field.db_key = 'demail';
+// 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+
+	// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+	if (
+		selectedProduct?.product_details?.disable_fields_if_prefilled &&
+		!completedSections?.includes(selectedSectionId)
+	) {
+		// Check if the current field is listed in the predefined fields to disable if prefilled
+		// and if the corresponding data is available in the business details of the section
+		if (
+			CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
+			sectionData?.business_details?.[field.db_key] || sectionData?.user_data?.[field.db_key]
+		) {
+			return true; // Disable the field if conditions are met
+		}
+		return false;
+	}
+
+	return false; // Do not disable the field by default
+};
 	useEffect(() => {
 		const res = extractAndFormatSubOption();
 		setSubComponentOptions(res);
@@ -1525,33 +1556,27 @@ console.log("preData",preData);
 										) {
 											customFieldProps.disabled = true;
 										}
+										if (
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled &&
+											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
+												field?.name
+											)
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubFields.disabled = true;
 										}
+
 										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
 											// console.log("Contact")
 											customFieldProps.onblur = handleBlurEmail;
 										}
-										// if(selectedProduct?.product_details?.disable_fields_if_prefilled && !completedSections?.includes(selectedSectionId)){
-										// 	console.log(prefilledValues(field),'>>>>>>>>>>>>>>>>',formState)
-										// 	const fieldsToDisable = [
-										// 		CONST.BUSINESS_NAME_FIELD_NAME,
-										// 		// CONST.BUSINESS_START_DATE,
-										// 		CONST.NUMBER_OF_EMPOYEE,
-										// 		CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME,
-										// 		CONST.BUSINESS_EMAIL_FIELD,
-										// 		CONST.CONTACT_EMAIL_FIELD,
-										// 		CONST.MOBILE_NUMBER_FIELD_NAME,
-										// 		CONST.EXISTING_CUSTOMER_FIELD_NAME,
-										// 	];
 										
-										// 	if (fieldsToDisable.includes(field.name) && sectionData?.business_details?.[field?.db_key] ) {
-										// 		customFieldProps.disabled = true;
-										// 	}
-										// } 
-										
-									
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
 											customFieldProps.onFocus = handleBlurEmail;
 
