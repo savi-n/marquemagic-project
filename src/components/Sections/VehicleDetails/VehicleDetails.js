@@ -6,6 +6,7 @@ import Button from 'components/Button';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 
+import * as CONST from './const';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
@@ -17,7 +18,6 @@ import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
 import { scrollToTopRootElement } from 'utils/helper';
-// import selectedSection from './sample.json';
 
 const VehicleDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -28,7 +28,6 @@ const VehicleDetails = props => {
 		nextSectionId,
 		selectedSection,
 		selectedProduct,
-		// clientToken,
 	} = app;
 	const { businessName } = application;
 	const dispatch = useDispatch();
@@ -38,7 +37,17 @@ const VehicleDetails = props => {
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
-	// console.log({ sectionData });
+	const vehicleFields =
+		selectedSection?.sub_sections?.find(
+			section => section?.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS
+		)?.fields || [];
+	const vehicleTypeOptions =
+		vehicleFields?.find(field => field?.name === CONST.FIELD_NAME_VEHICLE_TYPE)
+			?.options || [];
+	const equipmentTypeOptions =
+		vehicleFields?.find(
+			field => field?.name === CONST.FIELD_NAME_EQUIPMENT_TYPE
+		)?.options || [];
 	const business = {
 		name: businessName || 'Company/Business',
 		value: '0',
@@ -47,6 +56,7 @@ const VehicleDetails = props => {
 	if (selectedProduct?.isSelectedProductTypeBusiness)
 		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
 	else newselectedDirectorOptions = selectedDirectorOptions;
+
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
@@ -61,7 +71,6 @@ const VehicleDetails = props => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
 			if (fetchRes?.data?.data?.vehicle_details?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.vehicle_details);
 				setEditSectionId('');
@@ -139,6 +148,16 @@ const VehicleDetails = props => {
 										...(section || {}),
 								  }
 								: {};
+							const isEquipment = prefillData?.loan_asset_type_id?.typename?.includes(
+								'EQ'
+							);
+							const typeOfAsset = isEquipment
+								? equipmentTypeOptions?.find(
+										option => option?.value === prefillData?.equipment_type
+								  )
+								: vehicleTypeOptions?.find(
+										option => option?.value === prefillData?.vehicle_type
+								  ) || '';
 
 							return (
 								<UI_SECTIONS.AccordianWrapper>
@@ -148,7 +167,9 @@ const VehicleDetails = props => {
 										{isAccordianOpen ? null : (
 											<>
 												<UI_SECTIONS.AccordianHeaderData>
-													<span>Vehicle For:</span>
+													<span>
+														{isEquipment ? 'Equipment' : 'Vehicle'} For:
+													</span>
 													<strong>
 														{
 															newselectedDirectorOptions?.filter(
@@ -160,10 +181,10 @@ const VehicleDetails = props => {
 													</strong>
 												</UI_SECTIONS.AccordianHeaderData>
 												<UI_SECTIONS.AccordianHeaderData>
-													<span>Type of Assets:</span>
-													<strong>
-														{prefillData?.loan_asset_type_id?.typename}
-													</strong>
+													<span>
+														Type of {isEquipment ? 'Equipment' : 'Vehicle'}:
+													</span>
+													<strong>{typeOfAsset?.name}</strong>
 												</UI_SECTIONS.AccordianHeaderData>
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>Amount:</span>
