@@ -224,7 +224,12 @@ export const CustomerDetailsFormModalFooter = styled.div`
 	justify-content: end;
 	gap: 20px;
 `;
-
+export const NonCustomerDetailsFormModalFooter = styled.div`
+	display: flex;
+	justify-content: end;
+	gap: 20px;
+	margin-top:40px;
+`;
 // CustomerListModal
 
 export const CustomerListWrapper = styled.div`

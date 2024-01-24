@@ -19,7 +19,9 @@ export default function CustomerListModal(props) {
 	// console.log('CustomerListModal-allstates-', { customerList });
 
 	return (
-		<Modal
+<>
+
+            <Modal
 			show={show}
 			onClose={onClose}
 			width='80%'
@@ -28,6 +30,8 @@ export default function CustomerListModal(props) {
 				padding: '40px',
 			}}
 		>
+			
+			
 			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
 			<UI.CustomerListWrapper>
 				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
@@ -77,7 +81,12 @@ export default function CustomerListModal(props) {
 					/>
 				</UI.CustomerDetailsFormModalFooter>
 			</UI.CustomerListWrapper>
+		
+			
 		</Modal>
+
+		
+		</>
 	);
 }
 // {

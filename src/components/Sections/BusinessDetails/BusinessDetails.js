@@ -35,6 +35,7 @@ import {
 	setNewCompletedSections,
 	setBusinessMobile,
 	setBusinessName,
+	SetLeadDataDetails,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -94,15 +95,16 @@ const BusinessDetails = props => {
 		dedupePrefilledValues,
 		geoLocation,
 		leadId,
+		leadAllDetails,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
 	// 	dedupePrefilledValues
 	// );
+
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
-
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
@@ -748,7 +750,7 @@ const BusinessDetails = props => {
 		setIsDedupeCheckModalOpen(false);
 		setDedupeModalData([]);
 	};
-
+;
 	// console.log(formState.values, 'form................');
 	const prefilledValues = field => {
 		try {
@@ -770,7 +772,7 @@ const BusinessDetails = props => {
 				...sectionData?.business_details,
 				...sectionData?.loan_data,
 				...sectionData?.user_data,
-				business_email: sectionData?.user_data?.email,
+				business_email: sectionData?.user_data?.email || leadAllDetails?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 				// industry_type:
@@ -778,7 +780,7 @@ const BusinessDetails = props => {
 				// 	sectionData?.business_details?.businessindustry || '',
 				businesspancardnumber:
 					sectionData?.business_details?.businesspancardnumber ||
-					dedupeData?.pan_number,
+					dedupeData?.pan_number || leadAllDetails?.pan_number,
 
 				// userdata - (Savitha confirmed about the below prefilling data)
 				// fieldName : business mobile number - dbKey: contact  || prefillData : userData.contact
@@ -802,19 +804,19 @@ const BusinessDetails = props => {
 				industry_type: selectedIndustryFromGetResp() || '',
 				businessstartdate:
 					companyRocData?.DateOfIncorporation ||
-					sectionData?.business_details?.businessstartdate ||
+					sectionData?.business_details?.businessstartdate || leadAllDetails?.business_vintage ||
 					'',
 				customer_id:
 					sectionData?.business_details?.additional_cust_id ||
 					sectionData?.business_details?.customer_id ||
 					'',
-					businessname:sectionData?.business_details?.businessname ||leadData?.business_name,
-					businesspancardnumber:sectionData?.business_details?.businessname|| leadData?.pan_number,
-					contact:sectionData?.business_details?.contact || leadData?.mobile_no ,
+					businessname:sectionData?.business_details?.businessname ||leadAllDetails?.business_name,
+					contact:sectionData?.business_details?.contact || leadAllDetails?.mobile_no ,
+					udyam_number:sectionData?.business_details?.udyam_number || leadAllDetails?.udyam_number,
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
-
+			
 			return field?.value || '';
 		} catch (err) {
 			console.error('error-BusinessDetials', {
@@ -823,7 +825,6 @@ const BusinessDetails = props => {
 			});
 		}
 	};
-
 	const validateToken = async () => {
 		try {
 			const params = queryString.parse(window.location.search);
@@ -978,27 +979,27 @@ const BusinessDetails = props => {
 			setFetchingSectionData(false);
 		}
 	};
-	const fetchleaddata = async () => {
-		try {
-		  setFetchingSectionData(true);
-		  const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
-			params: {
-			  id: leadId,
-			  white_label_id: whiteLabelId,
-			},
-		  });
-		  const otherData = fetchRes?.data?.data.other_data;
-		  const tempSectionData = otherData ? JSON.parse(otherData) : {};
-		  if (fetchRes?.data?.status === "ok") {
-			setleadData(tempSectionData);
-		  }
-		} catch (error) {
-		  console.error("eor-fetchSectionDetails-", error);
-		}
-		finally {
-			setFetchingSectionData(false);
-		  }
-	  };
+	// const fetchleaddata = async () => {
+	// 	try {
+	// 	  setFetchingSectionData(true);
+	// 	  const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
+	// 		params: {
+	// 		  id: leadId,
+	// 		  white_label_id: whiteLabelId,
+	// 		},
+	// 	  });
+	// 	  const otherData = fetchRes?.data?.data.other_data;
+	// 	  const tempSectionData = otherData ? JSON.parse(otherData) : {};
+	// 	  if (fetchRes?.data?.status === "ok") {
+	// 		setleadData(tempSectionData);
+	// 	  }
+	// 	} catch (error) {
+	// 	  console.error("eor-fetchSectionDetails-", error);
+	// 	}
+	// 	finally {
+	// 		setFetchingSectionData(false);
+	// 	  }
+	//   };
 	  
 	useEffect(() => {
 		scrollToTopRootElement();
@@ -1014,7 +1015,7 @@ const BusinessDetails = props => {
 		}
 		//new get api
 		if (loanRefId) fetchSectionDetails();
-		if(leadId) fetchleaddata();
+		// if(leadId) fetchleaddata();
 		//eslint-disable-next-line
 	}, []);
 
@@ -1082,7 +1083,7 @@ const BusinessDetails = props => {
 		)?.[0]?.id;
 	};
 // for fed use case when the data is fetched from customer id from fed portal
-
+console.log(leadAllDetails,"email")
 const disableFieldIfPrefilledFromThirdPartyData = field => {
 	/*
 This function checks if a form field should be disabled based on the configuration for disabling fields
@@ -1093,6 +1094,10 @@ fields to determine if the given field should be disabled.
 
 @returns {boolean} - Returns true if the field should be disabled, false otherwise.
 */
+// if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+// 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+// 		if (field?.db_key === 'email') field.db_key = 'demail';
+// 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
 
 	// Check if the product details specify disabling fields when prefilled and if the current section is not completed
 	if (
@@ -1103,7 +1108,7 @@ fields to determine if the given field should be disabled.
 		// and if the corresponding data is available in the business details of the section
 		if (
 			CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
-			sectionData?.business_details?.[field.db_key]
+			sectionData?.business_details?.[field.db_key] || sectionData?.user_data?.[field.db_key]
 		) {
 			return true; // Disable the field if conditions are met
 		}

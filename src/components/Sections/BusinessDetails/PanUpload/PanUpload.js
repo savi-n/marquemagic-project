@@ -722,6 +722,7 @@ const PanUpload = props => {
 							<InputField
 								name={CONST_BUSINESS_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME}
 								value={confirmPanNumber}
+								disabled={selectedProduct?.product_details?.disable_fields_if_prefilled}
 								onChange={e => {
 									// console.log({ e });
 									setConfirmPanNumber(e?.target?.value);
