@@ -501,6 +501,42 @@ const BasicDetails = props => {
 			setLoading(false);
 		}
 	};
+
+	const disableFieldIfPrefilledFromThirdPartyData = field => {
+		/*
+	This function checks if a form field should be disabled based on the configuration for disabling fields
+	when prefilled from third-party data. It considers the selected product, completed sections, and specific
+	fields to determine if the given field should be disabled.
+
+	@param {Object} field - The form field object being evaluated.
+
+	@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+	*/
+
+		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+		if (field?.db_key === 'business_email') field.db_key = 'demail';
+		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+
+		if (
+			selectedProduct?.product_details?.disable_fields_if_prefilled &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// Check if the current field is listed in the predefined fields to disable if prefilled
+			// and if the corresponding data is available in the business details of the section
+			if (
+				CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
+				sectionData?.director_details?.[field.db_key]
+			) {
+				return true; // Disable the field if conditions are met
+			}
+			return false;
+		}
+
+		return false; // Do not disable the field by default
+	};
+	
 	const onPanEnter = async pan => {
 		try {
 			const panErrorMessage = isInvalidPan(pan);
@@ -2246,6 +2282,18 @@ const BasicDetails = props => {
 											field?.name === CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
+										}
+										// disabling field if it is prefilled from third party response
+										if (
+											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
+												field?.name
+											) &&
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
 										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
