@@ -57,7 +57,6 @@ const LeadDetails = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-console.log("setLeadDetailData",app);
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -386,14 +385,11 @@ console.log("setLeadDetailData",app);
 				// 1 condition to check whether this user is allowed to proceed further
 				// 2 condition to check whether dedupe is present. if not present move to next section
 				// 3 if dedupe is present, redirect to dedupe screen
-				console.log('leadsDetailsRes',leadsDetailsRes?.data?.data?.other_data[0]
-
-				)
+			
 				const otherData = leadsDetailsRes?.data?.data?.other_data
 				|| '';
 				const tempLeadData = otherData ? JSON.parse(otherData) : {};
 				
-				console.log("tempLeadData",tempLeadData);
 				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
 				dispatch(SetLeadDataDetails({leadAllDetails: tempLeadData}))
 				if (

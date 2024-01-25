@@ -125,7 +125,6 @@ const VehicleDetails = props => {
 	};
 
 	useLayoutEffect(() => {
-		console.log("called");
 		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
@@ -155,7 +154,7 @@ const VehicleDetails = props => {
 										asset_type:
 										section?.loan_json?.rc_verification?.asset_type || section?.asset_type,
 										equipment_type:
-										section?.loan_json?.rc_verification?.asset_type || section?.equipment_type_asset,
+										section?.loan_json?.rc_verification?.equipment_type || section?.equipment_type_asset,
 										vehicle_type:
 										section?.loan_json?.rc_verification?.vehicle_type || section?.vehicle_type_asset,
 										manufacturer_name:section?.loan_json?.rc_verification?.manufacturer_name || section?.manufacturer,
