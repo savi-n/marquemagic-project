@@ -101,7 +101,6 @@ const BusinessDetails = props => {
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
 	// 	dedupePrefilledValues
 	// );
-
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
@@ -784,7 +783,7 @@ const BusinessDetails = props => {
 
 				// userdata - (Savitha confirmed about the below prefilling data)
 				// fieldName : business mobile number - dbKey: contact  || prefillData : userData.contact
-				contact: sectionData?.user_data?.contact || dedupeData?.mobile_no,
+				contact: sectionData?.user_data?.contact || dedupeData?.mobile_no || leadAllDetails?.mobile_no,
 
 				// businessdata - (Savitha confirmed about the below prefilling data)
 				// fieldName: mobile_no - dbKey: contactno || prefillData : prefilData: businessDetails.contactno
@@ -811,7 +810,7 @@ const BusinessDetails = props => {
 					sectionData?.business_details?.customer_id ||
 					'',
 					businessname:sectionData?.business_details?.businessname ||leadAllDetails?.business_name,
-					contact:sectionData?.business_details?.contact || leadAllDetails?.mobile_no ,
+					// contact:sectionData?.business_details?.contact || leadAllDetails?.mobile_no ,
 					udyam_number:sectionData?.business_details?.udyam_number || leadAllDetails?.udyam_number,
 			};
 

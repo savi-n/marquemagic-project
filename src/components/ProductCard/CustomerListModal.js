@@ -17,7 +17,6 @@ export default function CustomerListModal(props) {
 	} = props;
 
 	// console.log('CustomerListModal-allstates-', { customerList });
-
 	return (
 <>
 
@@ -54,10 +53,11 @@ export default function CustomerListModal(props) {
 						}
 					>
 						<UI.CustomerListCardItem>
-							Customer Name: {customer?.customer_name}
+							Customer Name: {customer?.customer_name || customer?.V_CUSTNAME
+ }
 						</UI.CustomerListCardItem>
 						<UI.CustomerListCardItem>
-							Customer ID: {customer?.customer_id}
+							Customer ID: {customer?.customer_id || customer?.V_CUSTOMERID}
 						</UI.CustomerListCardItem>
 						<UI.CustomerListCardItem>
 							PAN/Government Id No: {customer?.id_no || 'N/A'}
