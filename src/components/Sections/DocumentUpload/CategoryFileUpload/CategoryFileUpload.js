@@ -37,6 +37,7 @@ import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import { useToasts } from 'components/Toast/ToastProvider';
 import TooltipImage from 'components/Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
+import ImageViewerModal from 'components/Global/ImageViewerModal';
 
 let refCounter = 0;
 
@@ -49,7 +50,7 @@ const CategoryFileUpload = props => {
 		directorId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan, isLocalhost, selectedProduct } = app;
+	const { isViewLoan, isLocalhost, selectedProduct, userDetails } = app;
 	const { businessId, businessUserId, loanId, userId } = application;
 	const ref = useRef(uuidv4());
 	const refPopup = useRef(null);
@@ -69,6 +70,8 @@ const CategoryFileUpload = props => {
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 	const [unUploadedFile, setUnUploadedFile] = useState([]);
+	const [imageSrc, setImageSrc] = useState('');
+	const [isImageModalVisible, setIsImageModalVisible] = useState(false);
 
 	const isFileFromDeviceStorageAllowed =
 		selectedProduct?.product_details?.is_file_from_storage_allowed;
@@ -93,12 +96,23 @@ const CategoryFileUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
+			const imgSrc = decryptViewDocumentUrl(docRes?.data?.signedurl) || '';
+			if (userDetails?.is_other) {
+				setImageSrc(imgSrc);
+				setIsImageModalVisible(true);
+				return;
+			}
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
 		} finally {
 			setOpeningRemovingDocument(false);
 		}
+	};
+
+	const onCloseImageViewerModal = () => {
+		setIsImageModalVisible(false);
+		setImageSrc('');
 	};
 
 	const deleteDocument = async file => {
@@ -412,6 +426,13 @@ const CategoryFileUpload = props => {
 
 	return (
 		<>
+			{isImageModalVisible && (
+				<ImageViewerModal
+					onClose={onCloseImageViewerModal}
+					imageSrc={imageSrc}
+					modalVisible={isImageModalVisible}
+				/>
+			)}
 			{!disabled && !isViewLoan && (
 				<UI.Dropzone
 					isInActive={isViewLoan}

@@ -32,6 +32,7 @@ import moment from 'moment';
 import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import TooltipImage from 'components/Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
+import ImageViewerModal from 'components/Global/ImageViewerModal';
 
 const PanUpload = props => {
 	const {
@@ -54,7 +55,13 @@ const PanUpload = props => {
 		// setdisableUdyamNumberInput,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, clientToken, selectedSectionId, isViewLoan } = app;
+	const {
+		selectedProduct,
+		clientToken,
+		selectedSectionId,
+		isViewLoan,
+		userDetails,
+	} = app;
 	const { loanId, businessUserId } = application;
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
@@ -66,6 +73,9 @@ const PanUpload = props => {
 	const { addToast } = useToasts();
 	const panExtractionData = uploadedFile?.panExtractionData || {};
 	const [udyamErrorMessage, setUdyamErrorMessage] = useState('');
+
+	const [imageSrc, setImageSrc] = useState('');
+	const [isImageModalVisible, setIsImageModalVisible] = useState(false);
 
 	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
 	const isFileFromDeviceStorageAllowed =
@@ -579,6 +589,12 @@ const PanUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
+			if (userDetails?.is_other) {
+				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
+				setImageSrc(imageURL);
+				setIsImageModalVisible(true);
+				return;
+			}
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
@@ -592,6 +608,11 @@ const PanUpload = props => {
 			uploadedFile?.preview && URL.revokeObjectURL(uploadedFile.preview);
 		// eslint-disable-next-line
 	}, []);
+
+	const onCloseImageViewerModal = () => {
+		setIsImageModalVisible(false);
+		setImageSrc('');
+	};
 
 	// Disable click and keydown behavior on the <Dropzone>
 
@@ -694,6 +715,13 @@ const PanUpload = props => {
 					</UI.ButtonWrapper>
 				</section>
 			</Modal>
+			{isImageModalVisible && (
+				<ImageViewerModal
+					onClose={onCloseImageViewerModal}
+					imageSrc={imageSrc}
+					modalVisible={isImageModalVisible}
+				/>
+			)}
 			<Modal
 				show={isPanConfirmModalOpen}
 				onClose={() => {
@@ -722,7 +750,9 @@ const PanUpload = props => {
 							<InputField
 								name={CONST_BUSINESS_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME}
 								value={confirmPanNumber}
-								disabled={selectedProduct?.product_details?.disable_fields_if_prefilled}
+								disabled={
+									selectedProduct?.product_details?.disable_fields_if_prefilled
+								}
 								onChange={e => {
 									// console.log({ e });
 									setConfirmPanNumber(e?.target?.value);
