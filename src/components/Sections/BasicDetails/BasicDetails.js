@@ -113,6 +113,7 @@ const BasicDetails = props => {
 		businessId,
 		dedupePrefilledValues,
 		leadId,
+		leadAllDetails,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -1155,17 +1156,18 @@ const BasicDetails = props => {
 					sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
-				business_email: sectionData?.director_details?.demail,
+				business_email: sectionData?.director_details?.demail || leadAllDetails?.email || '',
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
 					'',
 				contactno:
-					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
+					sectionData?.director_details?.dcontact || dedupeData?.mobile_no || leadAllDetails?.mobile_no || '',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
-					dedupeData?.pan_number,
+					dedupeData?.pan_number ,
+					dpancard:sectionData?.business_details?.dpancard || leadAllDetails?.pan_number|| '',
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
