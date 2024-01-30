@@ -16,6 +16,7 @@ import * as UI from './ui';
 import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import TooltipImage from '../Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
+import ImageViewerModal from '../Global/ImageViewerModal';
 
 const InputFieldSingleFileUpload = props => {
 	const {
@@ -34,12 +35,14 @@ const InputFieldSingleFileUpload = props => {
 	// 	state => state.directors
 	// );
 	// const selectedDirector = directors?.[selectedDirectorId] || {};
-	const { isViewLoan, selectedProduct } = app;
+	const { isViewLoan, selectedProduct, userDetails } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
 	const dispatch = useDispatch();
 	const isMandatory = !!field?.rules?.required;
+	const [imageSrc, setImageSrc] = useState('');
+	const [isImageModalVisible, setIsImageModalVisible] = useState(false);
 
 	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
 	const isFileFromDeviceStorageAllowed =
@@ -57,6 +60,13 @@ const InputFieldSingleFileUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
+
+			if (userDetails?.is_other) {
+				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
+				setImageSrc(imageURL);
+				setIsImageModalVisible(true);
+				return;
+			}
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
@@ -156,6 +166,11 @@ const InputFieldSingleFileUpload = props => {
 		}
 	};
 
+	const onCloseImageViewerModal = () => {
+		setIsImageModalVisible(false);
+		setImageSrc('');
+	};
+
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: '',
 		onDrop: async acceptedFiles => {
@@ -200,6 +215,13 @@ const InputFieldSingleFileUpload = props => {
 
 	return (
 		<>
+			{isImageModalVisible && (
+				<ImageViewerModal
+					onClose={onCloseImageViewerModal}
+					imageSrc={imageSrc}
+					modalVisible={isImageModalVisible}
+				/>
+			)}
 			{isPreview ? (
 				<UI.FieldWrapper>
 					<UI.PreviewUploadIconWrapper>
