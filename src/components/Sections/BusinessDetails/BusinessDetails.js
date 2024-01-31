@@ -728,9 +728,7 @@ const BusinessDetails = props => {
 				`${API.API_END_POINT}/dedupe_check`,
 				dedupeReqBody
 			);
-			console.log(fetchDedupeRes, 'fetch dedupe res');
 			if (fetchDedupeRes?.data?.status === 'ok') {
-				console.log('ok data');
 				setDedupeModalData(fetchDedupeRes?.data?.data);
 			}
 		} catch (error) {
@@ -815,7 +813,7 @@ const BusinessDetails = props => {
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
-			
+
 			return field?.value || '';
 		} catch (err) {
 			console.error('error-BusinessDetials', {
@@ -999,7 +997,7 @@ const BusinessDetails = props => {
 	// 		setFetchingSectionData(false);
 	// 	  }
 	//   };
-	  
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -1082,7 +1080,6 @@ const BusinessDetails = props => {
 		)?.[0]?.id;
 	};
 // for fed use case when the data is fetched from customer id from fed portal
-console.log(leadAllDetails,"email")
 const disableFieldIfPrefilledFromThirdPartyData = field => {
 	/*
 This function checks if a form field should be disabled based on the configuration for disabling fields
@@ -1575,7 +1572,7 @@ fields to determine if the given field should be disabled.
 											// console.log("Contact")
 											customFieldProps.onblur = handleBlurEmail;
 										}
-										
+
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
 											customFieldProps.onFocus = handleBlurEmail;
 

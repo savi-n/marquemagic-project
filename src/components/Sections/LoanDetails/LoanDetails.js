@@ -81,7 +81,6 @@ const LoanDetails = () => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
-	console.log("leadAllDetails",leadAllDetails);
 	//const [loadingFile, setLoadingFile] = useState(false);
 
 	//default logged in user's branch id can be taken from session storage userDetails
@@ -405,7 +404,6 @@ const LoanDetails = () => {
 				sectionData?.loan_additional_data?.source_fund_requirements
 			);
 		}
-		console.log("sectionData",sectionData);
 		const preData = {
 			...loanDetails,
 			loan_amount: loanDetails?.loan_amount || leadAllDetails?.loan_amount
