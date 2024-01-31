@@ -1167,7 +1167,7 @@ const BasicDetails = props => {
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number ,
-					dpancard:sectionData?.business_details?.dpancard || leadAllDetails?.pan_number|| '',
+					dpancard:sectionData?.director_details?.dpancard || leadAllDetails?.pan_number|| '',
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
