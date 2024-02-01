@@ -19,12 +19,10 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT, VEHICLE_RC } from '_config/app.config';
 import moment from 'moment';
-// import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
 		subSections,
-		// fields,
 		onSaveOrUpdateSuccessCallback = () => {},
 		onCancelCallback = () => {},
 		prefillData = {},
@@ -72,7 +70,6 @@ const DynamicForm = props => {
 		application,
 		selectedSectionId,
 	});
-	// console.log({ prefillData });
 	const prefilledEditOrViewLoanValues = field => {
 		// const preData = {
 		// 	asset_type: '75',
@@ -364,28 +361,14 @@ const DynamicForm = props => {
 				selectedDirector,
 				application,
 			});
-			// console.log(
-			// 	'🚀 ~ file: DynamicForm.js:165 ~ onSaveOrUpdate ~ reqBody:',
-			// 	reqBody
-			// );
 			const tempData = [];
 			tempData.push(reqBody.data);
 
 			reqBody.data = tempData;
 
-			if (Number[editSectionId] > 10) {
+			if (editSectionId) {
 				reqBody.data[0].id = editSectionId;
 			}
-
-			// if (
-			// 	typeof reqBody?.data?.assets_details?.financial_institution?.value ===
-			// 	'string'
-			// ) {
-			// 	reqBody.data.assets_details.financial_institution = +reqBody?.data
-			// 		?.assets_details?.financial_institution?.value;
-			// }
-
-			// reqBody.data.vehicle_details = [reqBody.data.vehicle_details];
 
 			const submitRes = await axios.post(
 				`${API_END_POINT}/vehicle_details`,
@@ -395,7 +378,6 @@ const DynamicForm = props => {
 				const vehicleRcPayload = {
 					vehicleNo: formState?.values[CONST.FIELD_NAME_VEHICLE_NUMBER],
 					loanAssetId: submitRes?.data?.data?.[0]?.id || editSectionId || '',
-					// isBlackListRequired: '',
 				};
 				callVehicleRcApi(vehicleRcPayload);
 				onSaveOrUpdateSuccessCallback();
