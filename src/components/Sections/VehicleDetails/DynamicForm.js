@@ -282,7 +282,7 @@ const DynamicForm = props => {
 				setManufacturerOptions(getOptionsFromResponse(result, 'Manufacturer'));
 			}
 		} catch (error) {
-			console.log(error);
+			console.error('Error', error);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -338,7 +338,7 @@ const DynamicForm = props => {
 				setTonnageCategoryOptions(getOptionsFromResponse(result, 'tonnage'));
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		} finally {
 			setIsSubmitting(false);
 		}
