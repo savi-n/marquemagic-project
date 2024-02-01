@@ -42,7 +42,7 @@ const BusinessAddressDetailsEdi = props => {
 		: isDirectorApplicant(selectedDirector);
 
 	const {
-		// selectedProduct,
+		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
 		isTestMode,
@@ -55,6 +55,8 @@ const BusinessAddressDetailsEdi = props => {
 		// cacheDocuments,
 		// loanRefId,
 		businessId,
+		leadAllDetails,
+
 	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -90,13 +92,13 @@ const BusinessAddressDetailsEdi = props => {
 
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
-
+console.log("leadAllDetails",leadAllDetails);
 	const fetchAllGstNumbers = async panNum => {
 		if (panNum) {
 			try {
 				setLoading(true);
 				const { data } = await axios.post(
-					`${API.API_END_POINT}/api/panToGst`,
+					API.PAN_TO_GST,
 					{
 						pan: panNum,
 					},
@@ -257,7 +259,42 @@ const BusinessAddressDetailsEdi = props => {
 			setLoading(false);
 		}
 	};
+	const disableFieldIfPrefilledFromThirdPartyData = field => {
+		/*
+	This function checks if a form field should be disabled based on the configuration for disabling fields
+	when prefilled from third-party data. It considers the selected product, completed sections, and specific
+	fields to determine if the given field should be disabled.
 
+	@param {Object} field - The form field object being evaluated.
+
+	@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+	*/
+
+		const registeredAddress = sectionData?.address?.filter(item => {
+			return item.aid === 2;
+		})?.[0];
+		const operatingAddress = sectionData?.address?.filter(item => {
+			return item.aid === 1;
+		})?.[0];
+
+		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		if (
+			selectedProduct?.product_details?.disable_fields_if_prefilled &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// Check if the current field is listed in the predefined fields to disable if prefilled
+			// and if the corresponding data is available in the business details of the section
+			if (
+				registeredAddress?.[field?.db_key] ||
+				operatingAddress?.[field?.db_key]
+			) {
+				return true;
+			}
+			return false;
+		}
+
+		return false; // Do not disable the field by default
+	};
 	const prefilledValues = field => {
 		try {
 			// custom prefill only for this section
@@ -284,19 +321,21 @@ const BusinessAddressDetailsEdi = props => {
 			});
 			// -- TEST MODE
 			let rocRegAddress = '';
-			if (sectionData?.address.length <= 0) {
+			if (sectionData?.address?.length <= 0) {
 				rocRegAddress = sectionData?.registered_address;
 			}
 
 			// Baas!
 			const preData = {
-				registered_address1: rocRegAddress || registeredAddress?.[0]?.line1,
+				registered_address1: rocRegAddress || registeredAddress?.[0]?.line1 || leadAllDetails?.address
+				,
 				registered_address2: registeredAddress?.[0]?.line2,
 				registered_address3: registeredAddress?.[0]?.locality,
 				registered_pin_code:
-					extractPincode(rocRegAddress) || registeredAddress?.[0]?.pincode,
-				registered_city: registeredAddress?.[0]?.city,
-				registered_state: registeredAddress?.[0]?.state,
+					extractPincode(rocRegAddress) || registeredAddress?.[0]?.pincode || leadAllDetails?.true_caller_location
+					,
+				registered_city: registeredAddress?.[0]?.city || leadAllDetails?.city,
+				registered_state: registeredAddress?.[0]?.state || leadAllDetails?.state,
 				registered_residential_type: registeredAddress?.[0]?.residential_type,
 
 				operating_address1: prefferedAddress?.[0]?.line1,
@@ -398,7 +437,7 @@ const BusinessAddressDetailsEdi = props => {
 
 	const gstOptions = gstNumbers?.map(gstNum => {
 		return {
-			name: `${gstNum.gstin} - ${gstNum.state_name} - ${gstNum.status}`,
+			name: `${gstNum.gstin} - ${gstNum.state_name} - ${gstNum?.data?.sts}`,
 			value: gstNum.gstin,
 		};
 	});
@@ -576,6 +615,15 @@ const BusinessAddressDetailsEdi = props => {
 										if (field.name === 'select_gstin') {
 											customFieldProps.isGSTselector = true;
 											customFieldProps.options = gstOptions;
+										}
+										if (
+											field &&
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
 										}
 
 										// Untill permanent address1 is not filled disable present address proof

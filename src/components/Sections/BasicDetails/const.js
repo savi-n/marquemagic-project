@@ -49,6 +49,7 @@ export const EMAIL_ID_FIELD_NAME = 'email';
 export const BASIC_DETAILS_SECTION_ID = 'basic_details';
 export const CUSTOMER_CATEGORY_FIELD_NAME = 'risk_category';
 export const CUSTOMER_ID_FIELD_NAME = 'customer_id';
+export const KYC_RISK_PROFILE_FIELD_NAME = 'kyc_risk_profile';
 
 export const PROFILE_PIC_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting And Re-Upload The Profile Image`;
 export const APPLICATION_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting`;
@@ -56,3 +57,16 @@ export const APPLICATION_GEO_ERROR_HINT = `Please Allow Location Access From Bro
 // export const NO_INCOME_TYPE_SELECTED_HINT =
 // 	'Select the income type to fetch the data from Customer ID.';
 export const ENTER_VALID_UCIC_HINT = 'Enter the valid UCIC number';
+
+export const FIELDS_TO_DISABLE_IF_PREFILLED = [
+	PAN_NUMBER_FIELD_NAME,
+	MOBILE_NUMBER_FIELD_NAME,
+	FIRST_NAME_FIELD_NAME,
+	LAST_NAME_FIELD_NAME,
+	MIDDLE_NAME_FIELD_NAME,
+	FATHER_NAME_FIELD_NAME,
+	INCOME_TYPE_FIELD_NAME,
+	DOB_FIELD_NAME,
+	EMAIL_ID_FIELD_NAME,
+	CUSTOMER_ID_FIELD_NAME,
+];

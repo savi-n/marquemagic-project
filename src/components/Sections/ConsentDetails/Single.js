@@ -106,7 +106,7 @@ const Single = ({
 			// setDisabled(true);
 			setLoading(true);
 			const response = await axios.get(
-				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
+				`${API.GET_CONSENT}?${formatGetSectionReqBody({
 					application,
 					selectedProduct,
 				})}`,

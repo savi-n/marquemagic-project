@@ -164,7 +164,7 @@ const BusinessAddressDetails = props => {
 			try {
 				setLoading(true);
 				const { data } = await axios.post(
-					`${API.API_END_POINT}/api/panToGst`,
+					API.PAN_TO_GST,
 					{
 						pan: panNum,
 					},
@@ -195,10 +195,11 @@ const BusinessAddressDetails = props => {
 	// since we are getting an object, convert to an array of options with name and value so that it can be passed to an dropdown
 	const gstOptions = gstNumbers?.map(gstNum => {
 		return {
-			name: `${gstNum.gstin} - ${gstNum.state_name} - ${gstNum.status}`,
+			name: `${gstNum.gstin} - ${gstNum.state_name} - ${gstNum?.data?.sts}`,
 			value: gstNum.gstin,
 		};
 	});
+	console.log({ gstOptions });
 	// -> /panToGst API ends
 
 	/*

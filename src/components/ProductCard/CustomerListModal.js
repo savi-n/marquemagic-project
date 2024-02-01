@@ -17,9 +17,10 @@ export default function CustomerListModal(props) {
 	} = props;
 
 	// console.log('CustomerListModal-allstates-', { customerList });
-
 	return (
-		<Modal
+<>
+
+            <Modal
 			show={show}
 			onClose={onClose}
 			width='80%'
@@ -28,6 +29,8 @@ export default function CustomerListModal(props) {
 				padding: '40px',
 			}}
 		>
+			
+			
 			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
 			<UI.CustomerListWrapper>
 				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
@@ -50,10 +53,11 @@ export default function CustomerListModal(props) {
 						}
 					>
 						<UI.CustomerListCardItem>
-							Customer Name: {customer?.customer_name}
+							Customer Name: {customer?.customer_name || customer?.V_CUSTNAME
+ }
 						</UI.CustomerListCardItem>
 						<UI.CustomerListCardItem>
-							Customer ID: {customer?.customer_id}
+							Customer ID: {customer?.customer_id || customer?.V_CUSTOMERID}
 						</UI.CustomerListCardItem>
 						<UI.CustomerListCardItem>
 							PAN/Government Id No: {customer?.id_no || 'N/A'}
@@ -77,7 +81,12 @@ export default function CustomerListModal(props) {
 					/>
 				</UI.CustomerDetailsFormModalFooter>
 			</UI.CustomerListWrapper>
+		
+			
 		</Modal>
+
+		
+		</>
 	);
 }
 // {

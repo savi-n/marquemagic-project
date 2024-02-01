@@ -1,40 +1,23 @@
 // TODO: Manoranjan - Please integrate all the required api's 1.Get method 2. Post method 3. Aadhar otp verification 4. dedupe flow
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import queryString from 'query-string';
 import _ from 'lodash';
-import useForm from 'hooks/useFormIndividual';
-import Button from 'components/Button';
-import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
-import { verifyUiUxToken } from 'utils/request';
-import { API_END_POINT } from '_config/app.config';
-import { getTotalYearsCompleted } from 'utils/helper';
 import moment from 'moment';
 
+import useForm from 'hooks/useFormIndividual';
+import * as API from '_config/app.config';
+import plusRoundIcon from 'assets/icons/plus_icon_round.png';
+import editIcon from 'assets/icons/edit-icon.png';
+import expandIcon from 'assets/icons/right_arrow_active.png';
+import { setSelectedSectionId, setLeadDetailData } from 'store/appSlice';
 import {
-	// setIsDraftLoan,
-	// setLoginCreateUserRes,
-	setSelectedSectionId,
-	// setUserToken,
-} from 'store/appSlice';
-// import {
-// 	setNewCompletedDirectorSections,
-// 	getDirectors,
-// 	setSmeType,
-// } from 'store/directorsSlice';
-import {
-	// setLoanIds,
-	// setLeadId,
 	setCompletedApplicationSection,
 	setLeadId,
-	// setBusinessType,
-	// setNewCompletedSections,
-	// setBusinessMobile,
-	// setBusinessName,
+	SetLeadDataDetails,
 } from 'store/applicationSlice';
 import {
-	// formatSectionReqBody,
 	getApiErrorMessage,
 	getAllCompletedSections,
 	getSelectedSubField,
@@ -42,22 +25,27 @@ import {
 	isDirectorApplicant,
 	formatAadhaarOtpResponse,
 } from 'utils/formatData';
+import { decryptRes, encryptBase64, encryptReq } from 'utils/encrypt';
+import { verifyUiUxToken } from 'utils/request';
+import { getTotalYearsCompleted, scrollToTopRootElement } from 'utils/helper';
+import { isInvalidAadhaar, isInvalidPan } from 'utils/validation';
+import Button from 'components/Button';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { scrollToTopRootElement } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
-import * as API from '_config/app.config';
-import { isInvalidAadhaar, isInvalidPan } from 'utils/validation';
-
-// import * as UI from './ui';
 import * as CONST from './const';
 import LeadAadhaarVerify from './LeadAadhaarVerify';
 import LeadAadhaarOTPModal from './LeadAadhaarOTPModal';
-import { useLayoutEffect } from 'react';
-// import LeadAssetsDetails from './LeadAssetsDetails';
+import CustomerListModal from '../../../components/ProductCard/CustomerListModal';
+import CustomerVerificationOTPModal from '../../../components/ProductCard/CustomerVerificationOTPModal';
+import DynamicForm from './DynamicForm';
+import Modal from 'components/Modal';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
+import * as UI from './ui';
+
 const LeadDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedDirectorId, directors } = useSelector(
@@ -65,7 +53,6 @@ const LeadDetails = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -76,26 +63,25 @@ const LeadDetails = props => {
 		userToken,
 		isViewLoan,
 		isEditLoan,
-		// isEditOrViewLoan,
 		permission,
 		userDetails,
 		isTestMode,
 	} = app;
-	const {
-		// borrowerUserId,
-		// businessUserId,
-		// businessType,
-		loanRefId,
-		leadId,
-		loanProductId,
-	} = application;
-	// const naviagteToNextSection = () => {
-	// 	dispatch(setSelectedSectionId(nextSectionId));
-	// };
+	const { loanRefId, leadId, loanProductId } = application;
 
 	const dispatch = useDispatch();
+	const {
+		handleSubmit,
+		register,
+		formState,
+		onChangeFormStateField,
+	} = useForm();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
+	const assetsDetails = selectedSection?.sub_sections?.find(
+		section => section.id === CONST.FIELD_NAME_ASSETS_DETAILS
+	);
+	const assetFields = assetsDetails?.fields;
 
 	const [loading, setLoading] = useState(false);
 
@@ -104,10 +90,35 @@ const LeadDetails = props => {
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
+	const [assetManufacturerOptions, setAssetManufacturerOptions] = useState([]);
+	const [assetModelOptions, setAssetModelOptions] = useState([]);
+	const [sendingOTP, setSendingOTP] = useState(false);
+	const [sendOtpRes, setSendOtpRes] = useState(null);
 
+	const [
+		isCustomerVerificationOTPModal,
+		setIsCustomerVerificationOTPModal,
+	] = useState(false);
+	const [isAssetEditMode, setIsAssetEditMode] = useState(false);
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
+	const [assetListFormState, setAssetListFormState] = useState([]);
+	const [isAssetCreateFormOpen, setIsAssetCreateFormOpen] = useState(true);
+	const [selectedAssetIndex, setSelectedAssetIndex] = useState(undefined);
+	const [isAssetViewMode, setIsAssetViewMode] = useState(false);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const [selectedCustomer, setSelectedCustomer] = useState(null);
+	const MAX_ADD_COUNT = assetsDetails.max || 10;
+	const assetTypeOptions = {
+		vehicle:
+			assetsDetails?.fields?.find(
+				field => field?.name === CONST.VEHICLE_TYPE_FIELD_NAME
+			)?.options || [],
+		equipment:
+			assetsDetails?.fields?.find(
+				field => field?.name === CONST.EQUIPMENT_TYPE_FIELD_NAME
+			)?.options || [],
+	};
 
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
@@ -117,8 +128,13 @@ const LeadDetails = props => {
 			: {};
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [branchOptions, setBranchOptions] = useState([]);
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [customerList, setCustomerList] = useState('');
+	const [customerId, setCustomerId] = useState('');
+	const [NewToBankCustomerModal, setNewToBankCustomerModal] = useState(false);
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
+
 	if (
 		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
 		!selectedVerifyOtp
@@ -129,8 +145,7 @@ const LeadDetails = props => {
 			},
 		};
 	}
-	// console.log({ userDetails });
-	// console.log('selectedSection=>', selectedSection);
+
 	const branchField =
 		selectedSection?.sub_sections
 			?.filter(item => {
@@ -139,13 +154,6 @@ const LeadDetails = props => {
 			?.fields?.filter(field => {
 				return field?.name === CONST.BRANCH_FIELD_NAME;
 			})?.[0] || {};
-
-	const {
-		handleSubmit,
-		register,
-		formState,
-		onChangeFormStateField,
-	} = useForm();
 
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
@@ -165,7 +173,6 @@ const LeadDetails = props => {
 		fields: selectedPermanentAadhaarField?.sub_fields || [],
 		isApplicant,
 	});
-	// const sectionRequired = selectedSection?.is_section_mandatory !== false;
 	const onClickVerifyWithOtp = async field => {
 		if (field?.redirect_url) {
 			handleBankRedirection(field.redirect_url);
@@ -186,7 +193,6 @@ const LeadDetails = props => {
 			if (selectedVerifyWithOtpSubField?.redirect_url) {
 				try {
 					setVerifyingWithOtp(true);
-					// const reqBody = {};
 					const apiUrl =
 						selectedSection?.aadhaar_redirect_api_url ||
 						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT;
@@ -217,7 +223,6 @@ const LeadDetails = props => {
 					aadhaarNo: formState.values[CONST.AADHAR_OTP_FIELD_NAME],
 					product_id: loanProductId,
 				};
-				// console.log(aadhaarOtpReqBody, '555', clientToken);
 				// --------------------
 				const aadharOtpReq = await axios.post(
 					API.AADHAAR_GENERATE_OTP,
@@ -280,7 +285,6 @@ const LeadDetails = props => {
 				const branchRes = await axios.get(
 					`${API.API_END_POINT}/getBranchList?bankId=${bankRefId}`
 				);
-				// console.log('branchRes-', { branchRes });
 				const newBranchOptions = [];
 				branchRes?.data?.branchList?.map(branch => {
 					newBranchOptions?.push({
@@ -291,7 +295,7 @@ const LeadDetails = props => {
 					return null;
 				});
 				setBranchOptions(newBranchOptions);
-			} // console.log('branchRes-', { branchRes });
+			}
 		} catch (error) {
 			console.error('error-getBranchOptions-', error);
 		} finally {
@@ -303,7 +307,6 @@ const LeadDetails = props => {
 		try {
 			setLoading(true);
 			const connectorRes = await axios.get(`${API.API_END_POINT}/connectors`);
-			// console.log('connectorRes-', { connectorRes });
 			const newConnectorOptions = [];
 			connectorRes?.data?.data?.map(connector => {
 				newConnectorOptions.push({
@@ -337,18 +340,9 @@ const LeadDetails = props => {
 			}
 		} catch (err) {
 			console.error(err);
-			// console.log('====================================');
-			console.error(err);
-			// console.log('====================================');
 		}
 	};
-	// console.log({
-	// 	selectedDedupeData,
-	// 	dedupeApiData,
-	// 	documentMapping,
-	// 	id: selectedProduct?.id,
-	// });
-	// console.log({ borrowerUserId, isEditOrViewLoan });
+
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -363,26 +357,36 @@ const LeadDetails = props => {
 				isLeadCategoryChanged = true;
 			}
 
+			const formValuesForPayload = {};
+			Object.keys(formState?.values).forEach(key => {
+				if (assetFields?.some(field => field.name === key)) return;
+				formValuesForPayload[key] = formState?.values[key];
+			});
+
 			const leadsDetailsReqBody = {
-				...formState.values,
+				...formValuesForPayload,
+				assets: assetListFormState?.length ? assetListFormState : null,
 				white_label_id: whiteLabelId,
 				product_id: selectedProduct?.id,
 				parent_id: selectedProduct?.parent_id || '',
 			};
+
 			if (leadId) leadsDetailsReqBody.id = leadId;
-			// console.log('leadsDetailsReqBody=>', leadsDetailsReqBody);
 			const leadsDetailsRes = await axios.post(
-				`${API.LEADS_DETIALS}`,
+				`${API.LEADS_DETAILS}`,
 				leadsDetailsReqBody
 			);
-			// console.log('leadsDetailsRes=>', { leadsDetailsRes });
-			// return;
 			if (leadsDetailsRes?.data?.status === 'ok') {
 				// TODO: Manoranjan - discuss with madhuri regarding user and add the below check (already added the condition - just reverify)
 				// 1 condition to check whether this user is allowed to proceed further
 				// 2 condition to check whether dedupe is present. if not present move to next section
 				// 3 if dedupe is present, redirect to dedupe screen
+
+				const otherData = leadsDetailsRes?.data?.data?.other_data || '';
+				const tempLeadData = otherData ? JSON.parse(otherData) : {};
+
 				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
+				dispatch(SetLeadDataDetails({ leadAllDetails: tempLeadData }));
 				if (
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.usertype
@@ -402,14 +406,6 @@ const LeadDetails = props => {
 					}
 					return;
 				} else {
-					// console.log({
-					// 	1: Object.keys(selectedDedupeData)?.length === 0,
-					// 	2: isEditLoan && !isLeadCategoryChanged,
-					// 	3:
-					// 		selectedSection?.validate_lead_status === true &&
-					// 		formState?.values?.['lead_category'] !==
-					// 			CONST.LEAD_STATUS_HOT_OPTION_VALUE,
-					// });
 					if (
 						Object.keys(selectedDedupeData)?.length === 0 ||
 						(isEditLoan && !isLeadCategoryChanged) ||
@@ -419,7 +415,9 @@ const LeadDetails = props => {
 					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
-					} else {
+					} else if (
+						selectedProduct?.product_details?.lead_to_dedupe_screen === true
+					) {
 						try {
 							const token = {
 								userId: userDetails?.id,
@@ -442,12 +440,11 @@ const LeadDetails = props => {
 						} catch (error) {
 							console.error('header-getAppylyloanUrl-error  ', error);
 						}
+					} else {
+						searchCustomerFromFetchApi();
 					}
 				}
 			}
-
-			dispatch(setCompletedApplicationSection(selectedSectionId));
-			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LeadDetails-onProceed-', {
 				error: error,
@@ -464,9 +461,6 @@ const LeadDetails = props => {
 		}
 	};
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
-		// console.log('prePopulateAddressDetailsFromVerifyOtpRes-aadhaarOtpRes-', {
-		// 	aadhaarOtpRes,
-		// });
 		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
 		Object.keys(formatedData || {}).map(key => {
 			onChangeFormStateField({
@@ -475,6 +469,72 @@ const LeadDetails = props => {
 			});
 			return null;
 		});
+	};
+
+	const setProceedNewToBankFlow = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+	const searchCustomerFromFetchApi = async () => {
+		try {
+			const url = selectedDedupeData?.search_api;
+			const apiUrl = url || API.DDUPE_CHECK;
+			const reqBody = {
+				loan_product_id:
+					selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
+					selectedProduct?.product_id?.[formState?.values?.['business_type']] ||
+					'',
+				customer_type: formState?.values['customer_type'] || '',
+				white_label_id: whiteLabelId,
+				id_no: formState?.values?.['pan_number'] || '',
+				pan_number: formState?.values['pan_number']?.toUpperCase() || '',
+				pan: formState?.values['pan_number']?.toUpperCase() || '',
+
+				mobile_no: formState?.values['mobile_no'] || '',
+				mobile_num: formState?.values['mobile_no'] || '',
+
+				dob: formState?.values['business_vintage'] || '',
+				businesstype: formState?.values['income_type'] || '',
+				isApplicant: true, //implemented based on savitha's changes - bad practice
+				customer_id: formState?.values['customer_id'] || '',
+				loan_product_details_id: selectedProduct?.id || undefined,
+				parent_product_id: selectedProduct?.parent_id || undefined,
+			};
+
+			if (apiUrl) {
+				const ddupeRes = await axios.post(apiUrl, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+
+				if (ddupeRes?.data?.status === 'nok') {
+					addToast({
+						message:
+							ddupeRes?.data?.message ||
+							ddupeRes?.data?.Message ||
+							'No Customer data found, please press SKIP and proceed to enter details.',
+						type: 'error',
+					});
+					setNewToBankCustomerModal(true);
+
+					return;
+				} else {
+					ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+
+					setIsCustomerListModalOpen(true);
+				}
+			}
+		} catch (e) {
+			addToast({
+				message:
+					e?.response?.data?.message ||
+					e?.response?.data?.Message ||
+					e.message ||
+					'Error in fetching the customer details. Please verify the entered details.',
+				type: 'error',
+			});
+		}
 	};
 
 	const prefilledValues = field => {
@@ -492,7 +552,6 @@ const LeadDetails = props => {
 			const otherData = sectionData?.other_data || '';
 			const tempSectionData = otherData ? JSON.parse(otherData) : {};
 			const preData = {
-				// ...sectionData,
 				...tempSectionData,
 				branch: tempSectionData?.branch?.id,
 				leadid: sectionData?.id,
@@ -508,7 +567,6 @@ const LeadDetails = props => {
 			});
 		}
 	};
-	// console.log(formState);
 
 	const validateToken = async () => {
 		try {
@@ -539,15 +597,19 @@ const LeadDetails = props => {
 		try {
 			setFetchingSectionData(true);
 			// get method of the sections is here. modify the api of this particular section
-			const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
+			const fetchRes = await axios.get(`${API.API_END_POINT}/leadsData`, {
 				params: {
 					id: leadId,
 					white_label_id: whiteLabelId,
 				},
 			});
-			// console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
-				setSectionData(fetchRes?.data?.data);
+				const responseData = fetchRes?.data?.data;
+				setSectionData(responseData);
+				const otherData = responseData?.other_data || '';
+				const tempSectionData = otherData ? JSON.parse(otherData) : {};
+				setAssetListFormState(tempSectionData?.assets || []);
+				setIsAssetCreateFormOpen(!tempSectionData?.assets?.length);
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -571,10 +633,92 @@ const LeadDetails = props => {
 		getConnectors();
 		//new get api
 		if (leadId) fetchSectionDetails();
-		// log is required to monitor the modes
-		// console.log({ isViewLoan, isEditLoan });
 		//eslint-disable-next-line
 	}, []);
+
+	const vehicleTypeFormState =
+		formState?.values?.[CONST.VEHICLE_TYPE_FIELD_NAME];
+	const equipmentTypeFormState =
+		formState?.values?.[CONST.EQUIPMENT_TYPE_FIELD_NAME];
+	const getOptionsFromResponse = (data = [], value) => {
+		return _.uniqBy(
+			data?.map(item => ({
+				value: item[value],
+				name: item[value],
+			})),
+			'value'
+		);
+	};
+
+	const fetchVehicleOptions = async () => {
+		try {
+			setLoading(true);
+			setAssetManufacturerOptions([]);
+			setAssetModelOptions([]);
+
+			const assetTypeName = assetTypeOptions?.vehicle?.find(
+				type => type?.value === vehicleTypeFormState
+			)?.name;
+
+			const response = await axios.get(`${API.API_END_POINT}/getVehicleType`, {
+				params: { assettype: assetTypeName, registrable: 'Registrable' },
+			});
+
+			const result = response?.data?.data;
+			setAssetManufacturerOptions(
+				getOptionsFromResponse(result, 'Manufacturer')
+			);
+			setAssetModelOptions(getOptionsFromResponse(result, 'VehicleModel'));
+		} catch (error) {
+			addToast({
+				message: 'Error obtaining options for Asset Details',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (vehicleTypeFormState) fetchVehicleOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [vehicleTypeFormState]);
+
+	const fetchEquipmentOptions = async () => {
+		try {
+			setLoading(true);
+			setAssetManufacturerOptions([]);
+			setAssetModelOptions([]);
+
+			const assetTypeName = assetTypeOptions?.equipment?.find(
+				type => type?.value === equipmentTypeFormState
+			)?.name;
+
+			const response = await axios.get(
+				`${API.API_END_POINT}/getEquipmentType`,
+				{
+					params: { equipmenttype: assetTypeName, registrable: 'Registrable' },
+				}
+			);
+			const result = response?.data?.data;
+			setAssetManufacturerOptions(
+				getOptionsFromResponse(result, 'manufacturer')
+			);
+			setAssetModelOptions(getOptionsFromResponse(result, 'equipmentmodel'));
+		} catch (error) {
+			addToast({
+				message: 'Error obtaining options for Asset Details',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (equipmentTypeFormState) fetchEquipmentOptions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [equipmentTypeFormState]);
 
 	const connectorCode = sectionData?.loan_details?.connector_user_id;
 	useEffect(() => {
@@ -631,12 +775,6 @@ const LeadDetails = props => {
 			});
 		}
 
-		// if (formState.values[CONST.LOAN_SOURCE] === 'branch') {
-		// onChangeFormStateField({
-		// 	name: CONST.BRANCH_FIELD_NAME,
-		// 	value: '179423',
-		// });
-		// }
 		//eslint-disable-next-line
 	}, [formState.values[CONST.LOAN_SOURCE]]);
 
@@ -680,9 +818,41 @@ const LeadDetails = props => {
 						value: lastName || '',
 					});
 				} else {
+					//Company Search API
+					const companyNameSearchRes = await axios.post(
+						API.SEARCH_COMPANY_NAME,
+						{
+							search: panExtractionMsg?.upstreamName.trim(),
+						}
+					);
+
+					const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
+
+					//ROC Data API
+					const cinNumberResponse =
+						newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER &&
+						(await axios.post(
+							API.ROC_DATA_FETCH,
+							{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						));
+					const companyData = cinNumberResponse?.data?.data;
+					const companyStartDate =
+						companyData?.company_master_data?.date_of_incorporation;
+					const [date, month, year] = companyStartDate?.split(/\/|-/);
+					const bussinessStartDate = `${year}-${month}-${date}`;
+
 					onChangeFormStateField({
 						name: CONST.BUSINESS_NAME_FIELD_NAME,
 						value: name || '',
+					});
+					onChangeFormStateField({
+						name: CONST.BUSINESS_START_DATE,
+						value: bussinessStartDate || '',
 					});
 				}
 			}
@@ -697,10 +867,294 @@ const LeadDetails = props => {
 		}
 	};
 
-	// TODO : Bikash will suggest to call the api for branch, connectors etc.
+	const redirectToProductPageInEditMode = loanData => {
+		if (!loanData?.data?.loan_data?.loan_ref_id) {
+			addToast({
+				message: 'Something went wrong, try after sometime',
+				type: 'error',
+			});
+			return;
+		}
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
+			token: userToken,
+			edit: true,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			selectedProduct?.id || ''
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		window.open(redirectURL, '_self');
+	};
+
+	const onProceedSelectCustomer = async () => {
+		try {
+			setSendingOTP(true);
+
+			const customerId = selectedCustomer?.customer_id;
+			setCustomerId(customerId);
+			if (selectedDedupeData?.is_otp_required) {
+				try {
+					const sendOtpRes = await axios.post(
+						selectedDedupeData?.generate_otp,
+						{
+							customer_id: customerId,
+							loan_product_id:
+								selectedProduct?.product_id?.[
+									formState?.values?.['income_type']
+								] ||
+								selectedProduct?.product_id?.[
+									formState?.values?.['business_type']
+								] ||
+								'',
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+
+					setSendOtpRes(sendOtpRes?.data?.data || {});
+					setIsCustomerListModalOpen(false);
+					setIsCustomerVerificationOTPModal(true);
+					addToast({
+						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+						type: 'success',
+					});
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
+						type: 'error',
+					});
+				}
+			} else {
+				try {
+					const reqBody = {
+						customer_id: customerId,
+						white_label_id: whiteLabelId,
+						loan_product_id:
+							selectedProduct?.product_id?.[
+								formState?.values?.['income_type']
+							] ||
+							selectedProduct?.product_id?.[
+								formState?.values?.['business_type']
+							] ||
+							'',
+						loan_product_details_id:
+							selectedProduct?.id || selectedProduct?.id || undefined,
+						isApplicant: true, //implemented based on savitha's changes - bad practice
+						origin: API.ORIGIN,
+					};
+					const verifyData = await axios.post(
+						selectedDedupeData?.verify,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+
+					if (verifyData?.data?.status === 'ok') {
+						dispatch(setLeadDetailData(verifyData?.data));
+						dispatch(setSelectedSectionId(nextSectionId));
+					}
+
+					if (verifyData?.data?.status === 'nok') {
+						addToast({
+							message:
+								verifyData?.data?.message ||
+								verifyData?.data?.Message ||
+								'Something Went Wrong, Please check the selected/entered details.',
+							type: 'error',
+						});
+					}
+				} catch (err) {
+					console.error(err.message);
+				}
+			}
+		} catch (e) {
+			console.error('error-onSelectCustomer-', e);
+		} finally {
+			setSendingOTP(false);
+		}
+	};
+
+	const openAssetForm = () => {
+		if (isAssetEditMode) {
+			setIsAssetEditMode(false);
+		}
+		if (isAssetViewMode) {
+			setIsAssetViewMode(false);
+		}
+		setSelectedAssetIndex(undefined);
+		setIsAssetCreateFormOpen(true);
+	};
+
+	const handleSaveAssetForm = () => {
+		let savedAsset = {};
+		assetsDetails?.fields?.forEach(field => {
+			const fieldName = field?.name;
+			savedAsset[fieldName] = formState?.values[fieldName];
+			onChangeFormStateField({
+				name: fieldName,
+				value: '',
+			});
+		});
+
+		setAssetListFormState(prev => {
+			if (selectedAssetIndex !== undefined) {
+				const updatedList = [...prev];
+				updatedList[selectedAssetIndex] = savedAsset;
+				setSelectedAssetIndex(undefined);
+				return updatedList;
+			}
+			return [...prev, { ...savedAsset }];
+		});
+		if (isAssetCreateFormOpen) setIsAssetCreateFormOpen(false);
+		else setIsAssetEditMode(false);
+	};
+
+	const handleEditAssetForm = (assetItem, assetIndex) => {
+		if (isAssetCreateFormOpen) {
+			setIsAssetCreateFormOpen(false);
+		}
+		if (isAssetViewMode) {
+			setIsAssetViewMode(false);
+		}
+		setSelectedAssetIndex(assetIndex);
+		Object.keys(assetItem).forEach(item => {
+			onChangeFormStateField({
+				name: item,
+				value: assetItem?.[item],
+			});
+		});
+		setIsAssetEditMode(true);
+	};
+
+	const handleToggleAssetForm = (assetItem, assetIndex) => {
+		if (isAssetCreateFormOpen) {
+			setIsAssetCreateFormOpen(false);
+		}
+		if (isAssetEditMode) {
+			setIsAssetEditMode(false);
+		}
+		if (isAssetViewMode && selectedAssetIndex === assetIndex) {
+			setSelectedAssetIndex(undefined);
+			Object.keys(assetItem).forEach(item => {
+				onChangeFormStateField({
+					name: item,
+					value: '',
+				});
+			});
+			setIsAssetViewMode(false);
+		} else {
+			setSelectedAssetIndex(assetIndex);
+			Object.keys(assetItem).forEach(item => {
+				onChangeFormStateField({
+					name: item,
+					value: assetItem?.[item],
+				});
+			});
+			setIsAssetViewMode(true);
+		}
+	};
+
+	const LeadsAssetFormFooter = ({ onCancel, showCancel = false }) => {
+		return (
+			<UI_SECTIONS.AddDynamicSectionWrapper
+				style={{
+					display: 'flex',
+					gap: '20px',
+					marginBottom: 10,
+				}}
+			>
+				<Button
+					onClick={handleSaveAssetForm}
+					disabled={
+						loading ||
+						assetFields.some(field => formState?.error?.[field?.name])
+					}
+					loading={loading}
+				>
+					Save Asset
+				</Button>
+				{showCancel ? (
+					<Button onClick={onCancel} disabled={loading} loading={loading}>
+						Cancel
+					</Button>
+				) : null}
+			</UI_SECTIONS.AddDynamicSectionWrapper>
+		);
+	};
 
 	return (
 		<UI_SECTIONS.Wrapper>
+			{NewToBankCustomerModal && (
+				<Modal
+					show={NewToBankCustomerModal}
+					width='40%'
+					height='50%'
+					customStyle={{
+						padding: '40px',
+					}}
+				>
+					<UI.ImgClose
+						onClick={() => {
+							setNewToBankCustomerModal(false);
+						}}
+						src={imgClose}
+						alt='close'
+					/>
+					<UI.CustomerListWrapper>
+						<UI.CustomerListModalHeader>
+							Dear Customer
+						</UI.CustomerListModalHeader>
+						<UI.CustomerListModalSubHeader>
+							Looks like you Do Not have Current relationship with us Please
+							Click On Proceed to Move as an NTB User.
+						</UI.CustomerListModalSubHeader>
+						<UI.NonCustomerDetailsFormModalFooter>
+							<Button name='Proceed' onClick={setProceedNewToBankFlow} fill />
+						</UI.NonCustomerDetailsFormModalFooter>
+					</UI.CustomerListWrapper>
+				</Modal>
+			)}
+			{isCustomerListModalOpen && (
+				<CustomerListModal
+					show={isCustomerListModalOpen}
+					onClose={() => {
+						setIsCustomerListModalOpen(false);
+						setSelectedCustomer(null);
+					}}
+					customerList={customerList}
+					selectedCustomer={selectedCustomer}
+					setSelectedCustomer={setSelectedCustomer}
+					onProceedSelectCustomer={onProceedSelectCustomer}
+					sendingOTP={sendingOTP}
+				/>
+			)}
+
+			{isCustomerVerificationOTPModal && (
+				<CustomerVerificationOTPModal
+					show={isCustomerVerificationOTPModal}
+					customerId={customerId}
+					onClose={() => {
+						setIsCustomerVerificationOTPModal(false);
+						setIsCustomerListModalOpen(false);
+					}}
+					selectedCustomer={selectedCustomer}
+					resendOtp={onProceedSelectCustomer}
+					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+					customerDetailsFormData={formState?.values}
+					selectedDedupeData={selectedDedupeData}
+					product={selectedProduct}
+					isApplicant={true}
+					sendOtpRes={sendOtpRes}
+				/>
+			)}
 			{fetchingSectionData ? (
 				<Loading />
 			) : (
@@ -718,21 +1172,244 @@ const LeadDetails = props => {
 						/>
 					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
-					{/* {console.log(formState.values.email)}; */}
+
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-						// if (sub_section?.id === CONST.FIELD_NAME_ASSETS_DETAILS) {
-						// 	return (
-						// 		<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						// 			<LeadAssetsDetails
-						// 				sectionIndex={sectionIndex}
-						// 				sub_section={sub_section}
-						// 				formState={formState}
-						// 				prefilledValues={prefilledValues}
-						// 				registerField={register}
-						// 			/>
-						// 		</Fragment>
-						// 	);
-						// }
+						if (
+							sub_section.is_dynamic &&
+							sub_section.id === CONST.FIELD_NAME_ASSETS_DETAILS
+						) {
+							return (
+								<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+									{sub_section?.name ? (
+										<UI_SECTIONS.SubSectionHeader>
+											{sub_section.name}
+										</UI_SECTIONS.SubSectionHeader>
+									) : null}
+
+									{assetListFormState.map((assetItem, assetIndex) => {
+										const assetType = assetItem?.vehicle_type_asset
+											? assetTypeOptions?.vehicle?.find(
+													option =>
+														option.value === assetItem?.vehicle_type_asset
+											  )?.name
+											: assetItem?.equipment_type_asset
+											? assetTypeOptions?.equipment?.find(
+													option =>
+														option.value === assetItem?.equipment_type_asset
+											  )?.name
+											: '';
+										return (
+											<div key={`accordian-${assetIndex}`}>
+												{assetItem?.asset_type && (
+													<UI_SECTIONS.AccordianWrapper>
+														<UI_SECTIONS.AccordianHeader>
+															<UI_SECTIONS.AccordianHeaderData>
+																<span>Type of Asset:</span>
+																<strong>{assetType}</strong>
+															</UI_SECTIONS.AccordianHeaderData>
+															<UI_SECTIONS.AccordianHeaderData>
+																<span>Loan Amount:</span>
+																<strong>{assetItem?.loan_amount}</strong>
+															</UI_SECTIONS.AccordianHeaderData>
+															<UI_SECTIONS.AccordianHeaderData
+																style={{
+																	marginLeft: 'auto',
+																	flex: 'none',
+																}}
+															>
+																{isViewLoan ? null : (
+																	<UI_SECTIONS.AccordianIcon
+																		src={editIcon}
+																		alt='edit'
+																		onClick={() =>
+																			handleEditAssetForm(assetItem, assetIndex)
+																		}
+																	/>
+																)}
+																<UI_SECTIONS.AccordianIcon
+																	src={expandIcon}
+																	alt='toggle'
+																	onClick={() =>
+																		handleToggleAssetForm(assetItem, assetIndex)
+																	}
+																	style={{
+																		transform:
+																			isAssetViewMode &&
+																			selectedAssetIndex === assetIndex
+																				? 'rotate(-90deg)'
+																				: 'rotate(90deg)',
+																		cursor: 'pointer',
+																	}}
+																/>
+															</UI_SECTIONS.AccordianHeaderData>
+														</UI_SECTIONS.AccordianHeader>
+													</UI_SECTIONS.AccordianWrapper>
+												)}
+
+												{assetsDetails &&
+												((isAssetEditMode &&
+													selectedAssetIndex === assetIndex) ||
+													(isAssetViewMode &&
+														selectedAssetIndex === assetIndex)) ? (
+													<UI_SECTIONS.AccordianWrapper style={{ padding: 30 }}>
+														<UI_SECTIONS.FormWrapGrid>
+															{assetsDetails?.fields?.map(eachField => {
+																const field = _.cloneDeep(eachField);
+																if (
+																	field?.visibility === false ||
+																	!field?.name ||
+																	!field?.type
+																)
+																	return null;
+																const newValue = prefilledValues(field);
+																let newValueSelectField;
+																if (!!field.sub_fields) {
+																	newValueSelectField = prefilledValues(
+																		field?.sub_fields[0]
+																	);
+																}
+																const customFieldProps = {};
+																const customFieldPropsSubFields = {};
+
+																customFieldProps.disabled =
+																	isAssetViewMode || isViewLoan;
+
+																if (
+																	field?.name ===
+																	CONST.ASSET_MANUFACTURER_FIELD_NAME
+																) {
+																	customFieldProps.disabled =
+																		!assetManufacturerOptions.length ||
+																		isAssetViewMode;
+																	customFieldProps.options = assetManufacturerOptions;
+																}
+																if (
+																	field?.name === CONST.ASSET_MODEL_FIELD_NAME
+																) {
+																	customFieldProps.disabled =
+																		!assetModelOptions.length ||
+																		isAssetViewMode;
+																	customFieldProps.options = assetModelOptions;
+																}
+
+																return (
+																	<DynamicForm
+																		key={`field-${field?.id}-${field.name}`}
+																		field={field}
+																		formState={formState}
+																		register={register}
+																		customFieldProps={customFieldProps}
+																		customFieldPropsSubFields={
+																			customFieldPropsSubFields
+																		}
+																		newValue={newValue}
+																		newValueSelectField={newValueSelectField}
+																	/>
+																);
+															})}
+														</UI_SECTIONS.FormWrapGrid>
+
+														{isAssetEditMode ? (
+															<LeadsAssetFormFooter
+																onCancel={() => {
+																	setSelectedAssetIndex(undefined);
+																	assetFields.forEach(item => {
+																		onChangeFormStateField({
+																			name: item,
+																			value: '',
+																		});
+																	});
+																	setIsAssetEditMode(false);
+																}}
+																showCancel={
+																	assetListFormState.length >= 1 &&
+																	isAssetEditMode
+																}
+															/>
+														) : null}
+													</UI_SECTIONS.AccordianWrapper>
+												) : null}
+											</div>
+										);
+									})}
+									{isAssetCreateFormOpen && (
+										<UI_SECTIONS.AccordianWrapper style={{ padding: 30 }}>
+											<UI_SECTIONS.FormWrapGrid>
+												{assetsDetails?.fields?.map(eachField => {
+													const field = _.cloneDeep(eachField);
+													if (
+														field?.visibility === false ||
+														!field?.name ||
+														!field?.type
+													)
+														return null;
+													const newValue = prefilledValues(field);
+													let newValueSelectField;
+													if (!!field.sub_fields) {
+														newValueSelectField = prefilledValues(
+															field?.sub_fields[0]
+														);
+													}
+													const customFieldProps = {};
+													const customFieldPropsSubFields = {};
+
+													customFieldProps.disabled =
+														isAssetViewMode || isViewLoan;
+
+													if (
+														field?.name === CONST.ASSET_MANUFACTURER_FIELD_NAME
+													) {
+														customFieldProps.disabled =
+															!assetManufacturerOptions.length ||
+															isAssetViewMode;
+														customFieldProps.options = assetManufacturerOptions;
+													}
+													if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
+														customFieldProps.disabled =
+															!assetModelOptions.length || isAssetViewMode;
+														customFieldProps.options = assetModelOptions;
+													}
+
+													return (
+														<DynamicForm
+															key={`field-${field?.id}-${field.name}`}
+															field={field}
+															formState={formState}
+															register={register}
+															customFieldProps={customFieldProps}
+															customFieldPropsSubFields={
+																customFieldPropsSubFields
+															}
+															newValue={newValue}
+															newValueSelectField={newValueSelectField}
+														/>
+													);
+												})}
+											</UI_SECTIONS.FormWrapGrid>
+											<LeadsAssetFormFooter
+												onCancel={() => setIsAssetCreateFormOpen(false)}
+												showCancel={
+													assetListFormState.length >= 1 &&
+													isAssetCreateFormOpen
+												}
+											/>
+										</UI_SECTIONS.AccordianWrapper>
+									)}
+									{isViewLoan ||
+									assetListFormState?.length >= MAX_ADD_COUNT ||
+									isAssetCreateFormOpen ? null : (
+										<UI_SECTIONS.AddDynamicSectionWrapper>
+											<UI_SECTIONS.PlusRoundButton
+												src={plusRoundIcon}
+												onClick={openAssetForm}
+											/>
+											<span>Click to Add Assets</span>
+										</UI_SECTIONS.AddDynamicSectionWrapper>
+									)}
+								</Fragment>
+							);
+						}
+
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -771,6 +1448,11 @@ const LeadDetails = props => {
 											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+										}
+
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											customFieldProps.infoMessage =
+												'Example : UDYAM-XY-07-1234567';
 										}
 
 										if (field?.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
@@ -861,87 +1543,35 @@ const LeadDetails = props => {
 										}
 
 										return (
-											<UI_SECTIONS.FieldWrapGrid
+											<DynamicForm
 												key={`field-${fieldIndex}-${field.name}`}
-											>
-												<div
-													style={{
-														display: 'flex',
-														gap: '10px',
-														alignItems: 'center',
-													}}
-												>
-													{field?.sub_fields &&
-														field?.sub_fields[0].is_prefix &&
-														register({
-															...field.sub_fields[0],
-															value: newValueSelectField,
-															visibility: 'visible',
-															...customFieldProps,
-															...customFieldPropsSubFields,
-														})}
-													<div
-														style={{
-															width: '100%',
-														}}
-													>
-														{register({
-															...field,
-															value: newValue,
-															visibility: 'visible',
-															...customFieldProps,
-														})}
-													</div>
-													{field?.sub_fields &&
-														!field?.sub_fields[0].is_prefix &&
-														register({
-															...field.sub_fields[0],
-															value: newValueSelectField,
-															visibility: 'visible',
-															...customFieldProps,
-															...customFieldPropsSubFields,
-														})}
-												</div>
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field?.name]) &&
-													formState?.error?.[field?.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[field?.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field?.sub_fields?.[0]?.name]) &&
-													formState?.error?.[field?.sub_fields?.[0]?.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[field?.sub_fields[0]?.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-											</UI_SECTIONS.FieldWrapGrid>
-											//end
+												field={field}
+												formState={formState}
+												register={register}
+												customFieldProps={customFieldProps}
+												customFieldPropsSubFields={customFieldPropsSubFields}
+												newValue={newValue}
+												newValueSelectField={newValueSelectField}
+											/>
 										);
 									})}
 								</UI_SECTIONS.FormWrapGrid>
 							</Fragment>
 						);
 					})}
-					<UI_SECTIONS.Footer>
+					<UI_SECTIONS.Footer style={{ marginTop: 20 }}>
 						{!isViewLoan && (
 							<Button
 								fill
 								name={'Save and Proceed'}
 								isLoader={loading}
-								disabled={loading}
+								disabled={loading || isAssetCreateFormOpen}
 								onClick={handleSubmit(() => {
 									onSaveAndProceed();
 									return;
 								})}
 							/>
 						)}
-						{/* {isViewLoan && (
-							<>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)} */}
 					</UI_SECTIONS.Footer>
 				</>
 			)}
