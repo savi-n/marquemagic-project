@@ -16,10 +16,6 @@ import {
 	setCompletedApplicationSection,
 	setLeadId,
 	SetLeadDataDetails,
-	// setBusinessType,
-	// setNewCompletedSections,
-	// setBusinessMobile,
-	// setBusinessName,
 } from 'store/applicationSlice';
 import {
 	getApiErrorMessage,
@@ -135,7 +131,7 @@ const LeadDetails = props => {
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState('');
 	const [customerId, setCustomerId] = useState('');
-	const [NewToBankCustomerModal,setNewToBankCustomerModal]=useState(false);
+	const [NewToBankCustomerModal, setNewToBankCustomerModal] = useState(false);
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 
@@ -377,7 +373,7 @@ const LeadDetails = props => {
 
 			if (leadId) leadsDetailsReqBody.id = leadId;
 			const leadsDetailsRes = await axios.post(
-				`${API.LEADS_DETIALS}`,
+				`${API.LEADS_DETAILS}`,
 				leadsDetailsReqBody
 			);
 			if (leadsDetailsRes?.data?.status === 'ok') {
@@ -385,13 +381,12 @@ const LeadDetails = props => {
 				// 1 condition to check whether this user is allowed to proceed further
 				// 2 condition to check whether dedupe is present. if not present move to next section
 				// 3 if dedupe is present, redirect to dedupe screen
-			
-				const otherData = leadsDetailsRes?.data?.data?.other_data
-				|| '';
+
+				const otherData = leadsDetailsRes?.data?.data?.other_data || '';
 				const tempLeadData = otherData ? JSON.parse(otherData) : {};
-				
+
 				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
-				dispatch(SetLeadDataDetails({leadAllDetails: tempLeadData}))
+				dispatch(SetLeadDataDetails({ leadAllDetails: tempLeadData }));
 				if (
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.usertype
@@ -476,10 +471,10 @@ const LeadDetails = props => {
 		});
 	};
 
-	const setProceedNewToBankFlow=()=>{
+	const setProceedNewToBankFlow = () => {
 		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
-	}
+	};
 	const searchCustomerFromFetchApi = async () => {
 		try {
 			const url = selectedDedupeData?.search_api;
@@ -519,23 +514,16 @@ const LeadDetails = props => {
 							ddupeRes?.data?.message ||
 							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
-							type: 'error',
-						});
-						setNewToBankCustomerModal(true);
-					
-						return;
-					}
-					else{
-						ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
-					
-						setIsCustomerListModalOpen(true);
-					}
-					
-						
-				
-					
+						type: 'error',
+					});
+					setNewToBankCustomerModal(true);
 
-					
+					return;
+				} else {
+					ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+
+					setIsCustomerListModalOpen(true);
+				}
 			}
 		} catch (e) {
 			addToast({
@@ -1104,33 +1092,35 @@ const LeadDetails = props => {
 
 	return (
 		<UI_SECTIONS.Wrapper>
-
-			{NewToBankCustomerModal && (				
+			{NewToBankCustomerModal && (
 				<Modal
-			show={NewToBankCustomerModal}
-			width='40%'
-			height='50%'
-			customStyle={{
-				padding: '40px',
-			}}
-		>
-			<UI.ImgClose onClick={() => {
-						setNewToBankCustomerModal(false);
-					}} src={imgClose} alt='close' />
-			<UI.CustomerListWrapper>
-				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
-				<UI.CustomerListModalSubHeader>
-				Looks like you Do Not have Current relationship with us Please Click On Proceed to Move as an NTB User.
-				</UI.CustomerListModalSubHeader>
-				<UI.NonCustomerDetailsFormModalFooter>
-					<Button
-						name='Proceed'
-						onClick={setProceedNewToBankFlow}
-						fill
+					show={NewToBankCustomerModal}
+					width='40%'
+					height='50%'
+					customStyle={{
+						padding: '40px',
+					}}
+				>
+					<UI.ImgClose
+						onClick={() => {
+							setNewToBankCustomerModal(false);
+						}}
+						src={imgClose}
+						alt='close'
 					/>
-				</UI.NonCustomerDetailsFormModalFooter>
-			</UI.CustomerListWrapper>		
-		</Modal>
+					<UI.CustomerListWrapper>
+						<UI.CustomerListModalHeader>
+							Dear Customer
+						</UI.CustomerListModalHeader>
+						<UI.CustomerListModalSubHeader>
+							Looks like you Do Not have Current relationship with us Please
+							Click On Proceed to Move as an NTB User.
+						</UI.CustomerListModalSubHeader>
+						<UI.NonCustomerDetailsFormModalFooter>
+							<Button name='Proceed' onClick={setProceedNewToBankFlow} fill />
+						</UI.NonCustomerDetailsFormModalFooter>
+					</UI.CustomerListWrapper>
+				</Modal>
 			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
