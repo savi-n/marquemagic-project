@@ -365,6 +365,34 @@ const DynamicForm = props => {
 			tempData.push(reqBody.data);
 
 			reqBody.data = tempData;
+			const vehicleTypeField =
+				subSections?.[0]?.fields?.filter(
+					field => field?.name === CONST.FIELD_NAME_VEHICLE_TYPE
+				)?.[0] || {};
+
+			const vehicleTypeName = vehicleTypeField?.options?.filter(
+				option =>
+					`${option?.value}` ===
+					`${formState?.values?.[CONST.FIELD_NAME_VEHICLE_TYPE]}`
+			)?.[0]?.name;
+
+			const equipmentTypeField =
+				subSections?.[0]?.fields?.filter(
+					field => field?.name === CONST.FIELD_NAME_EQUIPMENT_TYPE
+				)?.[0] || {};
+
+			const equipmentTypeName = equipmentTypeField?.options?.filter(
+				option =>
+					`${option?.value}` ===
+					`${formState?.values?.[CONST.FIELD_NAME_EQUIPMENT_TYPE]}`
+			)?.[0]?.name;
+
+			if (reqBody?.data?.[0]?.vehicle_details) {
+				reqBody.data[0].vehicle_details.vehicle_type_name =
+					vehicleTypeName || undefined;
+				reqBody.data[0].vehicle_details.equipment_type_name =
+					equipmentTypeName || undefined;
+			}
 
 			if (editSectionId) {
 				reqBody.data[0].id = editSectionId;
