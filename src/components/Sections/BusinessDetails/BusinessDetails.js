@@ -436,7 +436,7 @@ const BusinessDetails = props => {
 		try {
 			setLoading(true);
 			const companyNameReqBody = {
-				search: companyName.trim(),
+				search: companyName?.trim(),
 			};
 			const companyNameSearchRes = await axios.post(
 				API.SEARCH_COMPANY_NAME,
