@@ -35,7 +35,6 @@ import {
 	setNewCompletedSections,
 	setBusinessMobile,
 	setBusinessName,
-	SetLeadDataDetails,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
