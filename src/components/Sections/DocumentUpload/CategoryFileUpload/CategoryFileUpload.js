@@ -33,7 +33,11 @@ import * as CONST_SECTION from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
-import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
+import {
+	isImageFile,
+	maxUploadSize,
+	validateFileUpload,
+} from 'utils/helperFunctions';
 import { useToasts } from 'components/Toast/ToastProvider';
 import TooltipImage from 'components/Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
@@ -97,7 +101,7 @@ const CategoryFileUpload = props => {
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
 			const imgSrc = decryptViewDocumentUrl(docRes?.data?.signedurl) || '';
-			if (userDetails?.is_other) {
+			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
 				setImageSrc(imgSrc);
 				setIsImageModalVisible(true);
 				return;

@@ -33,7 +33,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import * as CONST from './const';
-import { validateFileUpload } from 'utils/helperFunctions';
+import { isImageFile, validateFileUpload } from 'utils/helperFunctions';
 import ImageViewerModal from 'components/Global/ImageViewerModal';
 
 const ProfileUpload = props => {
@@ -98,7 +98,7 @@ const ProfileUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
-			if (userDetails?.is_other) {
+			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
 				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
 				setImageSrc(imageURL);
 				setIsImageModalVisible(true);
@@ -509,10 +509,20 @@ const ProfileUpload = props => {
 							e.preventDefault();
 							e.stopPropagation();
 							if (value) {
+								if (userDetails?.is_other) {
+									setImageSrc(value);
+									setIsImageModalVisible(true);
+									return;
+								}
 								window.open(value, '_blank');
 								return;
 							}
 							if (uploadedFile?.preview || selfiePreview?.preview) {
+								if (userDetails?.is_other) {
+									setImageSrc(uploadedFile?.preview || selfiePreview?.preview);
+									setIsImageModalVisible(true);
+									return;
+								}
 								window.open(
 									uploadedFile?.preview || selfiePreview?.preview,
 									'_blank'
