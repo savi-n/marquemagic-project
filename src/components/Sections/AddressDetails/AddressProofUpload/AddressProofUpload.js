@@ -31,7 +31,11 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
 import * as CONST from './const';
-import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
+import {
+	isImageFile,
+	maxUploadSize,
+	validateFileUpload,
+} from 'utils/helperFunctions';
 import infoIcon from 'assets/icons/info-icon.png';
 import TooltipImage from 'components/Global/Tooltip';
 import ImageViewerModal from 'components/Global/ImageViewerModal';
@@ -741,7 +745,7 @@ const AddressProofUpload = props => {
 			reqBody.loan_id = loanId;
 			reqBody.userid = businessUserId;
 			const docRes = await axios.post(VIEW_DOCUMENT, reqBody);
-			if (userDetails?.is_other) {
+			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
 				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
 				setImageSrc(imageURL);
 				setIsImageModalVisible(true);
