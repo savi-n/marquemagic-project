@@ -31,7 +31,6 @@ const ModalFooter = styled.div`
 `;
 
 export default function DeleteCoApplicantModal({ onYes, onNo, label = '' }) {
-	console.log('label', label);
 	return (
 		<Modal
 			show={true}

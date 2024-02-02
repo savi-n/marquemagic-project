@@ -138,6 +138,7 @@ export default function Card({
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
+			lead_id: leadId || undefined,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
 			productModalData?.id || productForModal?.id || product?.id
@@ -163,7 +164,7 @@ export default function Card({
 		}
 		const editLoanRedirectObject = {
 			userId: userDetails?.id,
-			lead_id: leadId,
+			lead_id: leadId || undefined,
 			token: userToken,
 			edit: true,
 		};
@@ -216,6 +217,12 @@ export default function Card({
 						selectedDedupeData?.generate_otp,
 						{
 							customer_id: customerId,
+							loan_product_id:
+								productModalData?.product_id?.[
+									customerDetailsFormData?.businesstype
+								] ||
+								product?.product_id?.[customerDetailsFormData?.businesstype] ||
+								'',
 						},
 						{
 							headers: {
@@ -559,6 +566,7 @@ export default function Card({
 					product={product}
 					sendOtpRes={sendOtpRes}
 					subProduct={subProduct}
+					selectedDedupeData={selectedDedupeData}
 				/>
 			)}
 		</UI.Wrapper>

@@ -65,6 +65,7 @@ const initialState = {
 	editLoanDirectors: [],
 	// isTestMode: true,
 	isTestMode: false,
+	leadDetailData:{},
 };
 
 export const appSlice = createSlice({
@@ -236,6 +237,9 @@ export const appSlice = createSlice({
 			state.isEditLoan = false;
 			state.isEditOrViewLoan = false;
 		},
+		setLeadDetailData: (state, { payload }) => {
+			state.leadDetailData = payload;
+		},
 	},
 });
 
@@ -271,6 +275,7 @@ export const {
 	setIsDraftLoan,
 	resetEditOrViewLoan,
 	setSingleIfscList,
+	setLeadDetailData
 } = appSlice.actions;
 
 export default appSlice.reducer;

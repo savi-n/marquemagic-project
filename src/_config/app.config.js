@@ -10,15 +10,7 @@ const CUSTOMER_FETCH_API_END_POINT =
 	process.env.REACT_APP_CUSTOMER_FETCH_API_URL;
 const COMMON_SERVICES_API_END_POINT = process.env.REACT_APP_COMMON_API_URL;
 
-const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
-
-const BANK_TOKEN_API = `${ENDPOINT_BANK}/generateLink`;
 const FEDERAL_TRANSACTION_KYC_API = `${API_END_POINT}/federal-api/kyc_pull`;
-const CUB_ACCOUNT_MINI_STATEMENT = `${ENDPOINT_BANK}/cub/accountMiniStatement`;
-
-const UPLOAD_CUB_STATEMENT = `${ENDPOINT_BANK}/uploadToSailsExp`;
-const BANK_LIST_API = `${ENDPOINT_BANK}/bank_list`;
-const FETCH_CIBIL_SCORE = `${ENDPOINT_BANK}/equifax/fetchData`;
 
 const WHITE_LABEL_URL = taggedTemplate`${API_END_POINT}/wot/whitelabelsolution?name=${'name'}`;
 const PRODUCT_LIST_URL = taggedTemplate`${API_END_POINT}/productDetails?white_label_id=${'whiteLabelId'}`;
@@ -47,9 +39,6 @@ const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
 const SECRET = process.env.REACT_APP_SECRET || '';
 const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pinCode'}&country=${'Country'}`;
 
-const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
-
-const PAN_TO_GST = `${API_END_POINT}/api/panToGst`;
 const ADD_MULTIPLE_DIRECTOR = `${API_END_POINT}/addMultipleDirector`;
 
 const BUSSINESS_LOAN_CASE_CREATION = `${API_END_POINT}/casecreation_uiux`;
@@ -77,18 +66,16 @@ const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 const INDUSTRY_LIST_FETCH = `${API_END_POINT}/industry_list`;
 const SUB_INDUSTRY_FETCH = `${API_END_POINT}/subindustry_list`;
 const BUSINESS_DETIALS = `${API_END_POINT}/business_details`;
-const LEADS_DETIALS = `${API_END_POINT}/leadsData`;
+const LEADS_DETAILS = `${API_END_POINT}/leadsData`;
 const BUSINESS_ADDRESS_DETAILS = `${API_END_POINT}/business_address_details`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
 
 const CIN_UPDATE = `${API_END_POINT}/cin-update`;
+const SEND_SMS = `${API_END_POINT}/sendSms`;
+const SEND_EMAIL = `${API_END_POINT}/sendEmail`;
 
-const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
-const AADHAAR_GENERATE_OTP = `${ENDPOINT_BANK}/aadhaar/generateOTP`;
-const AADHAAR_VERIFY_OTP = `${ENDPOINT_BANK}/aadhaar/verifyOTP`;
-const AADHAAR_RESEND_OTP = `${ENDPOINT_BANK}/aadhaar/resendOTP`;
 const AUTHENTICATION_GENERATE_OTP = `${API_END_POINT}/users/sendOTP`;
 const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
 const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
@@ -121,13 +108,10 @@ const REDIRECT_CREATE =
 
 const SKIP_SECTION = `${API_END_POINT}/skip_section`;
 
-const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
-const VEHICLE_RC = `${API_END_POINT}/api/vehicleRC`;
 const LEADS_DATA = `${API_END_POINT}/leadsData`;
 const DELETE_CO_APPLICANT = `${API_END_POINT}/delete_director`;
 const DELETE_LOAN_FIN = `${API_END_POINT}/deleteLoanFinancial`;
 const DELETE_COLLATERAL = `${API_END_POINT}/cubCollateral/deleteCollateral`;
-
 
 const TRIGGER_PENNY_DROP = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/trigger`;
 const PENNY_DROP_STATUS_FETCH = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/status`;
@@ -167,6 +151,26 @@ const ORIGIN = 'nconboarding';
 const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
 // Valid UDYAM number : UDYAM-2_letter_denoting_state_code-2_digits-7_digits
 const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
+
+//-------------------Sails Plaid-------------------------------------
+const VERIFY_KYC = `${ENDPOINT_BANK}/verifyKycData`;
+const VEHICLE_RC = `${ENDPOINT_BANK}/vehicleRC`;
+const PAN_TO_GST = `${ENDPOINT_BANK}/panToGst`;
+const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
+const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
+const AADHAAR_GENERATE_OTP = `${ENDPOINT_BANK}/aadhaar/generateOTP`;
+const AADHAAR_VERIFY_OTP = `${ENDPOINT_BANK}/aadhaar/verifyOTP`;
+const AADHAAR_RESEND_OTP = `${ENDPOINT_BANK}/aadhaar/resendOTP`;
+const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
+const BANK_TOKEN_API = `${ENDPOINT_BANK}/generateLink`;
+const CUB_ACCOUNT_MINI_STATEMENT = `${ENDPOINT_BANK}/cub/accountMiniStatement`;
+const UPLOAD_CUB_STATEMENT = `${ENDPOINT_BANK}/uploadToSailsExp`;
+const BANK_LIST_API = `${ENDPOINT_BANK}/bank_list`;
+const FETCH_CIBIL_SCORE = `${ENDPOINT_BANK}/equifax/fetchData`;
+const CONSET_DETAILS = `${ENDPOINT_BANK}/consentDetails`;
+const GET_CONSENT = `${ENDPOINT_BANK}/getConsent`;
+
+// ----------------------- Sails Plaid API ends -----------------------------------------------------------------
 
 export {
 	API_END_POINT,
@@ -267,7 +271,7 @@ export {
 	SKIP_SECTION,
 	INDUSTRY_LIST_FETCH,
 	SUB_INDUSTRY_FETCH,
-	LEADS_DETIALS,
+	LEADS_DETAILS,
 	VEHICLE_RC,
 	LEADS_DATA,
 	DELETE_LOAN_FIN,
@@ -275,4 +279,8 @@ export {
 	DELETE_COLLATERAL,
 	TRIGGER_PENNY_DROP,
 	PENNY_DROP_STATUS_FETCH,
+	CONSET_DETAILS,
+	GET_CONSENT,
+	SEND_SMS,
+	SEND_EMAIL,
 };

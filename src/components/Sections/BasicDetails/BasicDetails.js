@@ -68,6 +68,7 @@ import {
 import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 import DataDeletionWarningModal from './DataDeletionWarningModal';
+import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -112,6 +113,7 @@ const BasicDetails = props => {
 		businessId,
 		dedupePrefilledValues,
 		leadId,
+		leadAllDetails,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -150,6 +152,12 @@ const BasicDetails = props => {
 		false
 	);
 	const [dedupeModalData, setDedupeModalData] = useState([]);
+	const [sendOtpRes, setSendOtpRes] = useState(null);
+	const [
+		isCustomerVerificationOTPModal,
+		setIsCustomerVerificationOTPModal,
+	] = useState(false);
+	const [customerId, setCustomerId] = useState('');
 
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
@@ -494,6 +502,42 @@ const BasicDetails = props => {
 			setLoading(false);
 		}
 	};
+
+	const disableFieldIfPrefilledFromThirdPartyData = field => {
+		/*
+	This function checks if a form field should be disabled based on the configuration for disabling fields
+	when prefilled from third-party data. It considers the selected product, completed sections, and specific
+	fields to determine if the given field should be disabled.
+
+	@param {Object} field - The form field object being evaluated.
+
+	@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+	*/
+
+		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+		if (field?.db_key === 'business_email') field.db_key = 'demail';
+		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+
+		if (
+			selectedProduct?.product_details?.disable_fields_if_prefilled &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// Check if the current field is listed in the predefined fields to disable if prefilled
+			// and if the corresponding data is available in the business details of the section
+			if (
+				CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
+				sectionData?.director_details?.[field.db_key]
+			) {
+				return true; // Disable the field if conditions are met
+			}
+			return false;
+		}
+
+		return false; // Do not disable the field by default
+	};
+	
 	const onPanEnter = async pan => {
 		try {
 			const panErrorMessage = isInvalidPan(pan);
@@ -854,6 +898,7 @@ const BasicDetails = props => {
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
 		try {
+			setCustomerId(formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]);
 			setIsDataDeletionWarningOpen(false);
 			if (formState?.values?.['income_type']?.length === 0) {
 				addToast({
@@ -863,68 +908,88 @@ const BasicDetails = props => {
 				return;
 			}
 
-			// if (!isApplicant) {
-			// 	const validateDirectors = validateAllTheDirectors({
-			// 		directors,
-			// 	});
-			// 	// console.log({ validateDirectors });
+			if (selectedDedupeData?.is_otp_required) {
+				try {
+					const sendOtpRes = await axios.post(
+						selectedDedupeData?.generate_otp,
+						{
+							customer_id:
+								formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
+								customerId ||
+								'',
 
-			// 	if (validateDirectors?.allowProceed === false) {
-			// 		addToast({
-			// 			message: `Please fill all the details in ${
-			// 				validateDirectors?.directorName
-			// 			}`,
-			// 			type: 'error',
-			// 		});
-			// 		return;
-			// 	}
-			// }
+							loan_product_id:
+								selectedProduct?.product_id?.[
+									formState?.values?.['income_type']
+								],
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
 
-			setLoading(true);
-			const reqBody = {
-				customer_id: formState?.values?.['customer_id'],
-				white_label_id: whiteLabelId,
-				businesstype: formState?.values?.['income_type'],
-				loan_product_id:
-					selectedProduct?.product_id?.[formState?.values?.['income_type']],
-				loan_product_details_id: selectedProduct?.id || undefined,
-				parent_product_id: selectedProduct?.parent_id || undefined,
-				loan_id: loanId,
-				business_id: businessId,
-				isApplicant,
-				type_name: addNewDirectorKey || selectedDirector?.type_name,
-				origin: API.ORIGIN,
-				did: selectedDirectorId || undefined,
-				lat: geoLocation?.lat || '',
-				long: geoLocation?.long || '',
-				timestamp: geoLocation?.timestamp || '',
-				customer_category:
-					formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
-			};
-			const fetchDataRes = await axios.post(
-				selectedDedupeData?.verify,
-				reqBody,
-				{
-					headers: {
-						Authorization: `Bearer ${userToken}`,
-					},
+					setSendOtpRes(sendOtpRes?.data?.data || {});
+					setIsCustomerVerificationOTPModal(true);
+					addToast({
+						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+						type: 'success',
+					});
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
+						type: 'error',
+					});
 				}
-			);
+			} else {
+				setLoading(true);
+				const reqBody = {
+					customer_id: formState?.values?.['customer_id'],
+					white_label_id: whiteLabelId,
+					businesstype: formState?.values?.['income_type'],
+					loan_product_id:
+						selectedProduct?.product_id?.[formState?.values?.['income_type']],
+					loan_product_details_id: selectedProduct?.id || undefined,
+					parent_product_id: selectedProduct?.parent_id || undefined,
+					loan_id: loanId,
+					business_id: businessId,
+					isApplicant,
+					type_name: addNewDirectorKey || selectedDirector?.type_name,
+					origin: API.ORIGIN,
+					did: selectedDirectorId || undefined,
+					lat: geoLocation?.lat || '',
+					long: geoLocation?.long || '',
+					timestamp: geoLocation?.timestamp || '',
+					customer_category:
+						formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
+				};
+				const fetchDataRes = await axios.post(
+					selectedDedupeData?.verify,
+					reqBody,
+					{
+						headers: {
+							Authorization: `Bearer ${userToken}`,
+						},
+					}
+				);
 
-			if (fetchDataRes?.data?.status === 'nok') {
-				addToast({
-					message:
-						fetchDataRes?.data?.message ||
-						'No Customer Data Found Against The Provided Customer ID',
-					type: 'error',
-				});
-			}
-			if (fetchDataRes?.data?.status === 'ok') {
-				addToast({
-					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
-					type: 'success',
-				});
-				redirectToProductPageInEditMode(fetchDataRes?.data);
+				if (fetchDataRes?.data?.status === 'nok') {
+					addToast({
+						message:
+							fetchDataRes?.data?.message ||
+							'No Customer Data Found Against The Provided Customer ID',
+						type: 'error',
+					});
+				}
+				if (fetchDataRes?.data?.status === 'ok') {
+					addToast({
+						message: fetchDataRes?.data?.message || 'Data fetched successfull!',
+						type: 'success',
+					});
+					redirectToProductPageInEditMode(fetchDataRes?.data);
+				}
 			}
 			// console.log({ fetchDataRes });
 		} catch (err) {
@@ -956,6 +1021,7 @@ const BasicDetails = props => {
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
+			lead_id: leadId || undefined,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
 			selectedProduct?.id
@@ -1071,6 +1137,14 @@ const BasicDetails = props => {
 			// console.log({
 			// 	sectionData,
 			// });
+			let kyc_risk_profile = '';
+			try {
+				kyc_risk_profile =
+					sectionData?.director_details?.others_info &&
+					JSON.parse(sectionData?.director_details?.others_info)?.kyc_risk;
+			} catch (error) {
+				console.error('Error in parsing JSON', error);
+			}
 			const preData = {
 				...sectionData?.director_details,
 				...sectionData?.loan_request_Data,
@@ -1082,17 +1156,18 @@ const BasicDetails = props => {
 					sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
-				business_email: sectionData?.director_details?.demail,
+				business_email: sectionData?.director_details?.demail || leadAllDetails?.email || '',
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
 					'',
 				contactno:
-					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
+					sectionData?.director_details?.dcontact || dedupeData?.mobile_no || leadAllDetails?.mobile_no || '',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
-					dedupeData?.pan_number,
+					dedupeData?.pan_number ,
+					dpancard:sectionData?.director_details?.dpancard || leadAllDetails?.pan_number|| '',
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
@@ -1117,7 +1192,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
-				// kyc_risk_profile: 'Low Risk',
+				kyc_risk_profile: kyc_risk_profile || '',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
@@ -1950,6 +2025,24 @@ const BasicDetails = props => {
 						onProceed={onFetchFromCustomerId}
 					/>
 
+					{isCustomerVerificationOTPModal && (
+						<CustomerVerificationOTPModal
+							show={isCustomerVerificationOTPModal}
+							customerId={customerId}
+							onClose={() => {
+								setIsCustomerVerificationOTPModal(false);
+							}}
+							resendOtp={onFetchFromCustomerId}
+							redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+							sendOtpRes={sendOtpRes}
+							product={selectedProduct}
+							customerDetailsFormData={formState?.values}
+							selectedDedupeData={selectedDedupeData}
+							isApplicant={isApplicant}
+							selectedDirectorId={selectedDirectorId}
+						/>
+					)}
+
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
@@ -2192,6 +2285,18 @@ const BasicDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
+										// disabling field if it is prefilled from third party response
+										if (
+											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
+												field?.name
+											) &&
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubfields.disabled = true;
@@ -2231,7 +2336,7 @@ const BasicDetails = props => {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
 											customFieldProps.infoMessage =
-												CONST.ENTER_VALID_UCIC_HINT;
+												field?.infoMessage || CONST.ENTER_VALID_UCIC_HINT;
 										}
 
 										if (field?.name === CONST.DOB_FIELD_NAME) {
