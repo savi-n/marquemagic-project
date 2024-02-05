@@ -354,7 +354,7 @@ export const {
 
 	setLoanIds,
 	setLeadId,
-	SetLeadDataDetails,
+	setLeadDataDetails,
 	setCompletedApplicationSection,
 	setNewCompletedSections,
 	setSelectedProductIdFromLead,
