@@ -15,7 +15,7 @@ import { setSelectedSectionId, setLeadDetailData } from 'store/appSlice';
 import {
 	setCompletedApplicationSection,
 	setLeadId,
-	SetLeadDataDetails,
+	setLeadDataDetails,
 } from 'store/applicationSlice';
 import {
 	getApiErrorMessage,
@@ -84,6 +84,7 @@ const LeadDetails = props => {
 	const assetFields = assetsDetails?.fields;
 
 	const [loading, setLoading] = useState(false);
+	const [dudupeLoading,setDudupeLoading]= useState(false);
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
@@ -386,7 +387,7 @@ const LeadDetails = props => {
 				const tempLeadData = otherData ? JSON.parse(otherData) : {};
 
 				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
-				dispatch(SetLeadDataDetails({ leadAllDetails: tempLeadData }));
+				dispatch(setLeadDataDetails({ leadAllDetails: tempLeadData }));
 				if (
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.usertype
@@ -411,7 +412,7 @@ const LeadDetails = props => {
 						(isEditLoan && !isLeadCategoryChanged) ||
 						(selectedSection?.validate_lead_status === true &&
 							formState?.values?.['lead_category'] ===
-								CONST.LEAD_STATUS_HOT_OPTION_VALUE)
+							CONST.LEAD_STATUS_HOT_OPTION_VALUE)
 					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
@@ -477,6 +478,7 @@ const LeadDetails = props => {
 	};
 	const searchCustomerFromFetchApi = async () => {
 		try {
+			setDudupeLoading(true);
 			const url = selectedDedupeData?.search_api;
 			const apiUrl = url || API.DDUPE_CHECK;
 			const reqBody = {
@@ -534,6 +536,9 @@ const LeadDetails = props => {
 					'Error in fetching the customer details. Please verify the entered details.',
 				type: 'error',
 			});
+		}
+		finally {
+			setDudupeLoading(false);
 		}
 	};
 
@@ -1565,7 +1570,7 @@ const LeadDetails = props => {
 								fill
 								name={'Save and Proceed'}
 								isLoader={loading}
-								disabled={loading || isAssetCreateFormOpen}
+								disabled={loading || isAssetCreateFormOpen|| dudupeLoading}
 								onClick={handleSubmit(() => {
 									onSaveAndProceed();
 									return;
