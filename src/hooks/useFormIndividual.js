@@ -79,6 +79,12 @@ function minValue(value, limit) {
 	return +value < +limit;
 }
 
+function dobDateFieldValidation(value) {
+	const inputDate = moment(value);
+	const maxAllowedDate = moment().subtract(120, 'years');
+	return !inputDate.isAfter(maxAllowedDate);
+}
+
 // TODO: varun make validation key align with new json small letter with underscore
 const VALIDATION_RULES = {
 	required: {
@@ -182,6 +188,10 @@ const VALIDATION_RULES = {
 	mobile_number: {
 		func: validatePattern(/^[6789]\d{9}$/),
 		message: 'Enter valid Phone Number',
+	},
+	dob_limit: {
+		func: dobDateFieldValidation,
+		message: 'Please enter dates less than 120 years',
 	},
 };
 
