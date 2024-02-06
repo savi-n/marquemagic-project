@@ -826,7 +826,7 @@ const LeadDetails = props => {
 						}
 					);
 
-					const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
+					const newCompanyList = companyNameSearchRes?.data?.data?.[0];
 
 					//ROC Data API
 					const cinNumberResponse =
@@ -843,7 +843,8 @@ const LeadDetails = props => {
 					const companyData = cinNumberResponse?.data?.data;
 					const companyStartDate =
 						companyData?.company_master_data?.date_of_incorporation;
-					const [date, month, year] = companyStartDate?.split(/\/|-/);
+					const [date, month, year] =
+						companyStartDate?.split(/\/|-/) || Array(3).fill('');
 					const bussinessStartDate = `${year}-${month}-${date}`;
 
 					onChangeFormStateField({
