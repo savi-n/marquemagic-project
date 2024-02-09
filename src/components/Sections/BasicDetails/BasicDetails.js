@@ -537,7 +537,7 @@ const BasicDetails = props => {
 
 		return false; // Do not disable the field by default
 	};
-	
+
 	const onPanEnter = async pan => {
 		try {
 			const panErrorMessage = isInvalidPan(pan);
@@ -590,10 +590,62 @@ const BasicDetails = props => {
 		}
 	};
 
+	const validateDirectorMobileNumbers = ({
+		directorsObject,
+		selectedDirectorId,
+		formStateMobileNumber,
+	}) => {
+		/*
+	This function checks if the current mobile number entered in the application form is already existing for any directors or co-apps.
+	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
+	@param {string} selectedDirectorId - The current selected directorId stored in redux.
+	@param {string} formStateMobileNumber - The current entered mobile number in application form field.
+
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate mobile number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	*/
+		for (const directorId in directorsObject) {
+			if (directorsObject.hasOwnProperty(directorId)) {
+				const director = directorsObject?.[directorId];
+				const existingMobile = director?.dcontact;
+
+				if (directorId === selectedDirectorId) {
+					// Skip current director being edited as we don't need to check the current director mobile number with his already exisitng mobile number.
+					continue;
+				}
+
+				if (existingMobile === formStateMobileNumber) {
+					return {
+						isValid: false,
+						directorName: `${director?.dfirstname} ${director?.dlastname}`,
+						typeName: director.type_name,
+					};
+				}
+			}
+		}
+		return { isValid: true };
+	};
+
 	const onSaveAndProceed = async () => {
 		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
+			const validationResult = validateDirectorMobileNumbers({
+				directorsObject: directors,
+				selectedDirectorId,
+				formStateMobileNumber:
+					formState?.values?.[CONST.MOBILE_NUMBER_FIELD_NAME],
+			});
+
+			if (!validationResult?.isValid) {
+				addToast({
+					message: `Error: Mobile number already exists for ${
+						validationResult?.typeName
+					} ${validationResult?.directorName}`,
+					type: 'error',
+				});
+				return;
+			}
+
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
 			// call login api only once
@@ -1156,18 +1208,25 @@ const BasicDetails = props => {
 					sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
-				business_email: sectionData?.director_details?.demail || leadAllDetails?.email || '',
+				business_email:
+					sectionData?.director_details?.demail || leadAllDetails?.email || '',
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
 					'',
 				contactno:
-					sectionData?.director_details?.dcontact || dedupeData?.mobile_no || leadAllDetails?.mobile_no || '',
+					sectionData?.director_details?.dcontact ||
+					dedupeData?.mobile_no ||
+					leadAllDetails?.mobile_no ||
+					'',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
-					dedupeData?.pan_number ,
-					dpancard:sectionData?.director_details?.dpancard || leadAllDetails?.pan_number|| '',
+					dedupeData?.pan_number,
+				dpancard:
+					sectionData?.director_details?.dpancard ||
+					leadAllDetails?.pan_number ||
+					'',
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
