@@ -603,26 +603,21 @@ const BasicDetails = props => {
 
 	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate mobile number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
 	*/
-		for (const directorId in directorsObject) {
-			if (directorsObject.hasOwnProperty(directorId)) {
-				const director = directorsObject?.[directorId];
-				const existingMobile = director?.dcontact;
+		const existingDirectorWithMobile = Object.values(directorsObject)?.find(
+			director =>
+				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dcontact === formStateMobileNumber
+		);
 
-				if (directorId === selectedDirectorId) {
-					// Skip current director being edited as we don't need to check the current director mobile number with his already exisitng mobile number.
-					continue;
-				}
-
-				if (existingMobile === formStateMobileNumber) {
-					return {
-						isValid: false,
-						directorName: `${director?.dfirstname} ${director?.dlastname}`,
-						typeName: director.type_name,
-					};
-				}
-			}
-		}
-		return { isValid: true };
+		return !existingDirectorWithMobile
+			? { isValid: true }
+			: {
+					isValid: false,
+					directorName: `${existingDirectorWithMobile?.dfirstname} ${
+						existingDirectorWithMobile?.dlastname
+					}`,
+					typeName: existingDirectorWithMobile.type_name,
+			  };
 	};
 
 	const onSaveAndProceed = async () => {
