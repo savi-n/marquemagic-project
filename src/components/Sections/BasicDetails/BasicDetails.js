@@ -69,6 +69,7 @@ import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 import DataDeletionWarningModal from './DataDeletionWarningModal';
 import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
+import UcicSearchModal from './UcicSearchModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -158,6 +159,9 @@ const BasicDetails = props => {
 		setIsCustomerVerificationOTPModal,
 	] = useState(false);
 	const [customerId, setCustomerId] = useState('');
+	const [isUcicSearchModalOpen, setIsUcicSearchModalOpen] = useState(false);
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [customerList, setCustomerList] = useState([]);
 
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
@@ -2175,6 +2179,20 @@ const BasicDetails = props => {
 							)}
 						</section>
 					</Modal>
+					<UcicSearchModal
+						show={isUcicSearchModalOpen}
+						onClose={() => {
+							setIsUcicSearchModalOpen(false);
+						}}
+						basicDetailsFormState={formState?.values}
+						isApplicant={isApplicant}
+						setCustomerList={setCustomerList}
+						setIsCustomerListModalOpen={setIsCustomerListModalOpen}
+						isCustomerListModalOpen={isCustomerListModalOpen}
+						customerList={customerList}
+						selectedDedupeData={selectedDedupeData}
+						formData={selectedSection?.ucic_search_form_data}
+					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2491,15 +2509,35 @@ const BasicDetails = props => {
 															...customFieldProps,
 														})}
 													</div>
-													{field?.sub_fields &&
-														!field?.sub_fields[0].is_prefix &&
+													{field?.sub_fields?.map(subField => {
+														if (subField?.name === 'search_ucic') {
+															customFieldPropsSubfields.disabled = false;
+															customFieldPropsSubfields.onClick = () =>
+																setIsUcicSearchModalOpen(true);
+														}
+														return (
+															!subField?.is_prefix &&
+															register({
+																...subField,
+																value: '',
+																visibility: 'visible',
+																onClick: () => {
+																	setIsUcicSearchModalOpen(true);
+																},
+																...customFieldProps,
+																...customFieldPropsSubfields,
+															})
+														);
+													})}
+													{/* {field?.sub_fields &&
+														!field?.sub_fields[3]?.is_prefix &&
 														register({
-															...field.sub_fields[0],
+															...field.sub_fields[3],
 															value: newValueSelectField,
 															visibility: 'visible',
 															// ...customFieldProps,
 															...customFieldPropsSubfields,
-														})}
+														})} */}
 												</div>
 												{(formState?.submit?.isSubmited ||
 													formState?.touched?.[field.name]) &&
