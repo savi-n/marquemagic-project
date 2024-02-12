@@ -464,6 +464,7 @@ const PanUpload = props => {
 				show={isCompanyListModalOpen}
 				companyName={formState?.values?.companyName}
 				companyList={companyList}
+				setCompanyList={setCompanyList}
 				panExtractionData={panExtractionData}
 				onClose={() => {
 					setIsCompanyListModalOpen(false);
