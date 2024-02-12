@@ -620,6 +620,36 @@ const BasicDetails = props => {
 			  };
 	};
 
+	const validateDirectorPanNumbers = ({
+		directorsObject,
+		selectedDirectorId,
+		formStatePanNumber,
+	}) => {
+		/*
+	This function checks if the current mobile number entered in the application form is already existing for any directors or co-apps.
+	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
+	@param {string} selectedDirectorId - The current selected directorId stored in redux.
+	@param {string} formStateMobileNumber - The current entered mobile number in application form field.
+
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate mobile number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	*/
+		const existingDirectorWithPanNumber = Object.values(directorsObject)?.find(
+			director =>
+				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dpancard === formStatePanNumber
+		);
+
+		return !existingDirectorWithPanNumber
+			? { isValid: true }
+			: {
+					isValid: false,
+					directorName: `${existingDirectorWithPanNumber?.dfirstname} ${
+						existingDirectorWithPanNumber?.dlastname
+					}`,
+					typeName: existingDirectorWithPanNumber.type_name,
+			  };
+	};
+
 	const onSaveAndProceed = async () => {
 		dispatch(setDedupePrefilledValues({}));
 		try {
@@ -636,6 +666,22 @@ const BasicDetails = props => {
 					message: `Error: Mobile number already exists for ${
 						validationResult?.typeName
 					} ${validationResult?.directorName}`,
+					type: 'error',
+				});
+				return;
+			}
+
+			const panValidationResult = validateDirectorMobileNumbers({
+				directorsObject: directors,
+				selectedDirectorId,
+				formStateMobileNumber: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME],
+			});
+
+			if (!panValidationResult?.isValid) {
+				addToast({
+					message: `Error: PAN number already exists for ${
+						panValidationResult?.typeName
+					} ${panValidationResult?.directorName}`,
 					type: 'error',
 				});
 				return;
