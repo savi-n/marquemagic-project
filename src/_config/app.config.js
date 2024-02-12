@@ -84,6 +84,7 @@ const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
 const UPLOAD_SELFIE_APPLICANT_COAPPLICANT = `${API_END_POINT}/geo/upload_img`;
 const GEO_LOCATION = `${API_END_POINT}/geoLocation`;
+const UPDATE_COMPANY_CIN = `${API_END_POINT}/company/update-data`;
 
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
@@ -283,4 +284,5 @@ export {
 	GET_CONSENT,
 	SEND_SMS,
 	SEND_EMAIL,
+	UPDATE_COMPANY_CIN,
 };
