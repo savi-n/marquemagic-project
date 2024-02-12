@@ -84,6 +84,7 @@ export default function Button({
 	loading,
 	customStyle = {},
 	type,
+	placeholder,
 }) {
 	return (
 		<StyledButton
@@ -96,7 +97,11 @@ export default function Button({
 			style={customStyle}
 			fillColor={fill}
 		>
-			{isLoader ? <Loader /> : name && !loading && <Div>{name}</Div>}
+			{isLoader ? (
+				<Loader />
+			) : (
+				name && !loading && <Div>{placeholder || name}</Div>
+			)}
 			{loading && <LoaderCircle />}
 			{!loading && children}
 		</StyledButton>
