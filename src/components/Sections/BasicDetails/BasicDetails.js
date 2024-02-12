@@ -671,10 +671,10 @@ const BasicDetails = props => {
 				return;
 			}
 
-			const panValidationResult = validateDirectorMobileNumbers({
+			const panValidationResult = validateDirectorPanNumbers({
 				directorsObject: directors,
 				selectedDirectorId,
-				formStateMobileNumber: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME],
+				formStatePanNumber: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME],
 			});
 
 			if (!panValidationResult?.isValid) {
