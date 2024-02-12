@@ -367,12 +367,10 @@ const BusinessDetails = props => {
 				}
 
 				// 3. COMPANY SEARCH
-				const newCompanyList = await companyNameSearch(
-					panExtractionMsg?.upstreamName.trim()
-				);
-				if (newCompanyList?.length > 0) {
-					setIsCompanyListModalOpen(true);
-				}
+				await companyNameSearch(panExtractionMsg?.upstreamName.trim());
+				// if (newCompanyList?.length > 0) {
+				setIsCompanyListModalOpen(true);
+				// }
 				// if (newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER) {
 				// 	try {
 				// 		// console.log({ newCompanyList });
@@ -1278,6 +1276,7 @@ fields to determine if the given field should be disabled.
 						show={isCompanyListModalOpen}
 						companyName={formState?.values?.companyName}
 						companyList={companyList}
+						setCompanyList={setCompanyList}
 						onClose={() => {
 							setIsCompanyListModalOpen(false);
 						}}
