@@ -630,12 +630,12 @@ const BasicDetails = props => {
 		formStatePanNumber,
 	}) => {
 		/*
-	This function checks if the current mobile number entered in the application form is already existing for any directors or co-apps.
+	This function checks if the current pan number entered in the application form is already existing for any directors or co-apps.
 	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
 	@param {string} selectedDirectorId - The current selected directorId stored in redux.
-	@param {string} formStateMobileNumber - The current entered mobile number in application form field.
+	@param {string} formStatePanNumber - The current entered pan number in application form field.
 
-	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate mobile number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate pan number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
 	*/
 		const existingDirectorWithPanNumber = Object.values(directorsObject)?.find(
 			director =>
