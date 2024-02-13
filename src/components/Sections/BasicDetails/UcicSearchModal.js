@@ -68,6 +68,7 @@ const UcicSearchModal = props => {
 				id_no: formState?.values?.['pan_no']?.toUpperCase() || '',
 				pan_number: formState?.values['pan_no']?.toUpperCase() || '',
 				mobile_num: formState?.values['mob_no'] || '',
+				mobile_no: formState?.values['mob_no'] || '',
 				loan_product_id:
 					selectedProduct?.product_id?.[formState?.values?.['income_type']],
 				loan_product_details_id: selectedProduct?.id || undefined,
