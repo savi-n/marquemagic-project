@@ -13,7 +13,7 @@ import ConfirmModal from 'components/modals/ConfirmModal';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 import { encryptReq } from 'utils/encrypt';
-import { isInvalidPan } from 'utils/validation';
+import { isInvalidPan, isInvalidUdyam } from 'utils/validation';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
@@ -58,7 +58,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import { API_END_POINT } from '_config/app.config';
+import { API_END_POINT, VERIFY_UDYAM_NUMBER } from '_config/app.config';
 import {
 	scrollToTopRootElement,
 	isNullFunction,
@@ -69,6 +69,10 @@ import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 import DataDeletionWarningModal from './DataDeletionWarningModal';
 import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
+import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload/InputFieldSingleFileUpload';
+// import Udyam from './Udyam';
+// import UdyamModal from './UdyamModal';
+import TableModal from './TableModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -158,10 +162,215 @@ const BasicDetails = props => {
 	] = useState(false);
 	const [customerId, setCustomerId] = useState('');
 
+	const [fetchedProfilePic, setFetchedProfilePic] = useState();
+	const [udyamOrganisationDetails, setUdyamOrganisationDetails] = useState({});
+	const [udyamDocumentTemp, setudyamDocumentTemp] = useState([]);
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
 	// );
+	// const [showUdyamDetailsButton, setShowUdyamDetailsButton] = useState(false);
+	const [isUdyamModalOpen, setIsUdyamModalOpen] = useState(false);
+	const [isUdyamButtonEnable, setIsUdyamButtonEnable] = useState(false);
+
+	useEffect(() => {
+		scrollToTopRootElement();
+		validateToken();
+
+		if (
+			!isEditLoan &&
+			!isViewLoan &&
+			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
+		) {
+			dispatch(
+				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
+			);
+		}
+
+		// new fetch section data starts
+		if (
+			!!loanRefId &&
+			// !!selectedDirector &&
+			// !!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
+			selectedDirectorId
+		)
+			fetchSectionDetails();
+		// new fetch section data ends
+
+		// sme flow - special case
+		if (
+			selectedProduct?.isSelectedProductTypeBusiness &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// console.log('create-mode');
+			fetchGeoLocationForSme(geoLocation);
+		}
+
+		if (
+			isGeoTaggingEnabled &&
+			selectedDirector?.profileGeoLocation &&
+			Object.keys(selectedDirector?.profileGeoLocation).length > 0
+		) {
+			setProfilePicGeolocation(selectedDirector?.profileGeoLocation);
+		}
+
+		// async function fetchGeoLocationData() {
+		// 	try {
+		// 		// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
+		// 		setFetchingAddress(true);
+		// 		if (!geoLocation.lat && !geoLocation.long) return;
+		// 		const reqBody = {
+		// 			lat: geoLocation.lat,
+		// 			long: geoLocation.long,
+		// 		};
+
+		// 		const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+		// 			headers: {
+		// 				Authorization: `Bearer ${userToken}`,
+		// 			},
+		// 		});
+
+		// 		dispatch(
+		// 			setGeoLocation({
+		// 				lat: geoLocation.lat,
+		// 				long: geoLocation.long,
+		// 				timestamp: geoLocation?.lat_long_timestamp,
+		// 				address: geoLocationRes?.data?.data?.address,
+		// 			})
+		// 		);
+		// 		setGeoLocationData({
+		// 			lat: geoLocation.lat,
+		// 			long: geoLocation.long,
+		// 			timestamp: geoLocation?.lat_long_timestamp,
+		// 			address: geoLocationRes?.data?.data?.address,
+		// 		});
+		// 	} catch (error) {
+		// 		console.error('fetchGeoLocationData ~ error:', error);
+		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+		// 		setGeoLocationData({
+		// 			err: 'Geo Location Not Captured',
+		// 		});
+		// 		addToast({
+		// 			message:
+		// 				error?.response?.data?.message ||
+		// 				error?.message ||
+		// 				'Geo Location Not Captured',
+		// 			type: 'error',
+		// 		});
+		// 	} finally {
+		// 		setFetchingAddress(false);
+		// 	}
+		// }
+
+		// async function fetchProfilePicGeoLocationData() {
+		// 	try {
+		// 		// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
+		// 		// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
+		// 		setFetchingAddress(true);
+		// 		console.log(
+		// 			'🚀 ~ file: BasicDetails.js:757 ~ fetchProfilePicGeoLocationData ~ selectedDirector:',
+		// 			selectedDirector
+		// 		);
+		// 		if (!selectedDirector?.lat && !selectedDirector?.lat) {
+		// 			dispatch(
+		// 				setProfileGeoLocation({
+		// 					err: 'Geo Location Not Captured',
+		// 				})
+		// 			);
+		// 			setProfilePicGeolocation({
+		// 				err: 'Geo Location Not Captured',
+		// 			});
+		// 			return;
+		// 		}
+
+		// 		const reqBody = {
+		// 			lat: selectedDirector?.lat,
+		// 			long: selectedDirector?.long,
+		// 		};
+
+		// 		const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+		// 			headers: {
+		// 				Authorization: `Bearer ${userToken}`,
+		// 			},
+		// 		});
+		// 		dispatch(
+		// 			setProfileGeoLocation({
+		// 				lat: selectedDirector?.lat,
+		// 				long: selectedDirector?.long,
+		// 				timestamp: selectedDirector?.timestamp,
+		// 				address: geoPicLocationRes?.data?.data?.address,
+		// 			})
+		// 		);
+		// 		setProfilePicGeolocation({
+		// 			lat: selectedDirector?.lat,
+		// 			long: selectedDirector?.long,
+		// 			timestamp: selectedDirector?.timestamp,
+		// 			address: geoPicLocationRes?.data?.data?.address,
+		// 		});
+		// 	} catch (error) {
+		// 		console.error('fetchProfilePicGeoLocationData ~ error:', error);
+		// 	} finally {
+		// 		setFetchingAddress(false);
+		// 	}
+		// }
+
+		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
+		// if (isGeoTaggingEnabled && Object.keys(selectedDirector).length > 0) {
+		// 	if (
+		// 		!!geoLocationData &&
+		// 		Object.keys(geoLocationData)?.length > 0 &&
+		// 		!geoLocation?.address
+		// 	) {
+		// 		fetchGeoLocationData();
+		// 	}
+		// 	if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
+		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+		// 		setGeoLocationData({ err: 'Geo Location Not Captured' });
+		// 	}
+		// 	if (
+		// 		selectedDirector?.customer_picture &&
+		// 		Object.keys(selectedDirector?.profileGeoLocation).length <= 0
+		// 	) {
+		// 		// fetchProfilePicGeoLocationData();
+		// 		console.log('true...........');
+		// 	}
+		// }
+
+		// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
+		// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
+
+		function saveMandatoryGeoLocation() {
+			let arr = [];
+			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				sub_section?.fields?.map((field, fieldIndex) => {
+					if (field?.geo_tagging) {
+						let reduxStoreKey = '';
+						if (field?.db_key === 'customer_picture') {
+							reduxStoreKey = 'profileGeoLocation';
+						}
+						arr.push(reduxStoreKey);
+					}
+					return null;
+				});
+				return null;
+			});
+			// console.log(arr, 'arr');
+			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
+		}
+
+		saveMandatoryGeoLocation();
+		// eslint-disable-next-line
+	}, []);
+
+	// useEffect(() => {
+	// 	console.log(
+	// 		// 'udyamDocumentTemp',
+	// 		// udyamDocumentTemp,
+	// 		// 'cacheDocumentTemp',
+	// 		// cacheDocumentsTemp,
+	// 		// selectedSection?.sub_sections?.[0]?.fields?.
+	// 	);
+	// }, [udyamDocumentTemp]);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const selectedDedupeData =
@@ -177,7 +386,6 @@ const BasicDetails = props => {
 		sectionData?.ekyc_respons_data?.length > 0
 			? parseJSON(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
 			: {};
-	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
@@ -536,7 +744,7 @@ const BasicDetails = props => {
 
 		return false; // Do not disable the field by default
 	};
-	
+
 	const onPanEnter = async pan => {
 		try {
 			const panErrorMessage = isInvalidPan(pan);
@@ -589,6 +797,116 @@ const BasicDetails = props => {
 		}
 	};
 
+	const udyamNumberRes = '';
+	// Udyam Number - UDYAM-KL-06-0000002
+	const onUdyamNumberEnter = async udyam => {
+		try {
+			const udyamErrorMessage = isInvalidUdyam(udyam);
+			if (udyamErrorMessage) {
+				return addToast({
+					message: 'Please enter valid UDYAM number',
+					type: 'error',
+				});
+			}
+			setLoading(true);
+			// axios.get(`${VERIFY_UDYAM_NUMBER}`, {
+			// 	params: {
+			// 		udyamRegNo: `${udyam}`,
+			// 	},
+			// 	headers: {
+			// 		Authorization: clientToken,
+			// 	},
+			// });
+			const udyamNumberRes = await axios.get(`${VERIFY_UDYAM_NUMBER}`, {
+				params: {
+					udyamRegNo: `${udyam}`,
+				},
+				headers: {
+					Authorization: clientToken,
+				},
+			});
+
+			if (udyamNumberRes.data.status === 'ok') {
+				addToast({
+					message: 'Udyam number is validated',
+					type: 'success',
+				});
+
+				setUdyamOrganisationDetails(udyamNumberRes.data);
+				// setUdyamOrganisationDetails(prevState => ({
+				// 	...prevState,
+				// 	organisation_name: udyamNumberRes.data.nameOfEnterprise,
+				// 	date_of_incorporation: udyamNumberRes.data.dateOfIncorporation,
+				// 	date_of_registration: udyamNumberRes.data.dateOfUdyamRegistration,
+				// 	organisation_type: udyamNumberRes.data.organisationType,
+				// 	business_address: udyamNumberRes.data.officialAddress,
+				// 	mobile_number: udyamNumberRes.data.officialAddress.Mobile,
+				// }));
+			}
+			// udyamNumberRes = { ...udyamNumberDetails };
+			// console.log(udyamOrganisationDetails);
+		} catch (error) {
+			console.error(error);
+			addToast({
+				message:
+					'Something went wrong, please try again with valid UDYAM number',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const addUdyamDocumentTemp = file => {
+		const newUdyamDocTemp = _.cloneDeep(udyamDocumentTemp);
+		newUdyamDocTemp.push(file);
+		setudyamDocumentTemp(newUdyamDocTemp);
+	};
+
+	const removeUdyamDocTemp = fieldName => {
+		const newUdyamDocTemp = _.cloneDeep(udyamDocumentTemp);
+		if (
+			udyamDocumentTemp.filter(doc => doc?.field.nmae === fieldName).length > 0
+		) {
+			setudyamDocumentTemp(
+				newUdyamDocTemp.filter(doc => doc?.field?.name !== fieldName)
+			);
+		}
+		//Set the udyam document to null in section data
+		//Refer basicdetails
+	};
+
+	// const UdyamDocumentFileOnUpload =
+	// 	udyamDocumentTemp?.filter(
+	// 		doc => doc?.field?.name === 'udyam_upload'
+	// 	)?.[0] || null;
+
+	// const selectedUdyamDocumentFile = UdyamDocumentFileOnUpload;
+
+	// const selectedImdDocument = sectionData?.imd_details?.imd_document
+	// 	? {
+	// 			...sectionData?.imd_details?.imd_document,
+	// 			name: getDocumentNameFromLoanDocuments(
+	// 				sectionData?.imd_details?.imd_document
+	// 			),
+	// 			document_id: sectionData?.imd_details?.doc_id,
+	// 	  }
+	// 	: null;
+
+	// const selectedUdyamDocument = UdyamDocumentFileOnUpload.name
+	// 	? UdyamDocumentFileOnUpload
+	// 	: selectedUdyamDocument;
+
+	const udyamUploadedFile =
+		udyamDocumentTemp?.filter(
+			doc => doc?.field?.name === 'udyam_upload'
+		)?.[0] || null;
+
+	// const isUdyamumberField =
+	// 	selectedSection?.sub_sections?.[0]?.fields?.['udyam_number'];
+	// console.log(isUdyamumberField);
+
+	//OnSaveAndProced
 	const onSaveAndProceed = async () => {
 		dispatch(setDedupePrefilledValues({}));
 		try {
@@ -650,6 +968,65 @@ const BasicDetails = props => {
 							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
 				: profileUrl;
+
+			// const udyamDocField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+			// 	field => field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
+			// )?.[0];
+
+			// const isNewUdyamFileUploaded = !!udyamUploadedFile?.file;
+			// console.log(
+			// 	'udyamUplaodedFile',
+			// 	udyamUploadedFile,
+			// 	'udyamDocField',
+			// 	udyamDocField
+			// );
+			// let udyamFileUrl = udyamUploadedFile?.preview || '';
+			// const udyamDocFieldValue = isNewUdyamFileUploaded
+			// 	? {
+			// 			...udyamUploadedFile?.file,
+			// 			doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
+			// 			is_delete_not_allowed:
+			// 				udyamDocField?.is_delete_not_allowed === true ? true : false,
+			// 	  }
+			// 	: udyamFileUrl;
+
+			// console.log('udyamDocFieldValueBeforeFormatting', udyamDocFieldValue);
+			// console.log('profileFieldValue', profileFieldValue);
+			// const isNewUdyamUploaded = !!
+
+			// const udyamDocField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+			// 	field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			// )?.[0];
+			//----------------------------------------------------------------------------------
+			// const isNewUdyamUploaded = !!udyamUploadedFile?.file;
+			// console.log(
+			// 	'isNewUdyamUploaded',
+			// 	isNewUdyamUploaded,
+			// 	'udyamUploadedFile',
+			// 	udyamUploadedFile
+			// );
+			//----------------------------------------------------------------------------------
+			// let udyamUrl = udyamUploadedFile?.preview || '';
+			// const udyamDocFieldValue = isNewUdyamUploaded ? {
+			// 	...udyamUploadedFile?.file,
+			// 	doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
+			// 	is_delete_not_allowed: udyamDocField?.is_delete_not_allowed === true ? true : false
+			// } :
+			//----------------------------------------------------------------------------------
+			// const udyamDocFieldValue = {
+			// 	...udyamUploadedFile?.file,
+			// 	doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
+			// 	is_delete_not_allowed:
+			// 		udyamDocField?.is_delete_not_allowed === true ? true : false,
+			// };
+			// console.log('udyamDocFieldValue', udyamDocFieldValue);
+			// console.log(
+			// 	'cacheDoc',
+			// 	cacheDocumentsTemp,
+			// 	'udyamDoc',
+			// 	udyamDocumentTemp
+			// );
+			//----------------------------------------------------------------------------------
 			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
@@ -686,6 +1063,76 @@ const BasicDetails = props => {
 			}
 
 			if (leadId) basicDetailsReqBody.lead_id = leadId;
+			// //----------------------------------------------------------------------------------
+			// let udyam_doc_id = '';
+			if (udyamDocumentTemp.length > 0) {
+				try {
+					const uploadUdyamDocTemp = [];
+					const applicant =
+						(!!directors &&
+							Object.values(directors)?.filter(
+								dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+							)?.[0]) ||
+						{};
+					udyamDocumentTemp?.map(doc => {
+						uploadUdyamDocTemp.push({
+							...doc,
+							loan_id: loanId,
+							preview: null,
+							is_delete_not_allowed:
+								doc?.field?.is_delete_not_allowed === true ? true : false,
+							directorId:
+								`${selectedProduct?.loan_request_type}` === '1'
+									? 0
+									: +applicant?.directorId,
+						});
+						return null;
+					});
+
+					if (uploadUdyamDocTemp.length) {
+						const udyamUploadReqBody = {
+							...basicDetailsReqBody,
+							data: {
+								document_upload: uploadUdyamDocTemp,
+							},
+						};
+						console.log('udyamDocUploadReqBody -', udyamUploadReqBody);
+						const borrowerDocUploadRes = await axios.post(
+							`${API.BORROWER_UPLOAD_URL}`,
+							udyamUploadReqBody
+						);
+						console.log('borrowerDocUploadRes -', borrowerDocUploadRes);
+
+						// const updateDocumentIdToUdyamDocuments = [];
+						// uploadUdyamDocTemp.map(udyamDoc => {
+						// 	const resDoc =
+						// 		borrowerDocUploadRes?.data?.data?.filter(
+						// 			resDoc => resDoc?.doc_name === udyamDoc?.document_key
+						// 		)?.[0] || {};
+						// 	const newDoc = {
+						// 		...resDoc,
+						// 		...udyamDoc,
+						// 		isDocRemoveAllowed: false,
+						// 		document_id: resDoc?.id,
+						// 	};
+						// 	udyam_doc_id = resDoc?.id;
+						// 	updateDocumentIdToUdyamDocuments.push(newDoc);
+						// 	return null;
+						// });
+						// console.log('updateDocumentIdToUdyamDocuments-', {
+						// 	updateDocumentIdToUdyamDocuments,
+						// });
+					}
+				} catch (error) {
+					console.error('error - ', error);
+				}
+			}
+
+			// if udyam doc id exist then set in the request
+
+			// 	if (udyam_doc_id) {
+			// 		basicDetailsReqBody.data.imd_details.doc_id = udyam_doc_id;
+			//	 }
 
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
@@ -1748,195 +2195,6 @@ const BasicDetails = props => {
 		// Special case for SME FLow - Fetch geolocation if not saved - ends
 	};
 
-	useEffect(() => {
-		scrollToTopRootElement();
-		validateToken();
-
-		if (
-			!isEditLoan &&
-			!isViewLoan &&
-			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
-		) {
-			dispatch(
-				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
-			);
-		}
-
-		// new fetch section data starts
-		if (
-			!!loanRefId &&
-			// !!selectedDirector &&
-			// !!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
-			selectedDirectorId
-		)
-			fetchSectionDetails();
-		// new fetch section data ends
-
-		// sme flow - special case
-		if (
-			selectedProduct?.isSelectedProductTypeBusiness &&
-			!completedSections?.includes(selectedSectionId)
-		) {
-			// console.log('create-mode');
-			fetchGeoLocationForSme(geoLocation);
-		}
-
-		if (
-			isGeoTaggingEnabled &&
-			selectedDirector?.profileGeoLocation &&
-			Object.keys(selectedDirector?.profileGeoLocation).length > 0
-		) {
-			setProfilePicGeolocation(selectedDirector?.profileGeoLocation);
-		}
-
-		// async function fetchGeoLocationData() {
-		// 	try {
-		// 		// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
-		// 		setFetchingAddress(true);
-		// 		if (!geoLocation.lat && !geoLocation.long) return;
-		// 		const reqBody = {
-		// 			lat: geoLocation.lat,
-		// 			long: geoLocation.long,
-		// 		};
-
-		// 		const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-		// 			headers: {
-		// 				Authorization: `Bearer ${userToken}`,
-		// 			},
-		// 		});
-
-		// 		dispatch(
-		// 			setGeoLocation({
-		// 				lat: geoLocation.lat,
-		// 				long: geoLocation.long,
-		// 				timestamp: geoLocation?.lat_long_timestamp,
-		// 				address: geoLocationRes?.data?.data?.address,
-		// 			})
-		// 		);
-		// 		setGeoLocationData({
-		// 			lat: geoLocation.lat,
-		// 			long: geoLocation.long,
-		// 			timestamp: geoLocation?.lat_long_timestamp,
-		// 			address: geoLocationRes?.data?.data?.address,
-		// 		});
-		// 	} catch (error) {
-		// 		console.error('fetchGeoLocationData ~ error:', error);
-		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-		// 		setGeoLocationData({
-		// 			err: 'Geo Location Not Captured',
-		// 		});
-		// 		addToast({
-		// 			message:
-		// 				error?.response?.data?.message ||
-		// 				error?.message ||
-		// 				'Geo Location Not Captured',
-		// 			type: 'error',
-		// 		});
-		// 	} finally {
-		// 		setFetchingAddress(false);
-		// 	}
-		// }
-
-		// async function fetchProfilePicGeoLocationData() {
-		// 	try {
-		// 		// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
-		// 		// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
-		// 		setFetchingAddress(true);
-		// 		console.log(
-		// 			'🚀 ~ file: BasicDetails.js:757 ~ fetchProfilePicGeoLocationData ~ selectedDirector:',
-		// 			selectedDirector
-		// 		);
-		// 		if (!selectedDirector?.lat && !selectedDirector?.lat) {
-		// 			dispatch(
-		// 				setProfileGeoLocation({
-		// 					err: 'Geo Location Not Captured',
-		// 				})
-		// 			);
-		// 			setProfilePicGeolocation({
-		// 				err: 'Geo Location Not Captured',
-		// 			});
-		// 			return;
-		// 		}
-
-		// 		const reqBody = {
-		// 			lat: selectedDirector?.lat,
-		// 			long: selectedDirector?.long,
-		// 		};
-
-		// 		const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-		// 			headers: {
-		// 				Authorization: `Bearer ${userToken}`,
-		// 			},
-		// 		});
-		// 		dispatch(
-		// 			setProfileGeoLocation({
-		// 				lat: selectedDirector?.lat,
-		// 				long: selectedDirector?.long,
-		// 				timestamp: selectedDirector?.timestamp,
-		// 				address: geoPicLocationRes?.data?.data?.address,
-		// 			})
-		// 		);
-		// 		setProfilePicGeolocation({
-		// 			lat: selectedDirector?.lat,
-		// 			long: selectedDirector?.long,
-		// 			timestamp: selectedDirector?.timestamp,
-		// 			address: geoPicLocationRes?.data?.data?.address,
-		// 		});
-		// 	} catch (error) {
-		// 		console.error('fetchProfilePicGeoLocationData ~ error:', error);
-		// 	} finally {
-		// 		setFetchingAddress(false);
-		// 	}
-		// }
-
-		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
-		// if (isGeoTaggingEnabled && Object.keys(selectedDirector).length > 0) {
-		// 	if (
-		// 		!!geoLocationData &&
-		// 		Object.keys(geoLocationData)?.length > 0 &&
-		// 		!geoLocation?.address
-		// 	) {
-		// 		fetchGeoLocationData();
-		// 	}
-		// 	if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
-		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-		// 		setGeoLocationData({ err: 'Geo Location Not Captured' });
-		// 	}
-		// 	if (
-		// 		selectedDirector?.customer_picture &&
-		// 		Object.keys(selectedDirector?.profileGeoLocation).length <= 0
-		// 	) {
-		// 		// fetchProfilePicGeoLocationData();
-		// 		console.log('true...........');
-		// 	}
-		// }
-
-		// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
-		// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
-
-		function saveMandatoryGeoLocation() {
-			let arr = [];
-			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				sub_section?.fields?.map((field, fieldIndex) => {
-					if (field?.geo_tagging) {
-						let reduxStoreKey = '';
-						if (field?.db_key === 'customer_picture') {
-							reduxStoreKey = 'profileGeoLocation';
-						}
-						arr.push(reduxStoreKey);
-					}
-					return null;
-				});
-				return null;
-			});
-			// console.log(arr, 'arr');
-			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
-		}
-
-		saveMandatoryGeoLocation();
-		// eslint-disable-next-line
-	}, []);
-
 	// trial starts
 	let displayAddCoApplicantCTA = false;
 	// console.log({ selectedSection });
@@ -2040,6 +2298,31 @@ const BasicDetails = props => {
 							selectedDirectorId={selectedDirectorId}
 						/>
 					)}
+
+					{/* <Modal show={isUdyamModalOpen} onClose={() => setIsUdyamModalOpen(false)}>
+						<section>
+							<div>
+								<h2>This is heading</h2>
+							</div>
+						</section>
+					</Modal> */}
+
+					{/* <UdyamModal
+						show={isUdyamModalOpen}
+						onClose={() => {
+							setIsUdyamModalOpen(false);
+						}}
+						udyamOrganisationDetails={udyamOrganisationDetails}
+					/> */}
+
+					<TableModal
+						show={isUdyamModalOpen}
+						onClose={() => {
+							setIsUdyamModalOpen(false);
+						}}
+						details={udyamOrganisationDetails}
+						heading={'Udyam Organisation Details'}
+					/>
 
 					<Modal
 						show={isDedupeCheckModalOpen}
@@ -2313,6 +2596,73 @@ const BasicDetails = props => {
 												!!completedSections?.includes(selectedSectionId);
 										}
 
+										//Udyam Number Input Handling
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											customFieldPropsSubfields.loading = loading;
+											// setShowUdyamDetailsButton(true);
+											customFieldProps.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubfields.onClick = event => {
+												onUdyamNumberEnter(formState.values?.['udyam_number']);
+												setIsUdyamButtonEnable(true);
+											};
+											// customFieldPropsSubfields.rules.
+											// const udyamNumber = 'UDYAM-KL-06-0000002';
+											// onUdyamEnter(udyamNumber);
+											customFieldPropsSubfields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+										}
+
+										//Udyam Document Upload Handling
+										if (
+											field.type === 'file' &&
+											field.name === 'udyam_upload'
+										) {
+											const selectedDocTypeId =
+												field?.doc_type?.[selectedIncomeType];
+											const errorMessage =
+												(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+												formState?.error?.[field.name];
+
+											//DEpending
+											// if (isEditOrViewLoan) {
+											// 	const imd_document_id = prefilledEditOrViewLoanValues(
+											// 		field
+											// 	);
+											// 	editLoanUploadedFile =
+											// 		cacheDocuments?.filter(
+											// 			doc =>
+											// 				`${doc?.document_id}` === `${imd_document_id}`
+											// 		)?.[0] || null;
+											// }
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													key={`field-${fieldIndex}-${field.name}`}
+												>
+													<InputFieldSingleFileUpload
+														field={field}
+														uploadedFile={udyamUploadedFile}
+														selectedDocTypeId={selectedDocTypeId}
+														clearErrorFormState={clearErrorFormState}
+														addCacheDocumentTemp={addUdyamDocumentTemp}
+														removeCacheDocumentTemp={removeUdyamDocTemp}
+														errorColorCode={errorMessage ? 'red' : ''}
+														isFormSubmited={!!formState?.submit?.isSubmited}
+														// category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
+														classification_type='udyam'
+													/>
+													{errorMessage && (
+														<UI_SECTIONS.ErrorMessage>
+															{errorMessage}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+												</UI_SECTIONS.FieldWrapGrid>
+											);
+										}
+
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											customFieldPropsSubfields.onClick = isApplicant
 												? showDataDeletionWarningModal
@@ -2488,6 +2838,30 @@ const BasicDetails = props => {
 										});
 										return;
 									}
+
+									//Add checks for Udyam Number And Udyam Document
+									const isPresentUdyamFile = udyamUploadedFile;
+									const isUdyamNumberPresent =
+										formState?.values?.['udyam_number'];
+									if (
+										formState?.values?.['udyam_registered'] === 'Waiver' &&
+										!isPresentUdyamFile
+									) {
+										addToast({
+											message: 'Udyam Document is Mandatory',
+											type: 'error',
+										});
+									}
+									if (
+										formState?.values?.['udyam_registered'] === 'Yes' &&
+										!isUdyamNumberPresent
+									) {
+										addToast({
+											message: 'Udyam Number is mandatory',
+											type: 'error,',
+										});
+									}
+
 									// director id will be present in case of aplicant / coapplicant if they move out of basic details page
 									// so avoid opening income type popup at below condition
 									if (isEditOrViewLoan || !!selectedDirector?.directorId) {
@@ -2515,6 +2889,16 @@ const BasicDetails = props => {
 										fetchDedupeCheckData();
 									}}
 									fill
+								/>
+							</>
+						)}
+
+						{isUdyamButtonEnable && (
+							<>
+								<Button
+									name='Show Udyam Details'
+									fill
+									onClick={() => setIsUdyamModalOpen(true)}
 								/>
 							</>
 						)}

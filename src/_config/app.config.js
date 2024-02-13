@@ -169,6 +169,7 @@ const BANK_LIST_API = `${ENDPOINT_BANK}/bank_list`;
 const FETCH_CIBIL_SCORE = `${ENDPOINT_BANK}/equifax/fetchData`;
 const CONSET_DETAILS = `${ENDPOINT_BANK}/consentDetails`;
 const GET_CONSENT = `${ENDPOINT_BANK}/getConsent`;
+const VERIFY_UDYAM_NUMBER = `${ENDPOINT_BANK}/get/udyam`;
 
 // ----------------------- Sails Plaid API ends -----------------------------------------------------------------
 
@@ -283,4 +284,5 @@ export {
 	GET_CONSENT,
 	SEND_SMS,
 	SEND_EMAIL,
+	VERIFY_UDYAM_NUMBER,
 };
