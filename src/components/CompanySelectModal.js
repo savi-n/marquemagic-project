@@ -92,10 +92,12 @@ export default function CompanySelectModal({
 	const [isCompanyApi, setIsCompanyApi] = useState(false);
 	const [checkBoxChecked, setCheckBoxChecked] = useState(false);
 	const [cinNumber, setCinNumber] = useState('');
+	const [cinSearchLoading, setCinSearchLoading] = useState(false);
 	// console.log('company information', companyList);
 
 	const onCinNumberSearch = async cinNumber => {
 		try {
+			setCinSearchLoading(true);
 			const payload = { cin: cinNumber };
 			const cinNumberResp = await axios.post(UPDATE_COMPANY_CIN, payload);
 			if (cinNumberResp?.data?.status === 'ok') {
@@ -108,6 +110,8 @@ export default function CompanySelectModal({
 			}
 		} catch (error) {
 			console.error('Error in fetching Data : ', error);
+		} finally {
+			setCinSearchLoading(false);
 		}
 	};
 
@@ -173,6 +177,8 @@ export default function CompanySelectModal({
 							onClick={() => {
 								onCinNumberSearch(cinNumber);
 							}}
+							loading={cinSearchLoading}
+							disabled={cinSearchLoading}
 						/>
 					</>
 				)}
