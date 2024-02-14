@@ -620,6 +620,36 @@ const BasicDetails = props => {
 			  };
 	};
 
+	const validateDirectorPanNumbers = ({
+		directorsObject,
+		selectedDirectorId,
+		formStatePanNumber,
+	}) => {
+		/*
+	This function checks if the current pan number entered in the application form is already existing for any directors or co-apps.
+	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
+	@param {string} selectedDirectorId - The current selected directorId stored in redux.
+	@param {string} formStatePanNumber - The current entered pan number in application form field.
+
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate pan number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	*/
+		const existingDirectorWithPanNumber = Object.values(directorsObject)?.find(
+			director =>
+				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dpancard === formStatePanNumber
+		);
+
+		return !existingDirectorWithPanNumber
+			? { isValid: true }
+			: {
+					isValid: false,
+					directorName: `${existingDirectorWithPanNumber?.dfirstname} ${
+						existingDirectorWithPanNumber?.dlastname
+					}`,
+					typeName: existingDirectorWithPanNumber.type_name,
+			  };
+	};
+
 	const onSaveAndProceed = async () => {
 		dispatch(setDedupePrefilledValues({}));
 		try {
@@ -640,6 +670,23 @@ const BasicDetails = props => {
 				});
 				return;
 			}
+
+			const panValidationResult = validateDirectorPanNumbers({
+				directorsObject: directors,
+				selectedDirectorId,
+				formStatePanNumber: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME],
+			});
+
+			if (!panValidationResult?.isValid) {
+				addToast({
+					message: `Error: PAN number already exists for ${
+						panValidationResult?.typeName
+					} ${panValidationResult?.directorName}`,
+					type: 'error',
+				});
+				return;
+			}
+
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
 			// call login api only once
