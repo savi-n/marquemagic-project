@@ -163,7 +163,21 @@ const BasicDetails = props => {
 	const [customerId, setCustomerId] = useState('');
 
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
-	const [udyamOrganisationDetails, setUdyamOrganisationDetails] = useState({});
+	const [udyamOrganisationDetails, setUdyamOrganisationDetails] = useState({
+		status: '',
+		statusCode: '',
+		requestId: null,
+		resCode: '',
+		message: '',
+		data: null,
+	});
+
+	// organisation_name: '',
+	// date_of_incorporation: '',
+	// date_of_registration: '',
+	// organisation_type: '',
+	// business_address: '',
+	// mobile_number: '',
 	const [udyamDocumentTemp, setudyamDocumentTemp] = useState([]);
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
@@ -797,7 +811,7 @@ const BasicDetails = props => {
 		}
 	};
 
-	const udyamNumberRes = '';
+	// const udyamNumberRes = '';
 	// Udyam Number - UDYAM-KL-06-0000002
 	const onUdyamNumberEnter = async udyam => {
 		try {
@@ -832,7 +846,7 @@ const BasicDetails = props => {
 					type: 'success',
 				});
 
-				setUdyamOrganisationDetails(udyamNumberRes.data);
+				// setUdyamOrganisationDetails(udyamNumberRes.data);
 				// setUdyamOrganisationDetails(prevState => ({
 				// 	...prevState,
 				// 	organisation_name: udyamNumberRes.data.nameOfEnterprise,
@@ -842,9 +856,16 @@ const BasicDetails = props => {
 				// 	business_address: udyamNumberRes.data.officialAddress,
 				// 	mobile_number: udyamNumberRes.data.officialAddress.Mobile,
 				// }));
+				setUdyamOrganisationDetails(prevState => ({
+					...prevState,
+					requestId: udyamNumberRes.data.requestId,
+					resCode: udyamNumberRes.data.resCode,
+					message: udyamNumberRes.data.message,
+					// data: udyamNumberRes.data.data,
+				}));
 			}
+			console.log(udyamOrganisationDetails);
 			// udyamNumberRes = { ...udyamNumberDetails };
-			// console.log(udyamOrganisationDetails);
 		} catch (error) {
 			console.error(error);
 			addToast({
@@ -866,7 +887,7 @@ const BasicDetails = props => {
 	const removeUdyamDocTemp = fieldName => {
 		const newUdyamDocTemp = _.cloneDeep(udyamDocumentTemp);
 		if (
-			udyamDocumentTemp.filter(doc => doc?.field.nmae === fieldName).length > 0
+			udyamDocumentTemp.filter(doc => doc?.field.name === fieldName).length > 0
 		) {
 			setudyamDocumentTemp(
 				newUdyamDocTemp.filter(doc => doc?.field?.name !== fieldName)
@@ -2651,8 +2672,8 @@ const BasicDetails = props => {
 														removeCacheDocumentTemp={removeUdyamDocTemp}
 														errorColorCode={errorMessage ? 'red' : ''}
 														isFormSubmited={!!formState?.submit?.isSubmited}
-														// category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
-														classification_type='udyam'
+														category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
+														// classification_type='udyam'
 													/>
 													{errorMessage && (
 														<UI_SECTIONS.ErrorMessage>

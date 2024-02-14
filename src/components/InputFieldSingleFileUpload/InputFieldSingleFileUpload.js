@@ -28,7 +28,7 @@ const InputFieldSingleFileUpload = props => {
 		errorColorCode,
 		isFormSubmited,
 		category,
-		classification_type,
+		// classification_type,
 	} = props;
 	const { app, application } = useSelector(state => state);
 	// const { directors, selectedDirectorId } = useSelector(
@@ -135,7 +135,7 @@ const InputFieldSingleFileUpload = props => {
 					loan_id: loanId,
 					doc_type_id: selectedDocTypeId,
 					category,
-					classification_type,
+					// classification_type,
 					// directorId: selectedDirector?.directorId,
 				};
 			} catch (error) {
