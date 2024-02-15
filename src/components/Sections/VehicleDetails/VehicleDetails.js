@@ -271,7 +271,15 @@ const VehicleDetails = props => {
 												</UI_SECTIONS.AccordianHeaderData>
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>
-														Type of {isEquipment ? 'Equipment' : 'Vehicle'}:
+														{selectedSection?.name ===
+														'Vehicle/Equipment Details'
+															? `Type of ${
+																	isEquipment ? 'Equipment' : 'Vehicle'
+															  }`
+															: selectedSection?.name
+																	.split(' ')
+																	.slice(0, -1)
+																	.join(' ')}
 													</span>
 													<strong>{typeOfAsset?.name}</strong>
 												</UI_SECTIONS.AccordianHeaderData>
@@ -395,7 +403,13 @@ const VehicleDetails = props => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional Vehicles</span>
+								<span>
+									Click to add additional{' '}
+									{selectedSection?.name
+										.split(' ')
+										.slice(0, -1)
+										.join(' ')}
+								</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
