@@ -33,6 +33,7 @@ const DynamicForm = props => {
 		assets,
 		loan_assets_id,
 		selectCollateralFieldOptions,
+		sectionData,
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
@@ -125,6 +126,14 @@ const DynamicForm = props => {
 			allowProceed = false;
 		return allowProceed;
 	};
+
+	const validatePercent = values => {
+		const { id, percent_share } = values;
+		console.log(values, 'values', sectionData, 'section-Data', id, 'id');
+		// const getFields = sectionData.filter(field => field.id !== id);
+		// console.log(getFields, 'getFields');
+	};
+
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
@@ -139,6 +148,14 @@ const DynamicForm = props => {
 				});
 				return;
 			}
+
+			validatePercent(formState.values);
+			// 	addToast({
+			// 		message: 'Percent share should not exceed 100%.',
+			// 		type: 'error',
+			// 	});
+			// 	return;
+			// }
 
 			if (
 				(cityField?.rules?.required === true &&

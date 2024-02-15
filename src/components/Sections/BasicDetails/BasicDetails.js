@@ -923,6 +923,13 @@ const BasicDetails = props => {
 			doc => doc?.field?.name === 'udyam_upload'
 		)?.[0] || null;
 
+	useEffect(() => {
+		console.log(
+			selectedSection?.sub_sections?.[0]?.fields?.filter(
+				field => field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
+			)?.[0]
+		);
+	});
 	// const isUdyamumberField =
 	// 	selectedSection?.sub_sections?.[0]?.fields?.['udyam_number'];
 	// console.log(isUdyamumberField);
@@ -1015,9 +1022,9 @@ const BasicDetails = props => {
 			// console.log('profileFieldValue', profileFieldValue);
 			// const isNewUdyamUploaded = !!
 
-			// const udyamDocField = selectedSection?.sub_sections?.[0]?.fields?.filter(
-			// 	field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-			// )?.[0];
+			const udyamDocField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			)?.[0];
 			//----------------------------------------------------------------------------------
 			// const isNewUdyamUploaded = !!udyamUploadedFile?.file;
 			// console.log(
@@ -1028,12 +1035,13 @@ const BasicDetails = props => {
 			// );
 			//----------------------------------------------------------------------------------
 			// let udyamUrl = udyamUploadedFile?.preview || '';
-			// const udyamDocFieldValue = isNewUdyamUploaded ? {
-			// 	...udyamUploadedFile?.file,
-			// 	doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
-			// 	is_delete_not_allowed: udyamDocField?.is_delete_not_allowed === true ? true : false
-			// } :
-			//----------------------------------------------------------------------------------
+			const udyamDocFieldValue = {
+				...udyamUploadedFile?.file,
+				doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
+				is_delete_not_allowed:
+					udyamDocField?.is_delete_not_allowed === true ? true : false,
+			};
+			//---------------------------------------------------------------------------------
 			// const udyamDocFieldValue = {
 			// 	...udyamUploadedFile?.file,
 			// 	doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
@@ -1063,6 +1071,7 @@ const BasicDetails = props => {
 						},
 					// : {},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
+					[CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME]: {},
 				},
 				app,
 				selectedDirector,
@@ -1085,69 +1094,69 @@ const BasicDetails = props => {
 
 			if (leadId) basicDetailsReqBody.lead_id = leadId;
 			// //----------------------------------------------------------------------------------
-			// let udyam_doc_id = '';
-			if (udyamDocumentTemp.length > 0) {
-				try {
-					const uploadUdyamDocTemp = [];
-					const applicant =
-						(!!directors &&
-							Object.values(directors)?.filter(
-								dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
-							)?.[0]) ||
-						{};
-					udyamDocumentTemp?.map(doc => {
-						uploadUdyamDocTemp.push({
-							...doc,
-							loan_id: loanId,
-							preview: null,
-							is_delete_not_allowed:
-								doc?.field?.is_delete_not_allowed === true ? true : false,
-							directorId:
-								`${selectedProduct?.loan_request_type}` === '1'
-									? 0
-									: +applicant?.directorId,
-						});
-						return null;
-					});
+			// // let udyam_doc_id = '';
+			// if (udyamDocumentTemp.length > 0) {
+			// 	try {
+			// 		const uploadUdyamDocTemp = [];
+			// 		const applicant =
+			// 			(!!directors &&
+			// 				Object.values(directors)?.filter(
+			// 					dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+			// 				)?.[0]) ||
+			// 			{};
+			// 		udyamDocumentTemp?.map(doc => {
+			// 			uploadUdyamDocTemp.push({
+			// 				...doc,
+			// 				loan_id: loanId,
+			// 				preview: null,
+			// 				is_delete_not_allowed:
+			// 					doc?.field?.is_delete_not_allowed === true ? true : false,
+			// 				directorId:
+			// 					`${selectedProduct?.loan_request_type}` === '1'
+			// 						? 0
+			// 						: +applicant?.directorId,
+			// 			});
+			// 			return null;
+			// 		});
 
-					if (uploadUdyamDocTemp.length) {
-						const udyamUploadReqBody = {
-							...basicDetailsReqBody,
-							data: {
-								document_upload: uploadUdyamDocTemp,
-							},
-						};
-						console.log('udyamDocUploadReqBody -', udyamUploadReqBody);
-						const borrowerDocUploadRes = await axios.post(
-							`${API.BORROWER_UPLOAD_URL}`,
-							udyamUploadReqBody
-						);
-						console.log('borrowerDocUploadRes -', borrowerDocUploadRes);
+			// 		if (uploadUdyamDocTemp.length) {
+			// 			const udyamUploadReqBody = {
+			// 				...basicDetailsReqBody,
+			// 				data: {
+			// 					document_upload: uploadUdyamDocTemp,
+			// 				},
+			// 			};
+			// 			console.log('udyamDocUploadReqBody -', udyamUploadReqBody);
+			// 			const borrowerDocUploadRes = await axios.post(
+			// 				`${API.BORROWER_UPLOAD_URL}`,
+			// 				udyamUploadReqBody
+			// 			);
+			// 			console.log('borrowerDocUploadRes -', borrowerDocUploadRes);
 
-						// const updateDocumentIdToUdyamDocuments = [];
-						// uploadUdyamDocTemp.map(udyamDoc => {
-						// 	const resDoc =
-						// 		borrowerDocUploadRes?.data?.data?.filter(
-						// 			resDoc => resDoc?.doc_name === udyamDoc?.document_key
-						// 		)?.[0] || {};
-						// 	const newDoc = {
-						// 		...resDoc,
-						// 		...udyamDoc,
-						// 		isDocRemoveAllowed: false,
-						// 		document_id: resDoc?.id,
-						// 	};
-						// 	udyam_doc_id = resDoc?.id;
-						// 	updateDocumentIdToUdyamDocuments.push(newDoc);
-						// 	return null;
-						// });
-						// console.log('updateDocumentIdToUdyamDocuments-', {
-						// 	updateDocumentIdToUdyamDocuments,
-						// });
-					}
-				} catch (error) {
-					console.error('error - ', error);
-				}
-			}
+			// const updateDocumentIdToUdyamDocuments = [];
+			// uploadUdyamDocTemp.map(udyamDoc => {
+			// 	const resDoc =
+			// 		borrowerDocUploadRes?.data?.data?.filter(
+			// 			resDoc => resDoc?.doc_name === udyamDoc?.document_key
+			// 		)?.[0] || {};
+			// 	const newDoc = {
+			// 		...resDoc,
+			// 		...udyamDoc,
+			// 		isDocRemoveAllowed: false,
+			// 		document_id: resDoc?.id,
+			// 	};
+			// 	udyam_doc_id = resDoc?.id;
+			// 	updateDocumentIdToUdyamDocuments.push(newDoc);
+			// 	return null;
+			// });
+			// console.log('updateDocumentIdToUdyamDocuments-', {
+			// 	updateDocumentIdToUdyamDocuments,
+			// });
+			// 	}
+			// } catch (error) {
+			// 	console.error('error - ', error);
+			// }
+			// }
 
 			// if udyam doc id exist then set in the request
 
@@ -1812,6 +1821,7 @@ const BasicDetails = props => {
 						},
 					// : {},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
+					// [CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME]: {},
 				},
 				app,
 				selectedDirector,

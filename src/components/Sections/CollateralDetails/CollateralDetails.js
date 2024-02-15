@@ -470,6 +470,7 @@ const CollateralDetails = () => {
 													editSectionId={editSectionId}
 													isCreateFormOpen={isCreateFormOpen}
 													selectCollateralFieldOptions={newOptions}
+													sectionData={sectionData}
 												/>
 											)}
 											{/* {isResetFormComplete ? (
@@ -499,6 +500,7 @@ const CollateralDetails = () => {
 												isEditLoan={true}
 												isCreateFormOpen={isCreateFormOpen}
 												selectCollateralFieldOptions={newOptions}
+												sectionData={sectionData}
 											/>
 										</UI_SECTIONS.DynamicFormWrapper>
 									</UI_SECTIONS.AccordianBody>

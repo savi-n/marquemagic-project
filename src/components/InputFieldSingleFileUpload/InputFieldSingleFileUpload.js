@@ -35,7 +35,7 @@ const InputFieldSingleFileUpload = props => {
 	// 	state => state.directors
 	// );
 	// const selectedDirector = directors?.[selectedDirectorId] || {};
-	const { isViewLoan, selectedProduct } = app;
+	const { isViewLoan, selectedProduct, whiteLabelId } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
@@ -88,6 +88,9 @@ const InputFieldSingleFileUpload = props => {
 		}
 	};
 
+	// useEffect(() => {
+	// 	console.log('white_label_id', whiteLabelId);
+	// }, []);
 	const handleFileUpload = async file => {
 		const validatedResp = validateFileUpload(file);
 		const finalFilesToUpload = validatedResp
@@ -114,30 +117,56 @@ const InputFieldSingleFileUpload = props => {
 					status: 'progress',
 					// cancelToken: source,
 				};
+				// console.log(field.name);
 				const formData = new FormData();
-				formData.append('document', filesToUpload.file);
-				const fileUploadRes = await axios.post(
-					`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-					formData
-					// {
-					// 	timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-					// }
-				);
-				if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
-					return { ...finalFilesToUpload[0], status: 'error' };
+
+				if (field?.name === 'udyam_upload') {
+					formData.append('white_label_id', whiteLabelId);
+					formData.append('document', filesToUpload.file);
+
+					const fileUploadRes = await axios.post(
+						`${API.API_END_POINT}/udyamDocUpload`,
+						formData
+					);
+
+					const newFile = {
+						field,
+						...fileUploadRes?.data,
+						type: 'udyam',
+						// preview:
+						// 	field?.geo_tagging === true
+						// 		? resp?.data?.presignedUrl
+						// 		: resp?.data?.preview,
+						preview: fileUploadRes?.data?.presignedUrl,
+					};
+					// console.log(fileUploadRes?.data?.presignedUrl);
+					addCacheDocumentTemp(newFile);
+				} else {
+					formData.append('document', filesToUpload.file);
+					const fileUploadRes = await axios.post(
+						`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
+						formData
+						// {
+						// 	timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+						// }
+					);
+					if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
+						return { ...finalFilesToUpload[0], status: 'error' };
+					}
+					const resFile = fileUploadRes.data.files[0];
+					newFileData = {
+						document_id: finalFilesToUpload[0].id,
+						upload_doc_name: resFile.filename,
+						document_key: resFile.fd,
+						size: resFile.size,
+						loan_id: loanId,
+						doc_type_id: selectedDocTypeId,
+						category,
+						// classification_type,
+						// directorId: selectedDirector?.directorId,
+					};
+					addCacheDocumentTemp({ ...previewFileData, ...newFileData });
 				}
-				const resFile = fileUploadRes.data.files[0];
-				newFileData = {
-					document_id: finalFilesToUpload[0].id,
-					upload_doc_name: resFile.filename,
-					document_key: resFile.fd,
-					size: resFile.size,
-					loan_id: loanId,
-					doc_type_id: selectedDocTypeId,
-					category,
-					// classification_type,
-					// directorId: selectedDirector?.directorId,
-				};
 			} catch (error) {
 				console.error('error-inputfieldsinglefileupload-', error);
 				addToast({
@@ -145,7 +174,7 @@ const InputFieldSingleFileUpload = props => {
 					type: 'error',
 				});
 			} finally {
-				addCacheDocumentTemp({ ...previewFileData, ...newFileData });
+				// addCacheDocumentTemp(newFile);
 				setLoading(false);
 			}
 		}
