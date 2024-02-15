@@ -952,6 +952,7 @@ const LeadDetails = props => {
 							selectedProduct?.id || selectedProduct?.id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 						origin: API.ORIGIN,
+						businesstype: formState?.values['income_type'] || formState?.values?.['business_type'] || formState?.values?.['businesstype'] || '',
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
@@ -963,9 +964,11 @@ const LeadDetails = props => {
 						}
 					);
 
-					if (verifyData?.data?.status === 'ok') {
-						dispatch(setLeadDetailData(verifyData?.data));
-						dispatch(setSelectedSectionId(nextSectionId));
+					if (verifyData?.data?.status === 'ok' || verifyData?.data?.statusCode
+					=== 200 ) {
+						// dispatch(setLeadDetailData(verifyData?.data));
+						// dispatch(setSelectedSectionId(nextSectionId));
+						redirectToProductPageInEditMode(verifyData?.data || {});
 					}
 
 					if (verifyData?.data?.status === 'nok') {
