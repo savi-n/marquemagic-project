@@ -80,7 +80,12 @@ const PanUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
-			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+			const downloadable = true;
+			if (
+				userDetails?.is_other &&
+				isImageFile(file?.doc_name) &&
+				!downloadable
+			) {
 				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
 				setImageSrc(imageURL);
 				setIsImageModalVisible(true);
