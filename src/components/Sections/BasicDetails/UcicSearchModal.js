@@ -61,7 +61,6 @@ const UcicSearchModal = props => {
 			setFetchingCustomerDetails(true);
 			let apiUrl = '';
 			apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK;
-			console.log(formState?.values);
 			const reqBody = {
 				// ...formState?.values,
 				white_label_id: whiteLabelId,
