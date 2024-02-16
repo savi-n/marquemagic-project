@@ -279,24 +279,18 @@ const CollateralDetails = () => {
 
 	const totalPercentShare = useMemo(() => {
 		let totalPercentShareData = [];
-		sectionData &&
-			sectionData?.length &&
-			sectionData?.length > 0 &&
-			sectionData?.map(item => {
-				if (
-					item &&
-					item?.initial_collateral &&
-					item?.initial_collateral?.collateral_details &&
-					item?.initial_collateral?.collateral_details?.percent_share
-				) {
-					totalPercentShareData?.push(
-						parseInt(
-							(item.modified_collateral || item.initial_collateral)
-								?.collateral_details?.percent_share
-						)
-					);
-				}
-			});
+
+		sectionData?.map(item => {
+			if (item?.initial_collateral?.collateral_details?.percent_share) {
+				totalPercentShareData?.push(
+					parseInt(
+						(item.modified_collateral || item.initial_collateral)
+							?.collateral_details?.percent_share
+					)
+				);
+			}
+			return null;
+		});
 		let perData = totalPercentShareData?.reduce(
 			(accumulator, currentValue) => accumulator + currentValue,
 			0
