@@ -241,6 +241,8 @@ const VehicleDetails = props => {
 												? '0'
 												: `${section?.director_id}`,
 										...(section || {}),
+										type_of_funding_used:section.loan_json.rc_verification.type_of_funding|| '',
+										type_of_funding_new:section.loan_json.rc_verification.type_of_funding|| '',
 								  }
 								: {};
 							const isEquipment = !!prefillData?.equipment_type;
