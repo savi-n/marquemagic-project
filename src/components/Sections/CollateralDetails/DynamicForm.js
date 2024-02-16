@@ -113,20 +113,17 @@ const DynamicForm = props => {
 	};
 
 	const handleButtonClick = () => {
-		console.log('total', totalPercentShare);
-		console.log(formState?.values?.['existing_collateral']);
-		console.log(props);
-		if (checkAllInputsForm(formState?.values || {})) {
+		if (checkAllInputsForm(formState?.values ?? {})) {
 			addToast({
 				message: 'Please enter at least one input',
 				type: 'error',
 			});
 		} else {
-			if (props.prefillData) {
+			if (props?.prefillData) {
 				if (
-					parseInt(formState.values.percent_share) +
+					parseInt(formState?.values?.percent_share) +
 						(totalPercentShare -
-							parseInt(props.prefillData?.percent_share || 0)) <=
+							parseInt(props.prefillData?.percent_share ?? 0)) <=
 					100
 				) {
 					handleSubmit(onSaveOrUpdate());
@@ -138,7 +135,7 @@ const DynamicForm = props => {
 				}
 			} else {
 				if (
-					parseInt(formState.values.percent_share) + totalPercentShare <=
+					parseInt(formState?.values?.percent_share) + totalPercentShare <=
 					100
 				) {
 					handleSubmit(onSaveOrUpdate());
@@ -151,8 +148,6 @@ const DynamicForm = props => {
 			}
 		}
 	};
-
-	console.log('total', totalPercentShare);
 
 	const validate = values => {
 		let allowProceed = true;

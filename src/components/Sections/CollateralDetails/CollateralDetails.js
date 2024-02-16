@@ -277,38 +277,33 @@ const CollateralDetails = () => {
 	// });
 	//END TODO: COLLATERAL
 
-	// console.log('Section Data', sectionData);
-
 	const totalPercentShare = useMemo(() => {
-		//totalPercentShare
 		let totalPercentShareData = [];
 		sectionData &&
-			sectionData.length &&
-			sectionData.length > 0 &&
-			sectionData.map(item => {
+			sectionData?.length &&
+			sectionData?.length > 0 &&
+			sectionData?.map(item => {
 				if (
 					item &&
-					item.initial_collateral &&
-					item.initial_collateral.collateral_details &&
-					item.initial_collateral.collateral_details.percent_share
+					item?.initial_collateral &&
+					item?.initial_collateral?.collateral_details &&
+					item?.initial_collateral?.collateral_details?.percent_share
 				) {
-					totalPercentShareData.push(
+					totalPercentShareData?.push(
 						parseInt(
 							(item.modified_collateral || item.initial_collateral)
-								.collateral_details.percent_share
+								?.collateral_details?.percent_share
 						)
 					);
 				}
 			});
-		let perData = totalPercentShareData.reduce(
+		let perData = totalPercentShareData?.reduce(
 			(accumulator, currentValue) => accumulator + currentValue,
 			0
 		);
-		console.log('Total percentage', totalPercentShareData, perData);
+
 		return perData;
 	}, [sectionData]);
-
-	// console.log(totalPercentShare, 'totalPercentShare', sectionData);
 	return (
 		<>
 			<DeletionWarningModal
