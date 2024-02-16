@@ -17,11 +17,11 @@ import {
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
+
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
-		sectionData,
 		subSections = [],
 		onSaveOrUpdateSuccessCallback = () => {},
 		onCancelCallback = () => {},
@@ -34,7 +34,9 @@ const DynamicForm = props => {
 		assets,
 		loan_assets_id,
 		selectCollateralFieldOptions,
+		totalPercentShare,
 	} = props;
+
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
 	const { businessName } = application;
@@ -58,6 +60,8 @@ const DynamicForm = props => {
 	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// const [collateralDetails, setCollateralDetails] = useState([]);
 
 	const cityField =
 		subSections
@@ -109,15 +113,42 @@ const DynamicForm = props => {
 	};
 
 	const handleButtonClick = () => {
-		if (checkAllInputsForm(formState?.values || {})) {
+		if (checkAllInputsForm(formState?.values ?? {})) {
 			addToast({
 				message: 'Please enter at least one input',
 				type: 'error',
 			});
 		} else {
-			handleSubmit(onSaveOrUpdate());
+			if (props?.prefillData) {
+				if (
+					parseInt(formState?.values?.percent_share) +
+						(totalPercentShare -
+							parseInt(props.prefillData?.percent_share ?? 0)) <=
+					100
+				) {
+					handleSubmit(onSaveOrUpdate());
+				} else {
+					addToast({
+						message: 'Percent Share should be less than 100',
+						type: 'error',
+					});
+				}
+			} else {
+				if (
+					parseInt(formState?.values?.percent_share) + totalPercentShare <=
+					100
+				) {
+					handleSubmit(onSaveOrUpdate());
+				} else {
+					addToast({
+						message: 'Percent Share should be less than 100',
+						type: 'error',
+					});
+				}
+			}
 		}
 	};
+
 	const validate = values => {
 		let allowProceed = true;
 		const { construction_area, total_area } = values;
@@ -127,30 +158,6 @@ const DynamicForm = props => {
 		return allowProceed;
 	};
 
-	const validateCollateralPercentShare = ({
-		formPercentValue,
-		editSectionId,
-	}) => {
-		let sumOfPercentShare = 0;
-		if (editSectionId) {
-			sectionData?.forEach(collateral => {
-				if (collateral?.id !== editSectionId) {
-					sumOfPercentShare += parseInt(
-						collateral?.initial_collateral?.collateral_details?.percent_share
-					);
-				}
-			});
-			sumOfPercentShare += Number(formPercentValue);
-		} else {
-			sectionData?.forEach(collateral => {
-				sumOfPercentShare += parseInt(
-					collateral?.initial_collateral?.collateral_details?.percent_share
-				);
-			});
-			sumOfPercentShare += Number(formPercentValue);
-		}
-		return sumOfPercentShare > 100;
-	};
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
@@ -161,19 +168,6 @@ const DynamicForm = props => {
 			) {
 				addToast({
 					message: 'Construction Area should be lesser than Total Area.',
-					type: 'error',
-				});
-				return;
-			}
-
-			if (
-				validateCollateralPercentShare({
-					formPercentValue: formState?.values?.['percent_share'],
-					editSectionId,
-				})
-			) {
-				addToast({
-					message: 'Total Collateral Percentage should be less than 100%',
 					type: 'error',
 				});
 				return;
@@ -239,6 +233,7 @@ const DynamicForm = props => {
 	// console.log({
 	// 	select_collateral_value: formState?.values?.['select_collateral'],
 	// });
+
 	useEffect(() => {
 		const selectedCollateralValue =
 			formState?.values?.['select_collateral'] || '';
@@ -444,6 +439,7 @@ const DynamicForm = props => {
 								if (newField?.name === CONST.SELECT_COLLATERAL_FIELD_NAME) {
 									newField.options = selectCollateralFieldOptions;
 								}
+
 								// console.log('render-field-', {
 								// 	field,
 								// 	customFieldProps,

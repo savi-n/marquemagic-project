@@ -22,6 +22,8 @@ import * as CONST from './const';
 import { useToasts } from 'components/Toast/ToastProvider';
 import DeletionWarningModal from 'components/modals/DeleteWarningModal';
 
+import { useMemo } from 'react';
+
 const CollateralDetails = () => {
 	const { app, application } = useSelector(state => state);
 	const {
@@ -275,8 +277,27 @@ const CollateralDetails = () => {
 	// });
 	//END TODO: COLLATERAL
 
-	// console.log('CollateralDetails-allstates-', { selectedSection });
+	const totalPercentShare = useMemo(() => {
+		let totalPercentShareData = [];
 
+		sectionData?.map(item => {
+			if (item?.initial_collateral?.collateral_details?.percent_share) {
+				totalPercentShareData?.push(
+					parseInt(
+						(item.modified_collateral || item.initial_collateral)
+							?.collateral_details?.percent_share
+					)
+				);
+			}
+			return null;
+		});
+		let perData = totalPercentShareData?.reduce(
+			(accumulator, currentValue) => accumulator + currentValue,
+			0
+		);
+
+		return perData;
+	}, [sectionData]);
 	return (
 		<>
 			<DeletionWarningModal
@@ -457,7 +478,6 @@ const CollateralDetails = () => {
 										<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
 											{isAccordianOpen && !isCreateFormOpen && (
 												<DynamicForm
-													sectionData={sectionData}
 													subSections={selectedSection?.sub_sections || []}
 													// subSections={selectedSection?.sub_sections || []}
 													prefillData={prefillData}
@@ -471,6 +491,7 @@ const CollateralDetails = () => {
 													editSectionId={editSectionId}
 													isCreateFormOpen={isCreateFormOpen}
 													selectCollateralFieldOptions={newOptions}
+													totalPercentShare={totalPercentShare}
 												/>
 											)}
 											{/* {isResetFormComplete ? (
@@ -489,7 +510,6 @@ const CollateralDetails = () => {
 									>
 										<UI_SECTIONS.DynamicFormWrapper>
 											<DynamicForm
-												sectionData={sectionData}
 												subSections={selectedSection?.sub_sections || []}
 												onSaveOrUpdateSuccessCallback={
 													onSaveOrUpdateSuccessCallback
@@ -501,6 +521,7 @@ const CollateralDetails = () => {
 												isEditLoan={true}
 												isCreateFormOpen={isCreateFormOpen}
 												selectCollateralFieldOptions={newOptions}
+												totalPercentShare={totalPercentShare}
 											/>
 										</UI_SECTIONS.DynamicFormWrapper>
 									</UI_SECTIONS.AccordianBody>
