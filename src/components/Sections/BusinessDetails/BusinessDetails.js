@@ -144,6 +144,7 @@ const BusinessDetails = props => {
 	// const [leadData, setleadData] = useState({});
 	const [companyList, setCompanyList] = useState([]);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
+	const [panFetchData, setPanFetchData] = useState({});
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -333,7 +334,10 @@ const BusinessDetails = props => {
 				{ headers: { Authorization: clientToken } }
 			);
 			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
-
+			setPanFetchData({
+				panNumber: pan,
+				companyName: panExtractionMsg?.upstreamName,
+			});
 			// IF PAN NAME
 			if (panExtractionMsg?.upstreamName) {
 				// 2.PAN to GST
@@ -1275,15 +1279,18 @@ fields to determine if the given field should be disabled.
 						searchingCompanyName={loading}
 						show={isCompanyListModalOpen}
 						companyName={formState?.values?.companyName}
+						panExtractionData={panFetchData}
 						companyList={companyList}
 						setCompanyList={setCompanyList}
 						onClose={() => {
 							setIsCompanyListModalOpen(false);
+							setPanFetchData({});
 						}}
 						onCompanySelect={onCompanySelect}
 						formState={formState}
 						proceedToNextSection={() => {
 							setIsCompanyListModalOpen(false);
+							setPanFetchData({});
 						}}
 					/>
 					<ConfirmModal

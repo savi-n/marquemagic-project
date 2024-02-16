@@ -21,6 +21,7 @@ import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
 	const {
+		sectionData,
 		subSections = [],
 		onSaveOrUpdateSuccessCallback = () => {},
 		onCancelCallback = () => {},
@@ -125,6 +126,31 @@ const DynamicForm = props => {
 			allowProceed = false;
 		return allowProceed;
 	};
+
+	const validateCollateralPercentShare = ({
+		formPercentValue,
+		editSectionId,
+	}) => {
+		let sumOfPercentShare = 0;
+		if (editSectionId) {
+			sectionData?.forEach(collateral => {
+				if (collateral?.id !== editSectionId) {
+					sumOfPercentShare += parseInt(
+						collateral?.initial_collateral?.collateral_details?.percent_share
+					);
+				}
+			});
+			sumOfPercentShare += Number(formPercentValue);
+		} else {
+			sectionData?.forEach(collateral => {
+				sumOfPercentShare += parseInt(
+					collateral?.initial_collateral?.collateral_details?.percent_share
+				);
+			});
+			sumOfPercentShare += Number(formPercentValue);
+		}
+		return sumOfPercentShare > 100;
+	};
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
@@ -135,6 +161,19 @@ const DynamicForm = props => {
 			) {
 				addToast({
 					message: 'Construction Area should be lesser than Total Area.',
+					type: 'error',
+				});
+				return;
+			}
+
+			if (
+				validateCollateralPercentShare({
+					formPercentValue: formState?.values?.['percent_share'],
+					editSectionId,
+				})
+			) {
+				addToast({
+					message: 'Total Collateral Percentage should be less than 100%',
 					type: 'error',
 				});
 				return;
