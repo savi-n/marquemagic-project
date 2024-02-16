@@ -11,7 +11,7 @@ import * as API from '_config/app.config';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
-import { setSelectedSectionId, setLeadDetailData } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import {
 	setCompletedApplicationSection,
 	setLeadId,
@@ -84,7 +84,7 @@ const LeadDetails = props => {
 	const assetFields = assetsDetails?.fields;
 
 	const [loading, setLoading] = useState(false);
-	const [dudupeLoading,setDudupeLoading]= useState(false);
+	const [dudupeLoading, setDudupeLoading] = useState(false);
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
@@ -412,7 +412,7 @@ const LeadDetails = props => {
 						(isEditLoan && !isLeadCategoryChanged) ||
 						(selectedSection?.validate_lead_status === true &&
 							formState?.values?.['lead_category'] ===
-							CONST.LEAD_STATUS_HOT_OPTION_VALUE)
+								CONST.LEAD_STATUS_HOT_OPTION_VALUE)
 					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
@@ -536,8 +536,7 @@ const LeadDetails = props => {
 					'Error in fetching the customer details. Please verify the entered details.',
 				type: 'error',
 			});
-		}
-		finally {
+		} finally {
 			setDudupeLoading(false);
 		}
 	};
@@ -952,7 +951,11 @@ const LeadDetails = props => {
 							selectedProduct?.id || selectedProduct?.id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 						origin: API.ORIGIN,
-						businesstype: formState?.values['income_type'] || formState?.values?.['business_type'] || formState?.values?.['businesstype'] || '',
+						businesstype:
+							formState?.values['income_type'] ||
+							formState?.values?.['business_type'] ||
+							formState?.values?.['businesstype'] ||
+							'',
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
@@ -964,8 +967,10 @@ const LeadDetails = props => {
 						}
 					);
 
-					if (verifyData?.data?.status === 'ok' || verifyData?.data?.statusCode
-					=== 200 ) {
+					if (
+						verifyData?.data?.status === 'ok' ||
+						verifyData?.data?.statusCode === 200
+					) {
 						// dispatch(setLeadDetailData(verifyData?.data));
 						// dispatch(setSelectedSectionId(nextSectionId));
 						redirectToProductPageInEditMode(verifyData?.data || {});
@@ -1574,7 +1579,7 @@ const LeadDetails = props => {
 								fill
 								name={'Save and Proceed'}
 								isLoader={loading}
-								disabled={loading || isAssetCreateFormOpen|| dudupeLoading}
+								disabled={loading || isAssetCreateFormOpen || dudupeLoading}
 								onClick={handleSubmit(() => {
 									onSaveAndProceed();
 									return;
