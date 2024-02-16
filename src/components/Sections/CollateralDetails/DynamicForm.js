@@ -158,62 +158,6 @@ const DynamicForm = props => {
 		return allowProceed;
 	};
 
-	// const updateEdit = values => {
-	// 	let allowProceed = true;
-	// 	const { percent_share } = values;
-
-	// 	if (percent_share > 100 + totalPercentShare) allowProceed = false;
-	// };
-
-	// const updateEdit = values => {
-	// 	let allowProceed = true;
-	// 	const { percent_share } = values;
-
-	// 	if (percent_share > 100 + totalPercentShare) allowProceed = false;
-	// };
-
-	// const updateEditPercentShare = async data => {
-	// 	try {
-	// 		setIsSubmitting(true);
-	// 		if (
-	// 			selectedSection?.validate_percent_share === true &&
-	// 			!validate(formState.values)
-	// 		) {
-	// 			addToast({
-	// 				message: 'The percent share should be less than 100',
-	// 				type: 'error',
-	// 			});
-	// 		}
-	// 	} catch (error) {
-	// 		return null;
-	// 	}
-	// };
-
-	// const updateEdit=values=>{
-	// 	let allowedProceed=true;
-	// 	const {percent_share}=values;
-
-	// 	if(percent_share>100 +totalPercentShare)
-	// 	allowedProceed=true;
-	// }
-
-	// const updateEditPercentShare= async data=>{
-	// 	try {
-	// 		setIsSubmitting(true);
-	// 		if(
-	// 			selectedSection?.validate_percent_share=== true &&
-	// 			!validate(formState.values)
-	// 		){
-	// 			addToast({
-	// 				message: "The percent share should be less than 100",
-	// 				type:'error',
-	// 			})
-	// 		}
-	// 	} catch (error) {
-	// 		return null
-	// 	}
-	// }
-
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
