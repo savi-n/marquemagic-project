@@ -457,7 +457,6 @@ const CollateralDetails = () => {
 										<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
 											{isAccordianOpen && !isCreateFormOpen && (
 												<DynamicForm
-													sectionData={sectionData}
 													subSections={selectedSection?.sub_sections || []}
 													// subSections={selectedSection?.sub_sections || []}
 													prefillData={prefillData}
@@ -489,7 +488,6 @@ const CollateralDetails = () => {
 									>
 										<UI_SECTIONS.DynamicFormWrapper>
 											<DynamicForm
-												sectionData={sectionData}
 												subSections={selectedSection?.sub_sections || []}
 												onSaveOrUpdateSuccessCallback={
 													onSaveOrUpdateSuccessCallback
