@@ -205,7 +205,6 @@ const VehicleDetails = props => {
 			field => field.name === 'section_category_for'
 		);
 		if (field?.length > 0) setIsDisplaySectionType(true);
-		else setIsDisplaySectionType(false);
 	};
 
 	return (
