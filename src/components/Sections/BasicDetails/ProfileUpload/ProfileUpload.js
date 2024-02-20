@@ -27,7 +27,8 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import * as CONST from './const';
-import { validateFileUpload } from 'utils/helperFunctions';
+import { isImageFile, validateFileUpload } from 'utils/helperFunctions';
+import ImageViewerModal from 'components/Global/ImageViewerModal';
 
 const ProfileUpload = props => {
 	const {
@@ -55,7 +56,12 @@ const ProfileUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { whiteLabelId, isGeoTaggingEnabled, selectedProduct } = app;
+	const {
+		whiteLabelId,
+		isGeoTaggingEnabled,
+		selectedProduct,
+		userDetails,
+	} = app;
 	const {
 		loanId,
 		// loanRefId,
@@ -67,6 +73,8 @@ const ProfileUpload = props => {
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
 	const [fetchedValue, setFetchedValue] = useState('');
+	const [imageSrc, setImageSrc] = useState('');
+	const [isImageModalVisible, setIsImageModalVisible] = useState(false);
 
 	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
 	const isFileFromDeviceStorageAllowed =
@@ -83,6 +91,13 @@ const ProfileUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
+
+			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
+				setImageSrc(imageURL);
+				setIsImageModalVisible(true);
+				return;
+			}
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
@@ -96,6 +111,11 @@ const ProfileUpload = props => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const onCloseImageViewerModal = () => {
+		setIsImageModalVisible(false);
+		setImageSrc('');
 	};
 
 	// CALLED FOR SELFIE DOC UPLOAD
@@ -348,132 +368,158 @@ const ProfileUpload = props => {
 
 	if (isPreview) {
 		return (
-			<UI.ContainerPreview isPrevie={isPreview}>
-				<UI.ImgProfilePreview
-					src={
-						loading
-							? imageBgProfile
-							: // : section === 'documentUpload'
-							  // ?
-							  uploadedFile?.preview ||
-							  uploadedFile?.presignedUrl ||
-							  selfiePreview?.preview ||
-							  selfiePreview?.presignedUrl ||
-							  value ||
-							  fetchedValue
-						// uploadedFile?.preview || uploadedFile?.presignedUrl || value
-					}
-					alt='Loading File...'
-					onClick={e => {
-						e.preventDefault();
-						e.stopPropagation();
-						if (value) {
-							window.open(value, '_blank');
-							return;
-						}
-						if (
-							uploadedFile?.preview ||
-							selfiePreview?.preview ||
-							uploadedFile?.presignedUrl
-						) {
-							window.open(
-								uploadedFile?.preview ||
-									selfiePreview?.preview ||
-									uploadedFile?.presignedUrl,
-								'_blank'
-							);
-							return;
-						}
-						openDocument(uploadedFile);
-					}}
-				/>
-				{loading ? (
-					<UI.CameraIconWrapper>
-						<LoadingIcon />
-					</UI.CameraIconWrapper>
-				) : (
-					<>
-						<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-							{!isDisabled && (
-								<UI.IconCamera
-									src={iconDelete}
-									alt='delete'
-									onClick={e => {
-										e.preventDefault();
-										e.stopPropagation();
-										setShowImageInfo(false);
-										dispatch(removeProfilePicCacheDocument(uploadedFile));
-										// for profile pic upload in basic details section
-										if (value || fetchedValue) {
-											setFetchedValue('');
-											setFetchedProfilePic();
+			<>
+				{isImageModalVisible && (
+					<ImageViewerModal
+						onClose={onCloseImageViewerModal}
+						imageSrc={imageSrc}
+						modalVisible={isImageModalVisible}
+					/>
+				)}
 
-											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
-												value: '',
-											});
+				<UI.ContainerPreview isPrevie={isPreview}>
+					<UI.ImgProfilePreview
+						src={
+							loading
+								? imageBgProfile
+								: // : section === 'documentUpload'
+								  // ?
+								  uploadedFile?.preview ||
+								  uploadedFile?.presignedUrl ||
+								  selfiePreview?.preview ||
+								  selfiePreview?.presignedUrl ||
+								  value ||
+								  fetchedValue
+							// uploadedFile?.preview || uploadedFile?.presignedUrl || value
+						}
+						alt='Loading File...'
+						onClick={e => {
+							e.preventDefault();
+							e.stopPropagation();
+							if (value) {
+								if (userDetails?.is_other) {
+									setImageSrc(value);
+									setIsImageModalVisible(true);
+									return;
+								}
+								window.open(value, '_blank');
+								return;
+							}
+							if (
+								uploadedFile?.preview ||
+								selfiePreview?.preview ||
+								uploadedFile?.presignedUrl
+							) {
+								if (userDetails?.is_other) {
+									setImageSrc(
+										uploadedFile?.preview ||
+											selfiePreview?.preview ||
+											uploadedFile?.presignedUrl
+									);
+									setIsImageModalVisible(true);
+									return;
+								}
+								window.open(
+									uploadedFile?.preview ||
+										selfiePreview?.preview ||
+										uploadedFile?.presignedUrl,
+									'_blank'
+								);
+								return;
+							}
+							openDocument(uploadedFile);
+						}}
+					/>
+					{loading ? (
+						<UI.CameraIconWrapper>
+							<LoadingIcon />
+						</UI.CameraIconWrapper>
+					) : (
+						<>
+							<UI.CameraIconWrapper
+								{...getRootProps({ className: 'dropzone' })}
+							>
+								{!isDisabled && (
+									<UI.IconCamera
+										src={iconDelete}
+										alt='delete'
+										onClick={e => {
+											e.preventDefault();
+											e.stopPropagation();
+											setShowImageInfo(false);
+											dispatch(removeProfilePicCacheDocument(uploadedFile));
+											// for profile pic upload in basic details section
+											if (value || fetchedValue) {
+												setFetchedValue('');
+												setFetchedProfilePic();
+
+												onChangeFormStateField({
+													name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
+													value: '',
+												});
+												deleteProfilePic(uploadedFile);
+												return;
+											}
+											// deleteDocument(uploadedFile)
 											deleteProfilePic(uploadedFile);
-											return;
-										}
-										// deleteDocument(uploadedFile)
-										deleteProfilePic(uploadedFile);
-										// setProfileImageResTemp(null);
-									}}
+											// setProfileImageResTemp(null);
+										}}
+									/>
+								)}
+							</UI.CameraIconWrapper>
+							{isGeoTaggingEnabled && isTag && field?.geo_tagging === true && (
+								<UI.PinIconWrapper>
+									<UI.IconCamera
+										onClick={() => {
+											setShowImageInfo(!showImageInfo);
+										}}
+										src={showImageInfo ? locationPinWhite : locationPinIcon}
+										alt='pin-location'
+									/>
+								</UI.PinIconWrapper>
+							)}
+
+							{isGeoTaggingEnabled && showImageInfo && (
+								<AddressDetailsCard
+									imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
+									setShowImageInfo={setShowImageInfo}
+									latitude={
+										picAddress?.lat ||
+										uploadedFile?.lat ||
+										geoLocationAddress?.lat
+									} //change and assign these props once the proper data is obtained
+									longitude={
+										picAddress?.long ||
+										uploadedFile?.long ||
+										geoLocationAddress?.long
+									}
+									timestamp={
+										picAddress?.timestamp ||
+										uploadedFile?.timestamp ||
+										geoLocationAddress?.timestamp
+									}
+									embedInImageUpload={true}
+									address={
+										picAddress?.address ||
+										uploadedFile?.address ||
+										geoLocationAddress?.address
+									}
+									err={
+										picAddress?.err ||
+										uploadedFile?.err ||
+										geoLocationAddress?.err
+									}
+									hint={
+										picAddress?.hint ||
+										uploadedFile?.hint ||
+										geoLocationAddress?.hint
+									}
 								/>
 							)}
-						</UI.CameraIconWrapper>
-						{isGeoTaggingEnabled && isTag && field?.geo_tagging === true && (
-							<UI.PinIconWrapper>
-								<UI.IconCamera
-									onClick={() => {
-										setShowImageInfo(!showImageInfo);
-									}}
-									src={showImageInfo ? locationPinWhite : locationPinIcon}
-									alt='pin-location'
-								/>
-							</UI.PinIconWrapper>
-						)}
-
-						{isGeoTaggingEnabled && showImageInfo && (
-							<AddressDetailsCard
-								imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
-								setShowImageInfo={setShowImageInfo}
-								latitude={
-									picAddress?.lat ||
-									uploadedFile?.lat ||
-									geoLocationAddress?.lat
-								} //change and assign these props once the proper data is obtained
-								longitude={
-									picAddress?.long ||
-									uploadedFile?.long ||
-									geoLocationAddress?.long
-								}
-								timestamp={
-									picAddress?.timestamp ||
-									uploadedFile?.timestamp ||
-									geoLocationAddress?.timestamp
-								}
-								embedInImageUpload={true}
-								address={
-									picAddress?.address ||
-									uploadedFile?.address ||
-									geoLocationAddress?.address
-								}
-								err={
-									picAddress?.err ||
-									uploadedFile?.err ||
-									geoLocationAddress?.err
-								}
-								hint={
-									picAddress?.hint ||
-									uploadedFile?.hint ||
-									geoLocationAddress?.hint
-								}
-							/>
-						)}
-					</>
-				)}
-			</UI.ContainerPreview>
+						</>
+					)}
+				</UI.ContainerPreview>
+			</>
 		);
 	}
 

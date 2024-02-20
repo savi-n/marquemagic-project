@@ -25,7 +25,7 @@ const initialState = {
 	dedupePrefilledValues: null,
 	selectedProductIdsFromLead: {},
 	// isSelfieImagePresent: false,
-	leadAllDetails:{},
+	leadAllDetails: {},
 };
 
 export const applicationSlice = createSlice({
@@ -55,8 +55,7 @@ export const applicationSlice = createSlice({
 			const { leadId } = action.payload;
 			state.leadId = leadId;
 		},
-		SetLeadDataDetails:(state, action)=>{
-			console.log("action1234",action.payload);
+		setLeadDataDetails: (state, action) => {
 			const { leadAllDetails } = action.payload;
 			state.leadAllDetails = leadAllDetails;
 		},
@@ -355,7 +354,7 @@ export const {
 
 	setLoanIds,
 	setLeadId,
-	SetLeadDataDetails,
+	setLeadDataDetails,
 	setCompletedApplicationSection,
 	setNewCompletedSections,
 	setSelectedProductIdFromLead,
@@ -387,7 +386,6 @@ export const {
 	resetCacheDocuments,
 	resetOnsiteSelfiImages,
 	removeProfilePicCacheDocument,
-
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;

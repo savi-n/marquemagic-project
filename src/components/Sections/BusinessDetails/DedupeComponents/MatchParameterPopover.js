@@ -47,7 +47,6 @@ const ToolTipHeaderRow = styled.td`
 `;
 
 const MatchParameterPopover = ({ data, children }) => {
-	console.log('am I rendered');
 	const keysToShow =
 		data &&
 		Object.entries(data)

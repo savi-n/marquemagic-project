@@ -127,3 +127,23 @@ export const clearDependentFields = data => {
 			value: '',
 		});
 };
+
+const IMAGE_TYPE_FILES_FORMAT = [
+	'.jpg',
+	'.jpeg',
+	'.png',
+	'.gif',
+	'.bmp',
+	'.svg',
+	'.tiff',
+	'.webp',
+	'.pjpeg',
+	'.img',
+	'.apng',
+];
+export function isImageFile(fileName) {
+	const fileExtension = fileName
+		?.toLowerCase()
+		.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
+	return IMAGE_TYPE_FILES_FORMAT?.includes('.' + fileExtension);
+}

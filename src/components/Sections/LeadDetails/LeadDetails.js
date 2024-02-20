@@ -11,15 +11,11 @@ import * as API from '_config/app.config';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
-import { setSelectedSectionId, setLeadDetailData } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import {
 	setCompletedApplicationSection,
 	setLeadId,
-	SetLeadDataDetails,
-	// setBusinessType,
-	// setNewCompletedSections,
-	// setBusinessMobile,
-	// setBusinessName,
+	setLeadDataDetails,
 } from 'store/applicationSlice';
 import {
 	getApiErrorMessage,
@@ -57,7 +53,6 @@ const LeadDetails = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-console.log("setLeadDetailData",app);
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -89,6 +84,7 @@ console.log("setLeadDetailData",app);
 	const assetFields = assetsDetails?.fields;
 
 	const [loading, setLoading] = useState(false);
+	const [dudupeLoading, setDudupeLoading] = useState(false);
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
@@ -136,7 +132,7 @@ console.log("setLeadDetailData",app);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState('');
 	const [customerId, setCustomerId] = useState('');
-	const [NewToBankCustomerModal,setNewToBankCustomerModal]=useState(false);
+	const [NewToBankCustomerModal, setNewToBankCustomerModal] = useState(false);
 
 	let selectedVerifyOtp = verifyOtpResponseTemp || null;
 
@@ -378,7 +374,7 @@ console.log("setLeadDetailData",app);
 
 			if (leadId) leadsDetailsReqBody.id = leadId;
 			const leadsDetailsRes = await axios.post(
-				`${API.LEADS_DETIALS}`,
+				`${API.LEADS_DETAILS}`,
 				leadsDetailsReqBody
 			);
 			if (leadsDetailsRes?.data?.status === 'ok') {
@@ -386,16 +382,12 @@ console.log("setLeadDetailData",app);
 				// 1 condition to check whether this user is allowed to proceed further
 				// 2 condition to check whether dedupe is present. if not present move to next section
 				// 3 if dedupe is present, redirect to dedupe screen
-				console.log('leadsDetailsRes',leadsDetailsRes?.data?.data?.other_data[0]
 
-				)
-				const otherData = leadsDetailsRes?.data?.data?.other_data
-				|| '';
+				const otherData = leadsDetailsRes?.data?.data?.other_data || '';
 				const tempLeadData = otherData ? JSON.parse(otherData) : {};
-				
-				console.log("tempLeadData",tempLeadData);
+
 				dispatch(setLeadId({ leadId: leadsDetailsRes?.data?.data?.id }));
-				dispatch(SetLeadDataDetails({leadAllDetails: tempLeadData}))
+				dispatch(setLeadDataDetails({ leadAllDetails: tempLeadData }));
 				if (
 					selectedSection?.restrict_user_loan_creation?.includes(
 						userDetails?.usertype
@@ -480,12 +472,13 @@ console.log("setLeadDetailData",app);
 		});
 	};
 
-	const setProceedNewToBankFlow=()=>{
+	const setProceedNewToBankFlow = () => {
 		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
-	}
+	};
 	const searchCustomerFromFetchApi = async () => {
 		try {
+			setDudupeLoading(true);
 			const url = selectedDedupeData?.search_api;
 			const apiUrl = url || API.DDUPE_CHECK;
 			const reqBody = {
@@ -523,23 +516,16 @@ console.log("setLeadDetailData",app);
 							ddupeRes?.data?.message ||
 							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
-							type: 'error',
-						});
-						setNewToBankCustomerModal(true);
-					
-						return;
-					}
-					else{
-						ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
-					
-						setIsCustomerListModalOpen(true);
-					}
-					
-						
-				
-					
+						type: 'error',
+					});
+					setNewToBankCustomerModal(true);
 
-					
+					return;
+				} else {
+					ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+
+					setIsCustomerListModalOpen(true);
+				}
 			}
 		} catch (e) {
 			addToast({
@@ -550,6 +536,8 @@ console.log("setLeadDetailData",app);
 					'Error in fetching the customer details. Please verify the entered details.',
 				type: 'error',
 			});
+		} finally {
+			setDudupeLoading(false);
 		}
 	};
 
@@ -842,7 +830,7 @@ console.log("setLeadDetailData",app);
 						}
 					);
 
-					const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
+					const newCompanyList = companyNameSearchRes?.data?.data?.[0];
 
 					//ROC Data API
 					const cinNumberResponse =
@@ -859,7 +847,8 @@ console.log("setLeadDetailData",app);
 					const companyData = cinNumberResponse?.data?.data;
 					const companyStartDate =
 						companyData?.company_master_data?.date_of_incorporation;
-					const [date, month, year] = companyStartDate?.split(/\/|-/);
+					const [date, month, year] =
+						companyStartDate?.split(/\/|-/) || Array(3).fill('');
 					const bussinessStartDate = `${year}-${month}-${date}`;
 
 					onChangeFormStateField({
@@ -962,6 +951,11 @@ console.log("setLeadDetailData",app);
 							selectedProduct?.id || selectedProduct?.id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 						origin: API.ORIGIN,
+						businesstype:
+							formState?.values['income_type'] ||
+							formState?.values?.['business_type'] ||
+							formState?.values?.['businesstype'] ||
+							'',
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
@@ -973,9 +967,13 @@ console.log("setLeadDetailData",app);
 						}
 					);
 
-					if (verifyData?.data?.status === 'ok') {
-						dispatch(setLeadDetailData(verifyData?.data));
-						dispatch(setSelectedSectionId(nextSectionId));
+					if (
+						verifyData?.data?.status === 'ok' ||
+						verifyData?.data?.statusCode === 200
+					) {
+						// dispatch(setLeadDetailData(verifyData?.data));
+						// dispatch(setSelectedSectionId(nextSectionId));
+						redirectToProductPageInEditMode(verifyData?.data || {});
 					}
 
 					if (verifyData?.data?.status === 'nok') {
@@ -1108,33 +1106,35 @@ console.log("setLeadDetailData",app);
 
 	return (
 		<UI_SECTIONS.Wrapper>
-
-			{NewToBankCustomerModal && (				
+			{NewToBankCustomerModal && (
 				<Modal
-			show={NewToBankCustomerModal}
-			width='40%'
-			height='50%'
-			customStyle={{
-				padding: '40px',
-			}}
-		>
-			<UI.ImgClose onClick={() => {
-						setNewToBankCustomerModal(false);
-					}} src={imgClose} alt='close' />
-			<UI.CustomerListWrapper>
-				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
-				<UI.CustomerListModalSubHeader>
-				Looks like you Do Not have Current relationship with us Please Click On Proceed to Move as an NTB User.
-				</UI.CustomerListModalSubHeader>
-				<UI.NonCustomerDetailsFormModalFooter>
-					<Button
-						name='Proceed'
-						onClick={setProceedNewToBankFlow}
-						fill
+					show={NewToBankCustomerModal}
+					width='40%'
+					height='50%'
+					customStyle={{
+						padding: '40px',
+					}}
+				>
+					<UI.ImgClose
+						onClick={() => {
+							setNewToBankCustomerModal(false);
+						}}
+						src={imgClose}
+						alt='close'
 					/>
-				</UI.NonCustomerDetailsFormModalFooter>
-			</UI.CustomerListWrapper>		
-		</Modal>
+					<UI.CustomerListWrapper>
+						<UI.CustomerListModalHeader>
+							Dear Customer
+						</UI.CustomerListModalHeader>
+						<UI.CustomerListModalSubHeader>
+							Looks like you Do Not have Current relationship with us Please
+							Click On Proceed to Move as an NTB User.
+						</UI.CustomerListModalSubHeader>
+						<UI.NonCustomerDetailsFormModalFooter>
+							<Button name='Proceed' onClick={setProceedNewToBankFlow} fill />
+						</UI.NonCustomerDetailsFormModalFooter>
+					</UI.CustomerListWrapper>
+				</Modal>
 			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
@@ -1579,7 +1579,7 @@ console.log("setLeadDetailData",app);
 								fill
 								name={'Save and Proceed'}
 								isLoader={loading}
-								disabled={loading || isAssetCreateFormOpen}
+								disabled={loading || isAssetCreateFormOpen || dudupeLoading}
 								onClick={handleSubmit(() => {
 									onSaveAndProceed();
 									return;

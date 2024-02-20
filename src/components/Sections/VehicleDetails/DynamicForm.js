@@ -19,12 +19,10 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT, VEHICLE_RC } from '_config/app.config';
 import moment from 'moment';
-// import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
 		subSections,
-		// fields,
 		onSaveOrUpdateSuccessCallback = () => {},
 		onCancelCallback = () => {},
 		prefillData = {},
@@ -72,7 +70,6 @@ const DynamicForm = props => {
 		application,
 		selectedSectionId,
 	});
-	// console.log({ prefillData });
 	const prefilledEditOrViewLoanValues = field => {
 		// const preData = {
 		// 	asset_type: '75',
@@ -285,7 +282,7 @@ const DynamicForm = props => {
 				setManufacturerOptions(getOptionsFromResponse(result, 'Manufacturer'));
 			}
 		} catch (error) {
-			console.log(error);
+			console.error('Error', error);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -341,7 +338,7 @@ const DynamicForm = props => {
 				setTonnageCategoryOptions(getOptionsFromResponse(result, 'tonnage'));
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -364,28 +361,42 @@ const DynamicForm = props => {
 				selectedDirector,
 				application,
 			});
-			// console.log(
-			// 	'🚀 ~ file: DynamicForm.js:165 ~ onSaveOrUpdate ~ reqBody:',
-			// 	reqBody
-			// );
 			const tempData = [];
 			tempData.push(reqBody.data);
 
 			reqBody.data = tempData;
+			const vehicleTypeField =
+				subSections?.[0]?.fields?.filter(
+					field => field?.name === CONST.FIELD_NAME_VEHICLE_TYPE
+				)?.[0] || {};
 
-			if (Number[editSectionId] > 10) {
-				reqBody.data[0].id = editSectionId;
+			const vehicleTypeName = vehicleTypeField?.options?.filter(
+				option =>
+					`${option?.value}` ===
+					`${formState?.values?.[CONST.FIELD_NAME_VEHICLE_TYPE]}`
+			)?.[0]?.name;
+
+			const equipmentTypeField =
+				subSections?.[0]?.fields?.filter(
+					field => field?.name === CONST.FIELD_NAME_EQUIPMENT_TYPE
+				)?.[0] || {};
+
+			const equipmentTypeName = equipmentTypeField?.options?.filter(
+				option =>
+					`${option?.value}` ===
+					`${formState?.values?.[CONST.FIELD_NAME_EQUIPMENT_TYPE]}`
+			)?.[0]?.name;
+
+			if (reqBody?.data?.[0]?.vehicle_details) {
+				reqBody.data[0].vehicle_details.vehicle_type_name =
+					vehicleTypeName || undefined;
+				reqBody.data[0].vehicle_details.equipment_type_name =
+					equipmentTypeName || undefined;
 			}
 
-			// if (
-			// 	typeof reqBody?.data?.assets_details?.financial_institution?.value ===
-			// 	'string'
-			// ) {
-			// 	reqBody.data.assets_details.financial_institution = +reqBody?.data
-			// 		?.assets_details?.financial_institution?.value;
-			// }
-
-			// reqBody.data.vehicle_details = [reqBody.data.vehicle_details];
+			if (editSectionId) {
+				reqBody.data[0].id = editSectionId;
+			}
 
 			const submitRes = await axios.post(
 				`${API_END_POINT}/vehicle_details`,
@@ -395,7 +406,6 @@ const DynamicForm = props => {
 				const vehicleRcPayload = {
 					vehicleNo: formState?.values[CONST.FIELD_NAME_VEHICLE_NUMBER],
 					loanAssetId: submitRes?.data?.data?.[0]?.id || editSectionId || '',
-					// isBlackListRequired: '',
 				};
 				callVehicleRcApi(vehicleRcPayload);
 				onSaveOrUpdateSuccessCallback();

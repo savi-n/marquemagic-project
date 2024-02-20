@@ -98,7 +98,6 @@ const ApplicantCoApplicantHeader = props => {
 	}, []);
 
 	const onClickDirectorAvatar = id => {
-		console.log('this is inside okCLick');
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
@@ -119,7 +118,6 @@ const ApplicantCoApplicantHeader = props => {
 			});
 			// console.log('=>', fetchRes);
 			if (fetchRes?.data?.status === 'ok') {
-				console.log(fetchRes?.data?.data);
 				fetchDirectors();
 				onClickDirectorAvatar('');
 			}
@@ -210,9 +208,13 @@ const ApplicantCoApplicantHeader = props => {
 								dispatch(setAddNewDirectorKey(''));
 								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
 							}}
-							label={isDeleteDirectorModalOpen?.type_name ?`${isDeleteDirectorModalOpen?.type_name} ${
-								isDeleteDirectorModalOpen?.dfirstname
-							} ${isDeleteDirectorModalOpen?.dlastname}` : `${isDeleteDirectorModalOpen}`}
+							label={
+								isDeleteDirectorModalOpen?.type_name
+									? `${isDeleteDirectorModalOpen?.type_name} ${
+											isDeleteDirectorModalOpen?.dfirstname
+									  } ${isDeleteDirectorModalOpen?.dlastname}`
+									: `${isDeleteDirectorModalOpen}`
+							}
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>

@@ -72,6 +72,7 @@ import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerific
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload/InputFieldSingleFileUpload';
 import TableModal from './TableModal';
 import { getDocumentNameFromLoanDocuments } from 'utils/formatData';
+import UcicSearchModal from './UcicSearchModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -116,6 +117,7 @@ const BasicDetails = props => {
 		businessId,
 		dedupePrefilledValues,
 		leadId,
+		leadAllDetails,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -160,6 +162,9 @@ const BasicDetails = props => {
 		setIsCustomerVerificationOTPModal,
 	] = useState(false);
 	const [customerId, setCustomerId] = useState('');
+	const [isUcicSearchModalOpen, setIsUcicSearchModalOpen] = useState(false);
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [customerList, setCustomerList] = useState([]);
 
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	const [fetchedUdyamDoc, setFetchedUdyamDoc] = useState();
@@ -864,11 +869,106 @@ const BasicDetails = props => {
 		fetchedUdyamDoc ||
 		null;
 
+	const validateDirectorMobileNumbers = ({
+		directorsObject,
+		selectedDirectorId,
+		formStateMobileNumber,
+	}) => {
+		/*
+	This function checks if the current mobile number entered in the application form is already existing for any directors or co-apps.
+	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
+	@param {string} selectedDirectorId - The current selected directorId stored in redux.
+	@param {string} formStateMobileNumber - The current entered mobile number in application form field.
+
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate mobile number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	*/
+		const existingDirectorWithMobile = Object.values(directorsObject)?.find(
+			director =>
+				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dcontact &&
+				director?.dcontact === formStateMobileNumber
+		);
+
+		return !existingDirectorWithMobile
+			? { isValid: true }
+			: {
+					isValid: false,
+					directorName: `${existingDirectorWithMobile?.dfirstname} ${
+						existingDirectorWithMobile?.dlastname
+					}`,
+					typeName: existingDirectorWithMobile.type_name,
+			  };
+	};
+
+	const validateDirectorPanNumbers = ({
+		directorsObject,
+		selectedDirectorId,
+		formStatePanNumber,
+	}) => {
+		/*
+	This function checks if the current pan number entered in the application form is already existing for any directors or co-apps.
+	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
+	@param {string} selectedDirectorId - The current selected directorId stored in redux.
+	@param {string} formStatePanNumber - The current entered pan number in application form field.
+
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate pan number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	*/
+		const existingDirectorWithPanNumber = Object.values(directorsObject)?.find(
+			director =>
+				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dpancard &&
+				director?.dpancard === formStatePanNumber
+		);
+
+		return !existingDirectorWithPanNumber
+			? { isValid: true }
+			: {
+					isValid: false,
+					directorName: `${existingDirectorWithPanNumber?.dfirstname} ${
+						existingDirectorWithPanNumber?.dlastname
+					}`,
+					typeName: existingDirectorWithPanNumber.type_name,
+			  };
+	};
+
 	//OnSaveAndProced
 	const onSaveAndProceed = async () => {
 		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
+			const validationResult = validateDirectorMobileNumbers({
+				directorsObject: directors,
+				selectedDirectorId,
+				formStateMobileNumber:
+					formState?.values?.[CONST.MOBILE_NUMBER_FIELD_NAME],
+			});
+
+			if (!validationResult?.isValid) {
+				addToast({
+					message: `Error: Mobile number already exists for ${
+						validationResult?.typeName
+					} ${validationResult?.directorName}`,
+					type: 'error',
+				});
+				return;
+			}
+
+			const panValidationResult = validateDirectorPanNumbers({
+				directorsObject: directors,
+				selectedDirectorId,
+				formStatePanNumber: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME],
+			});
+
+			if (!panValidationResult?.isValid) {
+				addToast({
+					message: `Error: PAN number already exists for ${
+						panValidationResult?.typeName
+					} ${panValidationResult?.directorName}`,
+					type: 'error',
+				});
+				return;
+			}
+
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
 			// call login api only once
@@ -1454,17 +1554,25 @@ const BasicDetails = props => {
 					sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
-				business_email: sectionData?.director_details?.demail,
+				business_email:
+					sectionData?.director_details?.demail || leadAllDetails?.email || '',
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
 					'',
 				contactno:
-					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
+					sectionData?.director_details?.dcontact ||
+					dedupeData?.mobile_no ||
+					leadAllDetails?.mobile_no ||
+					'',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
+				dpancard:
+					sectionData?.director_details?.dpancard ||
+					leadAllDetails?.pan_number ||
+					'',
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
@@ -2208,6 +2316,20 @@ const BasicDetails = props => {
 							)}
 						</section>
 					</Modal>
+					<UcicSearchModal
+						show={isUcicSearchModalOpen}
+						onClose={() => {
+							setIsUcicSearchModalOpen(false);
+						}}
+						basicDetailsFormState={formState?.values}
+						isApplicant={isApplicant}
+						setCustomerList={setCustomerList}
+						setIsCustomerListModalOpen={setIsCustomerListModalOpen}
+						isCustomerListModalOpen={isCustomerListModalOpen}
+						customerList={customerList}
+						selectedDedupeData={selectedDedupeData}
+						formData={selectedSection?.ucic_search_form_data}
+					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2577,15 +2699,35 @@ const BasicDetails = props => {
 															...customFieldProps,
 														})}
 													</div>
-													{field?.sub_fields &&
-														!field?.sub_fields[0].is_prefix &&
+													{field?.sub_fields?.map(subField => {
+														if (subField?.name === 'search_ucic') {
+															customFieldPropsSubfields.disabled = false;
+															customFieldPropsSubfields.onClick = () =>
+																setIsUcicSearchModalOpen(true);
+														}
+														return (
+															!subField?.is_prefix &&
+															register({
+																...subField,
+																value: '',
+																visibility: 'visible',
+																onClick: () => {
+																	setIsUcicSearchModalOpen(true);
+																},
+																...customFieldProps,
+																...customFieldPropsSubfields,
+															})
+														);
+													})}
+													{/* {field?.sub_fields &&
+														!field?.sub_fields[3]?.is_prefix &&
 														register({
-															...field.sub_fields[0],
+															...field.sub_fields[3],
 															value: newValueSelectField,
 															visibility: 'visible',
 															// ...customFieldProps,
 															...customFieldPropsSubfields,
-														})}
+														})} */}
 												</div>
 												{(formState?.submit?.isSubmited ||
 													formState?.touched?.[field.name]) &&
