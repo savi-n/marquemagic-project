@@ -91,11 +91,9 @@ const BusinessAddressDetailsEdi = props => {
 
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
-<<<<<<< HEAD
-	// console.log("leadAllDetails",leadAllDetails);
-=======
 
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
+	// console.log("leadAllDetails",leadAllDetails);
+
 	const fetchAllGstNumbers = async panNum => {
 		if (panNum) {
 			try {

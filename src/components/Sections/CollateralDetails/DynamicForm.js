@@ -34,11 +34,8 @@ const DynamicForm = props => {
 		assets,
 		loan_assets_id,
 		selectCollateralFieldOptions,
-<<<<<<< HEAD
 		sectionData,
-=======
 		totalPercentShare,
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
 	} = props;
 
 	const isViewLoan = !isEditLoan;
@@ -162,16 +159,6 @@ const DynamicForm = props => {
 		return allowProceed;
 	};
 
-<<<<<<< HEAD
-	const validatePercent = values => {
-		const { id, percent_share } = values;
-		console.log(values, 'values', sectionData, 'section-Data', id, 'id');
-		// const getFields = sectionData.filter(field => field.id !== id);
-		// console.log(getFields, 'getFields');
-	};
-
-=======
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
@@ -187,7 +174,6 @@ const DynamicForm = props => {
 				return;
 			}
 
-			validatePercent(formState.values);
 			// 	addToast({
 			// 		message: 'Percent share should not exceed 100%.',
 			// 		type: 'error',

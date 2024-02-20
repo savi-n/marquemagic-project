@@ -141,14 +141,12 @@ const BusinessDetails = props => {
 	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
 		false
 	);
-<<<<<<< HEAD
+
 	const [leadData, setleadData] = useState({});
-=======
 	// const [leadData, setleadData] = useState({});
 	const [companyList, setCompanyList] = useState([]);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
 	const [panFetchData, setPanFetchData] = useState({});
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -818,10 +816,9 @@ const BusinessDetails = props => {
 				`${API.API_END_POINT}/dedupe_check`,
 				dedupeReqBody
 			);
-<<<<<<< HEAD
+
 			// console.log(fetchDedupeRes, 'fetch dedupe res');
-=======
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
+
 			if (fetchDedupeRes?.data?.status === 'ok') {
 				setDedupeModalData(fetchDedupeRes?.data?.data);
 			}
@@ -841,10 +838,7 @@ const BusinessDetails = props => {
 		setIsDedupeCheckModalOpen(false);
 		setDedupeModalData([]);
 	};
-<<<<<<< HEAD
-=======
 
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
 	// console.log(formState.values, 'form................');
 	const prefilledValues = field => {
 		try {
@@ -912,12 +906,10 @@ const BusinessDetails = props => {
 				businessname:
 					sectionData?.business_details?.businessname ||
 					leadAllDetails?.business_name,
-<<<<<<< HEAD
+
 				contact:
 					sectionData?.business_details?.contact || leadAllDetails?.mobile_no,
-=======
-				// contact:sectionData?.business_details?.contact || leadAllDetails?.mobile_no ,
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
+
 				udyam_number:
 					sectionData?.business_details?.udyam_number ||
 					leadAllDetails?.udyam_number,
@@ -1191,10 +1183,7 @@ const BusinessDetails = props => {
 		)?.[0]?.id;
 	};
 	// for fed use case when the data is fetched from customer id from fed portal
-<<<<<<< HEAD
-	// console.log(leadAllDetails,"email")
-=======
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
+
 	const disableFieldIfPrefilledFromThirdPartyData = field => {
 		/*
 This function checks if a form field should be disabled based on the configuration for disabling fields

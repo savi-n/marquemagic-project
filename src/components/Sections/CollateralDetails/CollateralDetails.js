@@ -491,11 +491,7 @@ const CollateralDetails = () => {
 													editSectionId={editSectionId}
 													isCreateFormOpen={isCreateFormOpen}
 													selectCollateralFieldOptions={newOptions}
-<<<<<<< HEAD
-													sectionData={sectionData}
-=======
 													totalPercentShare={totalPercentShare}
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
 												/>
 											)}
 											{/* {isResetFormComplete ? (
@@ -525,11 +521,7 @@ const CollateralDetails = () => {
 												isEditLoan={true}
 												isCreateFormOpen={isCreateFormOpen}
 												selectCollateralFieldOptions={newOptions}
-<<<<<<< HEAD
-												sectionData={sectionData}
-=======
 												totalPercentShare={totalPercentShare}
->>>>>>> bfbc144f8e375822a0975a57191558c153ff0608
 											/>
 										</UI_SECTIONS.DynamicFormWrapper>
 									</UI_SECTIONS.AccordianBody>
