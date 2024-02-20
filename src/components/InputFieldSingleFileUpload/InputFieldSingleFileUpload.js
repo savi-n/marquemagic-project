@@ -49,7 +49,6 @@ const InputFieldSingleFileUpload = props => {
 	const openDocument = async file => {
 		try {
 			setLoading(true);
-			// console.log('open-doc-', { file, loanId, businessUserId });
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
@@ -76,8 +75,6 @@ const InputFieldSingleFileUpload = props => {
 				loan_id: loanId,
 				userid: userId,
 			};
-			// console.log('reqBody-', reqBody);
-			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
@@ -88,9 +85,6 @@ const InputFieldSingleFileUpload = props => {
 		}
 	};
 
-	// useEffect(() => {
-	// 	console.log('white_label_id', whiteLabelId);
-	// }, []);
 	const handleFileUpload = async file => {
 		const validatedResp = validateFileUpload(file);
 		const finalFilesToUpload = validatedResp
@@ -133,13 +127,8 @@ const InputFieldSingleFileUpload = props => {
 						field,
 						...fileUploadRes?.data,
 						type: 'udyam',
-						// preview:
-						// 	field?.geo_tagging === true
-						// 		? resp?.data?.presignedUrl
-						// 		: resp?.data?.preview,
 						preview: fileUploadRes?.data?.presignedUrl,
 					};
-					// console.log(fileUploadRes?.data?.presignedUrl);
 					addCacheDocumentTemp(newFile);
 				} else {
 					formData.append('document', filesToUpload.file);
@@ -250,7 +239,7 @@ const InputFieldSingleFileUpload = props => {
 								// window.open('https://www.google.com', '_blank');
 							}}
 						>
-							{uploadedFile?.name}
+							{uploadedFile?.name || uploadedFile?.file?.filename}
 						</UI.UploadedFileName>
 						{loading ? (
 							<UI.UploadIconWrapper>

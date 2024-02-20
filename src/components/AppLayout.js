@@ -124,7 +124,6 @@ const AppLayout = () => {
 			const isViewLoan = !isEditLoan && !decryptedToken?.create;
 			// log for reference
 			// TODO: Bikash - remove this log once leads is verified by QA team
-			console.log({ decryptedToken });
 			// set the values for new flow
 			dispatch(setUserToken(decryptedToken?.token));
 			// if (!decryptedToken?.token) {

@@ -38,25 +38,24 @@ const Col = styled.div`
 `;
 
 export default function TableModal({ show, onClose, details, heading }) {
-	// useEffect(() => {
-	// 	console.log(details);
-	// });
 	return (
 		<Modal show={show} onClose={onClose} width='50%'>
-			<>
-				<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
-				<Div>
-					<Header>{heading}</Header>
-					<>
-						{Object.entries(details).map(([key, value]) => (
-							<Row key={key}>
-								<Col>{key}</Col>
-								<Col>{value}</Col>
-							</Row>
-						))}
-					</>
-				</Div>
-			</>
+			{Object.entries(details)?.length > 0 && (
+				<>
+					<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
+					<Div>
+						<Header>{heading}</Header>
+						<>
+							{Object.entries(details).map(([key, value]) => (
+								<Row key={key}>
+									<Col>{key}</Col>
+									<Col>{value}</Col>
+								</Row>
+							))}
+						</>
+					</Div>
+				</>
+			)}
 		</Modal>
 	);
 }

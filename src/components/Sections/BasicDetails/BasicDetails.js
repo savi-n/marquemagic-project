@@ -70,9 +70,8 @@ import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian
 import DataDeletionWarningModal from './DataDeletionWarningModal';
 import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload/InputFieldSingleFileUpload';
-// import Udyam from './Udyam';
-// import UdyamModal from './UdyamModal';
 import TableModal from './TableModal';
+import { getDocumentNameFromLoanDocuments } from 'utils/formatData';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -163,27 +162,13 @@ const BasicDetails = props => {
 	const [customerId, setCustomerId] = useState('');
 
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
-	const [udyamOrganisationDetails, setUdyamOrganisationDetails] = useState({
-		status: '',
-		statusCode: '',
-		requestId: null,
-		resCode: '',
-		message: '',
-		data: null,
-	});
-
-	// organisation_name: '',
-	// date_of_incorporation: '',
-	// date_of_registration: '',
-	// organisation_type: '',
-	// business_address: '',
-	// mobile_number: '',
+	const [fetchedUdyamDoc, setFetchedUdyamDoc] = useState();
+	const [udyamOrganisationDetails, setUdyamOrganisationDetails] = useState({});
 	const [udyamDocumentTemp, setudyamDocumentTemp] = useState([]);
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
 	// );
-	// const [showUdyamDetailsButton, setShowUdyamDetailsButton] = useState(false);
 	const [isUdyamModalOpen, setIsUdyamModalOpen] = useState(false);
 	const [isUdyamButtonEnable, setIsUdyamButtonEnable] = useState(false);
 
@@ -376,15 +361,6 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// useEffect(() => {
-	// 	console.log(
-	// 		// 'udyamDocumentTemp',
-	// 		// udyamDocumentTemp,
-	// 		// 'cacheDocumentTemp',
-	// 		// cacheDocumentsTemp,
-	// 		// selectedSection?.sub_sections?.[0]?.fields?.
-	// 	);
-	// }, [udyamDocumentTemp]);
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const selectedDedupeData =
@@ -811,8 +787,8 @@ const BasicDetails = props => {
 		}
 	};
 
-	// const udyamNumberRes = '';
 	// Udyam Number - UDYAM-KL-06-0000002
+	// Handling Udyam number and its response, only toggle button, if data is succesfully fetched
 	const onUdyamNumberEnter = async udyam => {
 		try {
 			const udyamErrorMessage = isInvalidUdyam(udyam);
@@ -823,14 +799,7 @@ const BasicDetails = props => {
 				});
 			}
 			setLoading(true);
-			// axios.get(`${VERIFY_UDYAM_NUMBER}`, {
-			// 	params: {
-			// 		udyamRegNo: `${udyam}`,
-			// 	},
-			// 	headers: {
-			// 		Authorization: clientToken,
-			// 	},
-			// });
+
 			const udyamNumberRes = await axios.get(`${VERIFY_UDYAM_NUMBER}`, {
 				params: {
 					udyamRegNo: `${udyam}`,
@@ -840,32 +809,23 @@ const BasicDetails = props => {
 				},
 			});
 
-			if (udyamNumberRes.data.status === 'ok') {
+			if (udyamNumberRes?.data?.data !== null) {
 				addToast({
 					message: 'Udyam number is validated',
 					type: 'success',
 				});
 
-				// setUdyamOrganisationDetails(udyamNumberRes.data);
-				// setUdyamOrganisationDetails(prevState => ({
-				// 	...prevState,
-				// 	organisation_name: udyamNumberRes.data.nameOfEnterprise,
-				// 	date_of_incorporation: udyamNumberRes.data.dateOfIncorporation,
-				// 	date_of_registration: udyamNumberRes.data.dateOfUdyamRegistration,
-				// 	organisation_type: udyamNumberRes.data.organisationType,
-				// 	business_address: udyamNumberRes.data.officialAddress,
-				// 	mobile_number: udyamNumberRes.data.officialAddress.Mobile,
-				// }));
-				setUdyamOrganisationDetails(prevState => ({
-					...prevState,
-					requestId: udyamNumberRes.data.requestId,
-					resCode: udyamNumberRes.data.resCode,
-					message: udyamNumberRes.data.message,
-					// data: udyamNumberRes.data.data,
-				}));
+				setUdyamOrganisationDetails({
+					organisation_name: udyamNumberRes.data.data.nameOfEnterprise,
+					date_of_incorporation: udyamNumberRes.data.data.dateOfIncorporation,
+					date_of_registration:
+						udyamNumberRes.data.data.dateOfUdyamRegistration,
+					organisation_type: udyamNumberRes.data.data.organisationType,
+				});
+				setIsUdyamButtonEnable(true);
 			}
-			console.log(udyamOrganisationDetails);
-			// udyamNumberRes = { ...udyamNumberDetails };
+			// business_address: udyamNumberRes.data.data.officialAddress,
+			// mobile_number: udyamNumberRes.data.officialAddress.Mobile,
 		} catch (error) {
 			console.error(error);
 			addToast({
@@ -878,6 +838,7 @@ const BasicDetails = props => {
 		}
 	};
 
+	//Handle udyam doc similar to cache, but while removing, set the fetchedState to null
 	const addUdyamDocumentTemp = file => {
 		const newUdyamDocTemp = _.cloneDeep(udyamDocumentTemp);
 		newUdyamDocTemp.push(file);
@@ -893,46 +854,15 @@ const BasicDetails = props => {
 				newUdyamDocTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
 		}
-		//Set the udyam document to null in section data
-		//Refer basicdetails
+		setFetchedUdyamDoc();
 	};
-
-	// const UdyamDocumentFileOnUpload =
-	// 	udyamDocumentTemp?.filter(
-	// 		doc => doc?.field?.name === 'udyam_upload'
-	// 	)?.[0] || null;
-
-	// const selectedUdyamDocumentFile = UdyamDocumentFileOnUpload;
-
-	// const selectedImdDocument = sectionData?.imd_details?.imd_document
-	// 	? {
-	// 			...sectionData?.imd_details?.imd_document,
-	// 			name: getDocumentNameFromLoanDocuments(
-	// 				sectionData?.imd_details?.imd_document
-	// 			),
-	// 			document_id: sectionData?.imd_details?.doc_id,
-	// 	  }
-	// 	: null;
-
-	// const selectedUdyamDocument = UdyamDocumentFileOnUpload.name
-	// 	? UdyamDocumentFileOnUpload
-	// 	: selectedUdyamDocument;
 
 	const udyamUploadedFile =
 		udyamDocumentTemp?.filter(
 			doc => doc?.field?.name === 'udyam_upload'
-		)?.[0] || null;
-
-	useEffect(() => {
-		console.log(
-			selectedSection?.sub_sections?.[0]?.fields?.filter(
-				field => field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
-			)?.[0]
-		);
-	});
-	// const isUdyamumberField =
-	// 	selectedSection?.sub_sections?.[0]?.fields?.['udyam_number'];
-	// console.log(isUdyamumberField);
+		)?.[0] ||
+		fetchedUdyamDoc ||
+		null;
 
 	//OnSaveAndProced
 	const onSaveAndProceed = async () => {
@@ -997,65 +927,25 @@ const BasicDetails = props => {
 				  }
 				: profileUrl;
 
-			// const udyamDocField = selectedSection?.sub_sections?.[0]?.fields?.filter(
-			// 	field => field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
-			// )?.[0];
-
-			// const isNewUdyamFileUploaded = !!udyamUploadedFile?.file;
-			// console.log(
-			// 	'udyamUplaodedFile',
-			// 	udyamUploadedFile,
-			// 	'udyamDocField',
-			// 	udyamDocField
-			// );
-			// let udyamFileUrl = udyamUploadedFile?.preview || '';
-			// const udyamDocFieldValue = isNewUdyamFileUploaded
-			// 	? {
-			// 			...udyamUploadedFile?.file,
-			// 			doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
-			// 			is_delete_not_allowed:
-			// 				udyamDocField?.is_delete_not_allowed === true ? true : false,
-			// 	  }
-			// 	: udyamFileUrl;
-
-			// console.log('udyamDocFieldValueBeforeFormatting', udyamDocFieldValue);
-			// console.log('profileFieldValue', profileFieldValue);
-			// const isNewUdyamUploaded = !!
+			//Udyam Upload file is managed to finally send in the basic request body,
+			//It accepts either file if available else, preview value is taken
 
 			const udyamDocField = selectedSection?.sub_sections?.[0]?.fields?.filter(
-				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+				field => field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
 			)?.[0];
-			//----------------------------------------------------------------------------------
-			// const isNewUdyamUploaded = !!udyamUploadedFile?.file;
-			// console.log(
-			// 	'isNewUdyamUploaded',
-			// 	isNewUdyamUploaded,
-			// 	'udyamUploadedFile',
-			// 	udyamUploadedFile
-			// );
-			//----------------------------------------------------------------------------------
-			// let udyamUrl = udyamUploadedFile?.preview || '';
-			const udyamDocFieldValue = {
-				...udyamUploadedFile?.file,
-				doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
-				is_delete_not_allowed:
-					udyamDocField?.is_delete_not_allowed === true ? true : false,
-			};
-			//---------------------------------------------------------------------------------
-			// const udyamDocFieldValue = {
-			// 	...udyamUploadedFile?.file,
-			// 	doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
-			// 	is_delete_not_allowed:
-			// 		udyamDocField?.is_delete_not_allowed === true ? true : false,
-			// };
-			// console.log('udyamDocFieldValue', udyamDocFieldValue);
-			// console.log(
-			// 	'cacheDoc',
-			// 	cacheDocumentsTemp,
-			// 	'udyamDoc',
-			// 	udyamDocumentTemp
-			// );
-			//----------------------------------------------------------------------------------
+
+			const isNewUdyamUplaoded = !!udyamUploadedFile?.file;
+			let udyamUrl = udyamUploadedFile?.preview || '';
+
+			const udyamDocFieldValue = isNewUdyamUplaoded
+				? {
+						...udyamUploadedFile?.file,
+						doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
+						is_delete_not_allowed:
+							udyamDocField?.is_delete_not_allowed === true ? true : false,
+				  }
+				: udyamUrl;
+
 			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
@@ -1071,7 +961,6 @@ const BasicDetails = props => {
 						},
 					// : {},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
-					[CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME]: {},
 				},
 				app,
 				selectedDirector,
@@ -1091,78 +980,11 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
-
 			if (leadId) basicDetailsReqBody.lead_id = leadId;
-			// //----------------------------------------------------------------------------------
-			// // let udyam_doc_id = '';
-			// if (udyamDocumentTemp.length > 0) {
-			// 	try {
-			// 		const uploadUdyamDocTemp = [];
-			// 		const applicant =
-			// 			(!!directors &&
-			// 				Object.values(directors)?.filter(
-			// 					dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
-			// 				)?.[0]) ||
-			// 			{};
-			// 		udyamDocumentTemp?.map(doc => {
-			// 			uploadUdyamDocTemp.push({
-			// 				...doc,
-			// 				loan_id: loanId,
-			// 				preview: null,
-			// 				is_delete_not_allowed:
-			// 					doc?.field?.is_delete_not_allowed === true ? true : false,
-			// 				directorId:
-			// 					`${selectedProduct?.loan_request_type}` === '1'
-			// 						? 0
-			// 						: +applicant?.directorId,
-			// 			});
-			// 			return null;
-			// 		});
 
-			// 		if (uploadUdyamDocTemp.length) {
-			// 			const udyamUploadReqBody = {
-			// 				...basicDetailsReqBody,
-			// 				data: {
-			// 					document_upload: uploadUdyamDocTemp,
-			// 				},
-			// 			};
-			// 			console.log('udyamDocUploadReqBody -', udyamUploadReqBody);
-			// 			const borrowerDocUploadRes = await axios.post(
-			// 				`${API.BORROWER_UPLOAD_URL}`,
-			// 				udyamUploadReqBody
-			// 			);
-			// 			console.log('borrowerDocUploadRes -', borrowerDocUploadRes);
-
-			// const updateDocumentIdToUdyamDocuments = [];
-			// uploadUdyamDocTemp.map(udyamDoc => {
-			// 	const resDoc =
-			// 		borrowerDocUploadRes?.data?.data?.filter(
-			// 			resDoc => resDoc?.doc_name === udyamDoc?.document_key
-			// 		)?.[0] || {};
-			// 	const newDoc = {
-			// 		...resDoc,
-			// 		...udyamDoc,
-			// 		isDocRemoveAllowed: false,
-			// 		document_id: resDoc?.id,
-			// 	};
-			// 	udyam_doc_id = resDoc?.id;
-			// 	updateDocumentIdToUdyamDocuments.push(newDoc);
-			// 	return null;
-			// });
-			// console.log('updateDocumentIdToUdyamDocuments-', {
-			// 	updateDocumentIdToUdyamDocuments,
-			// });
-			// 	}
-			// } catch (error) {
-			// 	console.error('error - ', error);
-			// }
-			// }
-
-			// if udyam doc id exist then set in the request
-
-			// 	if (udyam_doc_id) {
-			// 		basicDetailsReqBody.data.imd_details.doc_id = udyam_doc_id;
-			//	 }
+			if (udyamUploadedFile) {
+				basicDetailsReqBody.data.basic_details.udyam_document = udyamDocFieldValue;
+			}
 
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
@@ -2118,6 +1940,21 @@ const BasicDetails = props => {
 					}
 				}
 
+				//Since the fetched udyam document doesnt have name and document_id, they are manually set and then used in InputFieldSingleFileUpload.
+				const fetchedUdyamDocData =
+					fetchRes?.data?.data?.director_details?.udyam_document;
+				if (
+					fetchedUdyamDocData &&
+					Object.keys(fetchedUdyamDocData)?.length > 0
+				) {
+					const udyamDoc = {
+						...fetchedUdyamDocData,
+						name: getDocumentNameFromLoanDocuments(fetchedUdyamDocData),
+						document_id: fetchedUdyamDocData.id,
+					};
+					setFetchedUdyamDoc(udyamDoc);
+				}
+
 				const fetchedProfilePicData =
 					fetchRes?.data?.data?.director_details?.customer_picture;
 
@@ -2329,22 +2166,6 @@ const BasicDetails = props => {
 							selectedDirectorId={selectedDirectorId}
 						/>
 					)}
-
-					{/* <Modal show={isUdyamModalOpen} onClose={() => setIsUdyamModalOpen(false)}>
-						<section>
-							<div>
-								<h2>This is heading</h2>
-							</div>
-						</section>
-					</Modal> */}
-
-					{/* <UdyamModal
-						show={isUdyamModalOpen}
-						onClose={() => {
-							setIsUdyamModalOpen(false);
-						}}
-						udyamOrganisationDetails={udyamOrganisationDetails}
-					/> */}
 
 					<TableModal
 						show={isUdyamModalOpen}
@@ -2635,12 +2456,10 @@ const BasicDetails = props => {
 												loading ||
 												!!completedSections?.includes(selectedSectionId);
 											customFieldPropsSubfields.onClick = event => {
-												onUdyamNumberEnter(formState.values?.['udyam_number']);
-												setIsUdyamButtonEnable(true);
+												onUdyamNumberEnter(
+													formState.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]
+												);
 											};
-											// customFieldPropsSubfields.rules.
-											// const udyamNumber = 'UDYAM-KL-06-0000002';
-											// onUdyamEnter(udyamNumber);
 											customFieldPropsSubfields.disabled =
 												loading ||
 												!!completedSections?.includes(selectedSectionId);
@@ -2649,7 +2468,7 @@ const BasicDetails = props => {
 										//Udyam Document Upload Handling
 										if (
 											field.type === 'file' &&
-											field.name === 'udyam_upload'
+											field.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
 										) {
 											const selectedDocTypeId =
 												field?.doc_type?.[selectedIncomeType];
@@ -2658,17 +2477,6 @@ const BasicDetails = props => {
 													formState?.touched?.[field.name]) &&
 												formState?.error?.[field.name];
 
-											//DEpending
-											// if (isEditOrViewLoan) {
-											// 	const imd_document_id = prefilledEditOrViewLoanValues(
-											// 		field
-											// 	);
-											// 	editLoanUploadedFile =
-											// 		cacheDocuments?.filter(
-											// 			doc =>
-											// 				`${doc?.document_id}` === `${imd_document_id}`
-											// 		)?.[0] || null;
-											// }
 											return (
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${fieldIndex}-${field.name}`}
@@ -2683,7 +2491,6 @@ const BasicDetails = props => {
 														errorColorCode={errorMessage ? 'red' : ''}
 														isFormSubmited={!!formState?.submit?.isSubmited}
 														category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
-														// classification_type='udyam'
 													/>
 													{errorMessage && (
 														<UI_SECTIONS.ErrorMessage>
@@ -2873,24 +2680,28 @@ const BasicDetails = props => {
 									//Add checks for Udyam Number And Udyam Document
 									const isPresentUdyamFile = udyamUploadedFile;
 									const isUdyamNumberPresent =
-										formState?.values?.['udyam_number'];
+										formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME];
 									if (
-										formState?.values?.['udyam_registered'] === 'Waiver' &&
+										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
+											'Waiver' &&
 										!isPresentUdyamFile
 									) {
 										addToast({
 											message: 'Udyam Document is Mandatory',
 											type: 'error',
 										});
+										return;
 									}
 									if (
-										formState?.values?.['udyam_registered'] === 'Yes' &&
+										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
+											'Yes' &&
 										!isUdyamNumberPresent
 									) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',
 										});
+										return;
 									}
 
 									// director id will be present in case of aplicant / coapplicant if they move out of basic details page
