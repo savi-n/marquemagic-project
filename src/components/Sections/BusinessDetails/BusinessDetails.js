@@ -141,8 +141,6 @@ const BusinessDetails = props => {
 	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
 		false
 	);
-
-	const [leadData, setleadData] = useState({});
 	// const [leadData, setleadData] = useState({});
 	const [companyList, setCompanyList] = useState([]);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);

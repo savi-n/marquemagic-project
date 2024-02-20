@@ -34,7 +34,6 @@ const DynamicForm = props => {
 		assets,
 		loan_assets_id,
 		selectCollateralFieldOptions,
-		sectionData,
 		totalPercentShare,
 	} = props;
 
@@ -173,13 +172,6 @@ const DynamicForm = props => {
 				});
 				return;
 			}
-
-			// 	addToast({
-			// 		message: 'Percent share should not exceed 100%.',
-			// 		type: 'error',
-			// 	});
-			// 	return;
-			// }
 
 			if (
 				(cityField?.rules?.required === true &&
