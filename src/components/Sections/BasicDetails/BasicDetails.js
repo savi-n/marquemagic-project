@@ -606,6 +606,7 @@ const BasicDetails = props => {
 		const existingDirectorWithMobile = Object.values(directorsObject)?.find(
 			director =>
 				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dcontact &&
 				director?.dcontact === formStateMobileNumber
 		);
 
@@ -636,6 +637,7 @@ const BasicDetails = props => {
 		const existingDirectorWithPanNumber = Object.values(directorsObject)?.find(
 			director =>
 				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dpancard &&
 				director?.dpancard === formStatePanNumber
 		);
 
