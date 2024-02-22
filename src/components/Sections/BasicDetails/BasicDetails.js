@@ -175,8 +175,9 @@ const BasicDetails = props => {
 	// 	selectedProduct
 	// );
 	const [isUdyamModalOpen, setIsUdyamModalOpen] = useState(false);
-	const [isUdyamButtonEnable, setIsUdyamButtonEnable] = useState(false);
+	const [isUdyamButtonEnable, setIsUdyamButtonEnable] = useState(true);
 
+	// const [requestIdValue, setRequestIdValue] = useState();
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -365,6 +366,10 @@ const BasicDetails = props => {
 		saveMandatoryGeoLocation();
 		// eslint-disable-next-line
 	}, []);
+
+	// useEffect(() => {
+	// 	console.log(requestIdValue, 'requets idvalue');
+	// }, [requestIdValue]);
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -792,6 +797,51 @@ const BasicDetails = props => {
 		}
 	};
 
+	let requestIdValue = '';
+	let address = {
+		'Flat/Door/Block No.': '-',
+		'Village/Town': 'kadalavila nellikunnam po',
+		'Road/Street/Lane': '-',
+		State: 'KERALA',
+		Mobile: '97***088',
+		'Name of Premises/ Building': 'Pazahayavilayil',
+		Block: 'Kottarakara',
+		City: 'kollam',
+		District: 'KOLLAM',
+		'Email:': 'binsonbabuktr1995@gmail.com',
+		'Pin:': '691506',
+	};
+
+	// const objectToCommaSeparatedString = obj => {
+	// 	// Use Object.entries to get an array of key-value pairs
+	// 	const entries = Object.entries(obj);
+
+	// 	console.log(entries);
+	// 	console.log(entries.filter(field => field.name !== 'Email' || 'Mobile'));
+	// 	// Use map to create an array of strings for each key-value pair
+	// 	const keyValueStrings = entries.map(([key, value]) => `${key}: ${value}\n`);
+
+	// 	// Use join to combine all the strings into one, separated by commas
+	// 	return keyValueStrings;
+	// 	// .join('');
+	// };
+
+	const objectToCommaSeparatedString = obj => {
+		const entries = Object.entries(obj);
+
+		const filteredEntries = entries.filter(
+			([key]) => key !== 'Email:' && key !== 'Mobile'
+		);
+		const keyValueStrings = filteredEntries.map(
+			([key, value]) => `${key}: ${value}\n`
+		);
+
+		return keyValueStrings;
+		// .join('');
+	};
+
+	const address_join_details = objectToCommaSeparatedString(address);
+	// let request_id = '';
 	// Udyam Number - UDYAM-KL-06-0000002
 	// Handling Udyam number and its response, only toggle button, if data is succesfully fetched
 	const onUdyamNumberEnter = async udyam => {
@@ -804,7 +854,7 @@ const BasicDetails = props => {
 				});
 			}
 			setLoading(true);
-
+			setIsUdyamButtonEnable(true);
 			const udyamNumberRes = await axios.get(`${VERIFY_UDYAM_NUMBER}`, {
 				params: {
 					udyamRegNo: `${udyam}`,
@@ -814,21 +864,26 @@ const BasicDetails = props => {
 				},
 			});
 
+			// console.log(udyamNumberRes.data.request_id);
 			if (udyamNumberRes?.data?.data !== null) {
 				addToast({
 					message: 'Udyam number is validated',
 					type: 'success',
 				});
 
-				setUdyamOrganisationDetails({
-					organisation_name: udyamNumberRes.data.data.nameOfEnterprise,
-					date_of_incorporation: udyamNumberRes.data.data.dateOfIncorporation,
-					date_of_registration:
-						udyamNumberRes.data.data.dateOfUdyamRegistration,
-					organisation_type: udyamNumberRes.data.data.organisationType,
-				});
+				// setUdyamOrganisationDetails({
+				// 	organisation_name: udyamNumberRes.data.data.nameOfEnterprise,
+				// 	date_of_incorporation: udyamNumberRes.data.data.dateOfIncorporation,
+				// 	date_of_registration:
+				// 		udyamNumberRes.data.data.dateOfUdyamRegistration,
+				// 	organisation_type: udyamNumberRes.data.data.organisationType,
+				// });
 				setIsUdyamButtonEnable(true);
 			}
+			// setRequestIdValue(udyamNumberRes.data.request_id);
+			requestIdValue = udyamNumberRes.data.request_id;
+			// console.log(requestIdValue, 'requestidvalue');
+			setUdyamOrganisationDetails({ business_address: address_join_details });
 			// business_address: udyamNumberRes.data.data.officialAddress,
 			// mobile_number: udyamNumberRes.data.officialAddress.Mobile,
 		} catch (error) {
@@ -1086,8 +1141,11 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.udyam_document = udyamDocFieldValue;
 			}
 
+			basicDetailsReqBody.data.basic_details.udyam_trans_id = requestIdValue;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
+				// 'https://4dab-49-204-92-162.ngrok-free.app/basic_details',
 				basicDetailsReqBody
 			);
 			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
@@ -2570,23 +2628,6 @@ const BasicDetails = props => {
 												!!completedSections?.includes(selectedSectionId);
 										}
 
-										//Udyam Number Input Handling
-										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
-											customFieldPropsSubfields.loading = loading;
-											// setShowUdyamDetailsButton(true);
-											customFieldProps.disabled =
-												loading ||
-												!!completedSections?.includes(selectedSectionId);
-											customFieldPropsSubfields.onClick = event => {
-												onUdyamNumberEnter(
-													formState.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]
-												);
-											};
-											customFieldPropsSubfields.disabled =
-												loading ||
-												!!completedSections?.includes(selectedSectionId);
-										}
-
 										//Udyam Document Upload Handling
 										if (
 											field.type === 'file' &&
@@ -2705,6 +2746,22 @@ const BasicDetails = props => {
 															customFieldPropsSubfields.onClick = () =>
 																setIsUcicSearchModalOpen(true);
 														}
+
+														//Udyam Number Input Handling
+														if (subField?.name === 'udyam_fetch') {
+															customFieldPropsSubfields.placeholder = 'Trigger';
+															customFieldPropsSubfields.loading = loading;
+
+															customFieldPropsSubfields.onClick = () => {
+																onUdyamNumberEnter(
+																	formState.values?.[
+																		CONST.UDYAM_NUMBER_FIELD_NAME
+																	]
+																);
+															};
+															customFieldPropsSubfields.disabled = loading;
+														}
+
 														return (
 															!subField?.is_prefix &&
 															register({

@@ -31,10 +31,24 @@ const Header = styled.div`
 	text-align: center;
 `;
 
-const Col = styled.div`
+const Col1 = styled.div`
 	flex: 1;
 	font-size: 15px;
 	font-weight: 500;
+	padding-left: 20px;
+	text-transform: capitalize;
+	font-weight: bold;
+	/* text-align: center; */
+	display: flex;
+	align-items: center;
+`;
+
+const Col2 = styled.div`
+	flex: 1;
+	font-size: 15px;
+	font-weight: 500;
+	white-space: pre-wrap;
+	word-spacing: 2px;
 `;
 
 export default function TableModal({ show, onClose, details, heading }) {
@@ -48,8 +62,8 @@ export default function TableModal({ show, onClose, details, heading }) {
 						<>
 							{Object.entries(details).map(([key, value]) => (
 								<Row key={key}>
-									<Col>{key}</Col>
-									<Col>{value}</Col>
+									<Col1>{key}</Col1>
+									<Col2>{value}</Col2>
 								</Row>
 							))}
 						</>
