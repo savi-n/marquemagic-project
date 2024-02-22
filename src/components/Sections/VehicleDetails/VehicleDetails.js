@@ -201,8 +201,8 @@ const VehicleDetails = props => {
 	}, []);
 
 	const isSectionDisplayType = () => {
-		const field = selectedSection?.sub_sections?.[0]?.fields.filter(
-			field => field.name === 'section_category_for'
+		const field = selectedSection?.sub_sections?.[0]?.fields?.filter(
+			field => field?.name === CONST.FIELD_NAME_SECTION_CATEGORY_FOR
 		);
 		if (field?.length > 0) setIsDisplaySectionType(true);
 	};
@@ -250,8 +250,10 @@ const VehicleDetails = props => {
 												? '0'
 												: `${section?.director_id}`,
 										...(section || {}),
-										type_of_funding_used:section.loan_json.rc_verification.type_of_funding|| '',
-										type_of_funding_new:section.loan_json.rc_verification.type_of_funding|| '',
+										type_of_funding_used:
+											section.loan_json.rc_verification.type_of_funding || '',
+										type_of_funding_new:
+											section.loan_json.rc_verification.type_of_funding || '',
 								  }
 								: {};
 							const isEquipment = !!prefillData?.equipment_type;
@@ -278,7 +280,7 @@ const VehicleDetails = props => {
 													<UI_SECTIONS.AccordianHeaderData>
 														<span>
 															{selectedSection?.name ===
-															'Vehicle/Equipment Details'
+															CONST.SELECTD_SECTION_NAME
 																? `${
 																		isEquipment ? 'Equipment' : 'Vehicle'
 																  } For:`
@@ -294,7 +296,7 @@ const VehicleDetails = props => {
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>
 														{selectedSection?.name ===
-														'Vehicle/Equipment Details'
+														CONST.SELECTD_SECTION_NAME
 															? `Type of ${
 																	isEquipment ? 'Equipment' : 'Vehicle'
 															  }`
