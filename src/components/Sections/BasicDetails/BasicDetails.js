@@ -880,12 +880,6 @@ const BasicDetails = props => {
 				) {
 					extractUdyamDetails(udyamDetailRes?.data?.data);
 					setDetails(udyamDetailRes?.data?.data);
-					console.log(
-						'udyamDetailRes?.data?.data',
-						udyamDetailRes?.data?.data,
-						'details',
-						details
-					);
 				} else {
 					addToast({
 						message: 'Please enter / trigger Udyam Number to proceed',
