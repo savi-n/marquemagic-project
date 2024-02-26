@@ -60,6 +60,7 @@ import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusi
 import { isInvalidPan } from 'utils/validation';
 import DedupeAccordian from './DedupeComponents/DedupeAccordian';
 import DataDeletionWarningModal from '../BasicDetails/DataDeletionWarningModal';
+import CompanySelectModal from 'components/CompanySelectModal';
 
 const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -94,6 +95,7 @@ const BusinessDetails = props => {
 		dedupePrefilledValues,
 		geoLocation,
 		leadId,
+		leadAllDetails,
 	} = application;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
@@ -102,7 +104,6 @@ const BusinessDetails = props => {
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
-
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
@@ -140,6 +141,10 @@ const BusinessDetails = props => {
 	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
 		false
 	);
+	// const [leadData, setleadData] = useState({});
+	const [companyList, setCompanyList] = useState([]);
+	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
+	const [panFetchData, setPanFetchData] = useState({});
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -329,7 +334,10 @@ const BusinessDetails = props => {
 				{ headers: { Authorization: clientToken } }
 			);
 			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
-
+			setPanFetchData({
+				panNumber: pan,
+				companyName: panExtractionMsg?.upstreamName,
+			});
 			// IF PAN NAME
 			if (panExtractionMsg?.upstreamName) {
 				// 2.PAN to GST
@@ -363,55 +371,54 @@ const BusinessDetails = props => {
 				}
 
 				// 3. COMPANY SEARCH
-				const companyNameSearchRes = await axios.post(API.SEARCH_COMPANY_NAME, {
-					search: panExtractionMsg?.upstreamName.trim(),
-				});
+				await companyNameSearch(panExtractionMsg?.upstreamName.trim());
+				// if (newCompanyList?.length > 0) {
+				setIsCompanyListModalOpen(true);
+				// }
+				// if (newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER) {
+				// 	try {
+				// 		// console.log({ newCompanyList });
+				// 		// 4.ROC
+				// 		const cinNumberResponse = await axios.post(
+				// 			API.ROC_DATA_FETCH,
+				// 			{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
+				// 			{
+				// 				headers: {
+				// 					Authorization: clientToken,
+				// 				},
+				// 			}
+				// 		);
 
-				const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
-				if (newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER) {
-					try {
-						// console.log({ newCompanyList });
-						// 4.ROC
-						const cinNumberResponse = await axios.post(
-							API.ROC_DATA_FETCH,
-							{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
-							{
-								headers: {
-									Authorization: clientToken,
-								},
-							}
-						);
+				// 		const companyData = cinNumberResponse?.data?.data;
+				// 		// companyData.gstin = gstinData;
+				// 		const formattedCompanyData = formatCompanyRocData(companyData, pan);
+				// 		cinNumberResponse && setCompanyRocData(formattedCompanyData);
 
-						const companyData = cinNumberResponse?.data?.data;
-						// companyData.gstin = gstinData;
-						const formattedCompanyData = formatCompanyRocData(companyData, pan);
-						cinNumberResponse && setCompanyRocData(formattedCompanyData);
+				// 		onChangeFormStateField({
+				// 			name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
+				// 			value: formattedCompanyData?.BusinessVintage || '',
+				// 		});
+				// 		onChangeFormStateField({
+				// 			name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
+				// 			value: formattedCompanyData?.Email || '',
+				// 		});
 
-						onChangeFormStateField({
-							name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
-							value: formattedCompanyData?.BusinessVintage || '',
-						});
-						onChangeFormStateField({
-							name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
-							value: formattedCompanyData?.Email || '',
-						});
-
-						onChangeFormStateField({
-							name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
-							value: formattedCompanyData?.BusinessType || '1' || '',
-						});
-					} catch (err) {
-						addToast({
-							message:
-								'Unable to fetch the data from ROC. Please continue to fill the details.',
-							// || error?.message ||
-							// 'ROC search failed, try again',
-							type: 'error',
-						});
-					} finally {
-						setLoading(false);
-					}
-				}
+				// 		onChangeFormStateField({
+				// 			name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+				// 			value: formattedCompanyData?.BusinessType || '1' || '',
+				// 		});
+				// 	} catch (err) {
+				// 		addToast({
+				// 			message:
+				// 				'Unable to fetch the data from ROC. Please continue to fill the details.',
+				// 			// || error?.message ||
+				// 			// 'ROC search failed, try again',
+				// 			type: 'error',
+				// 		});
+				// 	} finally {
+				// 		setLoading(false);
+				// 	}
+				// }
 
 				//END IF PAN NAME
 			}
@@ -424,6 +431,87 @@ const BusinessDetails = props => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const companyNameSearch = async companyName => {
+		try {
+			setLoading(true);
+			const companyNameReqBody = {
+				search: companyName?.trim(),
+			};
+			const companyNameSearchRes = await axios.post(
+				API.SEARCH_COMPANY_NAME,
+				companyNameReqBody
+			);
+			const newCompanyList = companyNameSearchRes?.data?.data || [];
+			setCompanyList(newCompanyList);
+			return newCompanyList;
+		} catch (error) {
+			console.error('error-companyNameSearch-', error);
+			addToast({
+				message: error.message || 'Company search failed, try again',
+				type: 'error',
+			});
+			return [];
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const cinNumberFetch = async cinNumber => {
+		try {
+			setLoading(true);
+			const cinFetchReqBody = {
+				cin_number: cinNumber,
+			};
+			const cinNumberResponse = await axios.post(
+				API.ROC_DATA_FETCH,
+				cinFetchReqBody,
+				{
+					headers: {
+						Authorization: clientToken,
+					},
+				}
+			);
+			const companyData = cinNumberResponse?.data?.data;
+			const formattedCompanyData = formatCompanyRocData(
+				companyData,
+				formState?.values?.['pan_number']
+			);
+			cinNumberResponse && setCompanyRocData(formattedCompanyData);
+
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
+				value: formattedCompanyData?.BusinessVintage || '',
+			});
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
+				value: formattedCompanyData?.Email || '',
+			});
+
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+				value: formattedCompanyData?.BusinessType || '1' || '',
+			});
+		} catch (error) {
+			setLoading(false);
+			addToast({
+				message:
+					'Unable to fetch the data from ROC. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+			console.error('error-cinnumberfetch-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const onCompanySelect = async cinNumber => {
+		setIsCompanyListModalOpen(false);
+		setLoading(true);
+		await cinNumberFetch(cinNumber);
 	};
 
 	// const selectedMainOptionId = allIndustriesOption?.filter(item => {
@@ -726,9 +814,7 @@ const BusinessDetails = props => {
 				`${API.API_END_POINT}/dedupe_check`,
 				dedupeReqBody
 			);
-			console.log(fetchDedupeRes, 'fetch dedupe res');
 			if (fetchDedupeRes?.data?.status === 'ok') {
-				console.log('ok data');
 				setDedupeModalData(fetchDedupeRes?.data?.data);
 			}
 		} catch (error) {
@@ -769,7 +855,7 @@ const BusinessDetails = props => {
 				...sectionData?.business_details,
 				...sectionData?.loan_data,
 				...sectionData?.user_data,
-				business_email: sectionData?.user_data?.email,
+				business_email: sectionData?.user_data?.email || leadAllDetails?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 				// industry_type:
@@ -777,11 +863,15 @@ const BusinessDetails = props => {
 				// 	sectionData?.business_details?.businessindustry || '',
 				businesspancardnumber:
 					sectionData?.business_details?.businesspancardnumber ||
-					dedupeData?.pan_number,
+					dedupeData?.pan_number ||
+					leadAllDetails?.pan_number,
 
 				// userdata - (Savitha confirmed about the below prefilling data)
 				// fieldName : business mobile number - dbKey: contact  || prefillData : userData.contact
-				contact: sectionData?.user_data?.contact || dedupeData?.mobile_no,
+				contact:
+					sectionData?.user_data?.contact ||
+					dedupeData?.mobile_no ||
+					leadAllDetails?.mobile_no,
 
 				// businessdata - (Savitha confirmed about the below prefilling data)
 				// fieldName: mobile_no - dbKey: contactno || prefillData : prefilData: businessDetails.contactno
@@ -802,11 +892,19 @@ const BusinessDetails = props => {
 				businessstartdate:
 					companyRocData?.DateOfIncorporation ||
 					sectionData?.business_details?.businessstartdate ||
+					leadAllDetails?.business_vintage ||
 					'',
 				customer_id:
 					sectionData?.business_details?.additional_cust_id ||
 					sectionData?.business_details?.customer_id ||
 					'',
+				businessname:
+					sectionData?.business_details?.businessname ||
+					leadAllDetails?.business_name,
+				// contact:sectionData?.business_details?.contact || leadAllDetails?.mobile_no ,
+				udyam_number:
+					sectionData?.business_details?.udyam_number ||
+					leadAllDetails?.udyam_number,
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
@@ -819,7 +917,6 @@ const BusinessDetails = props => {
 			});
 		}
 	};
-
 	const validateToken = async () => {
 		try {
 			const params = queryString.parse(window.location.search);
@@ -974,6 +1071,28 @@ const BusinessDetails = props => {
 			setFetchingSectionData(false);
 		}
 	};
+	// const fetchleaddata = async () => {
+	// 	try {
+	// 	  setFetchingSectionData(true);
+	// 	  const fetchRes = await axios.get(`${API_END_POINT}/leadsData`, {
+	// 		params: {
+	// 		  id: leadId,
+	// 		  white_label_id: whiteLabelId,
+	// 		},
+	// 	  });
+	// 	  const otherData = fetchRes?.data?.data.other_data;
+	// 	  const tempSectionData = otherData ? JSON.parse(otherData) : {};
+	// 	  if (fetchRes?.data?.status === "ok") {
+	// 		setleadData(tempSectionData);
+	// 	  }
+	// 	} catch (error) {
+	// 	  console.error("eor-fetchSectionDetails-", error);
+	// 	}
+	// 	finally {
+	// 		setFetchingSectionData(false);
+	// 	  }
+	//   };
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -988,6 +1107,7 @@ const BusinessDetails = props => {
 		}
 		//new get api
 		if (loanRefId) fetchSectionDetails();
+		// if(leadId) fetchleaddata();
 		//eslint-disable-next-line
 	}, []);
 
@@ -1054,7 +1174,41 @@ const BusinessDetails = props => {
 			item => item?.IndustryName === industryName
 		)?.[0]?.id;
 	};
+	// for fed use case when the data is fetched from customer id from fed portal
+	const disableFieldIfPrefilledFromThirdPartyData = field => {
+		/*
+This function checks if a form field should be disabled based on the configuration for disabling fields
+when prefilled from third-party data. It considers the selected product, completed sections, and specific
+fields to determine if the given field should be disabled.
 
+@param {Object} field - The form field object being evaluated.
+
+@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+*/
+		// if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+		// 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+		// 		if (field?.db_key === 'email') field.db_key = 'demail';
+		// 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+
+		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		if (
+			selectedProduct?.product_details?.disable_fields_if_prefilled &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// Check if the current field is listed in the predefined fields to disable if prefilled
+			// and if the corresponding data is available in the business details of the section
+			if (
+				(CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
+					sectionData?.business_details?.[field.db_key]) ||
+				sectionData?.user_data?.[field.db_key]
+			) {
+				return true; // Disable the field if conditions are met
+			}
+			return false;
+		}
+
+		return false; // Do not disable the field by default
+	};
 	useEffect(() => {
 		const res = extractAndFormatSubOption();
 		setSubComponentOptions(res);
@@ -1120,6 +1274,25 @@ const BusinessDetails = props => {
 				<Loading />
 			) : (
 				<>
+					<CompanySelectModal
+						companyNameSearch={companyNameSearch}
+						searchingCompanyName={loading}
+						show={isCompanyListModalOpen}
+						companyName={formState?.values?.companyName}
+						panExtractionData={panFetchData}
+						companyList={companyList}
+						setCompanyList={setCompanyList}
+						onClose={() => {
+							setIsCompanyListModalOpen(false);
+							setPanFetchData({});
+						}}
+						onCompanySelect={onCompanySelect}
+						formState={formState}
+						proceedToNextSection={() => {
+							setIsCompanyListModalOpen(false);
+							setPanFetchData({});
+						}}
+					/>
 					<ConfirmModal
 						type={
 							businessTypeField?.placeholder
@@ -1494,14 +1667,27 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
+										if (
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled &&
+											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
+												field?.name
+											)
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubFields.disabled = true;
 										}
+
 										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
 											// console.log("Contact")
 											customFieldProps.onblur = handleBlurEmail;
 										}
+
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
 											customFieldProps.onFocus = handleBlurEmail;
 

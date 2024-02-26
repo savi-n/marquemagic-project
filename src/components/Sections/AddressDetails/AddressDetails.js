@@ -326,44 +326,54 @@ const AddressDetails = props => {
 					isApplicant,
 				})?.rules?.required;
 
-				// Aadhaar number Validations only if verify with OTP was not mandatory
-				if (!isVerifyWithOtpRequired && sectionRequired) {
-					const aadhaarErrorMessage = isInvalidAadhaar(
-						formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
-					);
-					if (aadhaarErrorMessage) {
-						return addToast({
-							message: aadhaarErrorMessage,
-							type: 'error',
-						});
+				if (formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP] === '') {
+					// Aadhaar number Validations only if verify with OTP was not mandatory
+					if (!isVerifyWithOtpRequired && sectionRequired) {
+						const aadhaarErrorMessage = isInvalidAadhaar(
+							formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
+						);
+						if (aadhaarErrorMessage) {
+							return addToast({
+								message: aadhaarErrorMessage,
+								type: 'error',
+							});
+						}
 					}
-				}
 
-				// in case of aadhar, either we should upload document or verify with otp
-				if (
-					isPermanentSelectedAddressProofTypeAadhaar &&
-					isVerifyWithOtpRequired
-				) {
-					const otpVerifiedForAadhar = selectedVerifyOtp?.res?.status === 'ok';
-					let isFetchAddressPressed = false;
-					permanentCacheDocumentsTemp.map(doc => {
-						if (!!doc?.extractionRes) isFetchAddressPressed = true;
-						return null;
-					});
-
-					if (!(otpVerifiedForAadhar || isFetchAddressPressed) && !isTestMode) {
-						addToast({
-							message: 'Please Upload Aadhar or Verify Aadhar Number With OTP',
-							type: 'error',
+					// in case of aadhar, either we should upload document or verify with otp
+					if (
+						isPermanentSelectedAddressProofTypeAadhaar &&
+						isVerifyWithOtpRequired
+					) {
+						const otpVerifiedForAadhar =
+							selectedVerifyOtp?.res?.status === 'ok';
+						let isFetchAddressPressed = false;
+						permanentCacheDocumentsTemp.map(doc => {
+							if (!!doc?.extractionRes) isFetchAddressPressed = true;
+							return null;
 						});
-						return;
+
+						if (
+							!(otpVerifiedForAadhar || isFetchAddressPressed) &&
+							!isTestMode
+						) {
+							addToast({
+								message:
+									'Please Upload Aadhar or Verify Aadhar Number With OTP',
+								type: 'error',
+							});
+							return;
+						}
 					}
 				}
 				if (
 					!isPermanentSelectedAddressProofTypeAadhaar &&
 					isVerifyWithOtpRequired
 				) {
-					if (selectedVerifyOtp?.res?.status !== 'ok') {
+					if (
+						selectedVerifyOtp?.res?.status !== 'ok' &&
+						formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP] === ''
+					) {
 						addToast({
 							message:
 								'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',

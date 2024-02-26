@@ -31,9 +31,14 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
 import * as CONST from './const';
-import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
+import {
+	isImageFile,
+	maxUploadSize,
+	validateFileUpload,
+} from 'utils/helperFunctions';
 import infoIcon from 'assets/icons/info-icon.png';
 import TooltipImage from 'components/Global/Tooltip';
+import ImageViewerModal from 'components/Global/ImageViewerModal';
 
 const AddressProofUpload = props => {
 	const {
@@ -73,7 +78,7 @@ const AddressProofUpload = props => {
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { selectedProduct, clientToken, selectedSectionId } = app;
+	const { selectedProduct, clientToken, selectedSectionId, userDetails } = app;
 	const { loanId, businessUserId } = application;
 	// const directorDetail = editLoanData?.director_details;
 	const ref = useRef(uuidv4());
@@ -91,6 +96,9 @@ const AddressProofUpload = props => {
 	);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
+	const [imageSrc, setImageSrc] = useState('');
+	const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+
 	let refCounter = 0;
 
 	const aadhaarProofOTPField =
@@ -424,7 +432,8 @@ const AddressProofUpload = props => {
 					return null;
 				});
 				setCacheDocumentsTemp(newCacheDocumentTemp);
-				if (prefillDataOnUpload) {
+
+				if (prefillDataOnUpload === undefined || prefillDataOnUpload) {
 					prepopulateAddressDetails(backFile);
 				}
 				await verifyKycAddressProof(backFile);
@@ -525,7 +534,7 @@ const AddressProofUpload = props => {
 			// 	requestId: frontOnlyExtractionRes?.data?.request_id,
 			// };
 
-			if (prefillDataOnUpload) {
+			if (prefillDataOnUpload === undefined || prefillDataOnUpload) {
 				prepopulateAddressDetails(frontOnlyFile);
 			}
 			await verifyKycAddressProof(frontOnlyFile);
@@ -736,12 +745,23 @@ const AddressProofUpload = props => {
 			reqBody.loan_id = loanId;
 			reqBody.userid = businessUserId;
 			const docRes = await axios.post(VIEW_DOCUMENT, reqBody);
+			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
+				setImageSrc(imageURL);
+				setIsImageModalVisible(true);
+				return;
+			}
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 			setOpeningRemovingDocument(false);
 		} catch (error) {
 			setOpeningRemovingDocument(false);
 			console.error('Unable to open file, try after sometime');
 		}
+	};
+
+	const onCloseImageViewerModal = () => {
+		setIsImageModalVisible(false);
+		setImageSrc('');
 	};
 
 	const resetAllStates = () => {
@@ -857,544 +877,566 @@ const AddressProofUpload = props => {
 	}
 
 	return (
-		<UI.Wrapper>
-			{selectedAddressProofId === 'permanent_aadhar' && (
-				<UI.HintWrapper>
-					<Hint
-						hint='You can choose to upload document or enter Aadhaar Number to proceed with Address Details'
-						showIcon={false}
-					/>
-				</UI.HintWrapper>
+		<>
+			{isImageModalVisible && (
+				<ImageViewerModal
+					onClose={onCloseImageViewerModal}
+					imageSrc={imageSrc}
+					modalVisible={isImageModalVisible}
+				/>
 			)}
-			<Modal
-				show={isDocTypeChangeModalOpen}
-				onClose={() => {
-					setIsDocTypeChangeModalOpen(false);
-				}}
-				width='50%'
-				customStyle={{ minHeight: 200 }}
-			>
-				<UI.DocTypeChangeModalBody>
-					<UI.DocTypeChangeModalHeader>
-						<p className='py-2'>
-							<strong>Are you sure want to change document type?</strong>
-						</p>
-						<p>
-							By changing it, all the existing tagged and untagged document will
-							be lost.
-						</p>
-					</UI.DocTypeChangeModalHeader>
-					<UI.DocTypeChangeModalFooter>
-						<Button
-							name='Confirm'
-							fill
-							onClick={() => {
-								resetAllStates();
-								prevSelectedAddressProofId.current = selectedAddressProofId;
-								setIsDocTypeChangeModalOpen(false);
-							}}
+
+			<UI.Wrapper>
+				{selectedAddressProofId === 'permanent_aadhar' && (
+					<UI.HintWrapper>
+						<Hint
+							hint='You can choose to upload document or enter Aadhaar Number to proceed with Address Details'
+							showIcon={false}
 						/>
-						<Button
-							name='Cancel'
-							onClick={() => {
-								setIsDocTypeChangeModalOpen(false);
-								onChangeFormStateField({
-									name: selectedAddressProofFieldName,
-									value: prevSelectedAddressProofId.current,
-								});
-							}}
-						/>
-					</UI.DocTypeChangeModalFooter>
-				</UI.DocTypeChangeModalBody>
-			</Modal>
-			<UI.DropZoneOtpFieldWrapper>
-				{/* {!isViewLoan && ( */}
-				<UI.Dropzone
-					isInActive={isInActive || isSectionCompleted}
-					ref={ref}
-					dragging={dragging}
-					// bg={bg}
-					disabled={disabled}
-					uploading={fetchingAddress}
+					</UI.HintWrapper>
+				)}
+				<Modal
+					show={isDocTypeChangeModalOpen}
+					onClose={() => {
+						setIsDocTypeChangeModalOpen(false);
+					}}
+					width='50%'
+					customStyle={{ minHeight: 200 }}
 				>
-					<UI.Caption>Upload Address Proof</UI.Caption>
-					{maxUploadSize && (
-						<TooltipImage
-							src={infoIcon}
-							alt='Image Alt Text'
-							title={`Maximum upload size for every image is ${maxUploadSize}MB`}
-						/>
-					)}
-					<UI.UploadButton
-						type='file'
-						id={id}
-						accept=''
-						{...(isCameraCapture ? { capture: 'camera' } : {})}
-						onChange={onChange}
-						onClick={e => {
-							if (isInActive) {
-								e.preventDefault();
-								e.stopPropagation();
-							}
-							e.target.value = '';
-						}}
+					<UI.DocTypeChangeModalBody>
+						<UI.DocTypeChangeModalHeader>
+							<p className='py-2'>
+								<strong>Are you sure want to change document type?</strong>
+							</p>
+							<p>
+								By changing it, all the existing tagged and untagged document
+								will be lost.
+							</p>
+						</UI.DocTypeChangeModalHeader>
+						<UI.DocTypeChangeModalFooter>
+							<Button
+								name='Confirm'
+								fill
+								onClick={() => {
+									resetAllStates();
+									prevSelectedAddressProofId.current = selectedAddressProofId;
+									setIsDocTypeChangeModalOpen(false);
+								}}
+							/>
+							<Button
+								name='Cancel'
+								onClick={() => {
+									setIsDocTypeChangeModalOpen(false);
+									onChangeFormStateField({
+										name: selectedAddressProofFieldName,
+										value: prevSelectedAddressProofId.current,
+									});
+								}}
+							/>
+						</UI.DocTypeChangeModalFooter>
+					</UI.DocTypeChangeModalBody>
+				</Modal>
+				<UI.DropZoneOtpFieldWrapper>
+					{/* {!isViewLoan && ( */}
+					<UI.Dropzone
+						isInActive={isInActive || isSectionCompleted}
+						ref={ref}
+						dragging={dragging}
+						// bg={bg}
 						disabled={disabled}
-						multiple={false}
-					/>
-					<UI.IconWrapper>
-						<UI.IconUpload htmlFor={id}>
-							<img
+						uploading={fetchingAddress}
+					>
+						<UI.Caption>Upload Address Proof</UI.Caption>
+						{maxUploadSize && (
+							<TooltipImage
+								src={infoIcon}
+								alt='Image Alt Text'
+								title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+							/>
+						)}
+						<UI.UploadButton
+							type='file'
+							id={id}
+							accept=''
+							{...(isCameraCapture ? { capture: 'camera' } : {})}
+							onChange={onChange}
+							onClick={e => {
+								if (isInActive) {
+									e.preventDefault();
+									e.stopPropagation();
+								}
+								e.target.value = '';
+							}}
+							disabled={disabled}
+							multiple={false}
+						/>
+						<UI.IconWrapper>
+							<UI.IconUpload htmlFor={id}>
+								<img
+									draggable={false}
+									src={uploadCircleIcon}
+									width={30}
+									style={{
+										maxWidth: 'none',
+										filter: isInActive ? 'grayscale(200%)' : 'none',
+									}}
+									alt='upload'
+								/>
+							</UI.IconUpload>
+							<UI.IconCollapse
 								draggable={false}
-								src={uploadCircleIcon}
+								isDocumentTaggingOpen={isDocumentTaggingOpen}
+								src={imgArrowDownCircle}
 								width={30}
 								style={{
 									maxWidth: 'none',
 									filter: isInActive ? 'grayscale(200%)' : 'none',
 								}}
 								alt='upload'
+								onClick={e => {
+									setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
+								}}
 							/>
-						</UI.IconUpload>
-						<UI.IconCollapse
-							draggable={false}
-							isDocumentTaggingOpen={isDocumentTaggingOpen}
-							src={imgArrowDownCircle}
-							width={30}
-							style={{
-								maxWidth: 'none',
-								filter: isInActive ? 'grayscale(200%)' : 'none',
-							}}
-							alt='upload'
-							onClick={e => {
-								setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
-							}}
-						/>
-					</UI.IconWrapper>
-				</UI.Dropzone>
-				{/* )} */}
-				{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
-					<>
-						{selectedAddressProofId === 'permanent_aadhar' && <UI.OR>or</UI.OR>}
-						{aadhaarProofOTPField.map((aadharField, fieldIndex) => {
-							if (aadharField?.for_type_name) {
-								if (
-									!aadharField?.for_type?.includes(
-										formState?.values?.[aadharField?.for_type_name]
+						</UI.IconWrapper>
+					</UI.Dropzone>
+					{/* )} */}
+					{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
+						<>
+							{selectedAddressProofId === 'permanent_aadhar' && (
+								<UI.OR>or</UI.OR>
+							)}
+							{aadhaarProofOTPField.map((aadharField, fieldIndex) => {
+								if (aadharField?.for_type_name) {
+									if (
+										!aadharField?.for_type?.includes(
+											formState?.values?.[aadharField?.for_type_name]
+										)
 									)
-								)
-									return null;
-							}
-							return (
-								<UI.AadhaarNumberOtpFieldWrapper
-									key={`${aadharField?.name}-${fieldIndex}`}
-								>
-									{register({
-										...aadharField,
-										value: prefilledValues(aadharField),
-										visibility: 'visible',
-										...customFieldProps,
-									})}
-									{(selectedVerifyOtp?.res?.status === 'ok' ||
-										selectedDirector?.is_aadhaar_otp_verified === true) && (
-										<UI.GreenTickImage src={GreenTick} alt='green tick' />
-									)}
-
-									{aadharField?.sub_fields
-										?.filter(f => !f?.is_prefix)
-										?.map(subField => {
-											if (
-												!isFieldValid({
-													field: subField,
-													isApplicant,
-													formState: {},
-												})
-											) {
-												return null;
-											}
-											if (subField?.type === 'button') {
-												return (
-													<Button
-														name={
-															<span>
-																{subField?.placeholder}
-																{!!subField?.rules?.required && (
-																	<sup style={{ color: 'red' }}>&nbsp;*</sup>
-																)}
-															</span>
-														}
-														isLoader={verifyingWithOtp}
-														disabled={
-															// isSectionCompleted ||
-															directorDetails?.is_aadhaar_otp_verified ||
-															selectedVerifyOtp?.res?.status === 'ok' ||
-															!formState.values[aadharField.name] ||
-															isViewLoan ||
-															verifyingWithOtp
-															// (directors?.filter(
-															// 	director =>
-															// 		`${director?.id}` ===
-															// 		`${selectedDirector?.directorId}`
-															// ).length > 0 &&
-															// 	isEditLoan)
-														}
-														type='button'
-														customStyle={{
-															whiteSpace: 'nowrap',
-															width: '150px',
-															minWidth: '150px',
-															height: '45px',
-														}}
-														onClick={() => {
-															onClickVerifyWithOtp(aadharField);
-														}}
-													/>
-												);
-											}
-											if (subField?.type === 'link') {
-												return (
-													<Button
-														name={subField?.placeholder}
-														type='button'
-														customStyle={{
-															whiteSpace: 'nowrap',
-															width: '150px',
-															minWidth: '150px',
-															height: '45px',
-														}}
-														onClick={() =>
-															window.open(subField?.link, '_blank')
-														}
-													/>
-												);
-											}
-											return null;
+										return null;
+								}
+								return (
+									<UI.AadhaarNumberOtpFieldWrapper
+										key={`${aadharField?.name}-${fieldIndex}`}
+									>
+										{register({
+											...aadharField,
+											value: prefilledValues(aadharField),
+											visibility: 'visible',
+											...customFieldProps,
 										})}
-									{(formState?.submit?.isSubmited ||
-										formState?.touched?.[aadharField.name]) &&
-										formState?.error?.[aadharField.name] && (
-											<UI_SECTIONS.ErrorMessageSubFields>
-												{formState?.error?.[aadharField.name]}
-											</UI_SECTIONS.ErrorMessageSubFields>
+										{(selectedVerifyOtp?.res?.status === 'ok' ||
+											selectedDirector?.is_aadhaar_otp_verified === true) && (
+											<UI.GreenTickImage src={GreenTick} alt='green tick' />
 										)}
-								</UI.AadhaarNumberOtpFieldWrapper>
+
+										{aadharField?.sub_fields
+											?.filter(f => !f?.is_prefix)
+											?.map(subField => {
+												if (
+													!isFieldValid({
+														field: subField,
+														isApplicant,
+														formState: {},
+													})
+												) {
+													return null;
+												}
+												if (subField?.type === 'button') {
+													return (
+														<Button
+															name={
+																<span>
+																	{subField?.placeholder}
+																	{!!subField?.rules?.required && (
+																		<sup style={{ color: 'red' }}>&nbsp;*</sup>
+																	)}
+																</span>
+															}
+															isLoader={verifyingWithOtp}
+															disabled={
+																// isSectionCompleted ||
+																directorDetails?.is_aadhaar_otp_verified ||
+																selectedVerifyOtp?.res?.status === 'ok' ||
+																!formState.values[aadharField.name] ||
+																isViewLoan ||
+																verifyingWithOtp
+																// (directors?.filter(
+																// 	director =>
+																// 		`${director?.id}` ===
+																// 		`${selectedDirector?.directorId}`
+																// ).length > 0 &&
+																// 	isEditLoan)
+															}
+															type='button'
+															customStyle={{
+																whiteSpace: 'nowrap',
+																width: '150px',
+																minWidth: '150px',
+																height: '45px',
+															}}
+															onClick={() => {
+																onClickVerifyWithOtp(aadharField);
+															}}
+														/>
+													);
+												}
+												if (subField?.type === 'link') {
+													return (
+														<Button
+															name={subField?.placeholder}
+															type='button'
+															customStyle={{
+																whiteSpace: 'nowrap',
+																width: '150px',
+																minWidth: '150px',
+																height: '45px',
+															}}
+															onClick={() =>
+																window.open(subField?.link, '_blank')
+															}
+														/>
+													);
+												}
+												return null;
+											})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[aadharField.name]) &&
+											formState?.error?.[aadharField.name] && (
+												<UI_SECTIONS.ErrorMessageSubFields>
+													{formState?.error?.[aadharField.name]}
+												</UI_SECTIONS.ErrorMessageSubFields>
+											)}
+									</UI.AadhaarNumberOtpFieldWrapper>
+								);
+							})}
+						</>
+					)}
+				</UI.DropZoneOtpFieldWrapper>
+				<UI.DocumentTaggingSectionWrapper
+					isDocumentTaggingOpen={isDocumentTaggingOpen}
+					isFetchAddressButton={selectedAddressProofId?.includes('others')}
+				>
+					{displayTagMessage ? (
+						<UI.WarningMessage>
+							{' '}
+							Click on{' '}
+							<UI.FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' />
+							and select the front and back part of the uploaded document
+						</UI.WarningMessage>
+					) : null}
+					{addressProofError && (
+						<UI.AddressProofErrorMessage
+							addressProofErrorColorCode={addressProofErrorColorCode}
+						>
+							<UI.ImgErrorIcon src={addressProofErrorIcon} />
+							<span>{addressProofError}</span>
+						</UI.AddressProofErrorMessage>
+					)}
+					<UI.UnTaggedFileListWrap>
+						{cacheDocumentsTemp?.map((doc, upidx) => {
+							if (!!doc?.isTagged) return null;
+							doc.name = doc.name || doc.upload_doc_name || '';
+							return (
+								<UI.File
+									addressProofErrorColorCode={addressProofErrorColorCode}
+									key={`${doc.id}-${upidx}-${doc.doc_type_id}`}
+									progress={doc.progress}
+									status={doc.status}
+									tooltip={doc.name}
+								>
+									<UI.FileName>
+										{doc?.name?.length > 20
+											? doc?.name?.slice(0, 20) + '...'
+											: doc?.name}
+									</UI.FileName>
+									<UI.ImgClose
+										style={{ marginRight: '60px' }}
+										src={imgClose}
+										onClick={e => {
+											e.preventDefault();
+											e.stopPropagation();
+											deleteDocument(doc);
+										}}
+										alt='close'
+									/>
+									{docTypeOptions?.length > 0 && !fetchingAddress && (
+										<Popover
+											isOpen={isPopoverOpen === doc.id}
+											align='start'
+											positions={['left', 'bottom', 'top', 'right']} // preferred positions by priority
+											padding={-50} // adjust padding here!
+											reposition={false} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
+											onClickOutside={() => setIsPopoverOpen(-1)} // handle click events outside of the popover/target here!
+											ref={refPopup}
+											content={popupProps => {
+												const fontDocTypeId = `${docTypeOptions[0]?.id}`;
+												const backDocTypeId = `${docTypeOptions[1]?.id}`;
+												const frontBackDocTypeId = `${docTypeOptions[2]?.id}`;
+												const isFrontTagged =
+													cacheDocumentsTemp?.filter(
+														doc => doc.doc_type_id === fontDocTypeId
+													).length > 0;
+												const isBackTagged =
+													cacheDocumentsTemp?.filter(
+														doc => doc.doc_type_id === backDocTypeId
+													).length > 0;
+												const isFrontBackTagged =
+													cacheDocumentsTemp?.filter(
+														doc => doc.doc_type_id === frontBackDocTypeId
+													).length > 0;
+												return (
+													<UI.FileTypeBox>
+														<UI.FileTypeUL>
+															{docTypeOptions.map((docType, docoptidx) => {
+																if (isFrontTagged && docoptidx === 0)
+																	return null;
+																if (isBackTagged && docoptidx === 1)
+																	return null;
+																if (isFrontBackTagged && docoptidx === 2)
+																	return null;
+																if (
+																	(isFrontTagged || isBackTagged) &&
+																	docoptidx === 2
+																)
+																	return null;
+																if (
+																	isFrontBackTagged &&
+																	(docoptidx === 0 || docoptidx === 1)
+																)
+																	return null;
+																return (
+																	<UI.FileTypeList
+																		key={`${docType.value}-${docoptidx}-${
+																			docType.doc_type_id
+																		}`}
+																		value={docType.name}
+																		onClick={() => {
+																			onDocTypeChange(doc, docType);
+																			setIsPopoverOpen(-1);
+																		}}
+																	>
+																		{docType.name}
+																		{docType.isMandatory && (
+																			<span
+																				style={{
+																					color: 'red',
+																				}}
+																			>
+																				&nbsp;*
+																			</span>
+																		)}
+																	</UI.FileTypeList>
+																);
+															})}
+														</UI.FileTypeUL>
+														<UI.FileTypeIconInsidePopover
+															draggable={false}
+															src={imgArrowDownCircle}
+															alt='arrow'
+															onClick={() => {
+																setIsPopoverOpen(
+																	isPopoverOpen === doc.id ? -1 : doc.id
+																);
+															}}
+														/>
+													</UI.FileTypeBox>
+												);
+											}}
+										>
+											<UI.FileType
+												onClick={() =>
+													setIsPopoverOpen(
+														isPopoverOpen === doc.id ? -1 : doc.id
+													)
+												}
+											>
+												<UI.FileTypeIconOutsidePopover
+													draggable={false}
+													src={imgArrowDownCircle}
+													alt='arrow'
+												/>
+											</UI.FileType>
+										</Popover>
+									)}
+								</UI.File>
 							);
 						})}
-					</>
-				)}
-			</UI.DropZoneOtpFieldWrapper>
-			<UI.DocumentTaggingSectionWrapper
-				isDocumentTaggingOpen={isDocumentTaggingOpen}
-				isFetchAddressButton={selectedAddressProofId?.includes('others')}
-			>
-				{displayTagMessage ? (
-					<UI.WarningMessage>
-						{' '}
-						Click on{' '}
-						<UI.FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' />
-						and select the front and back part of the uploaded document
-					</UI.WarningMessage>
-				) : null}
-				{addressProofError && (
-					<UI.AddressProofErrorMessage
-						addressProofErrorColorCode={addressProofErrorColorCode}
-					>
-						<UI.ImgErrorIcon src={addressProofErrorIcon} />
-						<span>{addressProofError}</span>
-					</UI.AddressProofErrorMessage>
-				)}
-				<UI.UnTaggedFileListWrap>
-					{cacheDocumentsTemp?.map((doc, upidx) => {
-						if (!!doc?.isTagged) return null;
-						doc.name = doc.name || doc.upload_doc_name || '';
-						return (
-							<UI.File
-								addressProofErrorColorCode={addressProofErrorColorCode}
-								key={`${doc.id}-${upidx}-${doc.doc_type_id}`}
-								progress={doc.progress}
-								status={doc.status}
-								tooltip={doc.name}
-							>
-								<UI.FileName>
-									{doc?.name?.length > 20
-										? doc?.name?.slice(0, 20) + '...'
-										: doc?.name}
-								</UI.FileName>
-								<UI.ImgClose
-									style={{ marginRight: '60px' }}
-									src={imgClose}
-									onClick={e => {
-										e.preventDefault();
-										e.stopPropagation();
-										deleteDocument(doc);
-									}}
-									alt='close'
-								/>
-								{docTypeOptions?.length > 0 && !fetchingAddress && (
-									<Popover
-										isOpen={isPopoverOpen === doc.id}
-										align='start'
-										positions={['left', 'bottom', 'top', 'right']} // preferred positions by priority
-										padding={-50} // adjust padding here!
-										reposition={false} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
-										onClickOutside={() => setIsPopoverOpen(-1)} // handle click events outside of the popover/target here!
-										ref={refPopup}
-										content={popupProps => {
-											const fontDocTypeId = `${docTypeOptions[0]?.id}`;
-											const backDocTypeId = `${docTypeOptions[1]?.id}`;
-											const frontBackDocTypeId = `${docTypeOptions[2]?.id}`;
-											const isFrontTagged =
-												cacheDocumentsTemp?.filter(
-													doc => doc.doc_type_id === fontDocTypeId
-												).length > 0;
-											const isBackTagged =
-												cacheDocumentsTemp?.filter(
-													doc => doc.doc_type_id === backDocTypeId
-												).length > 0;
-											const isFrontBackTagged =
-												cacheDocumentsTemp?.filter(
-													doc => doc.doc_type_id === frontBackDocTypeId
-												).length > 0;
-											return (
-												<UI.FileTypeBox>
-													<UI.FileTypeUL>
-														{docTypeOptions.map((docType, docoptidx) => {
-															if (isFrontTagged && docoptidx === 0) return null;
-															if (isBackTagged && docoptidx === 1) return null;
-															if (isFrontBackTagged && docoptidx === 2)
-																return null;
-															if (
-																(isFrontTagged || isBackTagged) &&
-																docoptidx === 2
-															)
-																return null;
-															if (
-																isFrontBackTagged &&
-																(docoptidx === 0 || docoptidx === 1)
-															)
-																return null;
-															return (
-																<UI.FileTypeList
-																	key={`${docType.value}-${docoptidx}-${
-																		docType.doc_type_id
-																	}`}
-																	value={docType.name}
-																	onClick={() => {
-																		onDocTypeChange(doc, docType);
-																		setIsPopoverOpen(-1);
-																	}}
-																>
-																	{docType.name}
-																	{docType.isMandatory && (
-																		<span
-																			style={{
-																				color: 'red',
-																			}}
-																		>
-																			&nbsp;*
-																		</span>
-																	)}
-																</UI.FileTypeList>
-															);
-														})}
-													</UI.FileTypeUL>
-													<UI.FileTypeIconInsidePopover
-														draggable={false}
-														src={imgArrowDownCircle}
-														alt='arrow'
-														onClick={() => {
-															setIsPopoverOpen(
-																isPopoverOpen === doc.id ? -1 : doc.id
-															);
-														}}
-													/>
-												</UI.FileTypeBox>
-											);
-										}}
-									>
-										<UI.FileType
-											onClick={() =>
-												setIsPopoverOpen(isPopoverOpen === doc.id ? -1 : doc.id)
+					</UI.UnTaggedFileListWrap>
+					<UI.DocumentUploadListWrapper>
+						{docTypeOptions.map((docType, doctypeidx) => {
+							const mappedDocFiles = cacheDocumentsTemp?.filter(
+								doc =>
+									doc?.doc_type_id === docType?.doc_type_id ||
+									doc?.isTagged?.doc_type_id === docType?.doc_type_id
+							);
+
+							// TODO: discuss with PM not possible
+							// const uploadedDocuments = prefilledDocs.filter(
+							// 	doc => doc?.isTagged?.doc_type_id === docType?.doc_type_id
+							// );
+							// uploadedDocuments.map(doc => mappedDocFiles?.push(doc));
+
+							return (
+								<UI.DocumentUploadList
+									key={`${docType.id}-${doctypeidx}-${docType.doc_type_id}`}
+								>
+									<UI.DocumentUploadListRow1>
+										<UI.DocumentUploadCheck
+											src={
+												mappedDocFiles?.length ? imgGreenCheck : imgGreyCheck
 											}
+											alt='check'
+										/>
+										{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+											<UI.DocumentUploadNameToolTip>
+												{docType.name}
+											</UI.DocumentUploadNameToolTip>
+										)}
+										<UI.DocumentUploadName
+											onMouseOver={() =>
+												setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
+											}
+											onMouseOut={() => setDocTypeNameToolTip(-1)}
+											isSelected={mappedDocFiles?.length}
 										>
-											<UI.FileTypeIconOutsidePopover
-												draggable={false}
-												src={imgArrowDownCircle}
-												alt='arrow'
-											/>
-										</UI.FileType>
-									</Popover>
-								)}
-							</UI.File>
-						);
-					})}
-				</UI.UnTaggedFileListWrap>
-				<UI.DocumentUploadListWrapper>
-					{docTypeOptions.map((docType, doctypeidx) => {
-						const mappedDocFiles = cacheDocumentsTemp?.filter(
-							doc =>
-								doc?.doc_type_id === docType?.doc_type_id ||
-								doc?.isTagged?.doc_type_id === docType?.doc_type_id
-						);
-
-						// TODO: discuss with PM not possible
-						// const uploadedDocuments = prefilledDocs.filter(
-						// 	doc => doc?.isTagged?.doc_type_id === docType?.doc_type_id
-						// );
-						// uploadedDocuments.map(doc => mappedDocFiles?.push(doc));
-
-						return (
-							<UI.DocumentUploadList
-								key={`${docType.id}-${doctypeidx}-${docType.doc_type_id}`}
-							>
-								<UI.DocumentUploadListRow1>
-									<UI.DocumentUploadCheck
-										src={mappedDocFiles?.length ? imgGreenCheck : imgGreyCheck}
-										alt='check'
-									/>
-									{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
-										<UI.DocumentUploadNameToolTip>
-											{docType.name}
-										</UI.DocumentUploadNameToolTip>
-									)}
-									<UI.DocumentUploadName
-										onMouseOver={() =>
-											setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
-										}
-										onMouseOut={() => setDocTypeNameToolTip(-1)}
-										isSelected={mappedDocFiles?.length}
-									>
-										{docType.isMandatory && (
-											<span
-												style={{
-													color: 'red',
-												}}
-											>
-												*&nbsp;
-											</span>
-										)}
-										{window?.location?.hostname?.includes('localhost') && (
-											<span style={{ color: 'blue' }}>
-												{docType?.doc_type_id}{' '}
-											</span>
-										)}
-										{docType.name}
-									</UI.DocumentUploadName>
-								</UI.DocumentUploadListRow1>
-								<UI.DocumentUploadListRow2>
-									{mappedDocFiles?.map((doc, index) => {
-										if (index > 0) return null;
-										const isViewMoreClicked = viewMore.includes(
-											docType.doc_type_id
-										);
-										const isViewMore = !isViewMoreClicked && index === 2;
-										if (!isViewMoreClicked && index > 2) return null;
-										const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
-										let isDocRemoveAllowed = true;
-										let isViewDocAllowed = true;
-										if ('isDocRemoveAllowed' in doc) {
-											isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
-										}
-										if (doc?.is_delete_not_allowed === true) {
-											isDocRemoveAllowed = false;
-											doNotHideFetchAddress = false;
-										}
-										if (
-											isEditOrViewLoan &&
-											doc?.is_delete_not_allowed === 'true'
-										) {
-											isDocRemoveAllowed = false;
-											doNotHideFetchAddress = false;
-										}
-										return (
-											<UI.File
-												addressProofErrorColorCode={addressProofErrorColorCode}
-												key={`file-${uniqPassId}-${doc.doc_type_id}`}
-												style={{
-													width: '220px',
-													margin: '0 0 0 45px',
-													height: '35px',
-													lineHeight: '35px',
-													background: isViewMore ? '#e6ffef' : '',
-													cursor: isViewDocAllowed ? 'pointer' : 'not-allowed',
-												}}
-												onClick={e => {
-													e.preventDefault();
-													e.stopPropagation();
-													if (isViewMore)
-														setViewMore([...viewMore, docType.doc_type_id]);
-												}}
-											>
-												<UI.FileName
-													link
+											{docType.isMandatory && (
+												<span
 													style={{
-														fontSize: 12,
-														width: '100%',
-													}}
-													onClick={e => {
-														if (!isViewMore) {
-															e.preventDefault();
-															e.stopPropagation();
-															openDocument(doc);
-														}
+														color: 'red',
 													}}
 												>
-													{isViewMore
-														? `View ${mappedDocFiles?.length - 2} more`
-														: doc?.name?.length > 20
-														? doc?.name?.slice(0, 20) + '...'
-														: doc?.name}
-												</UI.FileName>
-												{openingRemovingDocument === doc.document_key ? (
-													<div style={{ marginLeft: 'auto', height: '30px' }}>
-														<CircularLoading />
-													</div>
-												) : (
-													isDocRemoveAllowed &&
-													!isViewLoan &&
-													!selectedDirector?.sections?.includes(
-														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID
-													) && (
-														<UI.ImgClose
-															style={{ height: '20px' }}
-															src={isViewMore ? imgArrowDownCircle : imgClose}
-															onClick={e => {
+													*&nbsp;
+												</span>
+											)}
+											{window?.location?.hostname?.includes('localhost') && (
+												<span style={{ color: 'blue' }}>
+													{docType?.doc_type_id}{' '}
+												</span>
+											)}
+											{docType.name}
+										</UI.DocumentUploadName>
+									</UI.DocumentUploadListRow1>
+									<UI.DocumentUploadListRow2>
+										{mappedDocFiles?.map((doc, index) => {
+											if (index > 0) return null;
+											const isViewMoreClicked = viewMore.includes(
+												docType.doc_type_id
+											);
+											const isViewMore = !isViewMoreClicked && index === 2;
+											if (!isViewMoreClicked && index > 2) return null;
+											const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
+											let isDocRemoveAllowed = true;
+											let isViewDocAllowed = true;
+											if ('isDocRemoveAllowed' in doc) {
+												isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
+											}
+											if (doc?.is_delete_not_allowed === true) {
+												isDocRemoveAllowed = false;
+												doNotHideFetchAddress = false;
+											}
+											if (
+												isEditOrViewLoan &&
+												doc?.is_delete_not_allowed === 'true'
+											) {
+												isDocRemoveAllowed = false;
+												doNotHideFetchAddress = false;
+											}
+											return (
+												<UI.File
+													addressProofErrorColorCode={
+														addressProofErrorColorCode
+													}
+													key={`file-${uniqPassId}-${doc.doc_type_id}`}
+													style={{
+														width: '220px',
+														margin: '0 0 0 45px',
+														height: '35px',
+														lineHeight: '35px',
+														background: isViewMore ? '#e6ffef' : '',
+														cursor: isViewDocAllowed
+															? 'pointer'
+															: 'not-allowed',
+													}}
+													onClick={e => {
+														e.preventDefault();
+														e.stopPropagation();
+														if (isViewMore)
+															setViewMore([...viewMore, docType.doc_type_id]);
+													}}
+												>
+													<UI.FileName
+														link
+														style={{
+															fontSize: 12,
+															width: '100%',
+														}}
+														onClick={e => {
+															if (!isViewMore) {
 																e.preventDefault();
 																e.stopPropagation();
-																if (isViewMore) return;
-																deleteDocument(doc);
-															}}
-															alt='close'
-														/>
-													)
-												)}
-											</UI.File>
-										);
-									})}
-								</UI.DocumentUploadListRow2>
-							</UI.DocumentUploadList>
-						);
-					})}
-				</UI.DocumentUploadListWrapper>
-				<UI.CTAWrapper>
-					{!addressProofError &&
-						!selectedAddressProofId?.includes('others') &&
-						!!taggedDocumentCount &&
-						doNotHideFetchAddress &&
-						!selectedDirector?.sections?.includes(selectedSectionId) && (
-							<Button
-								fill
-								name='Fetch Address'
-								isLoader={fetchingAddress}
-								disabled={
-									fetchingAddress ||
-									cacheDocumentsTemp?.length <= 0 ||
-									addressProofError
-								}
-								onClick={onClickFetchAddress}
-							/>
-						)}
-				</UI.CTAWrapper>
-			</UI.DocumentTaggingSectionWrapper>
-		</UI.Wrapper>
+																openDocument(doc);
+															}
+														}}
+													>
+														{isViewMore
+															? `View ${mappedDocFiles?.length - 2} more`
+															: doc?.name?.length > 20
+															? doc?.name?.slice(0, 20) + '...'
+															: doc?.name}
+													</UI.FileName>
+													{openingRemovingDocument === doc.document_key ? (
+														<div style={{ marginLeft: 'auto', height: '30px' }}>
+															<CircularLoading />
+														</div>
+													) : (
+														isDocRemoveAllowed &&
+														!isViewLoan &&
+														!selectedDirector?.sections?.includes(
+															CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID
+														) && (
+															<UI.ImgClose
+																style={{ height: '20px' }}
+																src={isViewMore ? imgArrowDownCircle : imgClose}
+																onClick={e => {
+																	e.preventDefault();
+																	e.stopPropagation();
+																	if (isViewMore) return;
+																	deleteDocument(doc);
+																}}
+																alt='close'
+															/>
+														)
+													)}
+												</UI.File>
+											);
+										})}
+									</UI.DocumentUploadListRow2>
+								</UI.DocumentUploadList>
+							);
+						})}
+					</UI.DocumentUploadListWrapper>
+					<UI.CTAWrapper>
+						{!addressProofError &&
+							!selectedAddressProofId?.includes('others') &&
+							!!taggedDocumentCount &&
+							doNotHideFetchAddress &&
+							!selectedDirector?.sections?.includes(selectedSectionId) && (
+								<Button
+									fill
+									name='Fetch Address'
+									isLoader={fetchingAddress}
+									disabled={
+										fetchingAddress ||
+										cacheDocumentsTemp?.length <= 0 ||
+										addressProofError
+									}
+									onClick={onClickFetchAddress}
+								/>
+							)}
+					</UI.CTAWrapper>
+				</UI.DocumentTaggingSectionWrapper>
+			</UI.Wrapper>
+		</>
 	);
 };
 

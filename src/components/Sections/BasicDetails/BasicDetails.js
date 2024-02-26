@@ -69,6 +69,7 @@ import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 import DataDeletionWarningModal from './DataDeletionWarningModal';
 import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
+import UcicSearchModal from './UcicSearchModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -113,6 +114,7 @@ const BasicDetails = props => {
 		businessId,
 		dedupePrefilledValues,
 		leadId,
+		leadAllDetails,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -157,6 +159,9 @@ const BasicDetails = props => {
 		setIsCustomerVerificationOTPModal,
 	] = useState(false);
 	const [customerId, setCustomerId] = useState('');
+	const [isUcicSearchModalOpen, setIsUcicSearchModalOpen] = useState(false);
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [customerList, setCustomerList] = useState([]);
 
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
@@ -501,6 +506,42 @@ const BasicDetails = props => {
 			setLoading(false);
 		}
 	};
+
+	const disableFieldIfPrefilledFromThirdPartyData = field => {
+		/*
+	This function checks if a form field should be disabled based on the configuration for disabling fields
+	when prefilled from third-party data. It considers the selected product, completed sections, and specific
+	fields to determine if the given field should be disabled.
+
+	@param {Object} field - The form field object being evaluated.
+
+	@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+	*/
+
+		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+		if (field?.db_key === 'business_email') field.db_key = 'demail';
+		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+
+		if (
+			selectedProduct?.product_details?.disable_fields_if_prefilled &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// Check if the current field is listed in the predefined fields to disable if prefilled
+			// and if the corresponding data is available in the business details of the section
+			if (
+				CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
+				sectionData?.director_details?.[field.db_key]
+			) {
+				return true; // Disable the field if conditions are met
+			}
+			return false;
+		}
+
+		return false; // Do not disable the field by default
+	};
+
 	const onPanEnter = async pan => {
 		try {
 			const panErrorMessage = isInvalidPan(pan);
@@ -553,10 +594,105 @@ const BasicDetails = props => {
 		}
 	};
 
+	const validateDirectorMobileNumbers = ({
+		directorsObject,
+		selectedDirectorId,
+		formStateMobileNumber,
+	}) => {
+		/*
+	This function checks if the current mobile number entered in the application form is already existing for any directors or co-apps.
+	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
+	@param {string} selectedDirectorId - The current selected directorId stored in redux.
+	@param {string} formStateMobileNumber - The current entered mobile number in application form field.
+
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate mobile number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	*/
+		const existingDirectorWithMobile = Object.values(directorsObject)?.find(
+			director =>
+				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dcontact &&
+				director?.dcontact === formStateMobileNumber
+		);
+
+		return !existingDirectorWithMobile
+			? { isValid: true }
+			: {
+					isValid: false,
+					directorName: `${existingDirectorWithMobile?.dfirstname} ${
+						existingDirectorWithMobile?.dlastname
+					}`,
+					typeName: existingDirectorWithMobile.type_name,
+			  };
+	};
+
+	const validateDirectorPanNumbers = ({
+		directorsObject,
+		selectedDirectorId,
+		formStatePanNumber,
+	}) => {
+		/*
+	This function checks if the current pan number entered in the application form is already existing for any directors or co-apps.
+	@param {Object} directorsObject - The directors(coapps and applicant) object stored in redux.
+	@param {string} selectedDirectorId - The current selected directorId stored in redux.
+	@param {string} formStatePanNumber - The current entered pan number in application form field.
+
+	@returns {Object}  - Returns {isValid :  Returns true if there is no duplicate pan number is found, else false, directorName : In case duplication is found, returns the director full name , typeName : Returns type of director}
+	*/
+		const existingDirectorWithPanNumber = Object.values(directorsObject)?.find(
+			director =>
+				`${director.id}` !== `${selectedDirectorId}` &&
+				director?.dpancard &&
+				director?.dpancard === formStatePanNumber
+		);
+
+		return !existingDirectorWithPanNumber
+			? { isValid: true }
+			: {
+					isValid: false,
+					directorName: `${existingDirectorWithPanNumber?.dfirstname} ${
+						existingDirectorWithPanNumber?.dlastname
+					}`,
+					typeName: existingDirectorWithPanNumber.type_name,
+			  };
+	};
+
 	const onSaveAndProceed = async () => {
 		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
+			const validationResult = validateDirectorMobileNumbers({
+				directorsObject: directors,
+				selectedDirectorId,
+				formStateMobileNumber:
+					formState?.values?.[CONST.MOBILE_NUMBER_FIELD_NAME],
+			});
+
+			if (!validationResult?.isValid) {
+				addToast({
+					message: `Error: Mobile number already exists for ${
+						validationResult?.typeName
+					} ${validationResult?.directorName}`,
+					type: 'error',
+				});
+				return;
+			}
+
+			const panValidationResult = validateDirectorPanNumbers({
+				directorsObject: directors,
+				selectedDirectorId,
+				formStatePanNumber: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME],
+			});
+
+			if (!panValidationResult?.isValid) {
+				addToast({
+					message: `Error: PAN number already exists for ${
+						panValidationResult?.typeName
+					} ${panValidationResult?.directorName}`,
+					type: 'error',
+				});
+				return;
+			}
+
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
 			// call login api only once
@@ -1100,6 +1236,14 @@ const BasicDetails = props => {
 			// console.log({
 			// 	sectionData,
 			// });
+			let kyc_risk_profile = '';
+			try {
+				kyc_risk_profile =
+					sectionData?.director_details?.others_info &&
+					JSON.parse(sectionData?.director_details?.others_info)?.kyc_risk;
+			} catch (error) {
+				console.error('Error in parsing JSON', error);
+			}
 			const preData = {
 				...sectionData?.director_details,
 				...sectionData?.loan_request_Data,
@@ -1111,17 +1255,25 @@ const BasicDetails = props => {
 					sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
-				business_email: sectionData?.director_details?.demail,
+				business_email:
+					sectionData?.director_details?.demail || leadAllDetails?.email || '',
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
 					'',
 				contactno:
-					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
+					sectionData?.director_details?.dcontact ||
+					dedupeData?.mobile_no ||
+					leadAllDetails?.mobile_no ||
+					'',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
+				dpancard:
+					sectionData?.director_details?.dpancard ||
+					leadAllDetails?.pan_number ||
+					'',
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
@@ -1146,7 +1298,7 @@ const BasicDetails = props => {
 						: dedupeData?.businesstype
 						? `${dedupeData?.businesstype}`
 						: '',
-				// kyc_risk_profile: 'Low Risk',
+				kyc_risk_profile: kyc_risk_profile || '',
 
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
@@ -2029,6 +2181,20 @@ const BasicDetails = props => {
 							)}
 						</section>
 					</Modal>
+					<UcicSearchModal
+						show={isUcicSearchModalOpen}
+						onClose={() => {
+							setIsUcicSearchModalOpen(false);
+						}}
+						basicDetailsFormState={formState?.values}
+						isApplicant={isApplicant}
+						setCustomerList={setCustomerList}
+						setIsCustomerListModalOpen={setIsCustomerListModalOpen}
+						isCustomerListModalOpen={isCustomerListModalOpen}
+						customerList={customerList}
+						selectedDedupeData={selectedDedupeData}
+						formData={selectedSection?.ucic_search_form_data}
+					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2239,6 +2405,18 @@ const BasicDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
+										// disabling field if it is prefilled from third party response
+										if (
+											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
+												field?.name
+											) &&
+											selectedProduct?.product_details
+												?.disable_fields_if_prefilled
+										) {
+											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+												field
+											);
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubfields.disabled = true;
@@ -2333,15 +2511,35 @@ const BasicDetails = props => {
 															...customFieldProps,
 														})}
 													</div>
-													{field?.sub_fields &&
-														!field?.sub_fields[0].is_prefix &&
+													{field?.sub_fields?.map(subField => {
+														if (subField?.name === 'search_ucic') {
+															customFieldPropsSubfields.disabled = false;
+															customFieldPropsSubfields.onClick = () =>
+																setIsUcicSearchModalOpen(true);
+														}
+														return (
+															!subField?.is_prefix &&
+															register({
+																...subField,
+																value: '',
+																visibility: 'visible',
+																onClick: () => {
+																	setIsUcicSearchModalOpen(true);
+																},
+																...customFieldProps,
+																...customFieldPropsSubfields,
+															})
+														);
+													})}
+													{/* {field?.sub_fields &&
+														!field?.sub_fields[3]?.is_prefix &&
 														register({
-															...field.sub_fields[0],
+															...field.sub_fields[3],
 															value: newValueSelectField,
 															visibility: 'visible',
 															// ...customFieldProps,
 															...customFieldPropsSubfields,
-														})}
+														})} */}
 												</div>
 												{(formState?.submit?.isSubmited ||
 													formState?.touched?.[field.name]) &&

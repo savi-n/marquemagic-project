@@ -66,7 +66,7 @@ const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 const INDUSTRY_LIST_FETCH = `${API_END_POINT}/industry_list`;
 const SUB_INDUSTRY_FETCH = `${API_END_POINT}/subindustry_list`;
 const BUSINESS_DETIALS = `${API_END_POINT}/business_details`;
-const LEADS_DETIALS = `${API_END_POINT}/leadsData`;
+const LEADS_DETAILS = `${API_END_POINT}/leadsData`;
 const BUSINESS_ADDRESS_DETAILS = `${API_END_POINT}/business_address_details`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
@@ -84,6 +84,7 @@ const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
 const UPLOAD_SELFIE_APPLICANT_COAPPLICANT = `${API_END_POINT}/geo/upload_img`;
 const GEO_LOCATION = `${API_END_POINT}/geoLocation`;
+const UPDATE_COMPANY_CIN = `${API_END_POINT}/company/update-data`;
 
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
@@ -271,7 +272,7 @@ export {
 	SKIP_SECTION,
 	INDUSTRY_LIST_FETCH,
 	SUB_INDUSTRY_FETCH,
-	LEADS_DETIALS,
+	LEADS_DETAILS,
 	VEHICLE_RC,
 	LEADS_DATA,
 	DELETE_LOAN_FIN,
@@ -283,4 +284,5 @@ export {
 	GET_CONSENT,
 	SEND_SMS,
 	SEND_EMAIL,
+	UPDATE_COMPANY_CIN,
 };

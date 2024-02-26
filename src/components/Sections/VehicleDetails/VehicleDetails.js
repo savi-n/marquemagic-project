@@ -1,34 +1,41 @@
-import React, { useLayoutEffect } from 'react';
-import { Fragment, useState } from 'react';
+import React, { useLayoutEffect, Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
 
 import Button from 'components/Button';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
+import { useToasts } from 'components/Toast/ToastProvider';
 
+import * as CONST from './const';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
+import {
+	formatGetSectionReqBody,
+	formatINR,
+	formatSectionReqBody,
+} from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
-import { API_END_POINT } from '_config/app.config';
+import * as API from '_config/app.config';
 import { scrollToTopRootElement } from 'utils/helper';
-// import selectedSection from './sample.json';
 
 const VehicleDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorOptions } = useSelector(state => state.directors);
+	const {
+		directors,
+		selectedDirectorId,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
 	const {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
-		selectedSection,
 		selectedProduct,
-		// clientToken,
+		selectedSection,
 	} = app;
 	const { businessName } = application;
 	const dispatch = useDispatch();
@@ -37,8 +44,23 @@ const VehicleDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	const [leadData, setLeadData] = useState({});
+	const [isDisplaySectionType, setIsDisplaySectionType] = useState(false);
+
+	const { addToast } = useToasts();
+
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
-	// console.log({ sectionData });
+	const vehicleFields =
+		selectedSection?.sub_sections?.find(
+			section => section?.id === CONST.SUB_SECTION_NAME_VEHICLE_DETAILS
+		)?.fields || [];
+	const vehicleTypeOptions =
+		vehicleFields?.find(field => field?.name === CONST.FIELD_NAME_VEHICLE_TYPE)
+			?.options || [];
+	const equipmentTypeOptions =
+		vehicleFields?.find(
+			field => field?.name === CONST.FIELD_NAME_EQUIPMENT_TYPE
+		)?.options || [];
 	const business = {
 		name: businessName || 'Company/Business',
 		value: '0',
@@ -47,23 +69,88 @@ const VehicleDetails = props => {
 	if (selectedProduct?.isSelectedProductTypeBusiness)
 		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
 	else newselectedDirectorOptions = selectedDirectorOptions;
+
+	const submitAllLeadsData = async () => {
+		const otherData = leadData?.other_data || '';
+		const tempSectionData = otherData ? JSON.parse(otherData) : {};
+
+		if (tempSectionData?.assets?.length > 0) {
+			try {
+				setFetchingSectionData(true);
+				const requestBody = formatSectionReqBody({
+					section: selectedSection,
+					app,
+					selectedDirector: directors?.[selectedDirectorId],
+					application,
+				});
+				const submittedLeadAssets = tempSectionData?.assets?.map(asset => {
+					return {
+						vehicle_details: {
+							...asset,
+							equipment_type: asset?.equipment_type_asset,
+							vehicle_type: asset?.vehicle_type_asset,
+							manufacturer_name: asset?.manufacturer,
+							equipment_model: asset?.model,
+							vehicle_model: asset?.model,
+						},
+					};
+				});
+				const submitResponse = await axios.post(
+					`${API.API_END_POINT}/vehicle_details`,
+					{ ...requestBody, data: submittedLeadAssets }
+				);
+				const addedLeadAssets = submitResponse?.data?.data?.map(
+					res => res?.loan_assets_data
+				);
+				if (addedLeadAssets?.length === tempSectionData?.assets?.length) {
+					const leadsDetailsReqBody = {
+						...tempSectionData,
+						id: leadData?.id,
+						assets: [],
+					};
+					const leadsDataResponse = await axios.post(
+						`${API.LEADS_DETAILS}`,
+						leadsDetailsReqBody
+					);
+					if (leadsDataResponse?.data?.status === 'ok') {
+						fetchSectionDetails();
+					}
+				}
+			} catch (err) {
+				addToast({
+					message: 'Error submitting leads assets data',
+					type: 'error',
+				});
+			} finally {
+				setFetchingSectionData(false);
+			}
+		}
+	};
+
+	useEffect(() => {
+		submitAllLeadsData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [leadData]);
+
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
 		setIsCreateFormOpen(true);
 	};
-
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/assets_details?${formatGetSectionReqBody({
+				`${API.API_END_POINT}/assets_details?${formatGetSectionReqBody({
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.vehicle_details?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.vehicle_details);
+
+			setLeadData(fetchRes?.data?.data.leads_data?.[0] || {});
+			const vehicleDetails = fetchRes?.data?.data?.vehicle_details || [];
+
+			if (vehicleDetails?.length > 0) {
+				setSectionData([...vehicleDetails]);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -109,22 +196,30 @@ const VehicleDetails = props => {
 	useLayoutEffect(() => {
 		scrollToTopRootElement();
 		fetchSectionDetails();
+		isSectionDisplayType();
 		// eslint-disable-next-line
 	}, []);
+
+	const isSectionDisplayType = () => {
+		const field = selectedSection?.sub_sections?.[0]?.fields?.filter(
+			field => field?.name === CONST.FIELD_NAME_SECTION_CATEGORY_FOR
+		);
+		if (field?.length > 0) setIsDisplaySectionType(true);
+	};
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
 				<Loading />
 			) : (
-				<>
+				<div key={selectedSectionId}>
 					<Fragment>
 						<UI_SECTIONS.SubSectionHeader>
 							{selectedSection?.name || 'Vehicle Details'}
 						</UI_SECTIONS.SubSectionHeader>
 						{/* combine local + db array */}
 						{sectionData.map((section, sectionIndex) => {
-							const sectionId = section?.id;
+							const sectionId = section?.id || sectionIndex;
 							const isAccordianOpen = sectionId === openAccordianId;
 							const isEditLoan = editSectionId === sectionId;
 							const prefillData = section
@@ -132,13 +227,47 @@ const VehicleDetails = props => {
 										...section?.loan_json?.rc_verification,
 										...section?.loan_json?.auto_inspect,
 										...section,
+										asset_type:
+											section?.loan_json?.rc_verification?.asset_type ||
+											section?.asset_type,
+										equipment_type:
+											section?.loan_json?.rc_verification?.equipment_type ||
+											section?.equipment_type_asset,
+										vehicle_type:
+											section?.loan_json?.rc_verification?.vehicle_type ||
+											section?.vehicle_type_asset,
+										manufacturer_name:
+											section?.loan_json?.rc_verification?.manufacturer_name ||
+											section?.manufacturer,
+										equipment_model:
+											section?.loan_json?.rc_verification?.equipment_model ||
+											section?.model,
+										vehicle_model:
+											section?.loan_json?.rc_verification?.vehicle_model ||
+											section?.model,
 										director_id:
 											section?.director_id === 0
 												? '0'
 												: `${section?.director_id}`,
 										...(section || {}),
+										type_of_funding_used:
+											section.loan_json.rc_verification.type_of_funding || '',
+										type_of_funding_new:
+											section.loan_json.rc_verification.type_of_funding || '',
 								  }
 								: {};
+							const isEquipment = !!prefillData?.equipment_type;
+							const typeOfAsset = isEquipment
+								? equipmentTypeOptions?.find(
+										option => option?.value === prefillData?.equipment_type
+								  )
+								: vehicleTypeOptions?.find(
+										option => option?.value === prefillData?.vehicle_type
+								  ) || '';
+							const director = newselectedDirectorOptions?.find(
+								director =>
+									`${director?.value}` === `${prefillData?.director_id}`
+							);
 
 							return (
 								<UI_SECTIONS.AccordianWrapper>
@@ -147,23 +276,36 @@ const VehicleDetails = props => {
 									>
 										{isAccordianOpen ? null : (
 											<>
+												{isDisplaySectionType ? (
+													<UI_SECTIONS.AccordianHeaderData>
+														<span>
+															{selectedSection?.name ===
+															CONST.SELECTD_SECTION_NAME
+																? `${
+																		isEquipment ? 'Equipment' : 'Vehicle'
+																  } For:`
+																: `${selectedSection?.name
+																		.split(' ')
+																		.slice(0, -1)
+																		.join(' ')} For:`}
+														</span>
+														<strong>{director?.name || ''}</strong>
+													</UI_SECTIONS.AccordianHeaderData>
+												) : null}
+
 												<UI_SECTIONS.AccordianHeaderData>
-													<span>Vehicle For:</span>
-													<strong>
-														{
-															newselectedDirectorOptions?.filter(
-																director =>
-																	`${director?.value}` ===
-																	`${prefillData?.director_id}`
-															)?.[0]?.name
-														}
-													</strong>
-												</UI_SECTIONS.AccordianHeaderData>
-												<UI_SECTIONS.AccordianHeaderData>
-													<span>Type of Assets:</span>
-													<strong>
-														{prefillData?.loan_asset_type_id?.typename}
-													</strong>
+													<span>
+														{selectedSection?.name ===
+														CONST.SELECTD_SECTION_NAME
+															? `Type of ${
+																	isEquipment ? 'Equipment' : 'Vehicle'
+															  }`
+															: `Type of ${selectedSection?.name
+																	.split(' ')
+																	.slice(0, -1)
+																	.join(' ')}`}
+													</span>
+													<strong>{typeOfAsset?.name}</strong>
 												</UI_SECTIONS.AccordianHeaderData>
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>Amount:</span>
@@ -285,7 +427,13 @@ const VehicleDetails = props => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional Vehicles</span>
+								<span>
+									Click to add additional{' '}
+									{selectedSection?.name
+										.split(' ')
+										.slice(0, -1)
+										.join(' ')}
+								</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
@@ -302,7 +450,7 @@ const VehicleDetails = props => {
 
 						<NavigateCTA />
 					</UI_SECTIONS.Footer>
-				</>
+				</div>
 			)}
 		</UI_SECTIONS.Wrapper>
 	);

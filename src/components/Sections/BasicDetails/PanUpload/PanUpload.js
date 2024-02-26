@@ -23,9 +23,14 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BASIC_DETAILS from '../const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
-import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
+import {
+	isImageFile,
+	maxUploadSize,
+	validateFileUpload,
+} from 'utils/helperFunctions';
 import TooltipImage from 'components/Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
+import ImageViewerModal from 'components/Global/ImageViewerModal';
 
 const PanUpload = props => {
 	const {
@@ -44,7 +49,7 @@ const PanUpload = props => {
 		selectedSectionId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, clientToken } = app;
+	const { selectedProduct, clientToken, userDetails } = app;
 	const { loanId, businessUserId } = application;
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
@@ -55,6 +60,9 @@ const PanUpload = props => {
 	const { addToast } = useToasts();
 	// const dispatch = useDispatch();
 	const panExtractionData = uploadedFile?.panExtractionData;
+
+	const [imageSrc, setImageSrc] = useState('');
+	const [isImageModalVisible, setIsImageModalVisible] = useState(false);
 
 	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
 	const isFileFromDeviceStorageAllowed =
@@ -72,12 +80,23 @@ const PanUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
+			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
+				setImageSrc(imageURL);
+				setIsImageModalVisible(true);
+				return;
+			}
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
 		} finally {
 			setLoadingFile(false);
 		}
+	};
+
+	const onCloseImageViewerModal = () => {
+		setIsImageModalVisible(false);
+		setImageSrc('');
 	};
 
 	const verifyKycPan = async () => {
@@ -431,12 +450,21 @@ const PanUpload = props => {
 
 	return (
 		<>
+			{isImageModalVisible && (
+				<ImageViewerModal
+					onClose={onCloseImageViewerModal}
+					imageSrc={imageSrc}
+					modalVisible={isImageModalVisible}
+				/>
+			)}
+
 			<CompanySelectModal
 				companyNameSearch={companyNameSearch}
 				searchingCompanyName={loading}
 				show={isCompanyListModalOpen}
 				companyName={formState?.values?.companyName}
 				companyList={companyList}
+				setCompanyList={setCompanyList}
 				panExtractionData={panExtractionData}
 				onClose={() => {
 					setIsCompanyListModalOpen(false);

@@ -60,7 +60,25 @@ export const CUSTOMER_ID_FIELD_NAME = 'customer_id';
 export const BUSINESS_START_DATE = 'business_vintage';
 export const SUB_INDUSTRY_TYPE_FIELD_NAME = 'sub_industry_type';
 export const INDUSTRY_TYPE_FIELD_NAME = 'industry_type';
+export const NUMBER_OF_EMPOYEE='empcount';
+export const TITLE_FIELD='title';
+
 
 // export const NO_INCOME_TYPE_SELECTED_HINT =
 // 	'Select the business type to fetch the data from Customer ID.';
 export const ENTER_VALID_UCIC_HINT = 'Enter the valid UCIC number';
+
+export const FIELDS_TO_DISABLE_IF_PREFILLED = [
+	// FIRST_NAME_FIELD_NAME,
+	LAST_NAME_FIELD_NAME,
+	PAN_NUMBER_FIELD_NAME,
+	BUSINESS_MOBILE_NUMBER_FIELD_NAME,
+	BUSINESS_NAME_FIELD_NAME,
+	BUSINESS_TYPE_FIELD_NAME,
+	FATHER_NAME_FIELD_NAME,
+	MOBILE_NUMBER_FIELD_NAME,
+	BUSINESS_EMAIL_FIELD,
+	CONTACT_EMAIL_FIELD,
+	CUSTOMER_ID_FIELD_NAME,
+	// BUSINESS_START_DATE,
+];
