@@ -53,6 +53,8 @@ export const FIELD_NAME_INSURANCE_POLICY_NUMBER = 'insurance_policy_no';
 export const FIELD_NAME_MANUFACTURER_NAME = 'manufacturer_name';
 export const FIELD_NAME_TONNAGE_CATEGORY = 'tonnage_category';
 export const FIELD_NAME_VALUATION_PRICE = 'valuation_price';
+export const FIELD_NAME_SECTION_CATEGORY_FOR = 'section_category_for';
+export const SELECTD_SECTION_NAME = 'Vehicle/Equipment Details';
 
 export const PREFILL_FIELD_NAMES_ON_FETCH = [
 	FIELD_NAME_FUEL_TYPE,
