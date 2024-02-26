@@ -50,6 +50,7 @@ import {
 	// validateAllTheDirectors,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
+import { formatUdyamAddress } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -58,7 +59,11 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import { API_END_POINT, VERIFY_UDYAM_NUMBER } from '_config/app.config';
+import {
+	API_END_POINT,
+	VERIFY_UDYAM_NUMBER,
+	GET_UDYAM_DETAILS_BUSINESS_ID,
+} from '_config/app.config';
 import {
 	scrollToTopRootElement,
 	isNullFunction,
@@ -175,9 +180,8 @@ const BasicDetails = props => {
 	// 	selectedProduct
 	// );
 	const [isUdyamModalOpen, setIsUdyamModalOpen] = useState(false);
-	const [isUdyamButtonEnable, setIsUdyamButtonEnable] = useState(true);
-
-	// const [requestIdValue, setRequestIdValue] = useState();
+	const [details, setDetails] = useState();
+	const [requestIdValue, setRequestIdValue] = useState();
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -366,10 +370,6 @@ const BasicDetails = props => {
 		saveMandatoryGeoLocation();
 		// eslint-disable-next-line
 	}, []);
-
-	// useEffect(() => {
-	// 	console.log(requestIdValue, 'requets idvalue');
-	// }, [requestIdValue]);
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -796,53 +796,6 @@ const BasicDetails = props => {
 			setLoading(false);
 		}
 	};
-
-	let requestIdValue = '';
-	let address = {
-		'Flat/Door/Block No.': '-',
-		'Village/Town': 'kadalavila nellikunnam po',
-		'Road/Street/Lane': '-',
-		State: 'KERALA',
-		Mobile: '97***088',
-		'Name of Premises/ Building': 'Pazahayavilayil',
-		Block: 'Kottarakara',
-		City: 'kollam',
-		District: 'KOLLAM',
-		'Email:': 'binsonbabuktr1995@gmail.com',
-		'Pin:': '691506',
-	};
-
-	// const objectToCommaSeparatedString = obj => {
-	// 	// Use Object.entries to get an array of key-value pairs
-	// 	const entries = Object.entries(obj);
-
-	// 	console.log(entries);
-	// 	console.log(entries.filter(field => field.name !== 'Email' || 'Mobile'));
-	// 	// Use map to create an array of strings for each key-value pair
-	// 	const keyValueStrings = entries.map(([key, value]) => `${key}: ${value}\n`);
-
-	// 	// Use join to combine all the strings into one, separated by commas
-	// 	return keyValueStrings;
-	// 	// .join('');
-	// };
-
-	const objectToCommaSeparatedString = obj => {
-		const entries = Object.entries(obj);
-
-		const filteredEntries = entries.filter(
-			([key]) => key !== 'Email:' && key !== 'Mobile'
-		);
-		const keyValueStrings = filteredEntries.map(
-			([key, value]) => `${key}: ${value}\n`
-		);
-
-		return keyValueStrings;
-		// .join('');
-	};
-
-	const address_join_details = objectToCommaSeparatedString(address);
-	// let request_id = '';
-	// Udyam Number - UDYAM-KL-06-0000002
 	// Handling Udyam number and its response, only toggle button, if data is succesfully fetched
 	const onUdyamNumberEnter = async udyam => {
 		try {
@@ -854,7 +807,6 @@ const BasicDetails = props => {
 				});
 			}
 			setLoading(true);
-			setIsUdyamButtonEnable(true);
 			const udyamNumberRes = await axios.get(`${VERIFY_UDYAM_NUMBER}`, {
 				params: {
 					udyamRegNo: `${udyam}`,
@@ -864,28 +816,13 @@ const BasicDetails = props => {
 				},
 			});
 
-			// console.log(udyamNumberRes.data.request_id);
-			if (udyamNumberRes?.data?.data !== null) {
+			if (udyamNumberRes?.data?.status === 'ok') {
 				addToast({
 					message: 'Udyam number is validated',
 					type: 'success',
 				});
-
-				// setUdyamOrganisationDetails({
-				// 	organisation_name: udyamNumberRes.data.data.nameOfEnterprise,
-				// 	date_of_incorporation: udyamNumberRes.data.data.dateOfIncorporation,
-				// 	date_of_registration:
-				// 		udyamNumberRes.data.data.dateOfUdyamRegistration,
-				// 	organisation_type: udyamNumberRes.data.data.organisationType,
-				// });
-				setIsUdyamButtonEnable(true);
 			}
-			// setRequestIdValue(udyamNumberRes.data.request_id);
-			requestIdValue = udyamNumberRes.data.request_id;
-			// console.log(requestIdValue, 'requestidvalue');
-			setUdyamOrganisationDetails({ business_address: address_join_details });
-			// business_address: udyamNumberRes.data.data.officialAddress,
-			// mobile_number: udyamNumberRes.data.officialAddress.Mobile,
+			setRequestIdValue(udyamNumberRes.data.request_id);
 		} catch (error) {
 			console.error(error);
 			addToast({
@@ -898,6 +835,81 @@ const BasicDetails = props => {
 		}
 	};
 
+	const extractUdyamDetails = params => {
+		let getUdyamDetailsForDir = params || details;
+		console.log(details, 'extractdetails', params, 'params');
+
+		if (getUdyamDetailsForDir?.length > 0) {
+			getUdyamDetailsForDir = getUdyamDetailsForDir?.filter(
+				dir => `${dir?.director_id}` === `${selectedDirectorId}`
+			)?.[0]?.udyam_data;
+		}
+		if (!!getUdyamDetailsForDir) {
+			const officialAddress = formatUdyamAddress(
+				getUdyamDetailsForDir.officialAddress
+			);
+			const udyamResObj = {
+				organisation_name: getUdyamDetailsForDir.nameOfEnterprise,
+				date_of_incorporation: getUdyamDetailsForDir.dateOfIncorporation,
+				date_of_registration: getUdyamDetailsForDir.dateOfUdyamRegistration,
+				organisation_type: getUdyamDetailsForDir.organisationType,
+				mobile_number: getUdyamDetailsForDir.officialAddress.Mobile,
+				business_address: officialAddress,
+			};
+			setUdyamOrganisationDetails(udyamResObj);
+		}
+	};
+
+	const handleUdyamResponse = async businessId => {
+		try {
+			if (Object.keys(udyamOrganisationDetails).length === 0 && !!businessId) {
+				const payload = { business_id: businessId };
+				const udyamDetailRes = await axios.post(
+					`${GET_UDYAM_DETAILS_BUSINESS_ID}`,
+					payload,
+					{
+						headers: {
+							Authorization: clientToken,
+						},
+					}
+				);
+
+				if (
+					udyamDetailRes?.data?.status === 'ok' &&
+					udyamDetailRes?.data?.data?.length > 0
+				) {
+					extractUdyamDetails(udyamDetailRes?.data?.data);
+					setDetails(udyamDetailRes?.data?.data);
+					console.log(
+						'udyamDetailRes?.data?.data',
+						udyamDetailRes?.data?.data,
+						'details',
+						details
+					);
+				} else {
+					addToast({
+						message: 'Please enter / trigger Udyam Number to proceed',
+						type: 'error',
+					});
+					return;
+				}
+			} else if (!businessId) {
+				addToast({
+					message: 'Please submit the section and try again.',
+					error: 'error',
+				});
+			}
+			setTimeout(() => {
+				setIsUdyamModalOpen(true);
+			}, 500);
+		} catch (error) {
+			console.error(error);
+			addToast({
+				message: 'Something went wrong, please try again',
+				type: 'error',
+			});
+		}
+	};
 	//Handle udyam doc similar to cache, but while removing, set the fetchedState to null
 	const addUdyamDocumentTemp = file => {
 		const newUdyamDocTemp = _.cloneDeep(udyamDocumentTemp);
@@ -2630,8 +2642,8 @@ const BasicDetails = props => {
 
 										//Udyam Document Upload Handling
 										if (
-											field.type === 'file' &&
-											field.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
+											field?.type === 'file' &&
+											field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
 										) {
 											const selectedDocTypeId =
 												field?.doc_type?.[selectedIncomeType];
@@ -2749,9 +2761,10 @@ const BasicDetails = props => {
 
 														//Udyam Number Input Handling
 														if (subField?.name === 'udyam_fetch') {
+															// isUdyamButtonEnable(true);
 															customFieldPropsSubfields.placeholder = 'Trigger';
 															customFieldPropsSubfields.loading = loading;
-
+															// setIsUdyamButtonEnable(true);
 															customFieldPropsSubfields.onClick = () => {
 																onUdyamNumberEnter(
 																	formState.values?.[
@@ -2934,12 +2947,14 @@ const BasicDetails = props => {
 							</>
 						)}
 
-						{isUdyamButtonEnable && (
+						{selectedSection?.show_udyam_details_button && (
 							<>
 								<Button
 									name='Show Udyam Details'
 									fill
-									onClick={() => setIsUdyamModalOpen(true)}
+									onClick={() => {
+										handleUdyamResponse(businessId);
+									}}
 								/>
 							</>
 						)}

@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import Modal from 'components/Modal';
 import * as UI from './ui';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
-import { useEffect } from 'react';
 
 const Div = styled.div`
 	padding: 20px;
@@ -38,7 +37,6 @@ const Col1 = styled.div`
 	padding-left: 20px;
 	text-transform: capitalize;
 	font-weight: bold;
-	/* text-align: center; */
 	display: flex;
 	align-items: center;
 `;
@@ -50,26 +48,51 @@ const Col2 = styled.div`
 	white-space: pre-wrap;
 	word-spacing: 2px;
 `;
+const Title = styled.div`
+	margin: 10px 10px;
+	font-size: 18px;
+	padding: 20px 10px;
+	text-align: center;
+`;
 
 export default function TableModal({ show, onClose, details, heading }) {
 	return (
-		<Modal show={show} onClose={onClose} width='50%'>
-			{Object.entries(details)?.length > 0 && (
-				<>
-					<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
-					<Div>
-						<Header>{heading}</Header>
-						<>
-							{Object.entries(details).map(([key, value]) => (
-								<Row key={key}>
-									<Col1>{key}</Col1>
-									<Col2>{value}</Col2>
-								</Row>
-							))}
-						</>
-					</Div>
-				</>
-			)}
+		<Modal
+			show={show}
+			onClose={onClose}
+			customStyle={{
+				width: 'auto',
+				minHeight: 'auto',
+				paddingBottom: '10px',
+			}}
+		>
+			<>
+				<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
+
+				{Object.entries(details)?.length > 0 ? (
+					<>
+						<Div>
+							<Header>{heading}</Header>
+							<>
+								{Object.entries(details).map(([key, value]) => (
+									<Row key={key}>
+										<Col1>{key}</Col1>
+										<Col2>{value}</Col2>
+									</Row>
+								))}
+							</>
+						</Div>
+					</>
+				) : (
+					<>
+						<Div>
+							<Title>
+								Data is being fetched, Please, try again after some time
+							</Title>
+						</Div>
+					</>
+				)}
+			</>
 		</Modal>
 	);
 }
