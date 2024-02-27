@@ -74,7 +74,7 @@ export default function TableModal({ show, onClose, details, heading }) {
 						<Div>
 							<Header>{heading}</Header>
 							<>
-								{Object.entries(details).map(([key, value]) => (
+								{Object.entries(details)?.map(([key, value]) => (
 									<Row key={key}>
 										<Col1>{key}</Col1>
 										<Col2>{value}</Col2>

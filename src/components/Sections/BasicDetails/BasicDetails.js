@@ -837,7 +837,6 @@ const BasicDetails = props => {
 
 	const extractUdyamDetails = params => {
 		let getUdyamDetailsForDir = params || details;
-		console.log(details, 'extractdetails', params, 'params');
 
 		if (getUdyamDetailsForDir?.length > 0) {
 			getUdyamDetailsForDir = getUdyamDetailsForDir?.filter(
@@ -846,14 +845,14 @@ const BasicDetails = props => {
 		}
 		if (!!getUdyamDetailsForDir) {
 			const officialAddress = formatUdyamAddress(
-				getUdyamDetailsForDir.officialAddress
+				getUdyamDetailsForDir?.officialAddress
 			);
 			const udyamResObj = {
-				organisation_name: getUdyamDetailsForDir.nameOfEnterprise,
-				date_of_incorporation: getUdyamDetailsForDir.dateOfIncorporation,
-				date_of_registration: getUdyamDetailsForDir.dateOfUdyamRegistration,
-				organisation_type: getUdyamDetailsForDir.organisationType,
-				mobile_number: getUdyamDetailsForDir.officialAddress.Mobile,
+				organisation_name: getUdyamDetailsForDir?.nameOfEnterprise,
+				date_of_incorporation: getUdyamDetailsForDir?.dateOfIncorporation,
+				date_of_registration: getUdyamDetailsForDir?.dateOfUdyamRegistration,
+				organisation_type: getUdyamDetailsForDir?.organisationType,
+				mobile_number: getUdyamDetailsForDir?.officialAddress?.Mobile,
 				business_address: officialAddress,
 			};
 			setUdyamOrganisationDetails(udyamResObj);
