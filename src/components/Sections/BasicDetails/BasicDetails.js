@@ -2546,16 +2546,17 @@ const BasicDetails = props => {
 														})}
 													</div>
 													{field?.sub_fields?.map(subField => {
+														console.log("fieldss",field.sub_fields);
 														if (subField?.name === 'search_ucic') {
 															customFieldPropsSubfields.disabled = false;
 															customFieldPropsSubfields.onClick = () =>
 																setIsUcicSearchModalOpen(true);
 														}
-														// if (subField?.name === 'search_ucic') {
-														// 	customFieldPropsSubfields.disabled = false;
-														// 	customFieldPropsSubfields.onClick = () =>
-														// 		setIsUcicSearchModalOpen(true);
-														// }
+														if (subField?.name === 'check_dedupe') {
+															customFieldPropsSubfields.disabled = false;
+															customFieldPropsSubfields.onClick = () =>
+															setIsDudupeCheckSearchModalOpen(true);
+														}
 														return (
 															!subField?.is_prefix &&
 															register({
@@ -2564,6 +2565,7 @@ const BasicDetails = props => {
 																visibility: 'visible',
 																onClick: () => {
 																	setIsUcicSearchModalOpen(true);
+																	setIsDudupeCheckSearchModalOpen(true);
 																},
 																...customFieldProps,
 																...customFieldPropsSubfields,
