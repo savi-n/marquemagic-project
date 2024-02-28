@@ -45,6 +45,7 @@ const VehicleDetails = props => {
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const [leadData, setLeadData] = useState({});
+	const [isDisplaySectionType, setIsDisplaySectionType] = useState(false);
 
 	const { addToast } = useToasts();
 
@@ -195,8 +196,16 @@ const VehicleDetails = props => {
 	useLayoutEffect(() => {
 		scrollToTopRootElement();
 		fetchSectionDetails();
+		isSectionDisplayType();
 		// eslint-disable-next-line
 	}, []);
+
+	const isSectionDisplayType = () => {
+		const field = selectedSection?.sub_sections?.[0]?.fields?.filter(
+			field => field?.name === CONST.FIELD_NAME_SECTION_CATEGORY_FOR
+		);
+		if (field?.length > 0) setIsDisplaySectionType(true);
+	};
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -241,8 +250,10 @@ const VehicleDetails = props => {
 												? '0'
 												: `${section?.director_id}`,
 										...(section || {}),
-										type_of_funding_used:section.loan_json.rc_verification.type_of_funding|| '',
-										type_of_funding_new:section.loan_json.rc_verification.type_of_funding|| '',
+										type_of_funding_used:
+											section.loan_json.rc_verification.type_of_funding || '',
+										type_of_funding_new:
+											section.loan_json.rc_verification.type_of_funding || '',
 								  }
 								: {};
 							const isEquipment = !!prefillData?.equipment_type;
@@ -265,23 +276,34 @@ const VehicleDetails = props => {
 									>
 										{isAccordianOpen ? null : (
 											<>
-												<UI_SECTIONS.AccordianHeaderData>
-													<span>
-														{isEquipment ? 'Equipment' : 'Vehicle'} For:
-													</span>
-													<strong>{director?.name || ''}</strong>
-												</UI_SECTIONS.AccordianHeaderData>
+												{isDisplaySectionType ? (
+													<UI_SECTIONS.AccordianHeaderData>
+														<span>
+															{selectedSection?.name ===
+															CONST.SELECTD_SECTION_NAME
+																? `${
+																		isEquipment ? 'Equipment' : 'Vehicle'
+																  } For:`
+																: `${selectedSection?.name
+																		.split(' ')
+																		.slice(0, -1)
+																		.join(' ')} For:`}
+														</span>
+														<strong>{director?.name || ''}</strong>
+													</UI_SECTIONS.AccordianHeaderData>
+												) : null}
+
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>
 														{selectedSection?.name ===
-														'Vehicle/Equipment Details'
+														CONST.SELECTD_SECTION_NAME
 															? `Type of ${
 																	isEquipment ? 'Equipment' : 'Vehicle'
 															  }`
-															: selectedSection?.name
+															: `Type of ${selectedSection?.name
 																	.split(' ')
 																	.slice(0, -1)
-																	.join(' ')}
+																	.join(' ')}`}
 													</span>
 													<strong>{typeOfAsset?.name}</strong>
 												</UI_SECTIONS.AccordianHeaderData>
