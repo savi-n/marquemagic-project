@@ -44,6 +44,7 @@ const DudupeCheckSearchModal = props => {
 	} = props;
     console.log("props",props);
     console.log("basicDetailsFormState",basicDetailsFormState);
+    console.log("setIsCustomerListdudupeModalOpen",setIsCustomerListdudupeModalOpen);
 	const { app, application } = useSelector(state => state);
 	const { permission, whiteLabelId, userToken,selectedProduct } = app;
     console.log("selectedProduct",selectedProduct);
@@ -149,7 +150,7 @@ function handleskip(){
 				}
 				ddupeRes && setCustomerListDudupe(ddupeRes?.data?.data || []);
 				setIsCustomerListdudupeModalOpen(true);
-				onClose();
+				// onClose();
 			}
 		} catch (e) {
 			console.error(e.message);
