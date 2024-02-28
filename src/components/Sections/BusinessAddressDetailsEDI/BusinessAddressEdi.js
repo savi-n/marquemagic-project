@@ -468,8 +468,9 @@ const BusinessAddressDetailsEdi = props => {
 					line3: gstAddressResponse?.data?.data?.pradr?.addr?.st || '',
 					pincode: gstAddressResponse?.data?.data?.pradr?.addr?.pncd || '',
 				};
-
-				populateFromResponse(newAddress);
+{!selectedProduct?.product_details
+	?.disable_fields_if_prefilled && populateFromResponse(newAddress);}
+				
 			} catch (error) {
 				console.error('error-BusinessAddressDetails', {
 					error: error,
