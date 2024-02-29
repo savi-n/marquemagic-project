@@ -68,7 +68,19 @@ const AddressProofUpload = props => {
 		isViewLoan,
 		isEditOrViewLoan,
 		directorDetails,
+		doesAddressDetailsHasMoreThanTwoSubsection,
 	} = props;
+	console.log(
+		{
+			addressProofUploadSection,
+			doesAddressDetailsHasMoreThanTwoSubsection,
+			prefix,
+			cacheDocumentsTemp,
+			setCacheDocumentsTemp,
+			setOtherCacheDocumentsTemp,
+		},
+		'address proof upload section'
+	);
 
 	let { addressProofError } = props;
 	const { app, application } = useSelector(state => state);
@@ -103,10 +115,16 @@ const AddressProofUpload = props => {
 
 	const aadhaarProofOTPField =
 		addressProofUploadSection?.fields?.filter(field =>
-			field?.name?.includes(CONST.AADHAAR_FIELD_NAME_FOR_OTP)
+			doesAddressDetailsHasMoreThanTwoSubsection
+				? field?.name?.includes(
+						CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+				  )
+				: field?.name?.includes(CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT)
 		) || [];
+
 	const prefillDataOnUpload =
-		selectedProduct?.product_details?.prefill_data_on_upload;
+		selectedProduct?.product_details?.prefill_data_on_upload || true;
+	console.log('🚀 ~ prefillDataOnUpload:', prefillDataOnUpload);
 
 	const isFileFromDeviceStorageAllowed =
 		selectedProduct?.product_details?.is_file_from_storage_allowed;
@@ -434,7 +452,15 @@ const AddressProofUpload = props => {
 				setCacheDocumentsTemp(newCacheDocumentTemp);
 
 				if (prefillDataOnUpload === undefined || prefillDataOnUpload) {
-					prepopulateAddressDetails(backFile);
+					if (
+						!(
+							doesAddressDetailsHasMoreThanTwoSubsection &&
+							CONST.EXCLUDE_SECTION_PREFILL.includes(
+								addressProofUploadSection?.id
+							)
+						)
+					)
+						prepopulateAddressDetails(backFile);
 				}
 				await verifyKycAddressProof(backFile);
 				// setCacheDocumentsTemp([backFile])
@@ -483,21 +509,47 @@ const AddressProofUpload = props => {
 			const frontOnlyForensicFlagMsg = frontOnlyForensicRes?.flag_message || '';
 
 			if (frontOnlyExtractionStatus === 'nok') {
+				if (
+					doesAddressDetailsHasMoreThanTwoSubsection &&
+					CONST.EXCLUDE_SECTION_PREFILL.includes(addressProofUploadSection?.id)
+				) {
+					addToast({
+						message:
+							'Document Upload Failed! Please reupload the taged documents.',
+						type: 'error',
+					});
+					return;
+				}
 				setAddressProofError(
 					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontOnlyExtractionMsg}`
 				);
 				return; // STOP FURTHER EXECUTION
 			}
 			if (frontOnlyForensicFlag === 'error') {
+				if (
+					doesAddressDetailsHasMoreThanTwoSubsection &&
+					CONST.EXCLUDE_SECTION_PREFILL.includes(addressProofUploadSection?.id)
+				) {
+					addToast({
+						message:
+							'Document Upload Failed! Please reupload the taged documents.',
+						type: 'error',
+					});
+					return;
+				}
 				setAddressProofError(
 					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontOnlyForensicFlagMsg}`
 				);
 				return; // STOP FURTHER EXECUTION
 			}
 			if (frontOnlyForensicFlag === 'warning') {
-				setAddressProofError(
-					`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontOnlyForensicFlagMsg}`
-				);
+				if (!doesAddressDetailsHasMoreThanTwoSubsection) {
+					setAddressProofError(
+						`${
+							CONST_SECTIONS.EXTRACTION_FLAG_WARNING
+						}${frontOnlyForensicFlagMsg}`
+					);
+				}
 				// CONTINUE EXECUTION
 			}
 			const frontOnlyFile = {
@@ -535,7 +587,15 @@ const AddressProofUpload = props => {
 			// };
 
 			if (prefillDataOnUpload === undefined || prefillDataOnUpload) {
-				prepopulateAddressDetails(frontOnlyFile);
+				if (
+					!(
+						doesAddressDetailsHasMoreThanTwoSubsection &&
+						CONST.EXCLUDE_SECTION_PREFILL.includes(
+							addressProofUploadSection?.id
+						)
+					)
+				)
+					prepopulateAddressDetails(frontOnlyFile);
 			}
 			await verifyKycAddressProof(frontOnlyFile);
 			// await verifyKycAddressProof(REQ_TYPE, newAddressProofExtractionData);
@@ -1002,7 +1062,9 @@ const AddressProofUpload = props => {
 					{/* )} */}
 					{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
 						<>
-							{selectedAddressProofId === 'permanent_aadhar' && (
+							{(selectedAddressProofId === 'as_per_document_aadhar' ||
+								(selectedAddressProofId === 'permanent_aadhar' &&
+									!doesAddressDetailsHasMoreThanTwoSubsection)) && (
 								<UI.OR>or</UI.OR>
 							)}
 							{aadhaarProofOTPField.map((aadharField, fieldIndex) => {
@@ -1423,7 +1485,14 @@ const AddressProofUpload = props => {
 							!selectedDirector?.sections?.includes(selectedSectionId) && (
 								<Button
 									fill
-									name='Fetch Address'
+									name={
+										doesAddressDetailsHasMoreThanTwoSubsection &&
+										CONST.EXCLUDE_SECTION_PREFILL.includes(
+											addressProofUploadSection?.id
+										)
+											? 'Upload Document'
+											: 'Fetch Address'
+									}
 									isLoader={fetchingAddress}
 									disabled={
 										fetchingAddress ||

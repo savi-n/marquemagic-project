@@ -199,7 +199,6 @@ const BusinessAddressDetails = props => {
 			value: gstNum.gstin,
 		};
 	});
-
 	// -> /panToGst API ends
 
 	/*
