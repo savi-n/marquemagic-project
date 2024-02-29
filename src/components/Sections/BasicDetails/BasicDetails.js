@@ -1085,7 +1085,7 @@ console.log("checkbasic");
 						formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 				};
 				const fetchDataRes = await axios.post(
-					dudupeIndividualVerifyApi || selectedDedupeData?.verify ,
+					 selectedDedupeData?.verify ,
 					reqBody,
 					{
 						headers: {
@@ -2172,6 +2172,7 @@ console.log("checkbasic");
 							selectedDedupeData={selectedDedupeData}
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
+							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
 						/>
 					)}
 				

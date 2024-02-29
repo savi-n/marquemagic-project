@@ -116,6 +116,7 @@ const CustomerVerificationOTPModal = props => {
 		selectedDedupeData,
 		isApplicant,
 		selectedDirectorId,
+		dudupeIndividualVerifyApi,
 	} = props;
 
 	const { app, application } = useSelector(state => state);
@@ -129,7 +130,7 @@ const CustomerVerificationOTPModal = props => {
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
-
+console.log("dudupeIndividualVerifyApi",dudupeIndividualVerifyApi);
 	const verifyOtp = async () => {
 		if (!inputCustomerOTP) {
 			setErrorMsg('Please enter a valid OTP.');
@@ -168,7 +169,7 @@ const CustomerVerificationOTPModal = props => {
 				business_id: businessId,
 			};
 			const customerVerifyRes = await axios.post(
-				selectedDedupeData?.verify || DDUPE_VERIFY_OTP,
+				dudupeIndividualVerifyApi || selectedDedupeData?.verify || DDUPE_VERIFY_OTP,
 				reqBody
 			);
 			// console.log('customerotpres-', customerVerifyRes);
