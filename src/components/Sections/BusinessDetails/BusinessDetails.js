@@ -107,6 +107,8 @@ const BusinessDetails = props => {
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
 	const [loanPreFetchdata,setLoanPreFetchData]=useState({});
+	const [loanPreFetchUserdata,setLoanPreFetchUserData]=useState({});
+
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
 	// eslint-disable-next-line
@@ -965,8 +967,12 @@ const BusinessDetails = props => {
 				);
 				setSectionData(fetchRes?.data?.data);
 				const loanFetchDataResult=JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)?.business_data;
+				const loanFetchDataUserResult=JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)?.user_details;
+
 				console.log("JOSN",fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json);
+				console.log("loanFetchDataUserResult",loanFetchDataUserResult);
 				setLoanPreFetchData(loanFetchDataResult);
+				setLoanPreFetchUserData(loanFetchDataUserResult);
 				console.log("loanFetchDataResult",loanFetchDataResult);
 				if (fetchRes?.data?.data?.business_details?.udyam_number) {
 					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
@@ -1203,14 +1209,13 @@ fields to determine if the given field should be disabled.
 
 		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
 		if (
-			selectedProduct?.product_details?.disable_fields_if_prefilled &&
-			!completedSections?.includes(selectedSectionId)
+			selectedProduct?.product_details?.disable_fields_if_prefilled 
 		) {
 			// Check if the current field is listed in the predefined fields to disable if prefilled
 			// and if the corresponding data is available in the business details of the section
 			if (
 				(fieldNameArr?.includes(field?.name) &&
-				loanPreFetchdata?.[field.db_key]) 
+				loanPreFetchdata?.[field.db_key]) || loanPreFetchUserdata?.[field.db_key]
 			
 			) {
 				return true; // Disable the field if conditions are met
@@ -1682,10 +1687,8 @@ fields to determine if the given field should be disabled.
 										}
 										if (
 											selectedProduct?.product_details
-												?.disable_fields_if_prefilled &&
-											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
-												field?.name
-											)
+												?.disable_fields_if_prefilled 
+											
 										) {
 											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
 												field
