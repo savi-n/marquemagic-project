@@ -46,6 +46,8 @@ const CollateralDetails = () => {
 
 	const [sectionData, setSectionData] = useState([]);
 	const [loanAssetData, setLoanAssetData] = useState([]);
+	const [loanPreFetchdata,setLoanPreFetchData]=useState([]);
+
 	// const [sectionData, setuudata] = useState([
 	// 	{
 	// 		id: 17410,
@@ -121,6 +123,11 @@ const CollateralDetails = () => {
 			if (fetchRes?.data?.data?.assetsAdditionalRecord?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.assetsAdditionalRecord);
 				setLoanAssetData(fetchRes?.data?.data?.loanAssetRecord);
+				const loanFetchDataResult=JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)?.collateral_data
+				// const loanFetchDataResult = demoData?.business_data;
+				console.log("JOSN",fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json);
+				setLoanPreFetchData(loanFetchDataResult);
+				console.log("loanFetchDataResult",loanFetchDataResult);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -147,6 +154,7 @@ const CollateralDetails = () => {
 			)
 		);
 	};
+
 
 	const deleteSectionDetails = async data => {
 		try {
@@ -492,6 +500,7 @@ const CollateralDetails = () => {
 													isCreateFormOpen={isCreateFormOpen}
 													selectCollateralFieldOptions={newOptions}
 													totalPercentShare={totalPercentShare}
+													loanPreFetchdata={loanPreFetchdata}
 												/>
 											)}
 											{/* {isResetFormComplete ? (
@@ -522,6 +531,7 @@ const CollateralDetails = () => {
 												isCreateFormOpen={isCreateFormOpen}
 												selectCollateralFieldOptions={newOptions}
 												totalPercentShare={totalPercentShare}
+												loanPreFetchdata={loanPreFetchdata}
 											/>
 										</UI_SECTIONS.DynamicFormWrapper>
 									</UI_SECTIONS.AccordianBody>
