@@ -1005,8 +1005,10 @@ console.log("checkbasic");
 		console.log("formState",formState);
 		try {
 			let reqCustomerId=formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
-			if(selectedCustomerDudupe){
-				reqCustomerId=selectedCustomerDudupe;
+			if(selectedCustomerDudupe?.customer_id
+				){
+				reqCustomerId=selectedCustomerDudupe?.customer_id
+				;
 			}
 			setCustomerId(reqCustomerId);
 			setIsDataDeletionWarningOpen(false);
@@ -1018,12 +1020,13 @@ console.log("checkbasic");
 				return;
 			}
 
-			if (selectedDedupeData?.is_otp_required || selectedCustomerDudupe) {
+			if (selectedDedupeData?.is_otp_required || selectedCustomerDudupe?.customer_id
+				) {
 				console.log("selectedCustomerDudupe2",selectedCustomerDudupe);
 
 				try {
 					const sendOtpRes = await axios.post(
-						selectedDedupeData?.generate_otp || "https://federaluatapi.namastecredit.com/federal-api/verify_customer",
+						selectedDedupeData?.generate_otp || "https://federaluatapi.namastecredit.com/verify_customer",
 						{
 							customer_id:
 								reqCustomerId ||
@@ -1032,8 +1035,8 @@ console.log("checkbasic");
 
 							loan_product_id:
 								selectedProduct?.product_id?.[
-									formState?.values?.['income_type']
-								],
+									formState?.values?.['income_type'] || formState?.values?.['businesstype']
+								] ,
 						},
 						{
 							headers: {
@@ -1078,7 +1081,7 @@ console.log("checkbasic");
 						formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 				};
 				const fetchDataRes = await axios.post(
-					selectedDedupeData?.verify || "https://federaluatapi.namastecredit.com/federal-api/get_customer_details",
+					selectedDedupeData?.verify || "https://federaluatapi.namastecredit.com/get_customer_details",
 					reqBody,
 					{
 						headers: {
