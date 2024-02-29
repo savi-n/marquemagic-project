@@ -166,7 +166,8 @@ const BasicDetails = props => {
 	const [customerList, setCustomerList] = useState([]);
 	const [customerListDudupe, setCustomerListDudupe] = useState([]);
 	const [isDudupeCheckSearchModalOpen, setIsDudupeCheckSearchModalOpen] = useState(false);
-
+console.log("formStatebasic",formState);
+console.log("checkbasic");
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
@@ -1000,6 +1001,8 @@ const BasicDetails = props => {
 	// console.log({ isApplicant });
 	const onFetchFromCustomerId = async (selectedCustomerDudupe,formState = formState) => {
 		// console.log('on-fetch-customer-id');
+		console.log("selectedCustomerDudupe1",selectedCustomerDudupe);
+		console.log("formState",formState);
 		try {
 			let reqCustomerId=formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if(selectedCustomerDudupe){
@@ -1016,9 +1019,11 @@ const BasicDetails = props => {
 			}
 
 			if (selectedDedupeData?.is_otp_required || selectedCustomerDudupe) {
+				console.log("selectedCustomerDudupe2",selectedCustomerDudupe);
+
 				try {
 					const sendOtpRes = await axios.post(
-						selectedDedupeData?.generate_otp,
+						selectedDedupeData?.generate_otp || "https://federaluatapi.namastecredit.com/federal-api/verify_customer",
 						{
 							customer_id:
 								reqCustomerId ||
@@ -1073,7 +1078,7 @@ const BasicDetails = props => {
 						formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 				};
 				const fetchDataRes = await axios.post(
-					selectedDedupeData?.verify,
+					selectedDedupeData?.verify || "https://federaluatapi.namastecredit.com/federal-api/get_customer_details",
 					reqBody,
 					{
 						headers: {
@@ -2546,7 +2551,7 @@ const BasicDetails = props => {
 														})}
 													</div>
 													{field?.sub_fields?.map(subField => {
-														console.log("fieldss",field.sub_fields);
+														
 														if (subField?.name === 'search_ucic') {
 															customFieldPropsSubfields.disabled = false;
 															customFieldPropsSubfields.onClick = () =>
