@@ -48,7 +48,7 @@ const Label = styled.label`
 `;
 
 const showCityState = (props, k) => {
-	const name=props?.name.split('_')[0]
+	const name = props?.name.split('_')[0];
 	if (
 		name.includes('permanent') ||
 		name.includes('present') ||
@@ -56,6 +56,11 @@ const showCityState = (props, k) => {
 		name.includes('registered')
 	) {
 		return `${props.name.split('_')[0]}_${k}`;
+	} else if (props?.name.includes('as_per_document')) {
+		return `${props.name
+			.split('_')
+			?.slice(0, 3)
+			?.join('_')}_${k}`;
 	} else {
 		return k;
 	}
