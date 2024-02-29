@@ -2,7 +2,7 @@ FROM node:12.2.0-alpine as build
 WORKDIR /nconboarding
 COPY package.json .
 #RUN npm cache clean --force
-RUN npm install
+#RUN npm install
 COPY . .
 RUN npm run build:docker
 

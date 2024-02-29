@@ -49,9 +49,9 @@ const DudupeCheckSearchModal = props => {
 	const { permission, whiteLabelId, userToken,selectedProduct } = app;
     console.log("selectedProduct",selectedProduct);
 	const [selectedCustomer, setSelectedCustomer] = useState(null);
-
+console.log("selectedCustomer",selectedCustomer);
 	const { register, formState, handleSubmit } = useForm();
-    console.log("formState",formState);
+    console.log("formState12344",formState);
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
 	const [leadsData, setLeadsData] = useState({});
@@ -183,10 +183,10 @@ function handleskip(){
 			const tempSectionData = otherData ? JSON.parse(otherData) : {};
 			// console.log({ otherData, tempSectionData });
 			const preData = {
-				businesstype: basicDetailsFormState?.business_type || '',
+				businesstype: basicDetailsFormState?.business_type || basicDetailsFormState.income_type|| '',
 				pan_number: basicDetailsFormState?.pan_number || '',
 				mobile_no: basicDetailsFormState?.mobile_no || '',
-				ddob: basicDetailsFormState?.ddob || '',
+				ddob: basicDetailsFormState?.ddob ||  basicDetailsFormState?.dob || '',
 			};
 
 			if (preData?.[field?.name]) return preData?.[field?.name];
