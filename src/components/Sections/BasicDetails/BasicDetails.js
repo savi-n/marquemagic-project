@@ -174,6 +174,10 @@ console.log("checkbasic");
 	// );
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const dudupeIndividualVerifyApi=selectedProduct?.product_details?.verify;
+	console.log("dudupeIndividualVerifyApi",dudupeIndividualVerifyApi);
+	const dudupeIndividualGenerateOTPApi=selectedProduct?.product_details?.generate_otp;
+	console.log("dudupeIndividualGenerateOTPApi",dudupeIndividualGenerateOTPApi);
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
 			? dedupeApiData?.filter(item => {
@@ -1026,7 +1030,7 @@ console.log("checkbasic");
 
 				try {
 					const sendOtpRes = await axios.post(
-						selectedDedupeData?.generate_otp || "https://federaluatapi.namastecredit.com/verify_customer",
+						selectedDedupeData?.generate_otp || dudupeIndividualGenerateOTPApi,
 						{
 							customer_id:
 								reqCustomerId ||
@@ -1081,7 +1085,7 @@ console.log("checkbasic");
 						formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 				};
 				const fetchDataRes = await axios.post(
-					selectedDedupeData?.verify || "https://federaluatapi.namastecredit.com/get_customer_details",
+					dudupeIndividualVerifyApi || selectedDedupeData?.verify ,
 					reqBody,
 					{
 						headers: {
