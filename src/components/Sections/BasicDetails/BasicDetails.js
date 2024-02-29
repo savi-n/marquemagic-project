@@ -70,6 +70,7 @@ import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian
 import DataDeletionWarningModal from './DataDeletionWarningModal';
 import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
 import UcicSearchModal from './UcicSearchModal';
+import DudupeCheckSearchModal from './DudupeCheckSearchModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -161,8 +162,12 @@ const BasicDetails = props => {
 	const [customerId, setCustomerId] = useState('');
 	const [isUcicSearchModalOpen, setIsUcicSearchModalOpen] = useState(false);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [isCustomerListdudupeModalOpen, setIsCustomerListdudupeModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState([]);
-
+	const [customerListDudupe, setCustomerListDudupe] = useState([]);
+	const [isDudupeCheckSearchModalOpen, setIsDudupeCheckSearchModalOpen] = useState(false);
+console.log("formStatebasic",formState);
+console.log("checkbasic");
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
@@ -994,10 +999,18 @@ const BasicDetails = props => {
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 	// console.log({ isApplicant });
-	const onFetchFromCustomerId = async () => {
+	const onFetchFromCustomerId = async (selectedCustomerDudupe,formState = formState) => {
 		// console.log('on-fetch-customer-id');
+		console.log("selectedCustomerDudupe1",selectedCustomerDudupe);
+		console.log("formState",formState);
 		try {
-			setCustomerId(formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]);
+			let reqCustomerId=formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
+			if(selectedCustomerDudupe?.customer_id
+				){
+				reqCustomerId=selectedCustomerDudupe?.customer_id
+				;
+			}
+			setCustomerId(reqCustomerId);
 			setIsDataDeletionWarningOpen(false);
 			if (formState?.values?.['income_type']?.length === 0) {
 				addToast({
@@ -1007,20 +1020,23 @@ const BasicDetails = props => {
 				return;
 			}
 
-			if (selectedDedupeData?.is_otp_required) {
+			if (selectedDedupeData?.is_otp_required || selectedCustomerDudupe?.customer_id
+				) {
+				console.log("selectedCustomerDudupe2",selectedCustomerDudupe);
+
 				try {
 					const sendOtpRes = await axios.post(
-						selectedDedupeData?.generate_otp,
+						selectedDedupeData?.generate_otp || "https://federaluatapi.namastecredit.com/verify_customer",
 						{
 							customer_id:
-								formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
+								reqCustomerId ||
 								customerId ||
 								'',
 
 							loan_product_id:
 								selectedProduct?.product_id?.[
-									formState?.values?.['income_type']
-								],
+									formState?.values?.['income_type'] || formState?.values?.['businesstype']
+								] ,
 						},
 						{
 							headers: {
@@ -1065,7 +1081,7 @@ const BasicDetails = props => {
 						formState?.values?.[CONST.CUSTOMER_CATEGORY_FIELD_NAME],
 				};
 				const fetchDataRes = await axios.post(
-					selectedDedupeData?.verify,
+					selectedDedupeData?.verify || "https://federaluatapi.namastecredit.com/get_customer_details",
 					reqBody,
 					{
 						headers: {
@@ -2043,8 +2059,13 @@ const BasicDetails = props => {
 
 		saveMandatoryGeoLocation();
 		// eslint-disable-next-line
-	}, []);
+		if (
+			!completedSections?.includes(selectedSectionId) && selectedProduct?.product_details?.is_individual_dedupe_required
 
+		){
+			setIsDudupeCheckSearchModalOpen(true);
+		}
+	}, []);
 	// trial starts
 	let displayAddCoApplicantCTA = false;
 	// console.log({ selectedSection });
@@ -2113,6 +2134,7 @@ const BasicDetails = props => {
 				<Loading />
 			) : (
 				<>
+					
 					<ConfirmModal
 						// type='Income'
 						type={
@@ -2148,7 +2170,7 @@ const BasicDetails = props => {
 							selectedDirectorId={selectedDirectorId}
 						/>
 					)}
-
+				
 					<Modal
 						show={isDedupeCheckModalOpen}
 						onClose={() => {
@@ -2181,6 +2203,7 @@ const BasicDetails = props => {
 							)}
 						</section>
 					</Modal>
+
 					<UcicSearchModal
 						show={isUcicSearchModalOpen}
 						onClose={() => {
@@ -2195,6 +2218,25 @@ const BasicDetails = props => {
 						selectedDedupeData={selectedDedupeData}
 						formData={selectedSection?.ucic_search_form_data}
 					/>
+                        {isDudupeCheckSearchModalOpen && (
+                        <DudupeCheckSearchModal
+						show={isDudupeCheckSearchModalOpen}
+						onClose={() => {
+							setIsDudupeCheckSearchModalOpen(false);
+						}}
+						basicDetailsFormState={formState?.values}
+						isApplicant={isApplicant}
+						setCustomerListDudupe={setCustomerListDudupe}
+						setIsCustomerListdudupeModalOpen={setIsCustomerListdudupeModalOpen}
+						isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
+						customerListDudupe={customerListDudupe}
+						selectedDedupeData={selectedDedupeData}
+						formData={selectedProduct?.customer_details?.sub_sections
+						}
+						onFetchFromCustomerId={onFetchFromCustomerId}
+						
+					/>
+                    )}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2512,10 +2554,16 @@ const BasicDetails = props => {
 														})}
 													</div>
 													{field?.sub_fields?.map(subField => {
+														
 														if (subField?.name === 'search_ucic') {
 															customFieldPropsSubfields.disabled = false;
 															customFieldPropsSubfields.onClick = () =>
 																setIsUcicSearchModalOpen(true);
+														}
+														if (subField?.name === 'check_dedupe') {
+															customFieldPropsSubfields.disabled = false;
+															customFieldPropsSubfields.onClick = () =>
+															setIsDudupeCheckSearchModalOpen(true);
 														}
 														return (
 															!subField?.is_prefix &&
@@ -2525,6 +2573,7 @@ const BasicDetails = props => {
 																visibility: 'visible',
 																onClick: () => {
 																	setIsUcicSearchModalOpen(true);
+																	setIsDudupeCheckSearchModalOpen(true);
 																},
 																...customFieldProps,
 																...customFieldPropsSubfields,
@@ -2577,6 +2626,7 @@ const BasicDetails = props => {
 							embedInImageUpload={false}
 						/>
 					)}
+		
 
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (

@@ -50,6 +50,7 @@ export const BASIC_DETAILS_SECTION_ID = 'basic_details';
 export const CUSTOMER_CATEGORY_FIELD_NAME = 'risk_category';
 export const CUSTOMER_ID_FIELD_NAME = 'customer_id';
 export const KYC_RISK_PROFILE_FIELD_NAME = 'kyc_risk_profile';
+export const SEARCH_CUSTOMER_USING_FIELD_DB_KEY = 'search_customer_using';
 
 export const PROFILE_PIC_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting And Re-Upload The Profile Image`;
 export const APPLICATION_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting`;
