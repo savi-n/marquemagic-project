@@ -106,6 +106,7 @@ const BusinessDetails = props => {
 	};
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
+	const [loanPreFetchdata,setLoanPreFetchData]=useState({});
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
 	// eslint-disable-next-line
@@ -963,6 +964,10 @@ const BusinessDetails = props => {
 					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
 				);
 				setSectionData(fetchRes?.data?.data);
+				const loanFetchDataResult=JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)?.business_data;
+				console.log("JOSN",fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json);
+				setLoanPreFetchData(loanFetchDataResult);
+				console.log("loanFetchDataResult",loanFetchDataResult);
 				if (fetchRes?.data?.data?.business_details?.udyam_number) {
 					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
 				}
@@ -1174,6 +1179,12 @@ const BusinessDetails = props => {
 			item => item?.IndustryName === industryName
 		)?.[0]?.id;
 	};
+
+	const fieldNameArr = []
+selectedSection?.sub_sections?.map(sub_section => {sub_section?.fields?.map(field => {fieldNameArr.push(field?.name)
+	return null;} )
+	return null;})
+
 	// for fed use case when the data is fetched from customer id from fed portal
 	const disableFieldIfPrefilledFromThirdPartyData = field => {
 		/*
@@ -1198,9 +1209,9 @@ fields to determine if the given field should be disabled.
 			// Check if the current field is listed in the predefined fields to disable if prefilled
 			// and if the corresponding data is available in the business details of the section
 			if (
-				(CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
-					sectionData?.business_details?.[field.db_key]) ||
-				sectionData?.user_data?.[field.db_key]
+				(fieldNameArr?.includes(field?.name) &&
+				loanPreFetchdata?.[field.db_key]) 
+			
 			) {
 				return true; // Disable the field if conditions are met
 			}
@@ -1209,6 +1220,8 @@ fields to determine if the given field should be disabled.
 
 		return false; // Do not disable the field by default
 	};
+
+	// console.log("🚀 ~ BusinessDetails ~ fieldNameArr:", fieldNameArr)
 	useEffect(() => {
 		const res = extractAndFormatSubOption();
 		setSubComponentOptions(res);
