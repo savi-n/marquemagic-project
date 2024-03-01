@@ -351,12 +351,16 @@ const CollateralDetails = () => {
 										  section?.initial_collateral
 										: collateralData;
 
+								const collateralDataLowerCase= Object.entries(newCollateralData).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
+								console.log("collateralDataLowerCase",collateralDataLowerCase);
+
 								const newAddressData =
 									Object.keys(addressData)?.length === 0 ? {} : addressData;
 
 								const prefillData = {
 									...section,
 									...newAddressData,
+									...collateralDataLowerCase,
 									...newCollateralData,
 									property_amount:
 										collateralData?.value || newCollateralData?.value || '',
