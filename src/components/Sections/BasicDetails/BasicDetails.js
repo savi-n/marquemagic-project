@@ -535,6 +535,7 @@ const BasicDetails = props => {
 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
 		if (field?.db_key === 'business_email') field.db_key = 'demail';
 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+		if (field?.db_key ==='dob') field.db_key='ddob';
 
 		if (
 			selectedProduct?.product_details?.disable_fields_if_prefilled 

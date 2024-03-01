@@ -29,6 +29,7 @@ const DynamicForm = props => {
 		hideCancelCTA = false,
 		isEditLoan,
 		editSectionId = '',
+		loanPreFetchdata,
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
@@ -111,6 +112,53 @@ const DynamicForm = props => {
 		};
 		return preData?.[field?.name];
 	};
+
+	const fieldNameArr = []
+	selectedSection?.sub_sections?.map(sub_section => {sub_section?.fields?.map(field => {fieldNameArr.push(field?.name)
+		return null;} )
+		return null;})
+	console.log("fieldNameArr",fieldNameArr);
+		// for fed use case when the data is fetched from customer id from fed portal
+		const disableFieldIfPrefilledFromThirdPartyData = field => {
+			/*
+	This function checks if a form field should be disabled based on the configuration for disabling fields
+	when prefilled from third-party data. It considers the selected product, completed sections, and specific
+	fields to determine if the given field should be disabled.
+	
+	@param {Object} field - The form field object being evaluated.
+	
+	@returns {boolean} - Returns true if the field should be disabled, false otherwise.
+	*/
+			// if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+			// 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+			// 		if (field?.db_key === 'email') field.db_key = 'demail';
+			// 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+	
+			// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+			if (
+				selectedProduct?.product_details?.disable_fields_if_prefilled
+			) {
+				// Check if the current field is listed in the predefined fields to disable if prefilled
+				// and if the corresponding data is available in the business details of the section
+				const currentLoanPrefetchData = loanPreFetchdata?.filter(data => data?.id === prefillData?.id)?.[0] || {};
+                console.log("currentLoanPrefetchData",currentLoanPrefetchData);
+                const initailCollateral=JSON.parse(currentLoanPrefetchData?.loan_json);
+				console.log("initailCollateral",initailCollateral);
+				const AssestDataLowerCase= Object.entries(initailCollateral).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
+				console.log("AssestDataLowerCase",AssestDataLowerCase);
+
+
+				if 
+					(fieldNameArr?.includes(field?.name) &&
+					currentLoanPrefetchData?.[field?.db_key] || AssestDataLowerCase?.[field?.db_key]
+				) {
+					return true; // Disable the field if conditions are met
+				}
+				return false;
+			}
+	
+			return false; // Do not disable the field by default
+		};
 
 	const prefilledValues = field => {
 		try {
@@ -225,6 +273,14 @@ const DynamicForm = props => {
 
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
+					}
+					if (
+						selectedProduct?.product_details
+							?.disable_fields_if_prefilled 
+					) {
+						customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
+							field
+						);
 					}
 					// console.log('render-field-', {
 					// 	field,
