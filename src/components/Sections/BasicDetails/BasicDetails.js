@@ -133,6 +133,8 @@ const BasicDetails = props => {
 	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
 		false
 	);
+	const [loanPreFetchdata,setLoanPreFetchData]=useState({});
+
 	const {
 		handleSubmit,
 		register,
@@ -166,8 +168,7 @@ const BasicDetails = props => {
 	const [customerList, setCustomerList] = useState([]);
 	const [customerListDudupe, setCustomerListDudupe] = useState([]);
 	const [isDudupeCheckSearchModalOpen, setIsDudupeCheckSearchModalOpen] = useState(false);
-console.log("formStatebasic",formState);
-console.log("checkbasic");
+
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
@@ -175,9 +176,7 @@ console.log("checkbasic");
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const dudupeIndividualVerifyApi=selectedProduct?.product_details?.verify;
-	console.log("dudupeIndividualVerifyApi",dudupeIndividualVerifyApi);
 	const dudupeIndividualGenerateOTPApi=selectedProduct?.product_details?.generate_otp;
-	console.log("dudupeIndividualGenerateOTPApi",dudupeIndividualGenerateOTPApi);
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
 			? dedupeApiData?.filter(item => {
@@ -515,6 +514,10 @@ console.log("checkbasic");
 			setLoading(false);
 		}
 	};
+	const fieldNameArr = []
+	selectedSection?.sub_sections?.map(sub_section => {sub_section?.fields?.map(field => {fieldNameArr.push(field?.name)
+		return null;} )
+		return null;})
 
 	const disableFieldIfPrefilledFromThirdPartyData = field => {
 		/*
@@ -534,14 +537,14 @@ console.log("checkbasic");
 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
 
 		if (
-			selectedProduct?.product_details?.disable_fields_if_prefilled &&
-			!completedSections?.includes(selectedSectionId)
+			selectedProduct?.product_details?.disable_fields_if_prefilled 
+			
 		) {
 			// Check if the current field is listed in the predefined fields to disable if prefilled
 			// and if the corresponding data is available in the business details of the section
 			if (
-				CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
-				sectionData?.director_details?.[field.db_key]
+				fieldNameArr?.includes(field?.name) &&
+				loanPreFetchdata?.[field.db_key]
 			) {
 				return true; // Disable the field if conditions are met
 			}
@@ -1005,8 +1008,7 @@ console.log("checkbasic");
 	// console.log({ isApplicant });
 	const onFetchFromCustomerId = async (selectedCustomerDudupe,formState = formState) => {
 		// console.log('on-fetch-customer-id');
-		console.log("selectedCustomerDudupe1",selectedCustomerDudupe);
-		console.log("formState",formState);
+
 		try {
 			let reqCustomerId=formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if(selectedCustomerDudupe?.customer_id
@@ -1026,7 +1028,6 @@ console.log("checkbasic");
 
 			if (selectedDedupeData?.is_otp_required || selectedCustomerDudupe?.customer_id
 				) {
-				console.log("selectedCustomerDudupe2",selectedCustomerDudupe);
 
 				try {
 					const sendOtpRes = await axios.post(
@@ -1715,6 +1716,11 @@ console.log("checkbasic");
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
+				const loanFetchDataResult=JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)?.director_data;
+
+				console.log("JOSN",fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json);
+				console.log("loanFetchDataResult",loanFetchDataResult);
+				setLoanPreFetchData(loanFetchDataResult);
 
 				// step1 - P0 - setting values for edit loan
 				dispatch(
@@ -2173,6 +2179,7 @@ console.log("checkbasic");
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
+							isApplicantDudupe={false}
 						/>
 					)}
 				
@@ -2454,9 +2461,7 @@ console.log("checkbasic");
 										}
 										// disabling field if it is prefilled from third party response
 										if (
-											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
-												field?.name
-											) &&
+											
 											selectedProduct?.product_details
 												?.disable_fields_if_prefilled
 										) {
