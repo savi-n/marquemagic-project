@@ -131,7 +131,7 @@ const CustomerVerificationOTPModal = props => {
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
-console.log("dudupeIndividualVerifyApi",dudupeIndividualVerifyApi);
+console.log("isApplicantDudupe",isApplicantDudupe);
 	const verifyOtp = async () => {
 		if (!inputCustomerOTP) {
 			setErrorMsg('Please enter a valid OTP.');
