@@ -969,8 +969,6 @@ const BusinessDetails = props => {
 				const loanFetchDataResult=JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)?.business_data;
 				const loanFetchDataUserResult=JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)?.user_details;
 
-				console.log("JOSN",fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json);
-				console.log("loanFetchDataUserResult",loanFetchDataUserResult);
 				setLoanPreFetchData(loanFetchDataResult);
 				setLoanPreFetchUserData(loanFetchDataUserResult);
 				console.log("loanFetchDataResult",loanFetchDataResult);
@@ -1215,7 +1213,7 @@ fields to determine if the given field should be disabled.
 			// and if the corresponding data is available in the business details of the section
 			if (
 				(fieldNameArr?.includes(field?.name) &&
-				loanPreFetchdata?.[field.db_key]) || loanPreFetchUserdata?.[field.db_key]
+				loanPreFetchdata?.[field.db_key] || loanPreFetchUserdata?.[field.db_key]) 
 			
 			) {
 				return true; // Disable the field if conditions are met

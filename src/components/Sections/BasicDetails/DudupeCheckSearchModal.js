@@ -42,16 +42,10 @@ const DudupeCheckSearchModal = props => {
         onFetchFromCustomerId,
         basicDetailsFormState,
 	} = props;
-    console.log("props",props);
-    console.log("basicDetailsFormState",basicDetailsFormState);
-    console.log("setIsCustomerListdudupeModalOpen",setIsCustomerListdudupeModalOpen);
 	const { app, application } = useSelector(state => state);
 	const { permission, whiteLabelId, userToken,selectedProduct } = app;
-    console.log("selectedProduct",selectedProduct);
 	const [selectedCustomer, setSelectedCustomer] = useState(null);
-console.log("selectedCustomer",selectedCustomer);
 	const { register, formState, handleSubmit } = useForm();
-    console.log("formState12344",formState);
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
 	const [leadsData, setLeadsData] = useState({});
@@ -102,10 +96,8 @@ function handleskip(){
 	const handleProceed = async () => {
 		// step 1 - Api call for search api for dedupe
 		try {
-            console.log("enter");
 			setFetchingCustomerDetails(true);
 			let apiUrl = selectedProduct?.product_details?.individual_dedupe_api;
-            console.log("apiUrl",apiUrl);
 			const reqBody = {
 				...formState?.values,
 				loan_product_id:
@@ -118,7 +110,7 @@ function handleskip(){
 				mobile_num: formState?.values['mobile_no'] || '',
 				dob: formState?.values['ddob'] || '',
 				businesstype: formState?.values['businesstype'] || '',
-				isApplicant: true, //implemented based on savitha's changes - bad practice
+				isApplicant: false, //implemented based on savitha's changes - bad practice
 				customer_id: formState?.values['customer_id'] || '',
 				loan_product_details_id: selectedProduct?.id || undefined,
 				parent_product_id: selectedProduct?.parent_id || undefined,
