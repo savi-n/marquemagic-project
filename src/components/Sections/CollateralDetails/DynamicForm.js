@@ -113,10 +113,15 @@ const DynamicForm = props => {
 				// Check if the current field is listed in the predefined fields to disable if prefilled
 				// and if the corresponding data is available in the business details of the section
 				const currentLoanPrefetchData = loanPreFetchdata?.filter(data => data?.id === prefillData?.id)?.[0] || {};
-console.log("currentLoanPrefetchData",currentLoanPrefetchData);
+                console.log("currentLoanPrefetchData",currentLoanPrefetchData);
+                const initailCollateral= currentLoanPrefetchData?.initial_collateral;
+				const collateralDataLowerCase= Object.entries(initailCollateral).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
+				console.log("collateralDataLowerCase",collateralDataLowerCase);
+
+
 				if 
 					(fieldNameArr?.includes(field?.name) &&
-					currentLoanPrefetchData?.[field?.db_key]
+					currentLoanPrefetchData?.[field?.db_key] || collateralDataLowerCase?.[field?.db_key]
 				) {
 					return true; // Disable the field if conditions are met
 				}

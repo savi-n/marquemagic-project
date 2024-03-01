@@ -38,6 +38,8 @@ const LiabilitysDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	const [loanPreFetchdata, setLoanPreFetchData] = useState([]);
+
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
 	const openCreateForm = () => {
@@ -65,6 +67,17 @@ const LiabilitysDetails = props => {
 			// console.log('fetchRes-', fetchRes);
 			if (fetchRes?.data?.data?.loanfinancials_records?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.loanfinancials_records);
+				const loanFetchDataResult = JSON.parse(
+					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
+				)?.loan_financial_data;
+				// const loanFetchDataResult = demoData?.business_data;
+				console.log(
+					'JOSN',
+					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
+				);
+				setLoanPreFetchData(loanFetchDataResult);
+				console.log('loanFetchDataResult', loanFetchDataResult);
+
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -139,9 +152,16 @@ const LiabilitysDetails = props => {
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
+									const newLiabilityData =
+										  JSON.parse(sectionData?.emi_details);
+
+								const LiabilitylDataLowerCase= Object.entries(newLiabilityData).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
+								console.log("LiabilitylDataLowerCase",LiabilitylDataLowerCase);
+
 									const prefillData = section
 										? {
 												...section,
+												...LiabilitylDataLowerCase,
 												...parseJSON(section?.emi_details || '{}'),
 										  }
 										: {};
@@ -255,6 +275,7 @@ const LiabilitysDetails = props => {
 														isEditLoan={isEditLoan}
 														editSectionId={editSectionId}
 														isCreateFormOpen={isCreateFormOpen}
+														loanPreFetchdata={loanPreFetchdata}
 													/>
 												)}
 												{/* {isResetFormComplete ? (
@@ -281,6 +302,7 @@ const LiabilitysDetails = props => {
 													submitCTAName='Save'
 													hideCancelCTA={!(sectionData?.length > 0)}
 													isEditLoan={true}
+													loanPreFetchdata={loanPreFetchdata}
 												/>
 											</UI_SECTIONS.DynamicFormWrapper>
 										</UI_SECTIONS.AccordianBody>
