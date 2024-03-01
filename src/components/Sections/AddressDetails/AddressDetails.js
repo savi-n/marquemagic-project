@@ -347,20 +347,20 @@ const AddressDetails = props => {
 	const onSaveAndProceed = async () => {
 		try {
 			const { businessAddressIdAid1, businessAddressIdAid2 } = editSectionIds;
-			// if (
-			// 	sectionRequired &&
-			// 	(!formState?.values?.present_city ||
-			// 		!formState?.values?.present_state ||
-			// 		!formState?.values?.permanent_city ||
-			// 		!formState?.values?.permanent_state)
-			// 	// !formState?.values?.as_per_document_state ||
-			// 	// !formState?.values?.as_per_document_city
-			// ) {
-			// 	return addToast({
-			// 		message: 'Please enter valid pincode to get city and state',
-			// 		type: 'error',
-			// 	});
-			// }
+			if (
+				sectionRequired &&
+				(!formState?.values?.present_city ||
+					!formState?.values?.present_state ||
+					!formState?.values?.permanent_city ||
+					!formState?.values?.permanent_state)
+				// !formState?.values?.as_per_document_state ||
+				// !formState?.values?.as_per_document_city
+			) {
+				return addToast({
+					message: 'Please enter valid pincode to get city and state',
+					type: 'error',
+				});
+			}
 
 			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
 			// US CLIENT REQUIREMENT CHANGES
