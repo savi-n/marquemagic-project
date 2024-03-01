@@ -117,6 +117,7 @@ const CustomerVerificationOTPModal = props => {
 		isApplicant,
 		selectedDirectorId,
 		dudupeIndividualVerifyApi,
+		isApplicantDudupe,
 	} = props;
 
 	const { app, application } = useSelector(state => state);
@@ -159,7 +160,7 @@ console.log("dudupeIndividualVerifyApi",dudupeIndividualVerifyApi);
 				white_label_id: whiteLabelId,
 				loan_product_details_id: selectedProduct?.id || '',
 				parent_product_id: selectedProduct?.parent_id || undefined,
-				isApplicant: isApplicant || true,
+				isApplicant:isApplicantDudupe|| isApplicant || true,
 				did: selectedDirectorId || undefined,
 				loan_id: loanId,
 				origin: ORIGIN,

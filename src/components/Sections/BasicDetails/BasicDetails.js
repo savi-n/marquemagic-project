@@ -2179,6 +2179,7 @@ const BasicDetails = props => {
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
+							isApplicantDudupe={false}
 						/>
 					)}
 				
