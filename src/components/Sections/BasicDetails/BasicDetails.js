@@ -2180,7 +2180,8 @@ const BasicDetails = props => {
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
-							isApplicantDudupe={false}
+							isApplicantDudupe="false"
+							// selectedDirectorId={selectedDirector?.directorId}
 						/>
 					)}
 				
@@ -2247,7 +2248,7 @@ const BasicDetails = props => {
 						formData={selectedProduct?.customer_details?.sub_sections
 						}
 						onFetchFromCustomerId={onFetchFromCustomerId}
-						
+								
 					/>
                     )}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}

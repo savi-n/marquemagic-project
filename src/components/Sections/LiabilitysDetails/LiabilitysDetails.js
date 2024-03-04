@@ -149,11 +149,12 @@ const LiabilitysDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
+									console.log("sectionDataBasic",sectionData);
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 									const newLiabilityData =
-										  JSON.parse(sectionData?.emi_details);
+										  JSON.parse(section?.emi_details) || '';
 
 								const LiabilitylDataLowerCase= Object.entries(newLiabilityData).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
 								console.log("LiabilitylDataLowerCase",LiabilitylDataLowerCase);

@@ -160,7 +160,7 @@ console.log("isApplicantDudupe",isApplicantDudupe);
 				white_label_id: whiteLabelId,
 				loan_product_details_id: selectedProduct?.id || '',
 				parent_product_id: selectedProduct?.parent_id || undefined,
-				isApplicant:isApplicantDudupe|| isApplicant || true,
+				isApplicant:isApplicantDudupe === 'false' ? false : isApplicantDudupe || isApplicant || true,
 				did: selectedDirectorId || undefined,
 				loan_id: loanId,
 				origin: ORIGIN,
