@@ -970,16 +970,17 @@ const BusinessDetails = props => {
 					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
 				);
 				setSectionData(fetchRes?.data?.data);
-				const loanFetchDataResult = JSON.parse(
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
-				)?.business_data;
-				const loanFetchDataUserResult = JSON.parse(
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
-				)?.user_details;
+				const loanFetchDataResult =
+					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+						?.business_data;
+				const loanFetchDataUserResult =
+					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+						?.user_details;
 
 				setLoanPreFetchData(loanFetchDataResult);
 				setLoanPreFetchUserData(loanFetchDataUserResult);
-				console.log('loanFetchDataResult', loanFetchDataResult);
 				if (fetchRes?.data?.data?.business_details?.udyam_number) {
 					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
 				}
