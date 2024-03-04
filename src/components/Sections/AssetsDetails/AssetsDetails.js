@@ -152,7 +152,7 @@ const AssetsDetails = props => {
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 
-									const newAssestData =JSON.parse(section?.loan_json);
+									const newAssestData =JSON.parse(section?.loan_json) || '';
 									console.log("newAssestData",newAssestData);
 										
 										  

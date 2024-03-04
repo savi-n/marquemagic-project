@@ -113,7 +113,7 @@ function handleskip(){
 				isApplicant: false, //implemented based on savitha's changes - bad practice
 				customer_id: formState?.values['customer_id'] || '',
 				loan_product_details_id: selectedProduct?.id || undefined,
-				parent_product_id: selectedProduct?.parent_id || undefined,
+				parent_product_id: selectedProduct?.parent_id || undefined,              
 				// type_name:
 				// 	`${productForModal?.loan_request_type ||
 				// 		product?.loan_request_type}` === '2'
