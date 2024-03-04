@@ -354,6 +354,9 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
+
+			if (businessId) basicDetailsReqBody.business_id = businessId;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -678,6 +681,7 @@ const BasicDetails = props => {
 	};
 
 	const onSaveAndProceed = async () => {
+		console.log({ businessId });
 		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
@@ -807,6 +811,7 @@ const BasicDetails = props => {
 			}
 
 			if (leadId) basicDetailsReqBody.lead_id = leadId;
+			if (businessId) basicDetailsReqBody.business_id = businessId;
 
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
@@ -1501,6 +1506,9 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
+
+			if (businessId) basicDetailsReqBody.business_id = businessId;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
