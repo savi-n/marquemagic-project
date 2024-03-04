@@ -2191,7 +2191,8 @@ const BasicDetails = props => {
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
-							isApplicantDudupe={false}
+							isApplicantDudupe="false"
+							// selectedDirectorId={selectedDirector?.directorId}
 						/>
 					)}
 
@@ -2242,25 +2243,25 @@ const BasicDetails = props => {
 						selectedDedupeData={selectedDedupeData}
 						formData={selectedSection?.ucic_search_form_data}
 					/>
-					{isDudupeCheckSearchModalOpen && (
-						<DudupeCheckSearchModal
-							show={isDudupeCheckSearchModalOpen}
-							onClose={() => {
-								setIsDudupeCheckSearchModalOpen(false);
-							}}
-							basicDetailsFormState={formState?.values}
-							isApplicant={isApplicant}
-							setCustomerListDudupe={setCustomerListDudupe}
-							setIsCustomerListdudupeModalOpen={
-								setIsCustomerListdudupeModalOpen
-							}
-							isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
-							customerListDudupe={customerListDudupe}
-							selectedDedupeData={selectedDedupeData}
-							formData={selectedProduct?.customer_details?.sub_sections}
-							onFetchFromCustomerId={onFetchFromCustomerId}
-						/>
-					)}
+                        {isDudupeCheckSearchModalOpen && (
+                        <DudupeCheckSearchModal
+						show={isDudupeCheckSearchModalOpen}
+						onClose={() => {
+							setIsDudupeCheckSearchModalOpen(false);
+						}}
+						basicDetailsFormState={formState?.values}
+						isApplicant={isApplicant}
+						setCustomerListDudupe={setCustomerListDudupe}
+						setIsCustomerListdudupeModalOpen={setIsCustomerListdudupeModalOpen}
+						isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
+						customerListDudupe={customerListDudupe}
+						selectedDedupeData={selectedDedupeData}
+						formData={selectedProduct?.customer_details?.sub_sections
+						}
+						onFetchFromCustomerId={onFetchFromCustomerId}
+								
+					/>
+                    )}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
