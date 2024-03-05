@@ -105,7 +105,7 @@ export default function Pincode(props) {
 				let selectedPincodeRes = {};
 				const API_REQ_ID = `${value}`;
 				const isPinCodeResExist = !!api?.[PINCODE_PATH]?.[API_REQ_ID];
-				if (isPinCodeResExist) {
+				if (isPinCodeResExist && !props.avoidFromCache) {
 					selectedPincodeRes = api?.[PINCODE_PATH]?.[API_REQ_ID];
 				} else {
 					const pincodeRes = await axios.get(

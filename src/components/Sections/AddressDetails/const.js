@@ -49,6 +49,14 @@ export const resetAllFields = {
 	property_tenure: '',
 };
 
+export const resetFieldsForDoc = {
+	aadhaar: '',
+	address_proof_id: '',
+	address_proof_id_passport: '',
+	address_proof_id_dl: '',
+	address_proof_id_voter: '',
+};
+
 export const PREFIX_PRESENT = 'present_';
 export const PREFIX_PERMANENT = 'permanent_';
 export const PREFIX_AS_PER_DOCUMENT = 'as_per_document_';
