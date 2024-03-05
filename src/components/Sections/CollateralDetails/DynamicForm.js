@@ -85,52 +85,57 @@ const DynamicForm = props => {
 		};
 		return preData?.[field?.name] || preData?.[field?.db_key];
 	};
-	const fieldNameArr = []
-	selectedSection?.sub_sections?.map(sub_section => {sub_section?.fields?.map(field => {fieldNameArr.push(field?.name)
-		return null;} )
-		return null;})
-	console.log("fieldNameArr",fieldNameArr);
-		// for fed use case when the data is fetched from customer id from fed portal
-		const disableFieldIfPrefilledFromThirdPartyData = field => {
-			/*
+	const fieldNameArr = [];
+	selectedSection?.sub_sections?.map(sub_section => {
+		sub_section?.fields?.map(field => {
+			fieldNameArr.push(field?.name);
+			return null;
+		});
+		return null;
+	});
+	// for fed use case when the data is fetched from customer id from fed portal
+	const disableFieldIfPrefilledFromThirdPartyData = field => {
+		/*
 	This function checks if a form field should be disabled based on the configuration for disabling fields
 	when prefilled from third-party data. It considers the selected product, completed sections, and specific
 	fields to determine if the given field should be disabled.
-	
+
 	@param {Object} field - The form field object being evaluated.
-	
+
 	@returns {boolean} - Returns true if the field should be disabled, false otherwise.
 	*/
-			// if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
-			// 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
-			// 		if (field?.db_key === 'email') field.db_key = 'demail';
-			// 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
-	
-			// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		// if (field?.db_key === 'first_name') field.db_key = 'dfirstname';
+		// 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
+		// 		if (field?.db_key === 'email') field.db_key = 'demail';
+		// 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+
+		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
+		if (selectedProduct?.product_details?.disable_fields_if_prefilled) {
+			// Check if the current field is listed in the predefined fields to disable if prefilled
+			// and if the corresponding data is available in the business details of the section
+			const currentLoanPrefetchData =
+				loanPreFetchdata?.filter(data => data?.id === prefillData?.id)?.[0] ||
+				{};
+			const initailCollateral = currentLoanPrefetchData?.initial_collateral;
+			const collateralDataLowerCase = Object.entries(
+				initailCollateral || {}
+			).reduce((acc, [key, value]) => {
+				acc[key.toLowerCase()] = value;
+				return acc;
+			}, {});
+
 			if (
-				selectedProduct?.product_details?.disable_fields_if_prefilled
+				(fieldNameArr?.includes(field?.name) &&
+					currentLoanPrefetchData?.[field?.db_key]) ||
+				collateralDataLowerCase?.[field?.db_key]
 			) {
-				// Check if the current field is listed in the predefined fields to disable if prefilled
-				// and if the corresponding data is available in the business details of the section
-				const currentLoanPrefetchData = loanPreFetchdata?.filter(data => data?.id === prefillData?.id)?.[0] || {};
-                console.log("currentLoanPrefetchData",currentLoanPrefetchData);
-                const initailCollateral= currentLoanPrefetchData?.initial_collateral;
-				const collateralDataLowerCase= Object.entries(initailCollateral).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
-				console.log("collateralDataLowerCase",collateralDataLowerCase);
-
-
-				if 
-					(fieldNameArr?.includes(field?.name) &&
-					currentLoanPrefetchData?.[field?.db_key] || collateralDataLowerCase?.[field?.db_key]
-				) {
-					return true; // Disable the field if conditions are met
-				}
-				return false;
+				return true; // Disable the field if conditions are met
 			}
-	
-			return false; // Do not disable the field by default
-		};
-	
+			return false;
+		}
+
+		return false; // Do not disable the field by default
+	};
 
 	const prefilledValues = field => {
 		try {
@@ -148,8 +153,6 @@ const DynamicForm = props => {
 			let editViewLoanValue = '';
 
 			editViewLoanValue = prefilledEditOrViewLoanValues(field);
-
-			// console.log('prefillvalues-', editViewLoanValue);
 
 			if (editViewLoanValue) return editViewLoanValue;
 
@@ -207,7 +210,6 @@ const DynamicForm = props => {
 
 	const onSaveOrUpdate = async data => {
 		try {
-			// console.log('onProceed-Date-DynamicForm-', data);
 			setIsSubmitting(true);
 			if (
 				selectedSection?.validate_construction_area === true &&
@@ -266,7 +268,6 @@ const DynamicForm = props => {
 					type: 'success',
 				});
 			}
-			// console.log('submitRes-', submitRes);
 		} catch (error) {
 			console.error('error-onSaveOrUpdate-', error);
 			addToast({
@@ -277,9 +278,6 @@ const DynamicForm = props => {
 			setIsSubmitting(false);
 		}
 	};
-	// console.log({
-	// 	select_collateral_value: formState?.values?.['select_collateral'],
-	// });
 
 	useEffect(() => {
 		const selectedCollateralValue =
@@ -301,11 +299,6 @@ const DynamicForm = props => {
 			owned_type: 'owned_type',
 			current_occupant: 'current_occupant',
 		};
-		// console.log({
-		// 	loan_asset_type_id: `${selectedAsset?.loan_asset_type_id}`,
-		// 	selectedAsset,
-		// 	formState,
-		// });
 		if (isCreateFormOpen) {
 			if (
 				!!selectedAsset &&
@@ -374,7 +367,6 @@ const DynamicForm = props => {
 
 				// TODO: Shreyas or Bikash - To be mapped as done below - only one onChangeFormStateField should be present and pass the values to prefill the data
 				// Object.keys(addressJson).map(key => {
-				// 	console.log({ key, val: selectedAsset?.[key] });
 				// 	let clonedKey = _.cloneDeep(key);
 				// 	if (key === 'owner_name') {
 				// 		clonedKey =
@@ -408,7 +400,6 @@ const DynamicForm = props => {
 			) {
 				const tempObj = selectedAsset?.loan_json || {};
 				Object.keys(tempObj).map(key => {
-					// console.log({ key });
 					setTimeout(() => {
 						onChangeFormStateField(
 							{
@@ -455,10 +446,6 @@ const DynamicForm = props => {
 		// eslint-disable-next-line
 	}, [formState?.values?.['select_collateral']]);
 
-	// const test = () => {
-	// 	console.log('test');
-	// };
-
 	return (
 		<React.Fragment>
 			{subSections?.map((subSection, subSectionIndex) => {
@@ -487,22 +474,13 @@ const DynamicForm = props => {
 									newField.options = selectCollateralFieldOptions;
 								}
 								if (
-									selectedProduct?.product_details
-										?.disable_fields_if_prefilled 
+									selectedProduct?.product_details?.disable_fields_if_prefilled
 								) {
 									customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
 										field
 									);
 								}
 
-								// console.log('render-field-', {
-								// 	field,
-								// 	customFieldProps,
-								// 	isViewLoan,
-								// 	newField,
-								// 	formState,
-								// 	prefillValue: prefilledValues(newField),
-								// });
 								return (
 									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 										{register({

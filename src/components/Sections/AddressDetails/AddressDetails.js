@@ -203,10 +203,26 @@ const AddressDetails = props => {
 		selectedSection,
 		isApplicant,
 	});
-	const selectedVerifyWithOtpSubField = getSelectedSubField({
+
+	const selectedAsPerDocAadhaarField = getSelectedField({
+		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT,
+		selectedSection,
+		isApplicant,
+	});
+
+	const asPerDocVerifyWithOtpSubField = getSelectedSubField({
+		fields: selectedAsPerDocAadhaarField?.sub_fields || [],
+		isApplicant,
+	});
+
+	const permanentVerifyWithOtpSubField = getSelectedSubField({
 		fields: selectedPermanentAadhaarField?.sub_fields || [],
 		isApplicant,
 	});
+
+	const selectedVerifyWithOtpSubField =
+		asPerDocVerifyWithOtpSubField || permanentVerifyWithOtpSubField || {};
+
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
 	const onClickVerifyWithOtp = async field => {
 		if (field?.redirect_url) {
@@ -291,8 +307,7 @@ const AddressDetails = props => {
 					});
 				}
 				if (aadhaarGenOtpResponse.status === 'ok') {
-					aadhaarGenOtpResponse.aadhaarNo =
-						formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT];
+					aadhaarGenOtpResponse.aadhaarNo = formState?.values?.[field?.name];
 
 					setAadharOtpResponse({
 						req: aadhaarOtpReqBody,
@@ -376,18 +391,36 @@ const AddressDetails = props => {
 				// Below code is for Aadhar - Verify with OTP button making it mandatory
 				// based on rules passed to it
 
-				const isVerifyWithOtpRequired = !!getSelectedSubField({
+				const isPermanentVerifyWithOtpRequired = !!getSelectedSubField({
 					fields: selectedPermanentAadhaarField?.sub_fields || [],
 					isApplicant,
 				})?.rules?.required;
 
+				const isAsPerDocVerifyWithOtp = !!getSelectedSubField({
+					fields: selectedAsPerDocAadhaarField?.sub_fields || [],
+					isApplicant,
+				})?.rules?.required;
+
+				const isVerifyWithOtpRequired =
+					isAsPerDocVerifyWithOtp || isPermanentVerifyWithOtpRequired;
+
 				if (
-					formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT] === ''
+					(selectedPermanentAadhaarField &&
+						permanentVerifyWithOtpSubField &&
+						formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT] ===
+							'') ||
+					(selectedAsPerDocAadhaarField &&
+						asPerDocVerifyWithOtpSubField &&
+						formState?.values?.[
+							CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+						] === '')
 				) {
 					// Aadhaar number Validations only if verify with OTP was not mandatory
 					if (!isVerifyWithOtpRequired && sectionRequired) {
 						const aadhaarErrorMessage = isInvalidAadhaar(
-							formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT]
+							formState?.values?.[
+								CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+							] || formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT]
 						);
 						if (aadhaarErrorMessage) {
 							return addToast({
@@ -436,10 +469,11 @@ const AddressDetails = props => {
 				) {
 					if (
 						selectedVerifyOtp?.res?.status !== 'ok' &&
-						(formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT] ===
-							'' &&
+						(formState?.values?.[
+							CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+						] === '' ||
 							formState?.values?.[
-								CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+								CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT
 							] === '')
 					) {
 						addToast({
@@ -710,23 +744,23 @@ const AddressDetails = props => {
 				];
 			}
 
-			if (!!isSameAsDocAddrForPermanentChecked) {
-				return formState?.values?.[
-					field?.name?.replace(
-						CONST.PREFIX_PERMANENT,
-						CONST.PREFIX_AS_PER_DOCUMENT
-					)
-				];
-			}
+			// if (!!isSameAsDocAddrForPermanentChecked) {
+			// 	return formState?.values?.[
+			// 		field?.name?.replace(
+			// 			CONST.PREFIX_PERMANENT,
+			// 			CONST.PREFIX_AS_PER_DOCUMENT
+			// 		)
+			// 	];
+			// }
 
-			if (!!isSameAsDocAddrForPresentChecked) {
-				return formState?.values?.[
-					field?.name?.replace(
-						CONST.PREFIX_PRESENT,
-						CONST.PREFIX_AS_PER_DOCUMENT
-					)
-				];
-			}
+			// if (!!isSameAsDocAddrForPresentChecked) {
+			// 	return formState?.values?.[
+			// 		field?.name?.replace(
+			// 			CONST.PREFIX_PRESENT,
+			// 			CONST.PREFIX_AS_PER_DOCUMENT
+			// 		)
+			// 	];
+			// }
 
 			if (field?.name === CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME) {
 				const selectedDoc = permanentCacheDocumentsTemp?.filter(doc => {
@@ -1035,6 +1069,57 @@ const AddressDetails = props => {
 		});
 	};
 
+	const clearPresentAddressStateFromDoc = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetFieldsForDoc).map(key => {
+			if (!!isSameAsAboveAddressChecked || !!isSameAsDocAddrForPresentChecked)
+				return null;
+			onChangeFormStateField({
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
+				value: '',
+			});
+			return null;
+		});
+	};
+
+	const clearPermanentAddressState = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetFieldsForDoc).map(key => {
+			if (!!isSameAsDocAddrForPermanentChecked) return null;
+			onChangeFormStateField({
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+				value: '',
+			});
+			return null;
+		});
+	};
+
+	const handleSameAsDocForPresentCheckBox = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
+			if (isSameAsDocAddrForPresentChecked) {
+				onChangeFormStateField({
+					name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
+					value:
+						formState?.values?.[
+							`${CONST_ADDRESS_DETAILS.PREFIX_AS_PER_DOCUMENT}${key}`
+						],
+				});
+			}
+		});
+	};
+
+	const handleSameAsDocForPermanentCheckBox = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
+			if (isSameAsDocAddrForPermanentChecked) {
+				onChangeFormStateField({
+					name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+					value:
+						formState?.values?.[
+							`${CONST_ADDRESS_DETAILS.PREFIX_AS_PER_DOCUMENT}${key}`
+						],
+				});
+			}
+		});
+	};
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		if (
@@ -1054,6 +1139,30 @@ const AddressDetails = props => {
 			setPresentCacheDocumentsTemp([]);
 		}
 
+		if (!isSameAsAboveAddressChecked && isSameAsAboveAddressChecked === false) {
+			clearPresentAddressState();
+		}
+		// eslint-disable-next-line
+	}, [isSameAsAboveAddressChecked]);
+
+	useEffect(() => {
+		if (
+			!!isSameAsDocAddrForPresentChecked &&
+			presentCacheDocumentsTemp?.length > 0
+		) {
+			setPresentCacheDocumentsTemp([]);
+		}
+
+		if (
+			!isSameAsDocAddrForPresentChecked &&
+			isSameAsDocAddrForPresentChecked === false
+		) {
+			clearPresentAddressStateFromDoc();
+		}
+		handleSameAsDocForPresentCheckBox();
+	}, [isSameAsDocAddrForPresentChecked]);
+
+	useEffect(() => {
 		if (
 			!!isSameAsDocAddrForPermanentChecked &&
 			permanentCacheDocumentsTemp?.length > 0
@@ -1062,19 +1171,14 @@ const AddressDetails = props => {
 		}
 
 		if (
-			!isSameAsAboveAddressChecked &&
-			!isSameAsDocAddrForPresentChecked &&
-			isSameAsAboveAddressChecked === false &&
-			isSameAsDocAddrForPresentChecked === false
+			!isSameAsDocAddrForPermanentChecked &&
+			isSameAsDocAddrForPermanentChecked === false
 		) {
-			clearPresentAddressState();
+			clearPermanentAddressState();
 		}
+		handleSameAsDocForPermanentCheckBox();
 		// eslint-disable-next-line
-	}, [
-		isSameAsAboveAddressChecked,
-		isSameAsDocAddrForPermanentChecked,
-		isSameAsDocAddrForPresentChecked,
-	]);
+	}, [isSameAsDocAddrForPermanentChecked]);
 
 	if (!selectedDirectorId) return null;
 
@@ -1442,6 +1546,10 @@ const AddressDetails = props => {
 												customFieldProps.disabled = true;
 											}
 
+											if (field?.type === 'pincode') {
+												customFieldProps.avoidFromCache = true;
+											}
+
 											const isIdProofUploadField =
 												field.type === 'file' &&
 												field.name.includes(CONST.ID_PROOF_UPLOAD_FIELD_NAME);
@@ -1626,13 +1734,21 @@ const AddressDetails = props => {
 											}
 
 											// <<<<<<<<<<<<<<<<<<<<<<<<< get confirmation >>>>>>>>>>>>>>>>>>>>>>
-											// if (
-											// 	doesAddressDetailsHasMoreThanTwoSubsection &&
-											// 	(sub_section?.id?.includes('permanent') ||
-											// 		sub_section?.id?.includes('present'))
-											// ) {
-											// 	customFieldProps.disabled = false;
-											// }
+											if (
+												(doesAddressDetailsHasMoreThanTwoSubsection &&
+													(sub_section?.id?.includes('permanent') &&
+														isSameAsDocAddrForPermanentChecked)) ||
+												(sub_section?.id?.includes('present') &&
+													isSameAsDocAddrForPresentChecked)
+											) {
+												if (
+													field?.name?.includes('tenure') ||
+													field?.name?.includes('property')
+												) {
+													customFieldProps.disabled = false;
+												}
+											}
+
 											// TO overwrite all above condition and disable everything
 											if (isViewLoan) {
 												customFieldProps.disabled = true;

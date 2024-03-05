@@ -64,19 +64,12 @@ const LiabilitysDetails = props => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
 			if (fetchRes?.data?.data?.loanfinancials_records?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.loanfinancials_records);
 				const loanFetchDataResult = JSON.parse(
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
+					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json || '{}'
 				)?.loan_financial_data;
-				// const loanFetchDataResult = demoData?.business_data;
-				console.log(
-					'JOSN',
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
-				);
 				setLoanPreFetchData(loanFetchDataResult);
-				console.log('loanFetchDataResult', loanFetchDataResult);
 
 				setEditSectionId('');
 				setOpenAccordianId('');
@@ -125,13 +118,6 @@ const LiabilitysDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('LiabilitysDetails-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	isCreateFormOpen,
-	// 	editSectionId,
-	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -148,16 +134,20 @@ const LiabilitysDetails = props => {
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
 								{/* combine local + db array */}
+								{console.log({ sectionData })}
 								{sectionData.map((section, sectionIndex) => {
-									console.log("sectionDataBasic",sectionData);
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 									const newLiabilityData =
-										  JSON.parse(section?.emi_details) || '';
+										JSON.parse(section?.emi_details) || '';
 
-								const LiabilitylDataLowerCase= Object.entries(newLiabilityData).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
-								console.log("LiabilitylDataLowerCase",LiabilitylDataLowerCase);
+									const LiabilitylDataLowerCase = Object.entries(
+										newLiabilityData
+									).reduce((acc, [key, value]) => {
+										acc[key.toLowerCase()] = value;
+										return acc;
+									}, {});
 
 									const prefillData = section
 										? {
@@ -193,11 +183,6 @@ const LiabilitysDetails = props => {
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
 															<strong>
-																{/* {console.log(
-																	prefillData?.liability_amount,
-																	prefillData?.outstanding_balance,
-																	prefillData?.emi_amount
-																)} */}
 																{!prefillData?.liability_amount &&
 																!prefillData?.outstanding_balance &&
 																!prefillData?.emi_amount

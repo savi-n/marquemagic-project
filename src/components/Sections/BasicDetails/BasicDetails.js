@@ -681,7 +681,6 @@ const BasicDetails = props => {
 	};
 
 	const onSaveAndProceed = async () => {
-		console.log({ businessId });
 		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
@@ -2093,7 +2092,7 @@ const BasicDetails = props => {
 		}
 	}, []);
 	// trial starts
-	let displayAddCoApplicantCTA = true;
+	let displayAddCoApplicantCTA = false;
 	if (selectedSection?.add_co_applicant_visibility === true) {
 		displayAddCoApplicantCTA = true;
 	}
