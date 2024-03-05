@@ -1738,15 +1738,16 @@ const AddressDetails = props => {
 												(doesAddressDetailsHasMoreThanTwoSubsection &&
 													(sub_section?.id?.includes('permanent') &&
 														isSameAsDocAddrForPermanentChecked)) ||
-												(sub_section?.id?.includes('present') &&
-													isSameAsDocAddrForPresentChecked)
+												((sub_section?.id?.includes('present') &&
+													isSameAsDocAddrForPresentChecked) ||
+													isSameAsAboveAddressChecked)
 											) {
-												if (
-													field?.name?.includes('tenure') ||
-													field?.name?.includes('property')
-												) {
-													customFieldProps.disabled = false;
-												}
+												// if (
+												// 	field?.name?.includes('tenure') ||
+												// 	field?.name?.includes('property')
+												// ) {
+												customFieldProps.disabled = false;
+												// }
 											}
 
 											// TO overwrite all above condition and disable everything
