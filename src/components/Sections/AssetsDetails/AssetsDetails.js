@@ -39,7 +39,6 @@ const AssetsDetails = props => {
 	const [loanPreFetchdata, setLoanPreFetchData] = useState([]);
 
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
-	// console.log({ sectionData });
 	const business = {
 		name: businessName || 'Company/Business',
 		value: '0',
@@ -62,19 +61,13 @@ const AssetsDetails = props => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
 			if (fetchRes?.data?.data?.loanassets_records?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.loanassets_records);
 				const loanFetchDataResult = JSON.parse(
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
+					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json || '{}'
 				)?.asset_details;
 				// const loanFetchDataResult = demoData?.business_data;
-				console.log(
-					'JOSN',
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json
-				);
 				setLoanPreFetchData(loanFetchDataResult);
-				console.log('loanFetchDataResult', loanFetchDataResult);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -123,13 +116,6 @@ const AssetsDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('AssetsDetails-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	isCreateFormOpen,
-	// 	editSectionId,
-	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -147,21 +133,22 @@ const AssetsDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
-									// console.log({ section });
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 
-									const newAssestData =JSON.parse(section?.loan_json) || '';
-									console.log("newAssestData",newAssestData);
-										
-										  
-										
+									const newAssestData =
+										typeof section?.loan_json === 'string'
+											? JSON.parse(section.loan_json || '{}')
+											: section?.loan_json || '';
 
-								const assetDataLowerCase= Object.entries(newAssestData).reduce((acc, [key, value])=>{ acc[key.toLowerCase()] = value; return acc}, {});
-								console.log("newAssestData",newAssestData);
+									const assetDataLowerCase = Object.entries(
+										newAssestData
+									).reduce((acc, [key, value]) => {
+										acc[key.toLowerCase()] = value;
+										return acc;
+									}, {});
 
-									
 									const prefillData = section
 										? {
 												...section,
