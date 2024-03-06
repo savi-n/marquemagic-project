@@ -1094,7 +1094,10 @@ const AddressDetails = props => {
 
 	const handleSameAsDocForPresentCheckBox = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
-			if (isSameAsDocAddrForPresentChecked) {
+			if (
+				isSameAsDocAddrForPresentChecked &&
+				!CONST.DONT_PREFIL_FROM_AS_PER_DOC?.includes(key)
+			) {
 				onChangeFormStateField({
 					name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
 					value:
@@ -1108,7 +1111,10 @@ const AddressDetails = props => {
 
 	const handleSameAsDocForPermanentCheckBox = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
-			if (isSameAsDocAddrForPermanentChecked) {
+			if (
+				isSameAsDocAddrForPermanentChecked &&
+				!CONST.DONT_PREFIL_FROM_AS_PER_DOC?.includes(key)
+			) {
 				onChangeFormStateField({
 					name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
 					value:

@@ -49,6 +49,8 @@ export const resetAllFields = {
 	property_tenure: '',
 };
 
+export const DONT_PREFIL_FROM_AS_PER_DOC = ['property_type', 'property_tenure'];
+
 export const resetFieldsForDoc = {
 	aadhaar: '',
 	address_proof_id: '',
