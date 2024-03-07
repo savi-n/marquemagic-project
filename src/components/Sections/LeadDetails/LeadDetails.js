@@ -514,7 +514,7 @@ const LeadDetails = props => {
 				if (ddupeRes?.data?.status === 'nok') {
 					addToast({
 						message:
-							ddupeRes?.data?.message ||
+							ddupeRes?.data?.other_message ||
 							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
 						type: 'error',
