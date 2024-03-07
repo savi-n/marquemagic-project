@@ -134,6 +134,8 @@ const BasicDetails = props => {
 		false
 	);
 	const [loanPreFetchdata, setLoanPreFetchData] = useState({});
+	const [dudupeFormdata,setDudupeFormdata]=useState('');
+
 
 	const {
 		handleSubmit,
@@ -1022,9 +1024,11 @@ const BasicDetails = props => {
 	// console.log({ isApplicant });
 	const onFetchFromCustomerId = async (
 		selectedCustomerDudupe,
-		formState = formState
+		formState
 	) => {
 		// console.log('on-fetch-customer-id');
+		console.log("formstatebasicccc",formState);
+		setDudupeFormdata(formState?.values);
 
 		try {
 			let reqCustomerId = formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
@@ -1291,23 +1295,24 @@ const BasicDetails = props => {
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email:
-					sectionData?.director_details?.demail || leadAllDetails?.email || '',
+				(sectionData?.director_details?.demail) || (selectedDirector?.directorId ? leadAllDetails?.pan_number:'')|| '',
+
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
 					'',
 				contactno:
-					sectionData?.director_details?.dcontact ||
-					dedupeData?.mobile_no ||
-					leadAllDetails?.mobile_no ||
+					(sectionData?.director_details?.dcontact) ||
+					(dedupeData?.mobile_no) ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number:'')||
 					'',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
 				dpancard:
-					sectionData?.director_details?.dpancard ||
-					leadAllDetails?.pan_number ||
+					(sectionData?.director_details?.dpancard) ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number:'')||
 					'',
 				// martial_status:
 				marital_status: isNullFunction(
@@ -1853,6 +1858,37 @@ const BasicDetails = props => {
 		}
 	};
 
+	const fetchDirectors = async () => {
+		if (!loanRefId) {
+			if (selectedProduct?.isSelectedProductTypeSalaried) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			} else {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
+			}
+			return;
+		}
+		try {
+			dispatch(
+				getDirectors({
+					loanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+					selectedSectionId,
+				})
+			);
+			setIsDudupeCheckSearchModalOpen(false);
+					setIsCustomerVerificationOTPModal(false);
+		} catch (e) {
+			addToast({
+				message:
+					'Unable to fetch the data from udyog. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+		}
+	};
+	
 	// fetch section data ends
 	// useLayoutEffect(() => {
 	// 	setCacheDocumentsTemp([]);
@@ -2087,7 +2123,7 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 		if (
 			!completedSections?.includes(selectedSectionId) &&
-			selectedProduct?.product_details?.is_individual_dedupe_required
+			selectedProduct?.product_details?.is_individual_dedupe_required && formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME] !=="Yes"
 		) {
 			setIsDudupeCheckSearchModalOpen(true);
 		}
@@ -2192,6 +2228,11 @@ const BasicDetails = props => {
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
 							isApplicantDudupe="false"
+							fetchSectionDetails={fetchSectionDetails}
+							dudupeFormdata={dudupeFormdata}
+							fetchDirectors={fetchDirectors}
+							setIsDudupeCheckSearchModalOpen={setIsDudupeCheckSearchModalOpen}
+							setIsCustomerVerificationOTPModal={setIsCustomerVerificationOTPModal}
 							// selectedDirectorId={selectedDirector?.directorId}
 						/>
 					)}
@@ -2256,7 +2297,7 @@ const BasicDetails = props => {
 						isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
 						customerListDudupe={customerListDudupe}
 						selectedDedupeData={selectedDedupeData}
-						formData={selectedProduct?.customer_details?.sub_sections
+						formData={selectedSection?.customer_details?.sub_sections
 						}
 						onFetchFromCustomerId={onFetchFromCustomerId}
 								
@@ -2584,10 +2625,10 @@ const BasicDetails = props => {
 																...subField,
 																value: '',
 																visibility: 'visible',
-																onClick: () => {
-																	setIsUcicSearchModalOpen(true);
-																	setIsDudupeCheckSearchModalOpen(true);
-																},
+																// onClick: () => {
+																// 	setIsUcicSearchModalOpen(true);
+																// 	setIsDudupeCheckSearchModalOpen(true);
+																// },
 																...customFieldProps,
 																...customFieldPropsSubfields,
 															})
