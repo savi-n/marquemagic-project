@@ -87,6 +87,7 @@ const GEO_LOCATION = `${API_END_POINT}/geoLocation`;
 const UPDATE_COMPANY_CIN = `${API_END_POINT}/company/update-data`;
 
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
+const UPLOAD_UDYAM_DOCUMENNT = `${API_END_POINT}/udyamDocUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
 const ADD_COMMENTS_FOR_OFFICE_USE = `${API_END_POINT}/addComments`;
 const GET_ALL_UPLOADED_DOCUMENTS_UIUX = `${API_END_POINT}/UploadedDocList_uiux`;
@@ -170,6 +171,8 @@ const BANK_LIST_API = `${ENDPOINT_BANK}/bank_list`;
 const FETCH_CIBIL_SCORE = `${ENDPOINT_BANK}/equifax/fetchData`;
 const CONSET_DETAILS = `${ENDPOINT_BANK}/consentDetails`;
 const GET_CONSENT = `${ENDPOINT_BANK}/getConsent`;
+const VERIFY_UDYAM_NUMBER = `${ENDPOINT_BANK}/get/udyam`;
+const GET_UDYAM_DETAILS_BUSINESS_ID = `${ENDPOINT_BANK}/getUdyamData`;
 
 // ----------------------- Sails Plaid API ends -----------------------------------------------------------------
 
@@ -251,6 +254,7 @@ export {
 	ORIGIN,
 	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
 	UPLOAD_PROFILE_IMAGE,
+	UPLOAD_UDYAM_DOCUMENNT,
 	ADD_COMMENTS_FOR_OFFICE_USE,
 	TEST_DOMAINS,
 	TO_APPLICATION_STAGE_URL,
@@ -284,5 +288,7 @@ export {
 	GET_CONSENT,
 	SEND_SMS,
 	SEND_EMAIL,
+	VERIFY_UDYAM_NUMBER,
 	UPDATE_COMPANY_CIN,
+	GET_UDYAM_DETAILS_BUSINESS_ID,
 };
