@@ -7,7 +7,9 @@ export const EXTRACTION_KEY_PASSPORT = 'passport';
 
 export const PERMANENT_ADDRESS_PROOF_PASSPORT = 'permanent_passport';
 export const PRESENT_ADDRESS_PROOF_PASSPORT = 'present_passport';
-export const AADHAAR_FIELD_NAME_FOR_OTP = 'permanent_aadhaar';
+export const AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT = 'permanent_aadhaar';
+export const AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT =
+	'as_per_document_aadhaar';
 
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,
@@ -15,6 +17,11 @@ export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_VOTERID,
 	EXTRACTION_KEY_PASSPORT,
 	// EXTRACTION_KEY_OTHERS,
+];
+
+export const EXCLUDE_SECTION_PREFILL = [
+	'present_address_proof_upload',
+	'permanent_address_proof_upload',
 ];
 
 export const EXTRACTION_KEYS = [

@@ -4,6 +4,7 @@ import Button from 'components/Button';
 import Modal from 'components/Modal';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI from './ui';
+import UCICCompareTable from './UCICCompareTable';
 
 export default function CustomerListModal(props) {
 	const {
@@ -14,9 +15,10 @@ export default function CustomerListModal(props) {
 		setSelectedCustomer,
 		onProceedSelectCustomer,
 		sendingOTP,
+		filledFormData,
+		onUpdateUCIC,
 	} = props;
 
-	// console.log('CustomerListModal-allstates-', { customerList });
 	return (
 		<>
 			<Modal
@@ -73,6 +75,14 @@ export default function CustomerListModal(props) {
 						</UI.CustomerListCardItem> */}
 						</UI.CustomerListCard>
 					))}
+					{filledFormData && (
+						<UCICCompareTable
+							customerList={customerList}
+							filledFormData={filledFormData}
+							onCancel={onClose}
+							onUpdate={onUpdateUCIC}
+						/>
+					)}
 					<UI.CustomerDetailsFormModalFooter>
 						{setSelectedCustomer && (
 							<Button

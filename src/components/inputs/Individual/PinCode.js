@@ -48,7 +48,7 @@ const Label = styled.label`
 `;
 
 const showCityState = (props, k) => {
-	const name=props?.name.split('_')[0]
+	const name = props?.name.split('_')[0];
 	if (
 		name.includes('permanent') ||
 		name.includes('present') ||
@@ -56,6 +56,11 @@ const showCityState = (props, k) => {
 		name.includes('registered')
 	) {
 		return `${props.name.split('_')[0]}_${k}`;
+	} else if (props?.name.includes('as_per_document')) {
+		return `${props.name
+			.split('_')
+			?.slice(0, 3)
+			?.join('_')}_${k}`;
 	} else {
 		return k;
 	}
@@ -100,7 +105,7 @@ export default function Pincode(props) {
 				let selectedPincodeRes = {};
 				const API_REQ_ID = `${value}`;
 				const isPinCodeResExist = !!api?.[PINCODE_PATH]?.[API_REQ_ID];
-				if (isPinCodeResExist) {
+				if (isPinCodeResExist && !props.avoidFromCache) {
 					selectedPincodeRes = api?.[PINCODE_PATH]?.[API_REQ_ID];
 				} else {
 					const pincodeRes = await axios.get(

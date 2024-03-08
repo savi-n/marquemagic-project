@@ -36,8 +36,9 @@ const AssetsDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	const [loanPreFetchdata, setLoanPreFetchData] = useState([]);
+
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
-	// console.log({ sectionData });
 	const business = {
 		name: businessName || 'Company/Business',
 		value: '0',
@@ -60,9 +61,13 @@ const AssetsDetails = props => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
 			if (fetchRes?.data?.data?.loanassets_records?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.loanassets_records);
+				const loanFetchDataResult = JSON.parse(
+					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json || '{}'
+				)?.asset_details;
+				// const loanFetchDataResult = demoData?.business_data;
+				setLoanPreFetchData(loanFetchDataResult);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -111,13 +116,6 @@ const AssetsDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('AssetsDetails-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	isCreateFormOpen,
-	// 	editSectionId,
-	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -135,13 +133,26 @@ const AssetsDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
-									// console.log({ section });
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
+
+									const newAssestData =
+										typeof section?.loan_json === 'string'
+											? JSON.parse(section.loan_json || '{}')
+											: section?.loan_json || '';
+
+									const assetDataLowerCase = Object.entries(
+										newAssestData
+									).reduce((acc, [key, value]) => {
+										acc[key.toLowerCase()] = value;
+										return acc;
+									}, {});
+
 									const prefillData = section
 										? {
 												...section,
+												...assetDataLowerCase,
 												director_id:
 													section?.director_id === 0
 														? '0'
@@ -251,6 +262,7 @@ const AssetsDetails = props => {
 														isEditLoan={isEditLoan}
 														editSectionId={editSectionId}
 														isCreateFormOpen={isCreateFormOpen}
+														loanPreFetchdata={loanPreFetchdata}
 													/>
 												)}
 												{/* {isResetFormComplete ? (
@@ -277,6 +289,7 @@ const AssetsDetails = props => {
 													submitCTAName='Save'
 													hideCancelCTA={!(sectionData?.length > 0)}
 													isEditLoan={true}
+													loanPreFetchdata={loanPreFetchdata}
 												/>
 											</UI_SECTIONS.DynamicFormWrapper>
 										</UI_SECTIONS.AccordianBody>
@@ -289,6 +302,7 @@ const AssetsDetails = props => {
 						{isCreateFormOpen ||
 						isViewLoan ||
 						sectionData?.length >= MAX_ADD_COUNT ||
+						selectedProduct?.product_details?.is_individual_dedupe_required ||
 						!!editSectionId ? null : (
 							<>
 								<UI_SECTIONS.PlusRoundButton

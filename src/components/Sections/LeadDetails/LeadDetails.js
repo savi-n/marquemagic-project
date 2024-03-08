@@ -409,10 +409,11 @@ const LeadDetails = props => {
 				} else {
 					if (
 						Object.keys(selectedDedupeData)?.length === 0 ||
-						(isEditLoan && !isLeadCategoryChanged) ||
-						(selectedSection?.validate_lead_status === true &&
-							formState?.values?.['lead_category'] ===
-								CONST.LEAD_STATUS_HOT_OPTION_VALUE)
+						(isEditLoan && !isLeadCategoryChanged) 
+						// ||
+						// (selectedSection?.validate_lead_status === true &&
+						// 	formState?.values?.['lead_category'] ===
+						// 		CONST.LEAD_STATUS_HOT_OPTION_VALUE)
 					) {
 						dispatch(setCompletedApplicationSection(selectedSectionId));
 						dispatch(setSelectedSectionId(nextSectionId));
@@ -485,8 +486,8 @@ const LeadDetails = props => {
 				loan_product_id:
 					selectedProduct?.product_id?.[formState?.values?.['income_type']] ||
 					selectedProduct?.product_id?.[formState?.values?.['business_type']] ||
-					'',
-				customer_type: formState?.values['customer_type'] || '',
+					'',	
+				customer_type: formState?.values['customer_type'] || '',		
 				white_label_id: whiteLabelId,
 				id_no: formState?.values?.['pan_number'] || '',
 				pan_number: formState?.values['pan_number']?.toUpperCase() || '',
@@ -513,7 +514,7 @@ const LeadDetails = props => {
 				if (ddupeRes?.data?.status === 'nok') {
 					addToast({
 						message:
-							ddupeRes?.data?.message ||
+							ddupeRes?.data?.other_message ||
 							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
 						type: 'error',
@@ -948,7 +949,7 @@ const LeadDetails = props => {
 							] ||
 							'',
 						loan_product_details_id:
-							selectedProduct?.id || selectedProduct?.id || undefined,
+							selectedProduct?.id || selectedProduct?.id || undefined,	
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 						origin: API.ORIGIN,
 						businesstype:

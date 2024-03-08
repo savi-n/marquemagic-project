@@ -106,6 +106,9 @@ const BusinessDetails = props => {
 	};
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
+	const [loanPreFetchdata, setLoanPreFetchData] = useState({});
+	const [loanPreFetchUserdata, setLoanPreFetchUserData] = useState({});
+
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
 	// eslint-disable-next-line
@@ -894,7 +897,11 @@ const BusinessDetails = props => {
 				industry_type: selectedIndustryFromGetResp() || '',
 				businessstartdate:
 					companyRocData?.DateOfIncorporation ||
-					sectionData?.business_details?.businessstartdate ||
+					(sectionData?.business_details?.businessstartdate &&
+						moment(
+							sectionData?.business_details?.businessstartdate,
+							'YYYY-MM-DD hh:mm:ss'
+						).format('YYYY-MM-DD')) ||
 					leadAllDetails?.business_vintage ||
 					'',
 				customer_id:
@@ -969,6 +976,17 @@ const BusinessDetails = props => {
 					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
 				);
 				setSectionData(fetchRes?.data?.data);
+				const loanFetchDataResult =
+					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+						?.business_data;
+				const loanFetchDataUserResult =
+					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+						?.user_details;
+
+				setLoanPreFetchData(loanFetchDataResult);
+				setLoanPreFetchUserData(loanFetchDataUserResult);
 				if (fetchRes?.data?.data?.business_details?.udyam_number) {
 					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
 				}
@@ -1180,6 +1198,16 @@ const BusinessDetails = props => {
 			item => item?.IndustryName === industryName
 		)?.[0]?.id;
 	};
+
+	const fieldNameArr = [];
+	selectedSection?.sub_sections?.map(sub_section => {
+		sub_section?.fields?.map(field => {
+			fieldNameArr.push(field?.name);
+			return null;
+		});
+		return null;
+	});
+
 	// for fed use case when the data is fetched from customer id from fed portal
 
 	const disableFieldIfPrefilledFromThirdPartyData = field => {
@@ -1198,16 +1226,13 @@ fields to determine if the given field should be disabled.
 		// 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
 
 		// Check if the product details specify disabling fields when prefilled and if the current section is not completed
-		if (
-			selectedProduct?.product_details?.disable_fields_if_prefilled &&
-			!completedSections?.includes(selectedSectionId)
-		) {
+		if (selectedProduct?.product_details?.disable_fields_if_prefilled) {
 			// Check if the current field is listed in the predefined fields to disable if prefilled
 			// and if the corresponding data is available in the business details of the section
 			if (
-				(CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
-					sectionData?.business_details?.[field.db_key]) ||
-				sectionData?.user_data?.[field.db_key]
+				(fieldNameArr?.includes(field?.name) &&
+					loanPreFetchdata?.[field.db_key]) ||
+				loanPreFetchUserdata?.[field.db_key]
 			) {
 				return true; // Disable the field if conditions are met
 			}
@@ -1216,6 +1241,8 @@ fields to determine if the given field should be disabled.
 
 		return false; // Do not disable the field by default
 	};
+
+	// console.log("🚀 ~ BusinessDetails ~ fieldNameArr:", fieldNameArr)
 	useEffect(() => {
 		const res = extractAndFormatSubOption();
 		setSubComponentOptions(res);
@@ -1676,10 +1703,7 @@ fields to determine if the given field should be disabled.
 										}
 										if (
 											selectedProduct?.product_details
-												?.disable_fields_if_prefilled &&
-											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
-												field?.name
-											)
+												?.disable_fields_if_prefilled
 										) {
 											customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
 												field

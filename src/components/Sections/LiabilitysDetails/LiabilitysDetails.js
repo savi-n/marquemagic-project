@@ -38,6 +38,8 @@ const LiabilitysDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	const [loanPreFetchdata, setLoanPreFetchData] = useState([]);
+
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
 	const openCreateForm = () => {
@@ -62,9 +64,13 @@ const LiabilitysDetails = props => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
 			if (fetchRes?.data?.data?.loanfinancials_records?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.loanfinancials_records);
+				const loanFetchDataResult = JSON.parse(
+					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json || '{}'
+				)?.loan_financial_data;
+				setLoanPreFetchData(loanFetchDataResult);
+
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -112,13 +118,6 @@ const LiabilitysDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('LiabilitysDetails-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	isCreateFormOpen,
-	// 	editSectionId,
-	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -135,13 +134,25 @@ const LiabilitysDetails = props => {
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
 								{/* combine local + db array */}
+								{console.log({ sectionData })}
 								{sectionData.map((section, sectionIndex) => {
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
+									const newLiabilityData =
+										JSON.parse(section?.emi_details) || '';
+
+									const LiabilitylDataLowerCase = Object.entries(
+										newLiabilityData
+									).reduce((acc, [key, value]) => {
+										acc[key.toLowerCase()] = value;
+										return acc;
+									}, {});
+
 									const prefillData = section
 										? {
 												...section,
+												...LiabilitylDataLowerCase,
 												...parseJSON(section?.emi_details || '{}'),
 										  }
 										: {};
@@ -172,11 +183,6 @@ const LiabilitysDetails = props => {
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
 															<strong>
-																{/* {console.log(
-																	prefillData?.liability_amount,
-																	prefillData?.outstanding_balance,
-																	prefillData?.emi_amount
-																)} */}
 																{!prefillData?.liability_amount &&
 																!prefillData?.outstanding_balance &&
 																!prefillData?.emi_amount
@@ -255,6 +261,7 @@ const LiabilitysDetails = props => {
 														isEditLoan={isEditLoan}
 														editSectionId={editSectionId}
 														isCreateFormOpen={isCreateFormOpen}
+														loanPreFetchdata={loanPreFetchdata}
 													/>
 												)}
 												{/* {isResetFormComplete ? (
@@ -281,6 +288,7 @@ const LiabilitysDetails = props => {
 													submitCTAName='Save'
 													hideCancelCTA={!(sectionData?.length > 0)}
 													isEditLoan={true}
+													loanPreFetchdata={loanPreFetchdata}
 												/>
 											</UI_SECTIONS.DynamicFormWrapper>
 										</UI_SECTIONS.AccordianBody>
@@ -293,6 +301,7 @@ const LiabilitysDetails = props => {
 						{isCreateFormOpen ||
 						isViewLoan ||
 						sectionData?.length >= MAX_ADD_COUNT ||
+						selectedProduct?.product_details?.is_individual_dedupe_required ||
 						!!editSectionId ? null : (
 							<>
 								<UI_SECTIONS.PlusRoundButton

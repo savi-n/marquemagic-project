@@ -78,6 +78,7 @@ import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload/In
 import TableModal from './TableModal';
 import { getDocumentNameFromLoanDocuments } from 'utils/formatData';
 import UcicSearchModal from './UcicSearchModal';
+import DudupeCheckSearchModal from './DudupeCheckSearchModal';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -140,6 +141,9 @@ const BasicDetails = props => {
 	const [isDataDeletionWarningOpen, setIsDataDeletionWarningOpen] = useState(
 		false
 	);
+	const [loanPreFetchdata, setLoanPreFetchData] = useState({});
+	const [dudupeFormdata, setDudupeFormdata] = useState('');
+
 	const {
 		handleSubmit,
 		register,
@@ -169,7 +173,16 @@ const BasicDetails = props => {
 	const [customerId, setCustomerId] = useState('');
 	const [isUcicSearchModalOpen, setIsUcicSearchModalOpen] = useState(false);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
+	const [
+		isCustomerListdudupeModalOpen,
+		setIsCustomerListdudupeModalOpen,
+	] = useState(false);
 	const [customerList, setCustomerList] = useState([]);
+	const [customerListDudupe, setCustomerListDudupe] = useState([]);
+	const [
+		isDudupeCheckSearchModalOpen,
+		setIsDudupeCheckSearchModalOpen,
+	] = useState(false);
 
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	const [fetchedUdyamDoc, setFetchedUdyamDoc] = useState();
@@ -373,6 +386,9 @@ const BasicDetails = props => {
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const dudupeIndividualVerifyApi = selectedProduct?.product_details?.verify;
+	const dudupeIndividualGenerateOTPApi =
+		selectedProduct?.product_details?.generate_otp;
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
 			? dedupeApiData?.filter(item => {
@@ -542,6 +558,9 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
+
+			if (businessId) basicDetailsReqBody.business_id = businessId;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -709,6 +728,14 @@ const BasicDetails = props => {
 			setLoading(false);
 		}
 	};
+	const fieldNameArr = [];
+	selectedSection?.sub_sections?.map(sub_section => {
+		sub_section?.fields?.map(field => {
+			fieldNameArr.push(field?.name);
+			return null;
+		});
+		return null;
+	});
 
 	const disableFieldIfPrefilledFromThirdPartyData = field => {
 		/*
@@ -726,16 +753,14 @@ const BasicDetails = props => {
 		if (field?.db_key === 'last_name') field.db_key = 'dfirstname';
 		if (field?.db_key === 'business_email') field.db_key = 'demail';
 		if (field?.db_key === 'contactno') field.db_key = 'dcontact';
+		if (field?.db_key === 'dob') field.db_key = 'ddob';
 
-		if (
-			selectedProduct?.product_details?.disable_fields_if_prefilled &&
-			!completedSections?.includes(selectedSectionId)
-		) {
+		if (selectedProduct?.product_details?.disable_fields_if_prefilled) {
 			// Check if the current field is listed in the predefined fields to disable if prefilled
 			// and if the corresponding data is available in the business details of the section
 			if (
-				CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(field?.name) &&
-				sectionData?.director_details?.[field.db_key]
+				fieldNameArr?.includes(field?.name) &&
+				loanPreFetchdata?.[field.db_key]
 			) {
 				return true; // Disable the field if conditions are met
 			}
@@ -1155,6 +1180,7 @@ const BasicDetails = props => {
 			}
 
 			basicDetailsReqBody.data.basic_details.udyam_trans_id = requestIdValue;
+			if (businessId) basicDetailsReqBody.business_id = businessId;
 
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
@@ -1364,10 +1390,17 @@ const BasicDetails = props => {
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 	// console.log({ isApplicant });
-	const onFetchFromCustomerId = async () => {
+	const onFetchFromCustomerId = async (selectedCustomerDudupe, formState) => {
 		// console.log('on-fetch-customer-id');
+		console.log('formstatebasicccc', formState);
+		setDudupeFormdata(formState?.values);
+
 		try {
-			setCustomerId(formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME]);
+			let reqCustomerId = formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
+			if (selectedCustomerDudupe?.customer_id) {
+				reqCustomerId = selectedCustomerDudupe?.customer_id;
+			}
+			setCustomerId(reqCustomerId);
 			setIsDataDeletionWarningOpen(false);
 			if (formState?.values?.['income_type']?.length === 0) {
 				addToast({
@@ -1377,19 +1410,20 @@ const BasicDetails = props => {
 				return;
 			}
 
-			if (selectedDedupeData?.is_otp_required) {
+			if (
+				selectedDedupeData?.is_otp_required ||
+				selectedCustomerDudupe?.customer_id
+			) {
 				try {
 					const sendOtpRes = await axios.post(
-						selectedDedupeData?.generate_otp,
+						selectedDedupeData?.generate_otp || dudupeIndividualGenerateOTPApi,
 						{
-							customer_id:
-								formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME] ||
-								customerId ||
-								'',
+							customer_id: reqCustomerId || customerId || '',
 
 							loan_product_id:
 								selectedProduct?.product_id?.[
-									formState?.values?.['income_type']
+									formState?.values?.['income_type'] ||
+										formState?.values?.['businesstype']
 								],
 						},
 						{
@@ -1626,7 +1660,10 @@ const BasicDetails = props => {
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email:
-					sectionData?.director_details?.demail || leadAllDetails?.email || '',
+					sectionData?.director_details?.demail ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number : '') ||
+					'',
+
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
@@ -1634,7 +1671,7 @@ const BasicDetails = props => {
 				contactno:
 					sectionData?.director_details?.dcontact ||
 					dedupeData?.mobile_no ||
-					leadAllDetails?.mobile_no ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number : '') ||
 					'',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
@@ -1642,7 +1679,7 @@ const BasicDetails = props => {
 					dedupeData?.pan_number,
 				dpancard:
 					sectionData?.director_details?.dpancard ||
-					leadAllDetails?.pan_number ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number : '') ||
 					'',
 				// martial_status:
 				marital_status: isNullFunction(
@@ -1842,6 +1879,9 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
+
+			if (businessId) basicDetailsReqBody.business_id = businessId;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -2066,6 +2106,12 @@ const BasicDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
+				const loanFetchDataResult =
+					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+						?.director_data;
+
+				setLoanPreFetchData(loanFetchDataResult);
 
 				// step1 - P0 - setting values for edit loan
 				dispatch(
@@ -2195,6 +2241,37 @@ const BasicDetails = props => {
 		}
 	};
 
+	const fetchDirectors = async () => {
+		if (!loanRefId) {
+			if (selectedProduct?.isSelectedProductTypeSalaried) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			} else {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
+			}
+			return;
+		}
+		try {
+			dispatch(
+				getDirectors({
+					loanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+					selectedSectionId,
+				})
+			);
+			setIsDudupeCheckSearchModalOpen(false);
+			setIsCustomerVerificationOTPModal(false);
+		} catch (e) {
+			addToast({
+				message:
+					'Unable to fetch the data from udyog. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+		}
+	};
+
 	// fetch section data ends
 	// useLayoutEffect(() => {
 	// 	setCacheDocumentsTemp([]);
@@ -2244,7 +2321,6 @@ const BasicDetails = props => {
 
 	// trial starts
 	let displayAddCoApplicantCTA = false;
-	// console.log({ selectedSection });
 	if (selectedSection?.add_co_applicant_visibility === true) {
 		displayAddCoApplicantCTA = true;
 	}
@@ -2257,7 +2333,6 @@ const BasicDetails = props => {
 				field => field?.name === CONST.INCOME_TYPE_FIELD_NAME
 			)?.[0] || {};
 
-	// console.log('BasicDetails-allstates', {
 	// 	isPanNumberExist,
 	// 	selectedProfileField,
 	// 	isProfileMandatory,
@@ -2302,8 +2377,7 @@ const BasicDetails = props => {
 		}
 		setIsDataDeletionWarningOpen(true);
 	};
-	// console.log(formState.values, 'form state');
-	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData || fetchingGeoLocation ? (
@@ -2343,6 +2417,16 @@ const BasicDetails = props => {
 							selectedDedupeData={selectedDedupeData}
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
+							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
+							isApplicantDudupe='false'
+							fetchSectionDetails={fetchSectionDetails}
+							dudupeFormdata={dudupeFormdata}
+							fetchDirectors={fetchDirectors}
+							setIsDudupeCheckSearchModalOpen={setIsDudupeCheckSearchModalOpen}
+							setIsCustomerVerificationOTPModal={
+								setIsCustomerVerificationOTPModal
+							}
+							// selectedDirectorId={selectedDirector?.directorId}
 						/>
 					)}
 
@@ -2390,6 +2474,7 @@ const BasicDetails = props => {
 							)}
 						</section>
 					</Modal>
+
 					<UcicSearchModal
 						show={isUcicSearchModalOpen}
 						onClose={() => {
@@ -2403,7 +2488,39 @@ const BasicDetails = props => {
 						customerList={customerList}
 						selectedDedupeData={selectedDedupeData}
 						formData={selectedSection?.ucic_search_form_data}
+						updateUCICNumber={ucicNumber => {
+							onChangeFormStateField({
+								name: CONST.CUSTOMER_ID_FIELD_NAME,
+								value: ucicNumber,
+							});
+							setIsCustomerListModalOpen(false);
+						}}
+						setCustomerListDudupe={setCustomerListDudupe}
+						setIsCustomerListdudupeModalOpen={setIsCustomerListdudupeModalOpen}
+						isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
+						customerListDudupe={customerListDudupe}
+						onFetchFromCustomerId={onFetchFromCustomerId}
 					/>
+
+					{isDudupeCheckSearchModalOpen && (
+						<DudupeCheckSearchModal
+							show={isDudupeCheckSearchModalOpen}
+							onClose={() => {
+								setIsDudupeCheckSearchModalOpen(false);
+							}}
+							basicDetailsFormState={formState?.values}
+							isApplicant={isApplicant}
+							setCustomerListDudupe={setCustomerListDudupe}
+							setIsCustomerListdudupeModalOpen={
+								setIsCustomerListdudupeModalOpen
+							}
+							isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
+							customerListDudupe={customerListDudupe}
+							selectedDedupeData={selectedDedupeData}
+							formData={selectedProduct?.customer_details?.sub_sections}
+							onFetchFromCustomerId={onFetchFromCustomerId}
+						/>
+					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2489,9 +2606,6 @@ const BasicDetails = props => {
 													formState?.touched?.[field.name]) &&
 													formState?.error?.[field.name]) ||
 												'';
-											// console.log('pancard-error-msg-', {
-											// 	panErrorMessage,
-											// });
 											const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
 												panErrorMessage
 											);
@@ -2508,10 +2622,6 @@ const BasicDetails = props => {
 											)
 												? ''
 												: panErrorMessage;
-											// console.log('pancard-error-msg-', {
-											// 	panErrorColorCode,
-											// 	panErrorMessage,
-											// });
 											return (
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${fieldIndex}-${field.name}`}
@@ -2551,7 +2661,6 @@ const BasicDetails = props => {
 										if (!field.visibility || !field.name || !field.type)
 											return null;
 										const newValue = prefilledValues(field);
-										// console.log(field);
 										// if (!!field.sub_fields) {
 										// 	console.log(
 										// 		prefilledValues(field.sub_fields[0]),
@@ -2616,9 +2725,6 @@ const BasicDetails = props => {
 										}
 										// disabling field if it is prefilled from third party response
 										if (
-											CONST.FIELDS_TO_DISABLE_IF_PREFILLED?.includes(
-												field?.name
-											) &&
 											selectedProduct?.product_details
 												?.disable_fields_if_prefilled
 										) {
@@ -2779,15 +2885,21 @@ const BasicDetails = props => {
 															customFieldPropsSubfields.disabled = loading;
 														}
 
+														if (subField?.name === 'check_dedupe') {
+															customFieldPropsSubfields.disabled = false;
+															customFieldPropsSubfields.onClick = () =>
+																setIsDudupeCheckSearchModalOpen(true);
+														}
 														return (
 															!subField?.is_prefix &&
 															register({
 																...subField,
 																value: '',
 																visibility: 'visible',
-																onClick: () => {
-																	setIsUcicSearchModalOpen(true);
-																},
+																// onClick: () => {
+																// 	setIsUcicSearchModalOpen(true);
+																// 	setIsDudupeCheckSearchModalOpen(true);
+																// },
 																...customFieldProps,
 																...customFieldPropsSubfields,
 															})

@@ -89,6 +89,17 @@ const AddressDetails = props => {
 	const [loading, setLoading] = useState(false);
 	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
 	const [
+		asPerDocAddressDocumentsTemp,
+		setAsPerDocAddressDocumentsTemp,
+	] = useState([]);
+	const [
+		otherAsPerDocAddressCacheDocTemp,
+		setOtherAsPerDocAddressCacheDocTemp,
+	] = useState([]);
+	const [asPerDocAddressProofError, setAsPerDocAddressProofError] = useState(
+		''
+	);
+	const [
 		permanentCacheDocumentsTemp,
 		setPermanentCacheDocumentsTemp,
 	] = useState([]);
@@ -125,8 +136,16 @@ const AddressDetails = props => {
 		setIsSameAsAboveAddressChecked,
 	] = useState(null);
 	const [
+		isSameAsDocAddrForPermanentChecked,
+		setIsSameAsDocAddrForPermanentChecked,
+	] = useState(null);
+	const [
+		isSameAsDocAddrForPresentChecked,
+		setIsSameAsDocAddrForPresentChecked,
+	] = useState(null);
+	const [
+		isPermanentAddressIsPresentAddress,
 		setIsPermanentAddressIsPresentAddress,
-		setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress,
 	] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
@@ -143,6 +162,32 @@ const AddressDetails = props => {
 	const disableFieldIfPrefilled =
 		selectedProduct?.product_details?.disable_fields_if_prefilled;
 
+	// Garbage piece of code for as per doc listing
+	const selectedAsPerDocField = selectedSection?.sub_sections
+		?.filter(
+			subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
+		)?.[0]
+		?.fields?.filter(
+			field => field?.name === 'as_per_document_address_proof_type'
+		)?.[0]
+		?.options?.filter(option => option?.name === 'as_per_document_aadhaar')?.[0]
+		?.doc_type;
+
+	const asPerDocAdhaarDocType =
+		selectedAsPerDocField && Object.values(selectedAsPerDocField);
+	// console.log(
+	// 	'🚀 ~ selectedAsPerDocField:',
+	// 	selectedAsPerDocField,
+	// 	asPerDocAdhaarDocType
+	// );
+
+	const doesAddressDetailsHasMoreThanTwoSubsection =
+		(
+			selectedSection?.sub_sections?.filter(subSection =>
+				subSection?.id?.includes('as_per_document_address')
+			) || []
+		).length > 0;
+
 	if (
 		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
 		!selectedVerifyOtp
@@ -154,14 +199,30 @@ const AddressDetails = props => {
 		};
 	}
 	const selectedPermanentAadhaarField = getSelectedField({
-		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
+		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT,
 		selectedSection,
 		isApplicant,
 	});
-	const selectedVerifyWithOtpSubField = getSelectedSubField({
+
+	const selectedAsPerDocAadhaarField = getSelectedField({
+		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT,
+		selectedSection,
+		isApplicant,
+	});
+
+	const asPerDocVerifyWithOtpSubField = getSelectedSubField({
+		fields: selectedAsPerDocAadhaarField?.sub_fields || [],
+		isApplicant,
+	});
+
+	const permanentVerifyWithOtpSubField = getSelectedSubField({
 		fields: selectedPermanentAadhaarField?.sub_fields || [],
 		isApplicant,
 	});
+
+	const selectedVerifyWithOtpSubField =
+		asPerDocVerifyWithOtpSubField || permanentVerifyWithOtpSubField || {};
+
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
 	const onClickVerifyWithOtp = async field => {
 		if (field?.redirect_url) {
@@ -170,7 +231,9 @@ const AddressDetails = props => {
 		}
 		try {
 			const aadhaarErrorMessage = isInvalidAadhaar(
-				formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
+				// formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT] ||
+				// 	formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT]
+				formState.values[(field?.name)]
 			);
 			if (aadhaarErrorMessage) {
 				return addToast({
@@ -219,7 +282,9 @@ const AddressDetails = props => {
 			setVerifyingWithOtp(true);
 			try {
 				const aadhaarOtpReqBody = {
-					aadhaarNo: formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP],
+					aadhaarNo:
+						// formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT],
+						formState.values[(field?.name)],
 					product_id: loanProductId,
 				};
 				// --------------------
@@ -242,8 +307,7 @@ const AddressDetails = props => {
 					});
 				}
 				if (aadhaarGenOtpResponse.status === 'ok') {
-					aadhaarGenOtpResponse.aadhaarNo =
-						formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP];
+					aadhaarGenOtpResponse.aadhaarNo = formState?.values?.[field?.name];
 
 					setAadharOtpResponse({
 						req: aadhaarOtpReqBody,
@@ -304,6 +368,8 @@ const AddressDetails = props => {
 					!formState?.values?.present_state ||
 					!formState?.values?.permanent_city ||
 					!formState?.values?.permanent_state)
+				// !formState?.values?.as_per_document_state ||
+				// !formState?.values?.as_per_document_city
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
@@ -318,19 +384,43 @@ const AddressDetails = props => {
 					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
 
+				const isAsPerDocumentSelectedAddressProofTypeAadhaar = formState?.values?.[
+					CONST.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
+
 				// Below code is for Aadhar - Verify with OTP button making it mandatory
 				// based on rules passed to it
 
-				const isVerifyWithOtpRequired = !!getSelectedSubField({
+				const isPermanentVerifyWithOtpRequired = !!getSelectedSubField({
 					fields: selectedPermanentAadhaarField?.sub_fields || [],
 					isApplicant,
 				})?.rules?.required;
 
-				if (formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP] === '') {
+				const isAsPerDocVerifyWithOtp = !!getSelectedSubField({
+					fields: selectedAsPerDocAadhaarField?.sub_fields || [],
+					isApplicant,
+				})?.rules?.required;
+
+				const isVerifyWithOtpRequired =
+					isAsPerDocVerifyWithOtp || isPermanentVerifyWithOtpRequired;
+
+				if (
+					(selectedPermanentAadhaarField &&
+						permanentVerifyWithOtpSubField &&
+						formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT] ===
+							'') ||
+					(selectedAsPerDocAadhaarField &&
+						asPerDocVerifyWithOtpSubField &&
+						formState?.values?.[
+							CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+						] === '')
+				) {
 					// Aadhaar number Validations only if verify with OTP was not mandatory
 					if (!isVerifyWithOtpRequired && sectionRequired) {
 						const aadhaarErrorMessage = isInvalidAadhaar(
-							formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
+							formState?.values?.[
+								CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+							] || formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT]
 						);
 						if (aadhaarErrorMessage) {
 							return addToast({
@@ -342,13 +432,19 @@ const AddressDetails = props => {
 
 					// in case of aadhar, either we should upload document or verify with otp
 					if (
-						isPermanentSelectedAddressProofTypeAadhaar &&
+						(isPermanentSelectedAddressProofTypeAadhaar ||
+							isAsPerDocumentSelectedAddressProofTypeAadhaar) &&
 						isVerifyWithOtpRequired
 					) {
 						const otpVerifiedForAadhar =
 							selectedVerifyOtp?.res?.status === 'ok';
 						let isFetchAddressPressed = false;
 						permanentCacheDocumentsTemp.map(doc => {
+							if (!!doc?.extractionRes) isFetchAddressPressed = true;
+							return null;
+						});
+
+						asPerDocAddressDocumentsTemp.map(doc => {
 							if (!!doc?.extractionRes) isFetchAddressPressed = true;
 							return null;
 						});
@@ -367,12 +463,18 @@ const AddressDetails = props => {
 					}
 				}
 				if (
-					!isPermanentSelectedAddressProofTypeAadhaar &&
+					(!isPermanentSelectedAddressProofTypeAadhaar ||
+						!isAsPerDocumentSelectedAddressProofTypeAadhaar) &&
 					isVerifyWithOtpRequired
 				) {
 					if (
 						selectedVerifyOtp?.res?.status !== 'ok' &&
-						formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP] === ''
+						(formState?.values?.[
+							CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT
+						] === '' ||
+							formState?.values?.[
+								CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT
+							] === '')
 					) {
 						addToast({
 							message:
@@ -394,6 +496,12 @@ const AddressDetails = props => {
 							if (!!doc?.extractionRes) isFetchAddressPressed = true;
 							return null;
 						});
+
+						asPerDocAddressDocumentsTemp.map(doc => {
+							if (!!doc?.extractionRes) isFetchAddressPressed = true;
+							return null;
+						});
+
 						if (!isFetchAddressPressed) {
 							addToast({
 								message: 'Please upload address proof documents',
@@ -435,6 +543,7 @@ const AddressDetails = props => {
 				},
 			];
 			const cacheDocumentsTemp = [
+				...asPerDocAddressDocumentsTemp,
 				...permanentCacheDocumentsTemp,
 				...presentCacheDocumentsTemp,
 				...otherPermanentCacheDocTemp,
@@ -533,7 +642,7 @@ const AddressDetails = props => {
 				// return;
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
-
+			// console.log(cacheDocumentsTemp, 'cache documents');
 			const newKycUploadCacheDocumentsTemp = [];
 			if (cacheDocumentsTemp?.length > 0) {
 				try {
@@ -550,7 +659,10 @@ const AddressDetails = props => {
 							document_id: 'placeholder',
 							classification_type: doc?.isTagged?.classification_type,
 							classification_sub_type: doc?.isTagged?.classification_sub_type,
-							aid: doc?.isTagged?.aid,
+							aid:
+								`${doc?.isTagged?.aid}` === CONST.AID_AS_PER_DOCUMENT
+									? 1
+									: doc?.isTagged?.aid,
 							// document is required so in document upload page we do not resubmit this documents
 							// due to this user won't be able to view document
 						});
@@ -621,6 +733,7 @@ const AddressDetails = props => {
 			return null;
 		});
 	};
+	// console.log(formState?.values, '><<<<<<><><><><><><><>');
 
 	const prefilledValues = field => {
 		try {
@@ -630,6 +743,24 @@ const AddressDetails = props => {
 					field?.name?.replace(CONST.PREFIX_PRESENT, CONST.PREFIX_PERMANENT)
 				];
 			}
+
+			// if (!!isSameAsDocAddrForPermanentChecked) {
+			// 	return formState?.values?.[
+			// 		field?.name?.replace(
+			// 			CONST.PREFIX_PERMANENT,
+			// 			CONST.PREFIX_AS_PER_DOCUMENT
+			// 		)
+			// 	];
+			// }
+
+			// if (!!isSameAsDocAddrForPresentChecked) {
+			// 	return formState?.values?.[
+			// 		field?.name?.replace(
+			// 			CONST.PREFIX_PRESENT,
+			// 			CONST.PREFIX_AS_PER_DOCUMENT
+			// 		)
+			// 	];
+			// }
 
 			if (field?.name === CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME) {
 				const selectedDoc = permanentCacheDocumentsTemp?.filter(doc => {
@@ -673,10 +804,31 @@ const AddressDetails = props => {
 					return `${item?.aid}` === '1';
 				}
 			);
+
 			const initData = _.cloneDeep(initialAddress);
+			const asPerDocumentAddress =
+				sectionData?.business_address_data?.filter(
+					addr => `${addr?.aid}` === CONST.AID_AS_PER_DOCUMENT
+				)?.[0] || {};
+
 			// -- TEST MODE
 			const preData = {
 				...initData,
+				as_per_document_aadhaar: asPerDocumentAddress?.kyc_key,
+				as_per_document_address_proof_id_passport:
+					asPerDocumentAddress?.kyc_key,
+				as_per_document_address_proof_id_dl: asPerDocumentAddress?.kyc_key,
+				as_per_document_address_proof_id_voter: asPerDocumentAddress?.kyc_key,
+				as_per_document_address_proof_type:
+					asPerDocumentAddress?.classification_type,
+
+				as_per_document_address1: asPerDocumentAddress?.line1,
+				as_per_document_address2: asPerDocumentAddress?.line2,
+				as_per_document_address3: asPerDocumentAddress?.line3,
+				as_per_document_pin_code: asPerDocumentAddress?.pincode,
+				// as_per_document_city: asPerDocumentAddress?.city,
+				// as_per_document_state: asPerDocumentAddress?.state,
+
 				permanent_address_proof_type:
 					process.env.REACT_APP_MUTHOOT_WHITELABEL === `${whiteLabelId}` &&
 					sectionData?.director_details?.additional_cust_id &&
@@ -830,8 +982,6 @@ const AddressDetails = props => {
 						'YYYY-MM'
 				  )
 				: '',
-			present_address_proof_issued_on: '',
-			present_address_proof_valid_till: '',
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sectionData]);
@@ -866,16 +1016,27 @@ const AddressDetails = props => {
 					doc =>
 						`${doc?.document_details?.aid}` === '2' &&
 						`${doc?.directorId}` === `${selectedDirectorId}` &&
-						doc?.document_details?.classification_type !== 'pan'
+						doc?.document_details?.classification_type !== 'pan' &&
+						!asPerDocAdhaarDocType?.includes(doc?.doctype)
 				);
 				if (permanentCacheDocumentsTempRes.length === 2)
-					setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress(
-						true
-					);
+					setIsPermanentAddressIsPresentAddress(true);
 				setPermanentCacheDocumentsTemp(permanentCacheDocumentsTempRes);
 				setPresentCacheDocumentsTemp(
+					fetchRes?.data?.data?.loan_document_details?.filter(doc => {
+						return (
+							`${doc?.document_details?.aid}` === '1' &&
+							`${doc?.directorId}` === `${selectedDirectorId}` &&
+							doc?.document_details?.classification_type !== 'pan' &&
+							!asPerDocAdhaarDocType?.includes(doc?.doctype)
+						);
+					})
+				);
+
+				setAsPerDocAddressDocumentsTemp(
 					fetchRes?.data?.data?.loan_document_details?.filter(
 						doc =>
+							// asPerDocAdhaarDocType?.includes(doc?.doctype) &&
 							`${doc?.document_details?.aid}` === '1' &&
 							`${doc?.directorId}` === `${selectedDirectorId}` &&
 							doc?.document_details?.classification_type !== 'pan'
@@ -890,14 +1051,78 @@ const AddressDetails = props => {
 	};
 	// fetch section data ends
 
+	console.log({
+		asPerDocAddressDocumentsTemp,
+		permanentCacheDocumentsTemp,
+		presentCacheDocumentsTemp,
+	});
+
 	const clearPresentAddressState = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
-			if (!!isSameAsAboveAddressChecked) return null;
+			if (!!isSameAsAboveAddressChecked || !!isSameAsDocAddrForPresentChecked)
+				return null;
 			onChangeFormStateField({
 				name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
 				value: '',
 			});
 			return null;
+		});
+	};
+
+	const clearPresentAddressStateFromDoc = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetFieldsForDoc).map(key => {
+			if (!!isSameAsAboveAddressChecked || !!isSameAsDocAddrForPresentChecked)
+				return null;
+			onChangeFormStateField({
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
+				value: '',
+			});
+			return null;
+		});
+	};
+
+	const clearPermanentAddressState = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetFieldsForDoc).map(key => {
+			if (!!isSameAsDocAddrForPermanentChecked) return null;
+			onChangeFormStateField({
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+				value: '',
+			});
+			return null;
+		});
+	};
+
+	const handleSameAsDocForPresentCheckBox = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
+			if (
+				isSameAsDocAddrForPresentChecked &&
+				!CONST.DONT_PREFIL_FROM_AS_PER_DOC?.includes(key)
+			) {
+				onChangeFormStateField({
+					name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
+					value:
+						formState?.values?.[
+							`${CONST_ADDRESS_DETAILS.PREFIX_AS_PER_DOCUMENT}${key}`
+						],
+				});
+			}
+		});
+	};
+
+	const handleSameAsDocForPermanentCheckBox = () => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
+			if (
+				isSameAsDocAddrForPermanentChecked &&
+				!CONST.DONT_PREFIL_FROM_AS_PER_DOC?.includes(key)
+			) {
+				onChangeFormStateField({
+					name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+					value:
+						formState?.values?.[
+							`${CONST_ADDRESS_DETAILS.PREFIX_AS_PER_DOCUMENT}${key}`
+						],
+				});
+			}
 		});
 	};
 
@@ -914,16 +1139,52 @@ const AddressDetails = props => {
 
 	useEffect(() => {
 		if (
-			!!isSameAsAboveAddressChecked &&
+			(!!isSameAsAboveAddressChecked || !!isSameAsDocAddrForPresentChecked) &&
 			presentCacheDocumentsTemp?.length > 0
 		) {
 			setPresentCacheDocumentsTemp([]);
 		}
+
 		if (!isSameAsAboveAddressChecked && isSameAsAboveAddressChecked === false) {
 			clearPresentAddressState();
 		}
 		// eslint-disable-next-line
 	}, [isSameAsAboveAddressChecked]);
+
+	useEffect(() => {
+		if (
+			!!isSameAsDocAddrForPresentChecked &&
+			presentCacheDocumentsTemp?.length > 0
+		) {
+			setPresentCacheDocumentsTemp([]);
+		}
+
+		if (
+			!isSameAsDocAddrForPresentChecked &&
+			isSameAsDocAddrForPresentChecked === false
+		) {
+			clearPresentAddressStateFromDoc();
+		}
+		handleSameAsDocForPresentCheckBox();
+	}, [isSameAsDocAddrForPresentChecked]);
+
+	useEffect(() => {
+		if (
+			!!isSameAsDocAddrForPermanentChecked &&
+			permanentCacheDocumentsTemp?.length > 0
+		) {
+			setPermanentCacheDocumentsTemp([]);
+		}
+
+		if (
+			!isSameAsDocAddrForPermanentChecked &&
+			isSameAsDocAddrForPermanentChecked === false
+		) {
+			clearPermanentAddressState();
+		}
+		handleSameAsDocForPermanentCheckBox();
+		// eslint-disable-next-line
+	}, [isSameAsDocAddrForPermanentChecked]);
 
 	if (!selectedDirectorId) return null;
 
@@ -955,13 +1216,22 @@ const AddressDetails = props => {
 							biometricRes={biometricRes}
 						/>
 					)}
+
 					{selectedSection?.sub_sections?.map(
 						(sub_section, subSectionIndex) => {
+							// {selectedSection?.sub_sections?.map(
+							// 	(sub_section, subSectionIndex) => {
 							let isInActiveAddressProofUpload = false;
 
 							const isPermanent = sub_section?.aid === CONST.AID_PERMANENT;
+							const isPresent = `${sub_section?.aid}` === CONST.AID_PRESENT;
+							const isAsPerDocument =
+								`${sub_section?.aid}` === CONST.AID_AS_PER_DOCUMENT;
+							// console.log({ fromValues: formState?.values });
 							const selectedAddressProofFieldName = isPermanent
 								? CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+								: isAsPerDocument
+								? CONST.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 								: CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME;
 							const selectedAddressProofId =
 								formState?.values?.[selectedAddressProofFieldName];
@@ -979,7 +1249,10 @@ const AddressDetails = props => {
 
 							const prefix = isPermanent
 								? CONST.PREFIX_PERMANENT
-								: CONST.PREFIX_PRESENT;
+								: isPresent
+								? CONST.PREFIX_PRESENT
+								: CONST.PREFIX_AS_PER_DOCUMENT;
+
 							const selectedDocumentTypes = formatAddressProofDocTypeList({
 								selectedAddressProofId,
 								prefix,
@@ -992,6 +1265,8 @@ const AddressDetails = props => {
 							const selectedCacheDocumentsTemp = [
 								...(isPermanent
 									? permanentCacheDocumentsTemp
+									: isAsPerDocument
+									? asPerDocAddressDocumentsTemp
 									: presentCacheDocumentsTemp),
 								...(isPermanent
 									? otherPermanentCacheDocTemp
@@ -1089,12 +1364,17 @@ const AddressDetails = props => {
 													</span>
 												) : null}
 												<strong>
-													{sub_section?.name ? 'Permanent' : 'Present'} Address
+													{sub_section?.sub
+														? sub_section?.sub
+														: sub_section?.name
+														? 'Permanent'
+														: 'Present'}{' '}
+													Address
 												</strong>
 												<span style={{ color: 'red' }}>*</span>
 											</h4>
 											<h4>
-												{sub_section?.name ? null : (
+												{/* {sub_section?.name ? null : (
 													<>
 														<UI.CheckboxSameAs
 															type='checkbox'
@@ -1118,6 +1398,101 @@ const AddressDetails = props => {
 															Same as Permanent Address
 														</label>
 													</>
+											)} */}
+												{sub_section?.name ? null : sub_section?.sub?.toLocaleLowerCase() ===
+												  'permanent' ? (
+													<>
+														<UI.CheckboxSameAs
+															type='checkbox'
+															id={CONST.CHECKBOX_SAME_AS_DOCUMENT_FOR_PERMANENT}
+															checked={!!isSameAsDocAddrForPermanentChecked}
+															disabled={
+																isSectionCompleted ||
+																isViewLoan ||
+																!formState?.values?.[
+																	CONST_ADDRESS_DETAILS
+																		.AS_PER_DOC_ADDRESS1_FIELD_NAME
+																]
+															}
+															onChange={() => {
+																setIsSameAsDocAddrForPermanentChecked(
+																	!isSameAsDocAddrForPermanentChecked
+																);
+															}}
+														/>
+														<label
+															htmlFor={
+																CONST.CHECKBOX_SAME_AS_DOCUMENT_FOR_PERMANENT
+															}
+														>
+															Same as As Per Document Address
+														</label>
+													</>
+												) : (
+													<div
+														style={{
+															display: 'flex',
+															flexDirection: 'column',
+															gap: '10px',
+														}}
+													>
+														{doesAddressDetailsHasMoreThanTwoSubsection && (
+															<div>
+																<UI.CheckboxSameAs
+																	type='checkbox'
+																	id={
+																		CONST.CHECKBOX_SAME_AS_DOCUMENT_FOR_PRESENT
+																	}
+																	checked={!!isSameAsDocAddrForPresentChecked}
+																	disabled={
+																		isSectionCompleted ||
+																		isViewLoan ||
+																		!formState?.values?.[
+																			CONST_ADDRESS_DETAILS
+																				.AS_PER_DOC_ADDRESS1_FIELD_NAME
+																		]
+																	}
+																	onChange={() => {
+																		setIsSameAsDocAddrForPresentChecked(
+																			!isSameAsDocAddrForPresentChecked
+																		);
+																		setIsSameAsAboveAddressChecked(false);
+																	}}
+																/>
+																<label
+																	htmlFor={
+																		CONST.CHECKBOX_SAME_AS_DOCUMENT_FOR_PRESENT
+																	}
+																>
+																	Same as As Per Document Address
+																</label>
+															</div>
+														)}
+														<div>
+															<UI.CheckboxSameAs
+																type='checkbox'
+																id={CONST.CHECKBOX_SAME_AS_ID}
+																checked={!!isSameAsAboveAddressChecked}
+																disabled={
+																	isSectionCompleted ||
+																	isViewLoan ||
+																	!formState?.values?.[
+																		CONST_ADDRESS_DETAILS
+																			.PERMANENT_ADDRESS1_FIELD_NAME
+																	]
+																}
+																onChange={() => {
+																	setIsSameAsAboveAddressChecked(
+																		!isSameAsAboveAddressChecked
+																	);
+																	setIsSameAsDocAddrForPresentChecked(false);
+																}}
+															/>
+															<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+																Same as Permanent Address
+															</label>
+														</div>
+													</div>
 												)}
 											</h4>
 										</UI.SubSectionCustomHeader>
@@ -1135,11 +1510,24 @@ const AddressDetails = props => {
 											}
 
 											if (
-												sub_section.aid === CONST.AID_PRESENT &&
-												!!isSameAsAboveAddressChecked
+												(sub_section.aid === CONST.AID_PRESENT &&
+													!!isSameAsAboveAddressChecked) ||
+												isSameAsDocAddrForPresentChecked
 											) {
 												if (
 													CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name)
+												)
+													return null;
+											}
+
+											if (
+												sub_section.aid === CONST.AID_PERMANENT &&
+												isSameAsDocAddrForPermanentChecked
+											) {
+												if (
+													CONST.HIDE_PERMANENT_ADDRESS_FIELDS.includes(
+														field.name
+													)
 												)
 													return null;
 											}
@@ -1155,6 +1543,19 @@ const AddressDetails = props => {
 											}
 											const customStyle = {};
 
+											if (
+												sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
+												CONST.AS_PER_DOCUMENT_FIELDS_TO_DISABLE.includes(
+													field?.name
+												)
+											) {
+												customFieldProps.disabled = true;
+											}
+
+											if (field?.type === 'pincode') {
+												customFieldProps.avoidFromCache = true;
+											}
+
 											const isIdProofUploadField =
 												field.type === 'file' &&
 												field.name.includes(CONST.ID_PROOF_UPLOAD_FIELD_NAME);
@@ -1169,7 +1570,7 @@ const AddressDetails = props => {
 												if (
 													sub_section.id ===
 														CONST_ADDRESS_DETAILS.SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD &&
-													!!setIsPermanentAddressIsPresentAddress
+													!!isPermanentAddressIsPresentAddress
 												) {
 													return null;
 												} else {
@@ -1220,6 +1621,8 @@ const AddressDetails = props => {
 																		? selectedAddressProofId?.includes('others')
 																			? setOtherPermanentCacheDocTemp
 																			: setPermanentCacheDocumentsTemp
+																		: isAsPerDocument
+																		? setAsPerDocAddressDocumentsTemp
 																		: selectedAddressProofId?.includes('others')
 																		? setOtherPresentCacheDocTemp
 																		: setPresentCacheDocumentsTemp
@@ -1229,6 +1632,8 @@ const AddressDetails = props => {
 																		? selectedAddressProofId?.includes('others')
 																			? setPermanentCacheDocumentsTemp
 																			: setOtherPermanentCacheDocTemp
+																		: isAsPerDocument
+																		? setOtherAsPerDocAddressCacheDocTemp
 																		: selectedAddressProofId?.includes('others')
 																		? setPresentCacheDocumentsTemp
 																		: setOtherPresentCacheDocTemp
@@ -1239,6 +1644,9 @@ const AddressDetails = props => {
 																isViewLoan={isViewLoan}
 																isEditOrViewLoan={isEditOrViewLoan}
 																directorDetails={sectionData?.director_details}
+																doesAddressDetailsHasMoreThanTwoSubsection={
+																	doesAddressDetailsHasMoreThanTwoSubsection
+																}
 															/>
 														</UI_SECTIONS.FieldWrapGrid>
 													);
@@ -1268,6 +1676,13 @@ const AddressDetails = props => {
 														disableFieldIfPrefilled
 													) {
 														customFieldProps.disabled = true;
+														// if (
+														// 	doesAddressDetailsHasMoreThanTwoSubsection &&
+														// 	sub_section?.id ===
+														// 		CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID
+														// ) {
+														// 	customFieldProps.disabled = false;
+														// }
 													} else {
 														customFieldProps.disabled = false;
 													}
@@ -1318,6 +1733,29 @@ const AddressDetails = props => {
 												}
 											}
 
+											if (
+												sub_section?.id === 'as_per_document_address_details'
+											) {
+												customFieldProps.disabled = true;
+											}
+
+											// <<<<<<<<<<<<<<<<<<<<<<<<< get confirmation >>>>>>>>>>>>>>>>>>>>>>
+											if (
+												(doesAddressDetailsHasMoreThanTwoSubsection &&
+													(sub_section?.id?.includes('permanent') &&
+														isSameAsDocAddrForPermanentChecked)) ||
+												((sub_section?.id?.includes('present') &&
+													isSameAsDocAddrForPresentChecked) ||
+													isSameAsAboveAddressChecked)
+											) {
+												// if (
+												// 	field?.name?.includes('tenure') ||
+												// 	field?.name?.includes('property')
+												// ) {
+												customFieldProps.disabled = false;
+												// }
+											}
+
 											// TO overwrite all above condition and disable everything
 											if (isViewLoan) {
 												customFieldProps.disabled = true;
@@ -1335,7 +1773,7 @@ const AddressDetails = props => {
 											if (
 												sub_section.id ===
 													CONST_ADDRESS_DETAILS.SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD &&
-												!!setIsPermanentAddressIsPresentAddress
+												!!isPermanentAddressIsPresentAddress
 											) {
 												return null;
 											}
