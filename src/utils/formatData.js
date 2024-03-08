@@ -1144,8 +1144,11 @@ export const checkAllInputsForm = values => {
 
 export const formatUdyamAddress = value => {
 	const addressValue = Object.entries(value)
-		?.filter(([key]) => key !== 'Email:' && key !== 'Mobile')
-		?.map(([key, value]) => `${key}: ${value}\n`)
+		?.filter(([key]) => key !== 'email' && key !== 'mobile')
+		?.map(
+			([key, value]) =>
+				`${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}\n`
+		)
 		?.join('');
 	return addressValue;
 };

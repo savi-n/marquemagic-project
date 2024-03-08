@@ -841,20 +841,27 @@ const BasicDetails = props => {
 		if (getUdyamDetailsForDir?.length > 0) {
 			getUdyamDetailsForDir = getUdyamDetailsForDir?.filter(
 				dir => `${dir?.director_id}` === `${selectedDirectorId}`
-			)?.[0]?.udyam_data;
+			)?.[0]?.udyam_data?.result;
 		}
+
 		if (!!getUdyamDetailsForDir) {
 			const officialAddress = formatUdyamAddress(
-				getUdyamDetailsForDir?.officialAddress
+				getUdyamDetailsForDir?.officialAddressOfEnterprise
 			);
 			const udyamResObj = {
-				organisation_name: getUdyamDetailsForDir?.nameOfEnterprise,
-				date_of_incorporation: getUdyamDetailsForDir?.dateOfIncorporation,
-				date_of_registration: getUdyamDetailsForDir?.dateOfUdyamRegistration,
-				organisation_type: getUdyamDetailsForDir?.organisationType,
-				mobile_number: getUdyamDetailsForDir?.officialAddress?.Mobile,
+				udyam_number:
+					getUdyamDetailsForDir?.generalInfo?.udyamRegistrationNumber,
+				organisation_name: getUdyamDetailsForDir?.generalInfo?.nameOfEnterprise,
+				date_of_incorporation:
+					getUdyamDetailsForDir?.generalInfo?.dateOfIncorporation,
+				date_of_registration:
+					getUdyamDetailsForDir?.generalInfo?.dateOfUdyamRegistration,
+				organisation_type: getUdyamDetailsForDir?.generalInfo?.organisationType,
+				mobile_number:
+					getUdyamDetailsForDir?.officialAddressOfEnterprise?.mobile,
 				business_address: officialAddress,
 			};
+
 			setUdyamOrganisationDetails(udyamResObj);
 		}
 	};
@@ -881,7 +888,7 @@ const BasicDetails = props => {
 					setDetails(udyamDetailRes?.data?.data);
 				} else {
 					addToast({
-						message: 'Please enter / trigger Udyam Number to proceed',
+						message: 'Please trigger / submit the section and try again',
 						type: 'error',
 					});
 					return;
@@ -891,6 +898,7 @@ const BasicDetails = props => {
 					message: 'Please submit the section and try again.',
 					error: 'error',
 				});
+				return;
 			}
 			setTimeout(() => {
 				setIsUdyamModalOpen(true);
@@ -2345,6 +2353,9 @@ const BasicDetails = props => {
 						}}
 						details={udyamOrganisationDetails}
 						heading={'Udyam Organisation Details'}
+						errorMessage={
+							'Unable to fetch data. Please retrigger the Udyam number and try again.'
+						}
 					/>
 
 					<Modal
