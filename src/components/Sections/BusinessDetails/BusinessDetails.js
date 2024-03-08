@@ -817,6 +817,9 @@ const BusinessDetails = props => {
 				`${API.API_END_POINT}/dedupe_check`,
 				dedupeReqBody
 			);
+
+			// console.log(fetchDedupeRes, 'fetch dedupe res');
+
 			if (fetchDedupeRes?.data?.status === 'ok') {
 				setDedupeModalData(fetchDedupeRes?.data?.data);
 			}
@@ -908,7 +911,10 @@ const BusinessDetails = props => {
 				businessname:
 					sectionData?.business_details?.businessname ||
 					leadAllDetails?.business_name,
-				// contact:sectionData?.business_details?.contact || leadAllDetails?.mobile_no ,
+
+				contact:
+					sectionData?.business_details?.contact || leadAllDetails?.mobile_no,
+
 				udyam_number:
 					sectionData?.business_details?.udyam_number ||
 					leadAllDetails?.udyam_number,
@@ -1203,6 +1209,7 @@ const BusinessDetails = props => {
 	});
 
 	// for fed use case when the data is fetched from customer id from fed portal
+
 	const disableFieldIfPrefilledFromThirdPartyData = field => {
 		/*
 This function checks if a form field should be disabled based on the configuration for disabling fields

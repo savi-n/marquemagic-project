@@ -33,13 +33,14 @@ const InputFieldSingleFileUpload = props => {
 		errorColorCode,
 		isFormSubmited,
 		category,
+		// classification_type,
 	} = props;
 	const { app, application } = useSelector(state => state);
 	// const { directors, selectedDirectorId } = useSelector(
 	// 	state => state.directors
 	// );
 	// const selectedDirector = directors?.[selectedDirectorId] || {};
-	const { isViewLoan, selectedProduct, userDetails } = app;
+	const { isViewLoan, selectedProduct, whiteLabelId, userDetails } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
@@ -55,7 +56,6 @@ const InputFieldSingleFileUpload = props => {
 	const openDocument = async file => {
 		try {
 			setLoading(true);
-			// console.log('open-doc-', { file, loanId, businessUserId });
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
@@ -89,8 +89,6 @@ const InputFieldSingleFileUpload = props => {
 				loan_id: loanId,
 				userid: userId,
 			};
-			// console.log('reqBody-', reqBody);
-			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
@@ -127,29 +125,51 @@ const InputFieldSingleFileUpload = props => {
 					status: 'progress',
 					// cancelToken: source,
 				};
+				// console.log(field.name);
 				const formData = new FormData();
-				formData.append('document', filesToUpload.file);
-				const fileUploadRes = await axios.post(
-					`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-					formData
-					// {
-					// 	timeout: CONST_SECTIONS.timeoutForDocumentUpload,
-					// }
-				);
-				if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
-					return { ...finalFilesToUpload[0], status: 'error' };
+
+				if (field?.name === 'udyam_upload') {
+					formData.append('white_label_id', whiteLabelId);
+					formData.append('document', filesToUpload.file);
+
+					const fileUploadRes = await axios.post(
+						`${API.API_END_POINT}/udyamDocUpload`,
+						formData
+					);
+
+					const newFile = {
+						field,
+						...fileUploadRes?.data,
+						type: 'udyam',
+						preview: fileUploadRes?.data?.presignedUrl,
+					};
+					addCacheDocumentTemp(newFile);
+				} else {
+					formData.append('document', filesToUpload.file);
+					const fileUploadRes = await axios.post(
+						`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
+						formData
+						// {
+						// 	timeout: CONST_SECTIONS.timeoutForDocumentUpload,
+						// }
+					);
+					if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
+						return { ...finalFilesToUpload[0], status: 'error' };
+					}
+					const resFile = fileUploadRes.data.files[0];
+					newFileData = {
+						document_id: finalFilesToUpload[0].id,
+						upload_doc_name: resFile.filename,
+						document_key: resFile.fd,
+						size: resFile.size,
+						loan_id: loanId,
+						doc_type_id: selectedDocTypeId,
+						category,
+						// classification_type,
+						// directorId: selectedDirector?.directorId,
+					};
+					addCacheDocumentTemp({ ...previewFileData, ...newFileData });
 				}
-				const resFile = fileUploadRes.data.files[0];
-				newFileData = {
-					document_id: finalFilesToUpload[0].id,
-					upload_doc_name: resFile.filename,
-					document_key: resFile.fd,
-					size: resFile.size,
-					loan_id: loanId,
-					doc_type_id: selectedDocTypeId,
-					category,
-					// directorId: selectedDirector?.directorId,
-				};
 			} catch (error) {
 				console.error('error-inputfieldsinglefileupload-', error);
 				addToast({
@@ -157,7 +177,7 @@ const InputFieldSingleFileUpload = props => {
 					type: 'error',
 				});
 			} finally {
-				addCacheDocumentTemp({ ...previewFileData, ...newFileData });
+				// addCacheDocumentTemp(newFile);
 				setLoading(false);
 			}
 		}
@@ -245,7 +265,7 @@ const InputFieldSingleFileUpload = props => {
 								// window.open('https://www.google.com', '_blank');
 							}}
 						>
-							{uploadedFile?.name}
+							{uploadedFile?.name || uploadedFile?.file?.filename}
 						</UI.UploadedFileName>
 						{loading ? (
 							<UI.UploadIconWrapper>

@@ -1141,3 +1141,14 @@ export const checkAllInputsForm = values => {
 
 	return true;
 };
+
+export const formatUdyamAddress = value => {
+	const addressValue = Object.entries(value)
+		?.filter(([key]) => key !== 'email' && key !== 'mobile')
+		?.map(
+			([key, value]) =>
+				`${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}\n`
+		)
+		?.join('');
+	return addressValue;
+};
