@@ -13,7 +13,7 @@ import ConfirmModal from 'components/modals/ConfirmModal';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 import { encryptReq } from 'utils/encrypt';
-import { isInvalidPan } from 'utils/validation';
+import { isInvalidPan, isInvalidUdyam } from 'utils/validation';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
@@ -50,6 +50,7 @@ import {
 	// validateAllTheDirectors,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
+import { formatUdyamAddress } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -58,7 +59,11 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import { API_END_POINT } from '_config/app.config';
+import {
+	API_END_POINT,
+	VERIFY_UDYAM_NUMBER,
+	GET_UDYAM_DETAILS_BUSINESS_ID,
+} from '_config/app.config';
 import {
 	scrollToTopRootElement,
 	isNullFunction,
@@ -69,6 +74,9 @@ import Modal from 'components/Modal';
 import DedupeAccordian from '../BusinessDetails/DedupeComponents/DedupeAccordian';
 import DataDeletionWarningModal from './DataDeletionWarningModal';
 import CustomerVerificationOTPModal from 'components/ProductCard/CustomerVerificationOTPModal';
+import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload/InputFieldSingleFileUpload';
+import TableModal from './TableModal';
+import { getDocumentNameFromLoanDocuments } from 'utils/formatData';
 import UcicSearchModal from './UcicSearchModal';
 import DudupeCheckSearchModal from './DudupeCheckSearchModal';
 
@@ -134,8 +142,7 @@ const BasicDetails = props => {
 		false
 	);
 	const [loanPreFetchdata, setLoanPreFetchData] = useState({});
-	const [dudupeFormdata,setDudupeFormdata]=useState('');
-
+	const [dudupeFormdata, setDudupeFormdata] = useState('');
 
 	const {
 		handleSubmit,
@@ -177,10 +184,206 @@ const BasicDetails = props => {
 		setIsDudupeCheckSearchModalOpen,
 	] = useState(false);
 
+	const [fetchedProfilePic, setFetchedProfilePic] = useState();
+	const [fetchedUdyamDoc, setFetchedUdyamDoc] = useState();
+	const [udyamOrganisationDetails, setUdyamOrganisationDetails] = useState({});
+	const [udyamDocumentTemp, setudyamDocumentTemp] = useState([]);
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
 	// );
+	const [isUdyamModalOpen, setIsUdyamModalOpen] = useState(false);
+	const [details, setDetails] = useState();
+	const [requestIdValue, setRequestIdValue] = useState();
+	useEffect(() => {
+		scrollToTopRootElement();
+		validateToken();
+
+		if (
+			!isEditLoan &&
+			!isViewLoan &&
+			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
+		) {
+			dispatch(
+				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
+			);
+		}
+
+		// new fetch section data starts
+		if (
+			!!loanRefId &&
+			// !!selectedDirector &&
+			// !!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
+			selectedDirectorId
+		)
+			fetchSectionDetails();
+		// new fetch section data ends
+
+		// sme flow - special case
+		if (
+			selectedProduct?.isSelectedProductTypeBusiness &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// console.log('create-mode');
+			fetchGeoLocationForSme(geoLocation);
+		}
+
+		if (
+			isGeoTaggingEnabled &&
+			selectedDirector?.profileGeoLocation &&
+			Object.keys(selectedDirector?.profileGeoLocation).length > 0
+		) {
+			setProfilePicGeolocation(selectedDirector?.profileGeoLocation);
+		}
+
+		// async function fetchGeoLocationData() {
+		// 	try {
+		// 		// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
+		// 		setFetchingAddress(true);
+		// 		if (!geoLocation.lat && !geoLocation.long) return;
+		// 		const reqBody = {
+		// 			lat: geoLocation.lat,
+		// 			long: geoLocation.long,
+		// 		};
+
+		// 		const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+		// 			headers: {
+		// 				Authorization: `Bearer ${userToken}`,
+		// 			},
+		// 		});
+
+		// 		dispatch(
+		// 			setGeoLocation({
+		// 				lat: geoLocation.lat,
+		// 				long: geoLocation.long,
+		// 				timestamp: geoLocation?.lat_long_timestamp,
+		// 				address: geoLocationRes?.data?.data?.address,
+		// 			})
+		// 		);
+		// 		setGeoLocationData({
+		// 			lat: geoLocation.lat,
+		// 			long: geoLocation.long,
+		// 			timestamp: geoLocation?.lat_long_timestamp,
+		// 			address: geoLocationRes?.data?.data?.address,
+		// 		});
+		// 	} catch (error) {
+		// 		console.error('fetchGeoLocationData ~ error:', error);
+		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+		// 		setGeoLocationData({
+		// 			err: 'Geo Location Not Captured',
+		// 		});
+		// 		addToast({
+		// 			message:
+		// 				error?.response?.data?.message ||
+		// 				error?.message ||
+		// 				'Geo Location Not Captured',
+		// 			type: 'error',
+		// 		});
+		// 	} finally {
+		// 		setFetchingAddress(false);
+		// 	}
+		// }
+
+		// async function fetchProfilePicGeoLocationData() {
+		// 	try {
+		// 		// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
+		// 		// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
+		// 		setFetchingAddress(true);
+		// 		console.log(
+		// 			'🚀 ~ file: BasicDetails.js:757 ~ fetchProfilePicGeoLocationData ~ selectedDirector:',
+		// 			selectedDirector
+		// 		);
+		// 		if (!selectedDirector?.lat && !selectedDirector?.lat) {
+		// 			dispatch(
+		// 				setProfileGeoLocation({
+		// 					err: 'Geo Location Not Captured',
+		// 				})
+		// 			);
+		// 			setProfilePicGeolocation({
+		// 				err: 'Geo Location Not Captured',
+		// 			});
+		// 			return;
+		// 		}
+
+		// 		const reqBody = {
+		// 			lat: selectedDirector?.lat,
+		// 			long: selectedDirector?.long,
+		// 		};
+
+		// 		const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+		// 			headers: {
+		// 				Authorization: `Bearer ${userToken}`,
+		// 			},
+		// 		});
+		// 		dispatch(
+		// 			setProfileGeoLocation({
+		// 				lat: selectedDirector?.lat,
+		// 				long: selectedDirector?.long,
+		// 				timestamp: selectedDirector?.timestamp,
+		// 				address: geoPicLocationRes?.data?.data?.address,
+		// 			})
+		// 		);
+		// 		setProfilePicGeolocation({
+		// 			lat: selectedDirector?.lat,
+		// 			long: selectedDirector?.long,
+		// 			timestamp: selectedDirector?.timestamp,
+		// 			address: geoPicLocationRes?.data?.data?.address,
+		// 		});
+		// 	} catch (error) {
+		// 		console.error('fetchProfilePicGeoLocationData ~ error:', error);
+		// 	} finally {
+		// 		setFetchingAddress(false);
+		// 	}
+		// }
+
+		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
+		// if (isGeoTaggingEnabled && Object.keys(selectedDirector).length > 0) {
+		// 	if (
+		// 		!!geoLocationData &&
+		// 		Object.keys(geoLocationData)?.length > 0 &&
+		// 		!geoLocation?.address
+		// 	) {
+		// 		fetchGeoLocationData();
+		// 	}
+		// 	if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
+		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+		// 		setGeoLocationData({ err: 'Geo Location Not Captured' });
+		// 	}
+		// 	if (
+		// 		selectedDirector?.customer_picture &&
+		// 		Object.keys(selectedDirector?.profileGeoLocation).length <= 0
+		// 	) {
+		// 		// fetchProfilePicGeoLocationData();
+		// 		console.log('true...........');
+		// 	}
+		// }
+
+		// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
+		// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
+
+		function saveMandatoryGeoLocation() {
+			let arr = [];
+			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				sub_section?.fields?.map((field, fieldIndex) => {
+					if (field?.geo_tagging) {
+						let reduxStoreKey = '';
+						if (field?.db_key === 'customer_picture') {
+							reduxStoreKey = 'profileGeoLocation';
+						}
+						arr.push(reduxStoreKey);
+					}
+					return null;
+				});
+				return null;
+			});
+			// console.log(arr, 'arr');
+			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
+		}
+
+		saveMandatoryGeoLocation();
+		// eslint-disable-next-line
+	}, []);
+
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const dudupeIndividualVerifyApi = selectedProduct?.product_details?.verify;
@@ -199,7 +402,6 @@ const BasicDetails = props => {
 		sectionData?.ekyc_respons_data?.length > 0
 			? parseJSON(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
 			: {};
-	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
@@ -619,6 +821,146 @@ const BasicDetails = props => {
 			setLoading(false);
 		}
 	};
+	// Handling Udyam number and its response, only toggle button, if data is succesfully fetched
+	const onUdyamNumberEnter = async udyam => {
+		try {
+			const udyamErrorMessage = isInvalidUdyam(udyam);
+			if (udyamErrorMessage) {
+				return addToast({
+					message: 'Please enter valid UDYAM number',
+					type: 'error',
+				});
+			}
+			setLoading(true);
+			const udyamNumberRes = await axios.get(`${VERIFY_UDYAM_NUMBER}`, {
+				params: {
+					udyamRegNo: `${udyam}`,
+				},
+				headers: {
+					Authorization: clientToken,
+				},
+			});
+
+			if (udyamNumberRes?.data?.status === 'ok') {
+				addToast({
+					message: 'Udyam number is validated',
+					type: 'success',
+				});
+			}
+			setRequestIdValue(udyamNumberRes.data.request_id);
+		} catch (error) {
+			console.error(error);
+			addToast({
+				message:
+					'Something went wrong, please try again with valid UDYAM number',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const extractUdyamDetails = params => {
+		let getUdyamDetailsForDir = params || details;
+
+		if (getUdyamDetailsForDir?.length > 0) {
+			getUdyamDetailsForDir = getUdyamDetailsForDir?.filter(
+				dir => `${dir?.director_id}` === `${selectedDirectorId}`
+			)?.[0]?.udyam_data?.result;
+		}
+
+		if (!!getUdyamDetailsForDir) {
+			const officialAddress = formatUdyamAddress(
+				getUdyamDetailsForDir?.officialAddressOfEnterprise
+			);
+			const udyamResObj = {
+				udyam_number:
+					getUdyamDetailsForDir?.generalInfo?.udyamRegistrationNumber,
+				organisation_name: getUdyamDetailsForDir?.generalInfo?.nameOfEnterprise,
+				date_of_incorporation:
+					getUdyamDetailsForDir?.generalInfo?.dateOfIncorporation,
+				date_of_registration:
+					getUdyamDetailsForDir?.generalInfo?.dateOfUdyamRegistration,
+				organisation_type: getUdyamDetailsForDir?.generalInfo?.organisationType,
+				mobile_number:
+					getUdyamDetailsForDir?.officialAddressOfEnterprise?.mobile,
+				business_address: officialAddress,
+			};
+
+			setUdyamOrganisationDetails(udyamResObj);
+		}
+	};
+
+	const handleUdyamResponse = async businessId => {
+		try {
+			if (Object.keys(udyamOrganisationDetails).length === 0 && !!businessId) {
+				const payload = { business_id: businessId };
+				const udyamDetailRes = await axios.post(
+					`${GET_UDYAM_DETAILS_BUSINESS_ID}`,
+					payload,
+					{
+						headers: {
+							Authorization: clientToken,
+						},
+					}
+				);
+
+				if (
+					udyamDetailRes?.data?.status === 'ok' &&
+					udyamDetailRes?.data?.data?.length > 0
+				) {
+					extractUdyamDetails(udyamDetailRes?.data?.data);
+					setDetails(udyamDetailRes?.data?.data);
+				} else {
+					addToast({
+						message: 'Please trigger / submit the section and try again',
+						type: 'error',
+					});
+					return;
+				}
+			} else if (!businessId) {
+				addToast({
+					message: 'Please submit the section and try again.',
+					error: 'error',
+				});
+				return;
+			}
+			setTimeout(() => {
+				setIsUdyamModalOpen(true);
+			}, 500);
+		} catch (error) {
+			console.error(error);
+			addToast({
+				message: 'Something went wrong, please try again',
+				type: 'error',
+			});
+		}
+	};
+	//Handle udyam doc similar to cache, but while removing, set the fetchedState to null
+	const addUdyamDocumentTemp = file => {
+		const newUdyamDocTemp = _.cloneDeep(udyamDocumentTemp);
+		newUdyamDocTemp.push(file);
+		setudyamDocumentTemp(newUdyamDocTemp);
+	};
+
+	const removeUdyamDocTemp = fieldName => {
+		const newUdyamDocTemp = _.cloneDeep(udyamDocumentTemp);
+		if (
+			udyamDocumentTemp.filter(doc => doc?.field.name === fieldName).length > 0
+		) {
+			setudyamDocumentTemp(
+				newUdyamDocTemp.filter(doc => doc?.field?.name !== fieldName)
+			);
+		}
+		setFetchedUdyamDoc();
+	};
+
+	const udyamUploadedFile =
+		udyamDocumentTemp?.filter(
+			doc => doc?.field?.name === 'udyam_upload'
+		)?.[0] ||
+		fetchedUdyamDoc ||
+		null;
 
 	const validateDirectorMobileNumbers = ({
 		directorsObject,
@@ -682,6 +1024,7 @@ const BasicDetails = props => {
 			  };
 	};
 
+	//OnSaveAndProced
 	const onSaveAndProceed = async () => {
 		dispatch(setDedupePrefilledValues({}));
 		try {
@@ -776,6 +1119,26 @@ const BasicDetails = props => {
 							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
 				: profileUrl;
+
+			//Udyam Upload file is managed to finally send in the basic request body,
+			//It accepts either file if available else, preview value is taken
+
+			const udyamDocField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+				field => field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
+			)?.[0];
+
+			const isNewUdyamUplaoded = !!udyamUploadedFile?.file;
+			let udyamUrl = udyamUploadedFile?.preview || '';
+
+			const udyamDocFieldValue = isNewUdyamUplaoded
+				? {
+						...udyamUploadedFile?.file,
+						doc_type_id: udyamDocField?.doc_type?.[selectedIncomeType],
+						is_delete_not_allowed:
+							udyamDocField?.is_delete_not_allowed === true ? true : false,
+				  }
+				: udyamUrl;
+
 			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
@@ -810,12 +1173,18 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
-
 			if (leadId) basicDetailsReqBody.lead_id = leadId;
+
+			if (udyamUploadedFile) {
+				basicDetailsReqBody.data.basic_details.udyam_document = udyamDocFieldValue;
+			}
+
+			basicDetailsReqBody.data.basic_details.udyam_trans_id = requestIdValue;
 			if (businessId) basicDetailsReqBody.business_id = businessId;
 
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
+				// 'https://4dab-49-204-92-162.ngrok-free.app/basic_details',
 				basicDetailsReqBody
 			);
 			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
@@ -1021,10 +1390,7 @@ const BasicDetails = props => {
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 	// console.log({ isApplicant });
-	const onFetchFromCustomerId = async (
-		selectedCustomerDudupe,
-		formState
-	) => {
+	const onFetchFromCustomerId = async (selectedCustomerDudupe, formState) => {
 		// console.log('on-fetch-customer-id');
 		setDudupeFormdata(formState?.values);
 
@@ -1293,24 +1659,26 @@ const BasicDetails = props => {
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email:
-				(sectionData?.director_details?.demail) || (selectedDirector?.directorId ? leadAllDetails?.pan_number:'')|| '',
+					sectionData?.director_details?.demail ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number : '') ||
+					'',
 
 				customer_id:
 					sectionData?.director_details?.additional_cust_id ||
 					sectionData?.director_details?.customer_id ||
 					'',
 				contactno:
-					(sectionData?.director_details?.dcontact) ||
-					(dedupeData?.mobile_no) ||
-					(selectedDirector?.directorId ? leadAllDetails?.pan_number:'')||
+					sectionData?.director_details?.dcontact ||
+					dedupeData?.mobile_no ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number : '') ||
 					'',
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber ||
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
 				dpancard:
-					(sectionData?.director_details?.dpancard) ||
-					(selectedDirector?.directorId ? leadAllDetails?.pan_number:'')||
+					sectionData?.director_details?.dpancard ||
+					(selectedDirector?.directorId ? leadAllDetails?.pan_number : '') ||
 					'',
 				// martial_status:
 				marital_status: isNullFunction(
@@ -1490,6 +1858,7 @@ const BasicDetails = props => {
 						},
 					// : {},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
+					// [CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME]: {},
 				},
 				app,
 				selectedDirector,
@@ -1795,6 +2164,21 @@ const BasicDetails = props => {
 					}
 				}
 
+				//Since the fetched udyam document doesnt have name and document_id, they are manually set and then used in InputFieldSingleFileUpload.
+				const fetchedUdyamDocData =
+					fetchRes?.data?.data?.director_details?.udyam_document;
+				if (
+					fetchedUdyamDocData &&
+					Object.keys(fetchedUdyamDocData)?.length > 0
+				) {
+					const udyamDoc = {
+						...fetchedUdyamDocData,
+						name: getDocumentNameFromLoanDocuments(fetchedUdyamDocData),
+						document_id: fetchedUdyamDocData.id,
+					};
+					setFetchedUdyamDoc(udyamDoc);
+				}
+
 				const fetchedProfilePicData =
 					fetchRes?.data?.data?.director_details?.customer_picture;
 
@@ -1875,7 +2259,7 @@ const BasicDetails = props => {
 				})
 			);
 			setIsDudupeCheckSearchModalOpen(false);
-					setIsCustomerVerificationOTPModal(false);
+			setIsCustomerVerificationOTPModal(false);
 		} catch (e) {
 			addToast({
 				message:
@@ -1886,7 +2270,7 @@ const BasicDetails = props => {
 			});
 		}
 	};
-	
+
 	// fetch section data ends
 	// useLayoutEffect(() => {
 	// 	setCacheDocumentsTemp([]);
@@ -2205,7 +2589,7 @@ const BasicDetails = props => {
 		}
 		setIsDataDeletionWarningOpen(true);
 	};
-	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData || fetchingGeoLocation ? (
@@ -2246,15 +2630,29 @@ const BasicDetails = props => {
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
-							isApplicantDudupe="false"
+							isApplicantDudupe='false'
 							fetchSectionDetails={fetchSectionDetails}
 							dudupeFormdata={dudupeFormdata}
 							fetchDirectors={fetchDirectors}
 							setIsDudupeCheckSearchModalOpen={setIsDudupeCheckSearchModalOpen}
-							setIsCustomerVerificationOTPModal={setIsCustomerVerificationOTPModal}
+							setIsCustomerVerificationOTPModal={
+								setIsCustomerVerificationOTPModal
+							}
 							// selectedDirectorId={selectedDirector?.directorId}
 						/>
 					)}
+
+					<TableModal
+						show={isUdyamModalOpen}
+						onClose={() => {
+							setIsUdyamModalOpen(false);
+						}}
+						details={udyamOrganisationDetails}
+						heading={'Udyam Organisation Details'}
+						errorMessage={
+							'Unable to fetch data. Please retrigger the Udyam number and try again.'
+						}
+					/>
 
 					<Modal
 						show={isDedupeCheckModalOpen}
@@ -2302,26 +2700,39 @@ const BasicDetails = props => {
 						customerList={customerList}
 						selectedDedupeData={selectedDedupeData}
 						formData={selectedSection?.ucic_search_form_data}
-					/>
-                        {isDudupeCheckSearchModalOpen && (
-                        <DudupeCheckSearchModal
-						show={isDudupeCheckSearchModalOpen}
-						onClose={() => {
-							setIsDudupeCheckSearchModalOpen(false);
+						updateUCICNumber={ucicNumber => {
+							onChangeFormStateField({
+								name: CONST.CUSTOMER_ID_FIELD_NAME,
+								value: ucicNumber,
+							});
+							setIsCustomerListModalOpen(false);
 						}}
-						basicDetailsFormState={formState?.values}
-						isApplicant={isApplicant}
 						setCustomerListDudupe={setCustomerListDudupe}
 						setIsCustomerListdudupeModalOpen={setIsCustomerListdudupeModalOpen}
 						isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
 						customerListDudupe={customerListDudupe}
-						selectedDedupeData={selectedDedupeData}
-						formData={selectedSection?.customer_details?.sub_sections
-						}
 						onFetchFromCustomerId={onFetchFromCustomerId}
-								
 					/>
-                    )}
+
+					{isDudupeCheckSearchModalOpen && (
+						<DudupeCheckSearchModal
+							show={isDudupeCheckSearchModalOpen}
+							onClose={() => {
+								setIsDudupeCheckSearchModalOpen(false);
+							}}
+							basicDetailsFormState={formState?.values}
+							isApplicant={isApplicant}
+							setCustomerListDudupe={setCustomerListDudupe}
+							setIsCustomerListdudupeModalOpen={
+								setIsCustomerListdudupeModalOpen
+							}
+							isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
+							customerListDudupe={customerListDudupe}
+							selectedDedupeData={selectedDedupeData}
+							formData={selectedProduct?.customer_details?.sub_sections}
+							onFetchFromCustomerId={onFetchFromCustomerId}
+						/>
+					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2551,6 +2962,42 @@ const BasicDetails = props => {
 												!!completedSections?.includes(selectedSectionId);
 										}
 
+										//Udyam Document Upload Handling
+										if (
+											field?.type === 'file' &&
+											field?.name === CONST.UDYAM_DOCUMENT_UPLOAD_FIELD_NAME
+										) {
+											const selectedDocTypeId =
+												field?.doc_type?.[selectedIncomeType];
+											const errorMessage =
+												(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+												formState?.error?.[field.name];
+
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													key={`field-${fieldIndex}-${field.name}`}
+												>
+													<InputFieldSingleFileUpload
+														field={field}
+														uploadedFile={udyamUploadedFile}
+														selectedDocTypeId={selectedDocTypeId}
+														clearErrorFormState={clearErrorFormState}
+														addCacheDocumentTemp={addUdyamDocumentTemp}
+														removeCacheDocumentTemp={removeUdyamDocTemp}
+														errorColorCode={errorMessage ? 'red' : ''}
+														isFormSubmited={!!formState?.submit?.isSubmited}
+														category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
+													/>
+													{errorMessage && (
+														<UI_SECTIONS.ErrorMessage>
+															{errorMessage}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+												</UI_SECTIONS.FieldWrapGrid>
+											);
+										}
+
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											customFieldPropsSubfields.onClick = isApplicant
 												? showDataDeletionWarningModal
@@ -2633,6 +3080,23 @@ const BasicDetails = props => {
 															customFieldPropsSubfields.onClick = () =>
 																setIsUcicSearchModalOpen(true);
 														}
+
+														//Udyam Number Input Handling
+														if (subField?.name === 'udyam_fetch') {
+															// isUdyamButtonEnable(true);
+															customFieldPropsSubfields.placeholder = 'Trigger';
+															customFieldPropsSubfields.loading = loading;
+															// setIsUdyamButtonEnable(true);
+															customFieldPropsSubfields.onClick = () => {
+																onUdyamNumberEnter(
+																	formState.values?.[
+																		CONST.UDYAM_NUMBER_FIELD_NAME
+																	]
+																);
+															};
+															customFieldPropsSubfields.disabled = loading;
+														}
+
 														if (subField?.name === 'check_dedupe') {
 															customFieldPropsSubfields.disabled = false;
 															customFieldPropsSubfields.onClick = () =>
@@ -2752,6 +3216,34 @@ const BasicDetails = props => {
 										});
 										return;
 									}
+
+									//Add checks for Udyam Number And Udyam Document
+									const isPresentUdyamFile = udyamUploadedFile;
+									const isUdyamNumberPresent =
+										formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME];
+									if (
+										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
+											'Waiver' &&
+										!isPresentUdyamFile
+									) {
+										addToast({
+											message: 'Udyam Document is Mandatory',
+											type: 'error',
+										});
+										return;
+									}
+									if (
+										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
+											'Yes' &&
+										!isUdyamNumberPresent
+									) {
+										addToast({
+											message: 'Udyam Number is mandatory',
+											type: 'error,',
+										});
+										return;
+									}
+
 									// director id will be present in case of aplicant / coapplicant if they move out of basic details page
 									// so avoid opening income type popup at below condition
 									if (isEditOrViewLoan || !!selectedDirector?.directorId) {
@@ -2779,6 +3271,18 @@ const BasicDetails = props => {
 										fetchDedupeCheckData();
 									}}
 									fill
+								/>
+							</>
+						)}
+
+						{selectedSection?.show_udyam_details_button && (
+							<>
+								<Button
+									name='Show Udyam Details'
+									fill
+									onClick={() => {
+										handleUdyamResponse(businessId);
+									}}
 								/>
 							</>
 						)}
