@@ -19,9 +19,6 @@ import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
-	const bank_name = props.fields.filter(
-		field => field?.db_key === CONST.BANK_NAME_DB_KEY
-	);
 	const {
 		fields,
 		onSaveOrUpdateSuccessCallback = () => {},
@@ -35,11 +32,9 @@ const DynamicForm = props => {
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
-	const {
-		directors,
-		selectedDirectorId,
-		selectedDirectorOptions,
-	} = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const {
@@ -48,39 +43,11 @@ const DynamicForm = props => {
 		selectedProduct,
 		isViewLoan: isViewLoanApp,
 	} = app;
-	const { businessName } = application;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const prefilledEditOrViewLoanValues = field => {
-		// Sample PrefillData Object;
-		// 	{
-		// 		"id": 19315,
-		// 		"loan_id": 32830,
-		// 		"business_id": 1234581634,
-		// 		"fin_type": "Others",
-		// 		"bank_id": 0,
-		// 		"loan_type": 0,
-		// 		"outstanding_balance": 0,
-		// 		"outstanding_balance_unit": "",
-		// 		"outstanding_start_date": "",
-		// 		"outstanding_end_date": "",
-		// 		"ints": "2023-03-23T06:21:46.000Z",
-		// 		"account_type": null,
-		// 		"account_number": null,
-		// 		"account_limit": null,
-		// 		"account_holder_name": null,
-		// 		"limit_type": "Fixed",
-		// 		"sanction_drawing_limit": {},
-		// 		"IFSC": null,
-		// 		"director_id": 997290,
-		// 		"emi_details": "{\"description\":\"test\",\"liability_amount\":\"111\"}",
-		// 		"source": null,
-		// 		"subtype": null,
-		// 		"remaining_loan_tenure": null,
-		// 		"bank_remarks": null
-		// }
 		const preData = {
 			...prefillData,
 			liabilities_for: `${prefillData?.director_id || ''}`,
@@ -222,7 +189,6 @@ const DynamicForm = props => {
 				application,
 			});
 			reqBody.data.liability_details.bank_name =
-				bank_name?.length > 0 &&
 				reqBody?.data?.liability_details?.financial_institution?.name;
 			if (editSectionId) {
 				reqBody.data.liability_details.id = editSectionId;
@@ -273,15 +239,6 @@ const DynamicForm = props => {
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
-					const business = {
-						name: businessName || 'Company/Business',
-						value: '0',
-					}; // get the business name here
-					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
-						newField.options = selectedProduct?.isSelectedProductTypeBusiness
-							? [business, ...selectedDirectorOptions]
-							: selectedDirectorOptions;
-					}
 
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
