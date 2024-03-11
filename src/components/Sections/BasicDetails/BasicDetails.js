@@ -1026,7 +1026,6 @@ const BasicDetails = props => {
 		formState
 	) => {
 		// console.log('on-fetch-customer-id');
-		console.log("formstatebasicccc",formState);
 		setDudupeFormdata(formState?.values);
 
 		try {
@@ -1934,6 +1933,19 @@ const BasicDetails = props => {
 		}
 		// Special case for SME FLow - Fetch geolocation if not saved - ends
 	};
+	function FunOpenDudupeModal() {
+		if (
+			!completedSections?.includes(selectedSectionId) 
+			&& formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME]?.trim()?.toString()!=="Yes"?.trim()?.toString() &&
+			selectedProduct?.product_details?.is_individual_dedupe_required  
+		) {
+			setIsDudupeCheckSearchModalOpen(true);
+		}
+		else{
+			setIsDudupeCheckSearchModalOpen(false);
+
+		}
+	}
 
 	useEffect(() => {
 		scrollToTopRootElement();
@@ -2120,13 +2132,21 @@ const BasicDetails = props => {
 
 		saveMandatoryGeoLocation();
 		// eslint-disable-next-line
-		if (
-			!completedSections?.includes(selectedSectionId) &&
-			selectedProduct?.product_details?.is_individual_dedupe_required && formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME] !=="Yes"
-		) {
-			setIsDudupeCheckSearchModalOpen(true);
-		}
+		// if (
+		// 	!completedSections?.includes(selectedSectionId) &&
+		// 	selectedProduct?.product_details?.is_individual_dedupe_required && formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME] !=="Yes"
+		// ) {
+		// 	setIsDudupeCheckSearchModalOpen(true);
+		// }
+		FunOpenDudupeModal();
 	}, []);
+
+
+	useEffect(()=>{
+		
+		FunOpenDudupeModal();
+		
+	},[formState.values[CONST.EXISTING_CUSTOMER_FIELD_NAME]])
 	// trial starts
 	let displayAddCoApplicantCTA = false;
 	if (selectedSection?.add_co_applicant_visibility === true) {
