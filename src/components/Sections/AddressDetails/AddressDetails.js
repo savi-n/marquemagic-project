@@ -806,10 +806,12 @@ const AddressDetails = props => {
 			);
 
 			const initData = _.cloneDeep(initialAddress);
-			const asPerDocumentAddress =
-				sectionData?.business_address_data?.filter(
-					addr => `${addr?.aid}` === CONST.AID_AS_PER_DOCUMENT
-				)?.[0] || {};
+			// needs to be changed later
+			const asPerDocumentAddress = completedSections?.includes(
+				selectedSectionId
+			)
+				? sectionData?.director_details?.as_per_document || {}
+				: {};
 
 			// -- TEST MODE
 			const preData = {
@@ -1543,15 +1545,6 @@ const AddressDetails = props => {
 											}
 											const customStyle = {};
 
-											if (
-												sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
-												CONST.AS_PER_DOCUMENT_FIELDS_TO_DISABLE.includes(
-													field?.name
-												)
-											) {
-												customFieldProps.disabled = true;
-											}
-
 											if (field?.type === 'pincode') {
 												customFieldProps.avoidFromCache = true;
 											}
@@ -1687,6 +1680,14 @@ const AddressDetails = props => {
 														customFieldProps.disabled = false;
 													}
 												}
+												if (
+													sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
+													CONST.AS_PER_DOCUMENT_FIELDS_TO_DISABLE.includes(
+														field?.name
+													)
+												) {
+													customFieldProps.disabled = true;
+												}
 											} else if (selectedAddressProofId?.includes('others')) {
 												customFieldProps.disabled = false;
 											} else {
@@ -1776,6 +1777,15 @@ const AddressDetails = props => {
 												!!isPermanentAddressIsPresentAddress
 											) {
 												return null;
+											}
+
+											if (
+												sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
+												CONST.AS_PER_DOCUMENT_FIELDS_TO_DISABLE.includes(
+													field?.name
+												)
+											) {
+												customFieldProps.disabled = true;
 											}
 
 											if (!isCountryIndia && !isViewLoan) {
