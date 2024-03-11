@@ -1392,7 +1392,6 @@ const BasicDetails = props => {
 	// console.log({ isApplicant });
 	const onFetchFromCustomerId = async (selectedCustomerDudupe, formState) => {
 		// console.log('on-fetch-customer-id');
-		console.log('formstatebasicccc', formState);
 		setDudupeFormdata(formState?.values);
 
 		try {
@@ -2318,7 +2317,220 @@ const BasicDetails = props => {
 		}
 		// Special case for SME FLow - Fetch geolocation if not saved - ends
 	};
+	function FunOpenDudupeModal() {
+		if (
+			!completedSections?.includes(selectedSectionId) 
+			&& formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME]?.trim()?.toString()!=="Yes"?.trim()?.toString() &&
+			selectedProduct?.product_details?.is_individual_dedupe_required  
+		) {
+			setIsDudupeCheckSearchModalOpen(true);
+		}
+		else{
+			setIsDudupeCheckSearchModalOpen(false);
 
+		}
+	}
+
+	useEffect(() => {
+		scrollToTopRootElement();
+		validateToken();
+
+		if (
+			!isEditLoan &&
+			!isViewLoan &&
+			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
+		) {
+			dispatch(
+				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
+			);
+		}
+
+		// new fetch section data starts
+		if (
+			!!loanRefId &&
+			// !!selectedDirector &&
+			// !!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
+			selectedDirectorId
+		)
+			fetchSectionDetails();
+		// new fetch section data ends
+
+		// sme flow - special case
+		if (
+			selectedProduct?.isSelectedProductTypeBusiness &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			fetchGeoLocationForSme(geoLocation);
+		}
+
+		if (
+			isGeoTaggingEnabled &&
+			selectedDirector?.profileGeoLocation &&
+			Object.keys(selectedDirector?.profileGeoLocation).length > 0
+		) {
+			setProfilePicGeolocation(selectedDirector?.profileGeoLocation);
+		}
+
+		// async function fetchGeoLocationData() {
+		// 	try {
+		// 		// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
+		// 		setFetchingAddress(true);
+		// 		if (!geoLocation.lat && !geoLocation.long) return;
+		// 		const reqBody = {
+		// 			lat: geoLocation.lat,
+		// 			long: geoLocation.long,
+		// 		};
+
+		// 		const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+		// 			headers: {
+		// 				Authorization: `Bearer ${userToken}`,
+		// 			},
+		// 		});
+
+		// 		dispatch(
+		// 			setGeoLocation({
+		// 				lat: geoLocation.lat,
+		// 				long: geoLocation.long,
+		// 				timestamp: geoLocation?.lat_long_timestamp,
+		// 				address: geoLocationRes?.data?.data?.address,
+		// 			})
+		// 		);
+		// 		setGeoLocationData({
+		// 			lat: geoLocation.lat,
+		// 			long: geoLocation.long,
+		// 			timestamp: geoLocation?.lat_long_timestamp,
+		// 			address: geoLocationRes?.data?.data?.address,
+		// 		});
+		// 	} catch (error) {
+		// 		console.error('fetchGeoLocationData ~ error:', error);
+		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+		// 		setGeoLocationData({
+		// 			err: 'Geo Location Not Captured',
+		// 		});
+		// 		addToast({
+		// 			message:
+		// 				error?.response?.data?.message ||
+		// 				error?.message ||
+		// 				'Geo Location Not Captured',
+		// 			type: 'error',
+		// 		});
+		// 	} finally {
+		// 		setFetchingAddress(false);
+		// 	}
+		// }
+
+		// async function fetchProfilePicGeoLocationData() {
+		// 	try {
+		// 		// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
+		// 		// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
+		// 		setFetchingAddress(true);
+		// 		console.log(
+		// 			'🚀 ~ file: BasicDetails.js:757 ~ fetchProfilePicGeoLocationData ~ selectedDirector:',
+		// 			selectedDirector
+		// 		);
+		// 		if (!selectedDirector?.lat && !selectedDirector?.lat) {
+		// 			dispatch(
+		// 				setProfileGeoLocation({
+		// 					err: 'Geo Location Not Captured',
+		// 				})
+		// 			);
+		// 			setProfilePicGeolocation({
+		// 				err: 'Geo Location Not Captured',
+		// 			});
+		// 			return;
+		// 		}
+
+		// 		const reqBody = {
+		// 			lat: selectedDirector?.lat,
+		// 			long: selectedDirector?.long,
+		// 		};
+
+		// 		const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+		// 			headers: {
+		// 				Authorization: `Bearer ${userToken}`,
+		// 			},
+		// 		});
+		// 		dispatch(
+		// 			setProfileGeoLocation({
+		// 				lat: selectedDirector?.lat,
+		// 				long: selectedDirector?.long,
+		// 				timestamp: selectedDirector?.timestamp,
+		// 				address: geoPicLocationRes?.data?.data?.address,
+		// 			})
+		// 		);
+		// 		setProfilePicGeolocation({
+		// 			lat: selectedDirector?.lat,
+		// 			long: selectedDirector?.long,
+		// 			timestamp: selectedDirector?.timestamp,
+		// 			address: geoPicLocationRes?.data?.data?.address,
+		// 		});
+		// 	} catch (error) {
+		// 		console.error('fetchProfilePicGeoLocationData ~ error:', error);
+		// 	} finally {
+		// 		setFetchingAddress(false);
+		// 	}
+		// }
+
+		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
+		// if (isGeoTaggingEnabled && Object.keys(selectedDirector).length > 0) {
+		// 	if (
+		// 		!!geoLocationData &&
+		// 		Object.keys(geoLocationData)?.length > 0 &&
+		// 		!geoLocation?.address
+		// 	) {
+		// 		fetchGeoLocationData();
+		// 	}
+		// 	if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
+		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+		// 		setGeoLocationData({ err: 'Geo Location Not Captured' });
+		// 	}
+		// 	if (
+		// 		selectedDirector?.customer_picture &&
+		// 		Object.keys(selectedDirector?.profileGeoLocation).length <= 0
+		// 	) {
+		// 		// fetchProfilePicGeoLocationData();
+		// 		console.log('true...........');
+		// 	}
+		// }
+
+		// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
+		// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
+
+		function saveMandatoryGeoLocation() {
+			let arr = [];
+			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				sub_section?.fields?.map((field, fieldIndex) => {
+					if (field?.geo_tagging) {
+						let reduxStoreKey = '';
+						if (field?.db_key === 'customer_picture') {
+							reduxStoreKey = 'profileGeoLocation';
+						}
+						arr.push(reduxStoreKey);
+					}
+					return null;
+				});
+				return null;
+			});
+			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
+		}
+
+		saveMandatoryGeoLocation();
+		// eslint-disable-next-line
+		// if (
+		// 	!completedSections?.includes(selectedSectionId) &&
+		// 	selectedProduct?.product_details?.is_individual_dedupe_required && formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME] !=="Yes"
+		// ) {
+		// 	setIsDudupeCheckSearchModalOpen(true);
+		// }
+		FunOpenDudupeModal();
+	}, []);
+
+
+	useEffect(()=>{
+		
+		FunOpenDudupeModal();
+		
+	},[formState.values[CONST.EXISTING_CUSTOMER_FIELD_NAME]])
 	// trial starts
 	let displayAddCoApplicantCTA = false;
 	if (selectedSection?.add_co_applicant_visibility === true) {
