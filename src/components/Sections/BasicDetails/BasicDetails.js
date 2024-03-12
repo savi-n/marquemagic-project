@@ -2135,15 +2135,15 @@ const BasicDetails = props => {
 	};
 	function FunOpenDudupeModal() {
 		if (
-			!completedSections?.includes(selectedSectionId) 
-			&& formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME]?.trim()?.toString()!=="Yes"?.trim()?.toString() &&
-			selectedProduct?.product_details?.is_individual_dedupe_required  
+			!completedSections?.includes(selectedSectionId) &&
+			formState?.values?.[CONST.EXISTING_CUSTOMER_FIELD_NAME]
+				?.trim()
+				?.toString() !== 'Yes'?.trim()?.toString() &&
+			selectedProduct?.product_details?.is_individual_dedupe_required
 		) {
 			setIsDudupeCheckSearchModalOpen(true);
-		}
-		else{
+		} else {
 			setIsDudupeCheckSearchModalOpen(false);
-
 		}
 	}
 
@@ -2341,12 +2341,9 @@ const BasicDetails = props => {
 		FunOpenDudupeModal();
 	}, []);
 
-
-	useEffect(()=>{
-		
+	useEffect(() => {
 		FunOpenDudupeModal();
-		
-	},[formState.values[CONST.EXISTING_CUSTOMER_FIELD_NAME]])
+	}, [formState.values[CONST.EXISTING_CUSTOMER_FIELD_NAME]]);
 	// trial starts
 	let displayAddCoApplicantCTA = false;
 	if (selectedSection?.add_co_applicant_visibility === true) {
@@ -2722,6 +2719,9 @@ const BasicDetails = props => {
 											sectionData?.director_details?.existing_customer
 										) {
 											customFieldProps.disabled = true;
+											if (field.is_editable) {
+												customFieldProps.disabled = false;
+											}
 										}
 										if (
 											isPanUploadMandatory &&
@@ -2752,6 +2752,9 @@ const BasicDetails = props => {
 											field?.name === CONST.EXISTING_CUSTOMER_FIELD_NAME
 										) {
 											customFieldProps.disabled = true;
+											if (field?.is_editable) {
+												customFieldProps.disabled = false;
+											}
 										}
 										// disabling field if it is prefilled from third party response
 										if (
