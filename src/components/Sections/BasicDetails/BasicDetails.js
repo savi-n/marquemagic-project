@@ -1223,12 +1223,12 @@ const BasicDetails = props => {
 			}
 
 			if (
-				selectedDedupeData?.is_otp_required ||
+				dudupeIndividualGenerateOTPApi || selectedDedupeData?.is_otp_required ||
 				selectedCustomerDudupe?.customer_id
 			) {
 				try {
 					const sendOtpRes = await axios.post(
-						selectedDedupeData?.generate_otp || dudupeIndividualGenerateOTPApi,
+						dudupeIndividualGenerateOTPApi || selectedDedupeData?.generate_otp ,
 						{
 							customer_id: reqCustomerId || customerId || '',
 
@@ -1301,12 +1301,22 @@ const BasicDetails = props => {
 						type: 'error',
 					});
 				}
-				if (fetchDataRes?.data?.status === 'ok') {
+				if (fetchDataRes?.data?.status === 'ok' ||fetchDataRes?.data?.statusCode === 200 ) {
 					addToast({
 						message: fetchDataRes?.data?.message || 'Data fetched successfull!',
 						type: 'success',
 					});
-					redirectToProductPageInEditMode(fetchDataRes?.data);
+					if(selectedProduct?.product_details?.is_individual_dedupe_required ){
+
+						fetchSectionDetails();
+						fetchDirectors();
+						setIsCustomerVerificationOTPModal(false);
+					}
+					else{
+
+						redirectToProductPageInEditMode(fetchDataRes?.data);
+					}
+					
 				}
 			}
 			// console.log({ fetchDataRes });
@@ -2762,13 +2772,14 @@ const BasicDetails = props => {
 												field
 											);
 										}
+										if(sectionData?.director_details?.existing_customer === 'No'){
+											customFieldProps.disabled = false;
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubfields.disabled = true;
 										}
-										// if(sectionData?.director_details?.existing_customer === 'Yes'){
-										// 	customFieldProps.disabled = true;
-										// }
+										
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubfields.loading = loading;
