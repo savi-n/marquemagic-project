@@ -70,17 +70,18 @@ const AddressProofUpload = props => {
 		directorDetails,
 		doesAddressDetailsHasMoreThanTwoSubsection,
 	} = props;
-	console.log(
-		{
-			addressProofUploadSection,
-			doesAddressDetailsHasMoreThanTwoSubsection,
-			prefix,
-			cacheDocumentsTemp,
-			setCacheDocumentsTemp,
-			setOtherCacheDocumentsTemp,
-		},
-		'address proof upload section'
-	);
+
+	// console.log(
+	// 	{
+	// 		addressProofUploadSection,
+	// 		doesAddressDetailsHasMoreThanTwoSubsection,
+	// 		prefix,
+	// 		cacheDocumentsTemp,
+	// 		setCacheDocumentsTemp,
+	// 		setOtherCacheDocumentsTemp,
+	// 	},
+	// 	'address proof upload section'
+	// );
 
 	let { addressProofError } = props;
 	const { app, application } = useSelector(state => state);
@@ -316,7 +317,7 @@ const AddressProofUpload = props => {
 				frontFormData.append('director_id', selectedDirector?.directorId);
 				frontFormData.append('req_type', SELECTED_REQ_TYPE);
 				frontFormData.append('process_type', 'extraction');
-				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
+				frontFormData.append('business_id', application?.businessId);
 				if (
 					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
 					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
@@ -326,7 +327,7 @@ const AddressProofUpload = props => {
 						directorDetails?.passport_no || ''
 					);
 				}
-				frontFormData.append('business_id', application?.businessId);
+				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
 				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
 				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
 				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
@@ -379,7 +380,6 @@ const AddressProofUpload = props => {
 				);
 				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
 				backFormData.append('process_type', 'extraction');
-				backFormData.append('document', selectedAddressProofFiles?.[1]?.file);
 				if (
 					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
 					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
@@ -390,6 +390,7 @@ const AddressProofUpload = props => {
 					);
 				}
 				backFormData.append('business_id', application?.businessId);
+				backFormData.append('document', selectedAddressProofFiles?.[1]?.file);
 				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
 				const backExtractionStatus = backExtractionRes?.data?.status || '';
 				const backExtractionMsg = backExtractionRes?.data?.message || '';
@@ -1325,6 +1326,7 @@ const AddressProofUpload = props => {
 						})}
 					</UI.UnTaggedFileListWrap>
 					<UI.DocumentUploadListWrapper>
+						{/* {console.log({ docTypeOptions, cacheDocumentsTemp })} */}
 						{docTypeOptions.map((docType, doctypeidx) => {
 							const mappedDocFiles = cacheDocumentsTemp?.filter(
 								doc =>
