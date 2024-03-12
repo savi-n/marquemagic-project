@@ -195,194 +195,7 @@ const BasicDetails = props => {
 	const [isUdyamModalOpen, setIsUdyamModalOpen] = useState(false);
 	const [details, setDetails] = useState();
 	const [requestIdValue, setRequestIdValue] = useState();
-	useEffect(() => {
-		scrollToTopRootElement();
-		validateToken();
-
-		if (
-			!isEditLoan &&
-			!isViewLoan &&
-			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
-		) {
-			dispatch(
-				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
-			);
-		}
-
-		// new fetch section data starts
-		if (
-			!!loanRefId &&
-			// !!selectedDirector &&
-			// !!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
-			selectedDirectorId
-		)
-			fetchSectionDetails();
-		// new fetch section data ends
-
-		// sme flow - special case
-		if (
-			selectedProduct?.isSelectedProductTypeBusiness &&
-			!completedSections?.includes(selectedSectionId)
-		) {
-			// console.log('create-mode');
-			fetchGeoLocationForSme(geoLocation);
-		}
-
-		if (
-			isGeoTaggingEnabled &&
-			selectedDirector?.profileGeoLocation &&
-			Object.keys(selectedDirector?.profileGeoLocation).length > 0
-		) {
-			setProfilePicGeolocation(selectedDirector?.profileGeoLocation);
-		}
-
-		// async function fetchGeoLocationData() {
-		// 	try {
-		// 		// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
-		// 		setFetchingAddress(true);
-		// 		if (!geoLocation.lat && !geoLocation.long) return;
-		// 		const reqBody = {
-		// 			lat: geoLocation.lat,
-		// 			long: geoLocation.long,
-		// 		};
-
-		// 		const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-		// 			headers: {
-		// 				Authorization: `Bearer ${userToken}`,
-		// 			},
-		// 		});
-
-		// 		dispatch(
-		// 			setGeoLocation({
-		// 				lat: geoLocation.lat,
-		// 				long: geoLocation.long,
-		// 				timestamp: geoLocation?.lat_long_timestamp,
-		// 				address: geoLocationRes?.data?.data?.address,
-		// 			})
-		// 		);
-		// 		setGeoLocationData({
-		// 			lat: geoLocation.lat,
-		// 			long: geoLocation.long,
-		// 			timestamp: geoLocation?.lat_long_timestamp,
-		// 			address: geoLocationRes?.data?.data?.address,
-		// 		});
-		// 	} catch (error) {
-		// 		console.error('fetchGeoLocationData ~ error:', error);
-		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-		// 		setGeoLocationData({
-		// 			err: 'Geo Location Not Captured',
-		// 		});
-		// 		addToast({
-		// 			message:
-		// 				error?.response?.data?.message ||
-		// 				error?.message ||
-		// 				'Geo Location Not Captured',
-		// 			type: 'error',
-		// 		});
-		// 	} finally {
-		// 		setFetchingAddress(false);
-		// 	}
-		// }
-
-		// async function fetchProfilePicGeoLocationData() {
-		// 	try {
-		// 		// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
-		// 		// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
-		// 		setFetchingAddress(true);
-		// 		console.log(
-		// 			'🚀 ~ file: BasicDetails.js:757 ~ fetchProfilePicGeoLocationData ~ selectedDirector:',
-		// 			selectedDirector
-		// 		);
-		// 		if (!selectedDirector?.lat && !selectedDirector?.lat) {
-		// 			dispatch(
-		// 				setProfileGeoLocation({
-		// 					err: 'Geo Location Not Captured',
-		// 				})
-		// 			);
-		// 			setProfilePicGeolocation({
-		// 				err: 'Geo Location Not Captured',
-		// 			});
-		// 			return;
-		// 		}
-
-		// 		const reqBody = {
-		// 			lat: selectedDirector?.lat,
-		// 			long: selectedDirector?.long,
-		// 		};
-
-		// 		const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-		// 			headers: {
-		// 				Authorization: `Bearer ${userToken}`,
-		// 			},
-		// 		});
-		// 		dispatch(
-		// 			setProfileGeoLocation({
-		// 				lat: selectedDirector?.lat,
-		// 				long: selectedDirector?.long,
-		// 				timestamp: selectedDirector?.timestamp,
-		// 				address: geoPicLocationRes?.data?.data?.address,
-		// 			})
-		// 		);
-		// 		setProfilePicGeolocation({
-		// 			lat: selectedDirector?.lat,
-		// 			long: selectedDirector?.long,
-		// 			timestamp: selectedDirector?.timestamp,
-		// 			address: geoPicLocationRes?.data?.data?.address,
-		// 		});
-		// 	} catch (error) {
-		// 		console.error('fetchProfilePicGeoLocationData ~ error:', error);
-		// 	} finally {
-		// 		setFetchingAddress(false);
-		// 	}
-		// }
-
-		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
-		// if (isGeoTaggingEnabled && Object.keys(selectedDirector).length > 0) {
-		// 	if (
-		// 		!!geoLocationData &&
-		// 		Object.keys(geoLocationData)?.length > 0 &&
-		// 		!geoLocation?.address
-		// 	) {
-		// 		fetchGeoLocationData();
-		// 	}
-		// 	if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
-		// 		dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-		// 		setGeoLocationData({ err: 'Geo Location Not Captured' });
-		// 	}
-		// 	if (
-		// 		selectedDirector?.customer_picture &&
-		// 		Object.keys(selectedDirector?.profileGeoLocation).length <= 0
-		// 	) {
-		// 		// fetchProfilePicGeoLocationData();
-		// 		console.log('true...........');
-		// 	}
-		// }
-
-		// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
-		// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
-
-		function saveMandatoryGeoLocation() {
-			let arr = [];
-			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				sub_section?.fields?.map((field, fieldIndex) => {
-					if (field?.geo_tagging) {
-						let reduxStoreKey = '';
-						if (field?.db_key === 'customer_picture') {
-							reduxStoreKey = 'profileGeoLocation';
-						}
-						arr.push(reduxStoreKey);
-					}
-					return null;
-				});
-				return null;
-			});
-			// console.log(arr, 'arr');
-			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
-		}
-
-		saveMandatoryGeoLocation();
-		// eslint-disable-next-line
-	}, []);
+	const [isApplicantDudupe,setIsApplicantDudupe]=useState('');
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -1390,9 +1203,9 @@ const BasicDetails = props => {
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 	// console.log({ isApplicant });
-	const onFetchFromCustomerId = async (selectedCustomerDudupe, formState) => {
+	const onFetchFromCustomerId = async (selectedCustomerDudupe, dudupeCheckFormState) => {
 		// console.log('on-fetch-customer-id');
-		setDudupeFormdata(formState?.values);
+		setDudupeFormdata(dudupeCheckFormState?.values);
 
 		try {
 			let reqCustomerId = formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
@@ -1423,7 +1236,10 @@ const BasicDetails = props => {
 								selectedProduct?.product_id?.[
 									formState?.values?.['income_type'] ||
 										formState?.values?.['businesstype']
-								],
+								] || 	selectedProduct?.product_id?.[
+									dudupeCheckFormState?.values?.['income_type'] ||
+									dudupeCheckFormState?.values?.['businesstype']
+								] ,
 						},
 						{
 							headers: {
@@ -2630,7 +2446,7 @@ const BasicDetails = props => {
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
-							isApplicantDudupe='false'
+							isApplicantDudupe={isApplicantDudupe}
 							fetchSectionDetails={fetchSectionDetails}
 							dudupeFormdata={dudupeFormdata}
 							fetchDirectors={fetchDirectors}
@@ -2729,8 +2545,10 @@ const BasicDetails = props => {
 							isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
 							customerListDudupe={customerListDudupe}
 							selectedDedupeData={selectedDedupeData}
-							formData={selectedProduct?.customer_details?.sub_sections}
+							formData={selectedSection?.customer_details?.sub_sections}
 							onFetchFromCustomerId={onFetchFromCustomerId}
+							// isApplicantDudupe={isApplicantDudupe}
+							setIsApplicantDudupe={setIsApplicantDudupe}
 						/>
 					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
@@ -2948,6 +2766,9 @@ const BasicDetails = props => {
 											customFieldProps.disabled = true;
 											customFieldPropsSubfields.disabled = true;
 										}
+										// if(sectionData?.director_details?.existing_customer === 'Yes'){
+										// 	customFieldProps.disabled = true;
+										// }
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubfields.loading = loading;
@@ -3001,7 +2822,7 @@ const BasicDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											customFieldPropsSubfields.onClick = isApplicant
 												? showDataDeletionWarningModal
-												: onFetchFromCustomerId;
+												: ()=>onFetchFromCustomerId(null,formState);
 											customFieldPropsSubfields.loading = loading;
 											customFieldPropsSubfields.disabled =
 												`${
