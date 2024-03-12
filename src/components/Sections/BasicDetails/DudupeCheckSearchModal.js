@@ -29,6 +29,7 @@ const DudupeCheckSearchModal = props => {
         formData,
         onFetchFromCustomerId,
         basicDetailsFormState,
+		setIsApplicantDudupe,
 	} = props;
 	const { app } = useSelector(state => state);
 	const {  whiteLabelId, userToken,selectedProduct } = app;
@@ -88,6 +89,7 @@ function handleskip(){
 				}
 				ddupeRes && setCustomerListDudupe(ddupeRes?.data?.data || []);
 				setIsCustomerListdudupeModalOpen(true);
+				setIsApplicantDudupe("false");
 				// onClose();
 			}
 		} catch (e) {
@@ -105,7 +107,7 @@ function handleskip(){
 		}
 	};
 
-	const prefilledValues = field => {
+	const prefilledValues = field => {	
 		try {
 
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
