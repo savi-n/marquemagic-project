@@ -17,6 +17,7 @@ import { isInvalidPan } from 'utils/validation';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
+import styled from 'styled-components';
 import {
 	setIsDraftLoan,
 	setLoginCreateUserRes,
@@ -103,6 +104,7 @@ const BasicDetails = props => {
 		isGeoTaggingEnabled,
 		permission,
 	} = app;
+
 	const { isCountryIndia } = permission;
 	const {
 		// cacheDocuments,
@@ -134,6 +136,7 @@ const BasicDetails = props => {
 		false
 	);
 	const [loanPreFetchdata, setLoanPreFetchData] = useState({});
+	const [showModal, setShowModal] = useState(false);
 
 	const {
 		handleSubmit,
@@ -179,6 +182,7 @@ const BasicDetails = props => {
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
 	// 	selectedProduct
 	// );
+
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const dudupeIndividualVerifyApi = selectedProduct?.product_details?.verify;
@@ -1140,6 +1144,20 @@ const BasicDetails = props => {
 		}
 	};
 
+	const ColumnWrapper = styled.div`
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr 2fr;
+		gap: 2px;
+	`;
+	const TableHeading = styled.span`
+		padding-left: 5px;
+		background-color: #8080805e;
+		margin-bottom: 2px;
+	`;
+	const TableValues = styled(TableHeading)`
+		background-color: #8080580e;
+	`;
 	const redirectToProductPageInEditMode = loanData => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
 			addToast({
@@ -2091,6 +2109,20 @@ const BasicDetails = props => {
 			setIsDudupeCheckSearchModalOpen(true);
 		}
 	}, []);
+
+	const [arr, setArr] = useState([]);
+	useEffect(() => {
+		const formFields = selectedSection?.sub_sections?.[0]?.fields;
+		const formStateValues = formState?.values;
+		setArr(
+			formFields?.filter(
+				(value, index, self) =>
+					index === self.findIndex(t => t.name === value.name) &&
+					value.name in formStateValues
+			)
+		);
+	}, [showModal]);
+
 	// trial starts
 	let displayAddCoApplicantCTA = false;
 	if (selectedSection?.add_co_applicant_visibility === true) {
@@ -2126,6 +2158,9 @@ const BasicDetails = props => {
 		setDedupeModalData([]);
 	};
 
+	const closeModal = () => {
+		setShowModal(false);
+	};
 	const ButtonProceed = (
 		<Button
 			fill
@@ -2190,7 +2225,7 @@ const BasicDetails = props => {
 							isApplicant={isApplicant}
 							selectedDirectorId={selectedDirectorId}
 							dudupeIndividualVerifyApi={dudupeIndividualVerifyApi}
-							isApplicantDudupe="false"
+							isApplicantDudupe='false'
 							// selectedDirectorId={selectedDirector?.directorId}
 						/>
 					)}
@@ -2227,6 +2262,25 @@ const BasicDetails = props => {
 							)}
 						</section>
 					</Modal>
+					{
+						<Modal
+							show={showModal}
+							onClose={closeModal}
+							customStyle={{ width: '70%' }}
+						>
+							<UI.ImgClose onClick={closeModal} src={imgClose} alt='close' />
+							<ColumnWrapper>
+								<TableHeading>Field</TableHeading>
+								<TableHeading>Value</TableHeading>
+							</ColumnWrapper>
+							{arr?.map(it => (
+								<ColumnWrapper>
+									<TableValues>{it?.placeholder}</TableValues>
+									<TableValues>{formState?.values[it?.name]}</TableValues>
+								</ColumnWrapper>
+							))}
+						</Modal>
+					}
 
 					<UcicSearchModal
 						show={isUcicSearchModalOpen}
@@ -2242,25 +2296,25 @@ const BasicDetails = props => {
 						selectedDedupeData={selectedDedupeData}
 						formData={selectedSection?.ucic_search_form_data}
 					/>
-                        {isDudupeCheckSearchModalOpen && (
-                        <DudupeCheckSearchModal
-						show={isDudupeCheckSearchModalOpen}
-						onClose={() => {
-							setIsDudupeCheckSearchModalOpen(false);
-						}}
-						basicDetailsFormState={formState?.values}
-						isApplicant={isApplicant}
-						setCustomerListDudupe={setCustomerListDudupe}
-						setIsCustomerListdudupeModalOpen={setIsCustomerListdudupeModalOpen}
-						isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
-						customerListDudupe={customerListDudupe}
-						selectedDedupeData={selectedDedupeData}
-						formData={selectedProduct?.customer_details?.sub_sections
-						}
-						onFetchFromCustomerId={onFetchFromCustomerId}
-								
-					/>
-                    )}
+					{isDudupeCheckSearchModalOpen && (
+						<DudupeCheckSearchModal
+							show={isDudupeCheckSearchModalOpen}
+							onClose={() => {
+								setIsDudupeCheckSearchModalOpen(false);
+							}}
+							basicDetailsFormState={formState?.values}
+							isApplicant={isApplicant}
+							setCustomerListDudupe={setCustomerListDudupe}
+							setIsCustomerListdudupeModalOpen={
+								setIsCustomerListdudupeModalOpen
+							}
+							isCustomerListdudupeModalOpen={isCustomerListdudupeModalOpen}
+							customerListDudupe={customerListDudupe}
+							selectedDedupeData={selectedDedupeData}
+							formData={selectedProduct?.customer_details?.sub_sections}
+							onFetchFromCustomerId={onFetchFromCustomerId}
+						/>
+					)}
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -2401,13 +2455,6 @@ const BasicDetails = props => {
 										if (!field.visibility || !field.name || !field.type)
 											return null;
 										const newValue = prefilledValues(field);
-										// if (!!field.sub_fields) {
-										// 	console.log(
-										// 		prefilledValues(field.sub_fields[0]),
-										// 		'sub-fields'
-										// 	);
-										// 	console.log(prefilledValues(field, 'fields'));
-										// }
 										let newValueSelectField;
 										if (!!field?.sub_fields) {
 											newValueSelectField = prefilledValues(
@@ -2875,6 +2922,7 @@ const BasicDetails = props => {
 							})}
 						{/* New footer buttons for crisil flow ends
 						 */}
+						<Button onClick={() => setShowModal(!showModal)}>Show Modal</Button>
 					</UI_SECTIONS.Footer>
 				</>
 			)}
