@@ -163,7 +163,7 @@ const AddressDetails = props => {
 		selectedProduct?.product_details?.disable_fields_if_prefilled;
 
 	// Garbage piece of code for as per doc listing
-	const selectedAsPerDocField = selectedSection?.sub_sections
+	const selectedAsPerDocFieldAadhar = selectedSection?.sub_sections
 		?.filter(
 			subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
 		)?.[0]
@@ -173,13 +173,49 @@ const AddressDetails = props => {
 		?.options?.filter(option => option?.name === 'as_per_document_aadhaar')?.[0]
 		?.doc_type;
 
-	const asPerDocAdhaarDocType =
-		selectedAsPerDocField && Object.values(selectedAsPerDocField);
-	// console.log(
-	// 	'🚀 ~ selectedAsPerDocField:',
-	// 	selectedAsPerDocField,
-	// 	asPerDocAdhaarDocType
-	// );
+	const selectedAsPerDocFieldVoter = selectedSection?.sub_sections
+		?.filter(
+			subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
+		)?.[0]
+		?.fields?.filter(
+			field => field?.name === 'as_per_document_address_proof_type'
+		)?.[0]
+		?.options?.filter(
+			option => option?.name === 'as_per_document_voter_id'
+		)?.[0]?.doc_type;
+
+	// const selectedAsPerDocFieldDl = selectedSection?.sub_sections
+	// 	?.filter(
+	// 		subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
+	// 	)?.[0]
+	// 	?.fields?.filter(
+	// 		field => field?.name === 'as_per_document_address_proof_type'
+	// 	)?.[0]
+	// 	?.options?.filter(option => option?.name === 'as_per_document_dl')?.[0]
+	// 	?.doc_type;
+
+	// const selectedAsPerDocFieldPassport = selectedSection?.sub_sections
+	// 	?.filter(
+	// 		subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
+	// 	)?.[0]
+	// 	?.fields?.filter(
+	// 		field => field?.name === 'as_per_document_address_proof_type'
+	// 	)?.[0]
+	// 	?.options?.filter(
+	// 		option => option?.name === 'as_per_document_passport'
+	// 	)?.[0]?.doc_type;
+
+	const selectedAsPerDocField =
+		(selectedAsPerDocFieldAadhar &&
+			selectedAsPerDocFieldVoter && [
+				...(selectedAsPerDocFieldAadhar &&
+					Object.values(selectedAsPerDocFieldAadhar)),
+				...(selectedAsPerDocFieldVoter &&
+					Object.values(selectedAsPerDocFieldVoter)),
+			]) ||
+		[];
+
+	const asPerDocDocType = [...new Set(selectedAsPerDocField)];
 
 	const doesAddressDetailsHasMoreThanTwoSubsection =
 		(
@@ -816,11 +852,15 @@ const AddressDetails = props => {
 			// -- TEST MODE
 			const preData = {
 				...initData,
-				as_per_document_aadhaar: asPerDocumentAddress?.kyc_key,
+				as_per_document_aadhaar:
+					asPerDocumentAddress?.kyc_key_aadhar ||
+					asPerDocumentAddress?.aadhar_no,
 				as_per_document_address_proof_id_passport:
-					asPerDocumentAddress?.kyc_key,
-				as_per_document_address_proof_id_dl: asPerDocumentAddress?.kyc_key,
-				as_per_document_address_proof_id_voter: asPerDocumentAddress?.kyc_key,
+					asPerDocumentAddress?.kyc_key_passport,
+				as_per_document_address_proof_id_dl:
+					asPerDocumentAddress?.kyc_key_license,
+				as_per_document_address_proof_id_voter:
+					asPerDocumentAddress?.kyc_key_voter,
 				as_per_document_address_proof_type:
 					asPerDocumentAddress?.classification_type,
 
@@ -1019,7 +1059,7 @@ const AddressDetails = props => {
 						`${doc?.document_details?.aid}` === '2' &&
 						`${doc?.directorId}` === `${selectedDirectorId}` &&
 						doc?.document_details?.classification_type !== 'pan' &&
-						!asPerDocAdhaarDocType?.includes(doc?.doctype)
+						!asPerDocDocType?.includes(doc?.doctype)
 				);
 				if (permanentCacheDocumentsTempRes.length === 2)
 					setIsPermanentAddressIsPresentAddress(true);
@@ -1030,15 +1070,16 @@ const AddressDetails = props => {
 							`${doc?.document_details?.aid}` === '1' &&
 							`${doc?.directorId}` === `${selectedDirectorId}` &&
 							doc?.document_details?.classification_type !== 'pan' &&
-							!asPerDocAdhaarDocType?.includes(doc?.doctype)
+							!asPerDocDocType?.includes(doc?.doctype)
 						);
 					})
 				);
 
+				// console.log('🚀 cacheDocTypes', asPerDocDocType);
 				setAsPerDocAddressDocumentsTemp(
 					fetchRes?.data?.data?.loan_document_details?.filter(
 						doc =>
-							// asPerDocAdhaarDocType?.includes(doc?.doctype) &&
+							asPerDocDocType?.includes(doc?.doctype) &&
 							`${doc?.document_details?.aid}` === '1' &&
 							`${doc?.directorId}` === `${selectedDirectorId}` &&
 							doc?.document_details?.classification_type !== 'pan'
@@ -1053,11 +1094,14 @@ const AddressDetails = props => {
 	};
 	// fetch section data ends
 
-	console.log({
-		asPerDocAddressDocumentsTemp,
-		permanentCacheDocumentsTemp,
-		presentCacheDocumentsTemp,
-	});
+	// console.log(
+	// 	{
+	// 		asPerDocAddressDocumentsTemp,
+	// 		permanentCacheDocumentsTemp,
+	// 		presentCacheDocumentsTemp,
+	// 	},
+	// 	'cacheDocs'
+	// );
 
 	const clearPresentAddressState = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
