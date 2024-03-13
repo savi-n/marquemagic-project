@@ -916,8 +916,8 @@ const BusinessDetails = props => {
 					sectionData?.business_details?.businessname ||
 					leadAllDetails?.business_name,
 
-				contact:
-					sectionData?.business_details?.contact || leadAllDetails?.mobile_no,
+				// contact:
+				// 	sectionData?.business_details?.contact || leadAllDetails?.mobile_no,
 
 				udyam_number:
 					sectionData?.business_details?.udyam_number ||
