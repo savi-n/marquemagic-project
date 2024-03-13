@@ -241,7 +241,7 @@ const BusinessDetails = props => {
 					},
 				}
 			);
-			if (fetchDataRes?.data?.status === 'ok' || fetchDataRes?.data?.statusCode === 200) {
+			if (fetchDataRes?.data?.status === 'ok' || fetchDataRes?.data?.statusCode === 200 || fetchDataRes?.statusCode  === 200) {
 				addToast({
 					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
 					type: 'success',
