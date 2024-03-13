@@ -35,6 +35,7 @@ import {
 	setNewCompletedSections,
 	setBusinessMobile,
 	setBusinessName,
+	setLeadId,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -240,12 +241,14 @@ const BusinessDetails = props => {
 					},
 				}
 			);
-			if (fetchDataRes?.data?.status === 'ok') {
+			if (fetchDataRes?.data?.status === 'ok' || fetchDataRes?.data?.statusCode === 200) {
 				addToast({
 					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
 					type: 'success',
 				});
+				dispatch(setLeadId(''));
 				redirectToProductPageInEditMode(fetchDataRes?.data);
+				
 			}
 
 			if (fetchDataRes?.data?.status === 'nok') {
@@ -307,7 +310,7 @@ const BusinessDetails = props => {
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
-			lead_id: leadId || undefined,
+			lead_id: selectedProduct?.product_details?.is_individual_dedupe_required ? undefined : leadId || undefined,
 			loan_product_details_id: selectedProduct?.id,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(

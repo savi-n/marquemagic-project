@@ -407,17 +407,18 @@ const LeadDetails = props => {
 					}
 					return;
 				} else {
-					if (
-						Object.keys(selectedDedupeData)?.length === 0 ||
-						(isEditLoan && !isLeadCategoryChanged) 
-						// ||
-						// (selectedSection?.validate_lead_status === true &&
-						// 	formState?.values?.['lead_category'] ===
-						// 		CONST.LEAD_STATUS_HOT_OPTION_VALUE)
-					) {
-						dispatch(setCompletedApplicationSection(selectedSectionId));
-						dispatch(setSelectedSectionId(nextSectionId));
-					} else if (
+					// if (
+					// 	Object.keys(selectedDedupeData)?.length === 0 ||
+					// 	(isEditLoan && !isLeadCategoryChanged) 
+					// 	// ||
+					// 	// (selectedSection?.validate_lead_status === true &&
+					// 	// 	formState?.values?.['lead_category'] ===
+					// 	// 		CONST.LEAD_STATUS_HOT_OPTION_VALUE)
+					// ) {
+					// 	dispatch(setCompletedApplicationSection(selectedSectionId));
+					// 	dispatch(setSelectedSectionId(nextSectionId));
+					// } 
+					 if (
 						selectedProduct?.product_details?.lead_to_dedupe_screen === true
 					) {
 						try {
