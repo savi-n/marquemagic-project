@@ -1767,6 +1767,9 @@ fields to determine if the given field should be disabled.
 										if (field?.disabled === true) {
 											customFieldProps.disabled = true;
 										}
+										if(sectionData?.business_details?.existing_customer === 'No'){
+											customFieldProps.disabled = false;
+										}
 
 										return (
 											<UI_SECTIONS.FieldWrapGrid
