@@ -44,7 +44,7 @@ const UCICCompareTable = ({
 			: '',
 		pan: customerList?.[0]?.id_no,
 		mobile: customerList?.[0]?.mobile_flag,
-		email: customerList?.[0]?.email_flag,
+		email: customerList?.[0]?.email_id || customerList?.[0]?.email_flag || '',
 		ucicNumber: customerList?.[0]?.customer_id,
 	};
 

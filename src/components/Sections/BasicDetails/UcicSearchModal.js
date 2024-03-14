@@ -12,6 +12,7 @@ import { useToasts } from '../../Toast/ToastProvider';
 import { DDUPE_CHECK, ORIGIN } from '_config/app.config';
 import { useSelector } from 'react-redux';
 import CustomerListModal from 'components/ProductCard/CustomerListModal';
+import { isFieldValid } from 'utils/formatData';
 
 const UcicSearchModal = props => {
 	const {
@@ -59,12 +60,22 @@ const UcicSearchModal = props => {
 
 	const handleProceed = async () => {
 		try {
+			if (
+				!formState?.values?.['search_customer_id']?.trim() &&
+				!formState?.values?.['pan_no']?.trim() &&
+				!formState?.values?.['mob_no']?.trim()
+			) {
+				addToast({
+					message: 'Please enter at least an input!',
+					type: 'error',
+				});
+				return;
+			}
 			setFetchingCustomerDetails(true);
 			let apiUrl = '';
 			apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK;
-			console.log(formState?.values);
 			const reqBody = {
-				// ...formState?.values,
+				customer_id: formState?.values?.['search_customer_id'],
 				white_label_id: whiteLabelId,
 				id_no: formState?.values?.['pan_no']?.toUpperCase() || '',
 				pan_number: formState?.values['pan_no']?.toUpperCase() || '',
@@ -150,6 +161,15 @@ const UcicSearchModal = props => {
 									) : null}
 									<UI_SECTIONS.FormWrap>
 										{sub_section?.fields?.map((field, fieldIndex) => {
+											if (
+												!isFieldValid({
+													field,
+													isApplicant: isApplicant,
+													formState,
+												})
+											) {
+												return null;
+											}
 											const newValue = prefilledValues(field);
 
 											return (
@@ -181,7 +201,12 @@ const UcicSearchModal = props => {
 
 						<UI.CustomerDetailsFormModalFooter>
 							<Button
-								disabled={fetchingCustomerDetails}
+								disabled={
+									fetchingCustomerDetails ||
+									(!formState?.values?.['search_customer_id']?.trim() &&
+										!formState?.values?.['pan_no']?.trim() &&
+										!formState?.values?.['mob_no']?.trim())
+								}
 								isLoader={fetchingCustomerDetails}
 								name='Search UCIC Number'
 								onClick={handleProceed}
