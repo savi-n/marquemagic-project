@@ -292,7 +292,7 @@ export default function Card({
 					// );
 
 					// console.log({ verifyData });
-					if (verifyData?.data?.status === 'ok' || verifyData?.statusCode === 200
+					if (verifyData?.data?.status === 'ok' || verifyData?.data?.statusCode === 200
 					) {
 						redirectToProductPageInEditMode(verifyData?.data, productModalData);
 					}
