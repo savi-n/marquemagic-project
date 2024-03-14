@@ -4,6 +4,7 @@ import Button from 'components/Button';
 import Modal from 'components/Modal';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI from './ui';
+import UCICCompareTable from './UCICCompareTable';
 
 export default function CustomerListModal(props) {
 	const {
@@ -14,78 +15,88 @@ export default function CustomerListModal(props) {
 		setSelectedCustomer,
 		onProceedSelectCustomer,
 		sendingOTP,
+		filledFormData,
+		onUpdateUCIC,
 	} = props;
 
 	// console.log('CustomerListModal-allstates-', { customerList });
 	return (
-<>
-
-            <Modal
-			show={show}
-			onClose={onClose}
-			width='80%'
-			height='70%'
-			customStyle={{
-				padding: '40px',
-			}}
-		>
-			
-			
-			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
-			<UI.CustomerListWrapper>
-				<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
-				<UI.CustomerListModalSubHeader>
-					Looks like you already have existing relationship with us.
-				</UI.CustomerListModalSubHeader>
-				<UI.CustomerListModalSubHeader style={{ marginBottom: '30px' }}>
-					Please select a customer ID to proceed with the application.
-				</UI.CustomerListModalSubHeader>
-				{customerList?.map((customer, customerIndex) => (
-					<UI.CustomerListCard
-						key={`data-${customerIndex}`}
-						onClick={() => {
-							setSelectedCustomer(customer);
-						}}
-						isActive={
-							customer?.customer_id === selectedCustomer?.customer_id
-								? true
-								: false
-						}
-					>
-						<UI.CustomerListCardItem>
-							Customer Name: {customer?.customer_name || customer?.V_CUSTNAME
- }
-						</UI.CustomerListCardItem>
-						<UI.CustomerListCardItem>
-							Customer ID: {customer?.customer_id || customer?.V_CUSTOMERID}
-						</UI.CustomerListCardItem>
-						<UI.CustomerListCardItem>
-							PAN/Government Id No: {customer?.id_no || 'N/A'}
-						</UI.CustomerListCardItem>
-						<UI.CustomerListCardItem>
-							Mobile: {customer?.mobile_flag}
-						</UI.CustomerListCardItem>
-						{/* TODO: not available in ddupe api request to client/shubham for this data */}
-						{/* <UI.CustomerListCardItem>
+		<>
+			<Modal
+				show={show}
+				onClose={onClose}
+				width='80%'
+				height='70%'
+				customStyle={{
+					padding: '40px',
+				}}
+			>
+				<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
+				<UI.CustomerListWrapper>
+					{setSelectedCustomer && (
+						<>
+							<UI.CustomerListModalHeader>
+								Dear Customer
+							</UI.CustomerListModalHeader>
+							<UI.CustomerListModalSubHeader>
+								Looks like you already have existing relationship with us.
+							</UI.CustomerListModalSubHeader>
+							<UI.CustomerListModalSubHeader style={{ marginBottom: '30px' }}>
+								Please select a customer ID to proceed with the application.
+							</UI.CustomerListModalSubHeader>
+						</>
+					)}
+					{customerList?.map((customer, customerIndex) => (
+						<UI.CustomerListCard
+							key={`data-${customerIndex}`}
+							onClick={() => {
+								setSelectedCustomer && setSelectedCustomer(customer);
+							}}
+							isActive={
+								customer?.customer_id === selectedCustomer?.customer_id
+									? true
+									: false
+							}
+						>
+							<UI.CustomerListCardItem>
+								Customer Name: {customer?.customer_name || customer?.V_CUSTNAME}
+							</UI.CustomerListCardItem>
+							<UI.CustomerListCardItem>
+								Customer ID: {customer?.customer_id || customer?.V_CUSTOMERID}
+							</UI.CustomerListCardItem>
+							<UI.CustomerListCardItem>
+								PAN/Government Id No: {customer?.id_no || 'N/A'}
+							</UI.CustomerListCardItem>
+							<UI.CustomerListCardItem>
+								Mobile: {customer?.mobile_flag}
+							</UI.CustomerListCardItem>
+							{/* TODO: not available in ddupe api request to client/shubham for this data */}
+							{/* <UI.CustomerListCardItem>
 							Product: LAP (mapping pending)
 						</UI.CustomerListCardItem> */}
-					</UI.CustomerListCard>
-				))}
-				<UI.CustomerDetailsFormModalFooter>
-					<Button
-						disabled={!selectedCustomer || sendingOTP}
-						isLoader={sendingOTP}
-						name='Proceed'
-						onClick={onProceedSelectCustomer}
-						fill
-					/>
-				</UI.CustomerDetailsFormModalFooter>
-			</UI.CustomerListWrapper>
-		
-			
-		</Modal>
-
-		
+						</UI.CustomerListCard>
+					))}
+					{filledFormData && (
+						<UCICCompareTable
+							customerList={customerList}
+							filledFormData={filledFormData}
+							onCancel={onClose}
+							onUpdate={onUpdateUCIC}
+						/>
+					)}
+					<UI.CustomerDetailsFormModalFooter>
+						{setSelectedCustomer && (
+							<Button
+								disabled={!selectedCustomer || sendingOTP}
+								isLoader={sendingOTP}
+								name='Proceed'
+								onClick={onProceedSelectCustomer}
+								fill
+							/>
+						)}
+					</UI.CustomerDetailsFormModalFooter>
+				</UI.CustomerListWrapper>
+			</Modal>
 		</>
 	);
 }
