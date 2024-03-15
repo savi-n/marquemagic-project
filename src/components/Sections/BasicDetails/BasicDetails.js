@@ -333,6 +333,8 @@ const BasicDetails = props => {
 			if (crimeCheck) {
 				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
 			}
+			basicDetailsReqBody.data.basic_details.additional_cust_id =
+				formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
 			} else if (selectedDirector) {
@@ -778,6 +780,8 @@ const BasicDetails = props => {
 			if (crimeCheck) {
 				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
 			}
+			basicDetailsReqBody.data.basic_details.additional_cust_id =
+				formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
 			} else if (selectedDirector) {
@@ -2199,6 +2203,11 @@ const BasicDetails = props => {
 								name: CONST.CUSTOMER_ID_FIELD_NAME,
 								value: ucicNumber,
 							});
+							formState?.values?.hasOwnProperty('ucic_code') &&
+								onChangeFormStateField({
+									name: 'ucic_code',
+									value: ucicNumber,
+								});
 							setIsCustomerListModalOpen(false);
 						}}
 					/>
