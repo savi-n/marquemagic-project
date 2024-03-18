@@ -2378,6 +2378,12 @@ const BasicDetails = props => {
 		setIsDataDeletionWarningOpen(true);
 	};
 
+	const showUdyamRegistration = () => {
+		return selectedProduct?.product_details?.allow_users_to_enable_udyam_reg?.includes(
+			userDetails?.user_sub_type
+		);
+	};
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData || fetchingGeoLocation ? (
@@ -2784,6 +2790,18 @@ const BasicDetails = props => {
 													)}
 												</UI_SECTIONS.FieldWrapGrid>
 											);
+										}
+
+										if (field?.name === 'udyam_registered') {
+											// if (
+											// 	formState?.values?.['income_type'] === '1' &&
+											// 	showUdyamRegistration()
+											// ) {
+											// 	customFieldProps.disabled = false;
+											// }
+											if (showUdyamRegistration()) {
+												customFieldProps.disabled = false;
+											}
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
