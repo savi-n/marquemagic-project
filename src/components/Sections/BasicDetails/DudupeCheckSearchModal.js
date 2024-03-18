@@ -29,15 +29,25 @@ const DudupeCheckSearchModal = props => {
         formData,
         onFetchFromCustomerId,
         basicDetailsFormState,
+		setIsApplicantDudupe,
 	} = props;
+
 	const { app } = useSelector(state => state);
-	const {  whiteLabelId, userToken,selectedProduct } = app;
+	const {  whiteLabelId, userToken,selectedProduct,permission } = app;
 	const [selectedCustomer, setSelectedCustomer] = useState(null);
 	const { register, formState } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	const { addToast } = useToasts();
 	const productForModal =
 		Object.keys(subProduct).length > 0 ? subProduct : product;
+		const documentMapping = JSON.parse(permission?.document_mapping) || [];
+		const dedupeApiData = documentMapping?.dedupe_api_details || [];
+		const selectedDedupeData =
+			dedupeApiData && Array.isArray(dedupeApiData)
+				? dedupeApiData?.filter(item => {
+						return item?.product_id?.includes(selectedProduct?.id);
+				  })?.[0] || {}
+				: {};
 
 
 
@@ -70,7 +80,7 @@ function handleskip(){
 				origin: API.ORIGIN,
 			};
 
-            if (apiUrl) {
+            if (apiUrl || selectedDedupeData?.search_api) {
 				const ddupeRes = await axios.post(apiUrl, reqBody, {
 					headers: {
 						Authorization: `Bearer ${userToken}`,
@@ -88,6 +98,7 @@ function handleskip(){
 				}
 				ddupeRes && setCustomerListDudupe(ddupeRes?.data?.data || []);
 				setIsCustomerListdudupeModalOpen(true);
+				setIsApplicantDudupe("false");
 				// onClose();
 			}
 		} catch (e) {
@@ -105,7 +116,7 @@ function handleskip(){
 		}
 	};
 
-	const prefilledValues = field => {
+	const prefilledValues = field => {	
 		try {
 
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;

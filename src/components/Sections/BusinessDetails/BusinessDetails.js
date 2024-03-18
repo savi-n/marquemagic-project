@@ -35,6 +35,7 @@ import {
 	setNewCompletedSections,
 	setBusinessMobile,
 	setBusinessName,
+	setLeadId,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -148,6 +149,7 @@ const BusinessDetails = props => {
 	const [companyList, setCompanyList] = useState([]);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
 	const [panFetchData, setPanFetchData] = useState({});
+	const [customerIdPlaceholder, setCustomerIdPlaceholder] = useState('');
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -239,12 +241,14 @@ const BusinessDetails = props => {
 					},
 				}
 			);
-			if (fetchDataRes?.data?.status === 'ok') {
+			if (fetchDataRes?.data?.status === 'ok' || fetchDataRes?.data?.statusCode === 200 ) {
 				addToast({
 					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
 					type: 'success',
 				});
+				dispatch(setLeadId(''));
 				redirectToProductPageInEditMode(fetchDataRes?.data);
+				
 			}
 
 			if (fetchDataRes?.data?.status === 'nok') {
@@ -306,7 +310,7 @@ const BusinessDetails = props => {
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
-			lead_id: leadId || undefined,
+			lead_id: selectedProduct?.product_details?.is_individual_dedupe_required ? undefined : leadId || undefined,
 			loan_product_details_id: selectedProduct?.id,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
@@ -912,8 +916,8 @@ const BusinessDetails = props => {
 					sectionData?.business_details?.businessname ||
 					leadAllDetails?.business_name,
 
-				contact:
-					sectionData?.business_details?.contact || leadAllDetails?.mobile_no,
+				// contact:
+				// 	sectionData?.business_details?.contact || leadAllDetails?.mobile_no,
 
 				udyam_number:
 					sectionData?.business_details?.udyam_number ||
@@ -1338,7 +1342,7 @@ fields to determine if the given field should be disabled.
 						ButtonProceed={ButtonProceed}
 					/>
 					<DataDeletionWarningModal
-						warningMessage={`You are changing the entered UCIC Number. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new UCIC Number and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
+						warningMessage={`You are changing the entered ${customerIdPlaceholder}. Once you proceed, all the filled data will be lost. A new loan reference number will be created with details fetched from the entered new ${customerIdPlaceholder} and the earlier loan reference number will be discarded. Please confirm and Proceed.`}
 						show={isDataDeletionWarningOpen}
 						onClose={setIsDataDeletionWarningOpen}
 						onProceed={onFetchFromCustomerId}
@@ -1622,6 +1626,8 @@ fields to determine if the given field should be disabled.
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											if (!customerIdPlaceholder)
+												setCustomerIdPlaceholder(field?.placeholder);
 											customFieldPropsSubFields.onClick = showDataDeletionWarningModal;
 											customFieldPropsSubFields.loading = loading;
 											customFieldPropsSubFields.disabled =
@@ -1639,8 +1645,9 @@ fields to determine if the given field should be disabled.
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
 
-											customFieldProps.infoMessage =
-												CONST.ENTER_VALID_UCIC_HINT;
+											customFieldProps.infoMessage = `${
+												CONST.ENTER_VALID_UCIC_HINT
+											} ${field?.placeholder}`;
 										}
 										if (field?.name === CONST.BUSINESS_START_DATE) {
 											customFieldPropsSubFields.value =
@@ -1759,6 +1766,9 @@ fields to determine if the given field should be disabled.
 
 										if (field?.disabled === true) {
 											customFieldProps.disabled = true;
+										}
+										if(sectionData?.business_details?.existing_customer === 'No'){
+											customFieldProps.disabled = false;
 										}
 
 										return (
