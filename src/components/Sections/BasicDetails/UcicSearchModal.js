@@ -17,7 +17,7 @@ const UcicSearchModal = props => {
 	const {
 		show,
 		onClose,
-		// basicDetailsFormState,
+		basicDetailsFormState,
 		isApplicant,
 		setIsCustomerListModalOpen,
 		setCustomerList,
@@ -25,6 +25,7 @@ const UcicSearchModal = props => {
 		isCustomerListModalOpen,
 		customerList,
 		formData,
+		updateUCICNumber,
 	} = props;
 	const { app } = useSelector(state => state);
 
@@ -120,6 +121,8 @@ const UcicSearchModal = props => {
 					onClose={() => {
 						setIsCustomerListModalOpen(false);
 					}}
+					filledFormData={basicDetailsFormState}
+					onUpdateUCIC={updateUCICNumber}
 				/>
 			)}
 			<Modal

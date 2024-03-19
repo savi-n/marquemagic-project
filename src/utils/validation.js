@@ -25,3 +25,12 @@ export const isInvalidAadhaar = aadhaar => {
 		return 'Aadhaar number should not contain alphabets';
 	}
 };
+
+export const isInvalidUdyam = udyam => {
+	if (!udyam) return 'Please enter udyam';
+	if (udyam.length !== 19) return 'UdyamNumber should be 19 digits';
+	const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/.test(udyam);
+	if (!UDYAM_REGEX || udyam.trim().length <= 0)
+		return 'Please specify a valid Udyam Number';
+	return false;
+};

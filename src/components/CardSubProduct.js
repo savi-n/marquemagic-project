@@ -170,10 +170,10 @@ export default function CardSubProduct({
 						setSubProduct(product);
 
 						if (product?.product_details?.is_lead_product) {
-							if (leadId) {
+							if (leadId) {								
 								return setIsCustomerDetailsFormModalOpen(true);
 							}
-						} else if (product?.customer_details) {
+						} else if (product?.customer_details) {						
 							return setIsCustomerDetailsFormModalOpen(true);
 						}
 

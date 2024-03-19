@@ -163,7 +163,7 @@ const AddressDetails = props => {
 		selectedProduct?.product_details?.disable_fields_if_prefilled;
 
 	// Garbage piece of code for as per doc listing
-	const selectedAsPerDocField = selectedSection?.sub_sections
+	const selectedAsPerDocFieldAadhar = selectedSection?.sub_sections
 		?.filter(
 			subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
 		)?.[0]
@@ -173,13 +173,49 @@ const AddressDetails = props => {
 		?.options?.filter(option => option?.name === 'as_per_document_aadhaar')?.[0]
 		?.doc_type;
 
-	const asPerDocAdhaarDocType =
-		selectedAsPerDocField && Object.values(selectedAsPerDocField);
-	// console.log(
-	// 	'🚀 ~ selectedAsPerDocField:',
-	// 	selectedAsPerDocField,
-	// 	asPerDocAdhaarDocType
-	// );
+	const selectedAsPerDocFieldVoter = selectedSection?.sub_sections
+		?.filter(
+			subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
+		)?.[0]
+		?.fields?.filter(
+			field => field?.name === 'as_per_document_address_proof_type'
+		)?.[0]
+		?.options?.filter(
+			option => option?.name === 'as_per_document_voter_id'
+		)?.[0]?.doc_type;
+
+	// const selectedAsPerDocFieldDl = selectedSection?.sub_sections
+	// 	?.filter(
+	// 		subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
+	// 	)?.[0]
+	// 	?.fields?.filter(
+	// 		field => field?.name === 'as_per_document_address_proof_type'
+	// 	)?.[0]
+	// 	?.options?.filter(option => option?.name === 'as_per_document_dl')?.[0]
+	// 	?.doc_type;
+
+	// const selectedAsPerDocFieldPassport = selectedSection?.sub_sections
+	// 	?.filter(
+	// 		subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
+	// 	)?.[0]
+	// 	?.fields?.filter(
+	// 		field => field?.name === 'as_per_document_address_proof_type'
+	// 	)?.[0]
+	// 	?.options?.filter(
+	// 		option => option?.name === 'as_per_document_passport'
+	// 	)?.[0]?.doc_type;
+
+	const selectedAsPerDocField =
+		(selectedAsPerDocFieldAadhar &&
+			selectedAsPerDocFieldVoter && [
+				...(selectedAsPerDocFieldAadhar &&
+					Object.values(selectedAsPerDocFieldAadhar)),
+				...(selectedAsPerDocFieldVoter &&
+					Object.values(selectedAsPerDocFieldVoter)),
+			]) ||
+		[];
+
+	const asPerDocDocType = [...new Set(selectedAsPerDocField)];
 
 	const doesAddressDetailsHasMoreThanTwoSubsection =
 		(
@@ -806,19 +842,25 @@ const AddressDetails = props => {
 			);
 
 			const initData = _.cloneDeep(initialAddress);
-			const asPerDocumentAddress =
-				sectionData?.business_address_data?.filter(
-					addr => `${addr?.aid}` === CONST.AID_AS_PER_DOCUMENT
-				)?.[0] || {};
+			// needs to be changed later
+			const asPerDocumentAddress = completedSections?.includes(
+				selectedSectionId
+			)
+				? sectionData?.director_details?.as_per_document || {}
+				: {};
 
 			// -- TEST MODE
 			const preData = {
 				...initData,
-				as_per_document_aadhaar: asPerDocumentAddress?.kyc_key,
+				as_per_document_aadhaar:
+					asPerDocumentAddress?.kyc_key_aadhar ||
+					asPerDocumentAddress?.aadhar_no,
 				as_per_document_address_proof_id_passport:
-					asPerDocumentAddress?.kyc_key,
-				as_per_document_address_proof_id_dl: asPerDocumentAddress?.kyc_key,
-				as_per_document_address_proof_id_voter: asPerDocumentAddress?.kyc_key,
+					asPerDocumentAddress?.kyc_key_passport,
+				as_per_document_address_proof_id_dl:
+					asPerDocumentAddress?.kyc_key_license,
+				as_per_document_address_proof_id_voter:
+					asPerDocumentAddress?.kyc_key_voter,
 				as_per_document_address_proof_type:
 					asPerDocumentAddress?.classification_type,
 
@@ -1017,7 +1059,7 @@ const AddressDetails = props => {
 						`${doc?.document_details?.aid}` === '2' &&
 						`${doc?.directorId}` === `${selectedDirectorId}` &&
 						doc?.document_details?.classification_type !== 'pan' &&
-						!asPerDocAdhaarDocType?.includes(doc?.doctype)
+						!asPerDocDocType?.includes(doc?.doctype)
 				);
 				if (permanentCacheDocumentsTempRes.length === 2)
 					setIsPermanentAddressIsPresentAddress(true);
@@ -1028,15 +1070,16 @@ const AddressDetails = props => {
 							`${doc?.document_details?.aid}` === '1' &&
 							`${doc?.directorId}` === `${selectedDirectorId}` &&
 							doc?.document_details?.classification_type !== 'pan' &&
-							!asPerDocAdhaarDocType?.includes(doc?.doctype)
+							!asPerDocDocType?.includes(doc?.doctype)
 						);
 					})
 				);
 
+				// console.log('🚀 cacheDocTypes', asPerDocDocType);
 				setAsPerDocAddressDocumentsTemp(
 					fetchRes?.data?.data?.loan_document_details?.filter(
 						doc =>
-							// asPerDocAdhaarDocType?.includes(doc?.doctype) &&
+							asPerDocDocType?.includes(doc?.doctype) &&
 							`${doc?.document_details?.aid}` === '1' &&
 							`${doc?.directorId}` === `${selectedDirectorId}` &&
 							doc?.document_details?.classification_type !== 'pan'
@@ -1051,11 +1094,14 @@ const AddressDetails = props => {
 	};
 	// fetch section data ends
 
-	console.log({
-		asPerDocAddressDocumentsTemp,
-		permanentCacheDocumentsTemp,
-		presentCacheDocumentsTemp,
-	});
+	// console.log(
+	// 	{
+	// 		asPerDocAddressDocumentsTemp,
+	// 		permanentCacheDocumentsTemp,
+	// 		presentCacheDocumentsTemp,
+	// 	},
+	// 	'cacheDocs'
+	// );
 
 	const clearPresentAddressState = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
@@ -1094,7 +1140,10 @@ const AddressDetails = props => {
 
 	const handleSameAsDocForPresentCheckBox = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
-			if (isSameAsDocAddrForPresentChecked) {
+			if (
+				isSameAsDocAddrForPresentChecked &&
+				!CONST.DONT_PREFIL_FROM_AS_PER_DOC?.includes(key)
+			) {
 				onChangeFormStateField({
 					name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
 					value:
@@ -1108,7 +1157,10 @@ const AddressDetails = props => {
 
 	const handleSameAsDocForPermanentCheckBox = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields)?.map(key => {
-			if (isSameAsDocAddrForPermanentChecked) {
+			if (
+				isSameAsDocAddrForPermanentChecked &&
+				!CONST.DONT_PREFIL_FROM_AS_PER_DOC?.includes(key)
+			) {
 				onChangeFormStateField({
 					name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
 					value:
@@ -1537,15 +1589,6 @@ const AddressDetails = props => {
 											}
 											const customStyle = {};
 
-											if (
-												sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
-												CONST.AS_PER_DOCUMENT_FIELDS_TO_DISABLE.includes(
-													field?.name
-												)
-											) {
-												customFieldProps.disabled = true;
-											}
-
 											if (field?.type === 'pincode') {
 												customFieldProps.avoidFromCache = true;
 											}
@@ -1681,6 +1724,14 @@ const AddressDetails = props => {
 														customFieldProps.disabled = false;
 													}
 												}
+												if (
+													sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
+													CONST.AS_PER_DOCUMENT_FIELDS_TO_DISABLE.includes(
+														field?.name
+													)
+												) {
+													customFieldProps.disabled = true;
+												}
 											} else if (selectedAddressProofId?.includes('others')) {
 												customFieldProps.disabled = false;
 											} else {
@@ -1770,6 +1821,15 @@ const AddressDetails = props => {
 												!!isPermanentAddressIsPresentAddress
 											) {
 												return null;
+											}
+
+											if (
+												sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
+												CONST.AS_PER_DOCUMENT_FIELDS_TO_DISABLE.includes(
+													field?.name
+												)
+											) {
+												customFieldProps.disabled = true;
 											}
 
 											if (!isCountryIndia && !isViewLoan) {

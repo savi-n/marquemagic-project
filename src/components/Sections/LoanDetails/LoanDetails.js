@@ -35,6 +35,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 // import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
 import * as CONST_SECTIONS from 'components/Sections/const';
+import MultipleForm from './MultipleForm';
 const LoanDetails = () => {
 	const { app, application } = useSelector(state => state);
 	const {
@@ -62,7 +63,6 @@ const LoanDetails = () => {
 		userId,
 		sections,
 		leadAllDetails,
-
 	} = application;
 
 	const applicant =
@@ -406,8 +406,7 @@ const LoanDetails = () => {
 		}
 		const preData = {
 			...loanDetails,
-			loan_amount: loanDetails?.loan_amount || leadAllDetails?.loan_amount
-			,
+			loan_amount: loanDetails?.loan_amount || leadAllDetails?.loan_amount,
 			tenure: loanDetails?.applied_tenure,
 			// this is specifically for housing loan , where the branch field is coming inside loan details sub section
 			branch_id: loanDetails?.branch_id?.id //todo
@@ -433,10 +432,16 @@ const LoanDetails = () => {
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
 			branch: loanDetails?.branch_id?.id ? `${loanDetails?.branch_id?.id}` : '',
-			sales_promo_code:loanDetails?.sales_promo_code || leadAllDetails?.sales_promo_code|| '',
-			dsa_ddsa_name:loanDetails?.dsa_ddsa_name || leadAllDetails?.dsa_ddsa_name || '',
-			dsa_ddsa_vendor_name:loanDetails?.dsa_ddsa_vendor_name|| leadAllDetails?.dsa_ddsa_vendor_name||'',
-			dealer_se_code:loanDetails?.dealer_se_code || leadAllDetails?.dealer_se_code || '',
+			sales_promo_code:
+				loanDetails?.sales_promo_code || leadAllDetails?.sales_promo_code || '',
+			dsa_ddsa_name:
+				loanDetails?.dsa_ddsa_name || leadAllDetails?.dsa_ddsa_name || '',
+			dsa_ddsa_vendor_name:
+				loanDetails?.dsa_ddsa_vendor_name ||
+				leadAllDetails?.dsa_ddsa_vendor_name ||
+				'',
+			dealer_se_code:
+				loanDetails?.dealer_se_code || leadAllDetails?.dealer_se_code || '',
 			loan_type: loanDetails?.loan_usage_type
 				? `${loanDetails?.loan_usage_type}`
 				: '',
@@ -654,170 +659,180 @@ const LoanDetails = () => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
-								<UI_SECTIONS.FormWrapGrid>
-									{sub_section?.fields?.map((field, fieldIndex) => {
-										const newField = _.cloneDeep(field);
-										const customFieldProps = {};
-										if (!newField.visibility) return null;
-										if (newField?.for_type_name) {
-											if (
-												!newField?.for_type.includes(
-													formState?.values?.[newField?.for_type_name]
-												)
-											)
-												return null;
-										}
-										if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-											newField.options = [
-												...selectedDirectorOptions,
-												...newField.options,
-											];
-										}
-										if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
-											newField.options = connectorOptions;
-										}
-
-										if (newField?.name === CONST.BRANCH_FIELD_NAME) {
-											newField.options = branchOptions;
-										}
-
-										if (
-											newField?.name === CONST.TENURE &&
-											`${formState?.values?.[CONST.LOAN_AMOUNT]}`?.length > 0
-										) {
-											newField?.specific_options?.forEach(item => {
+								{sub_section?.is_dynamic ? (
+									<MultipleForm sub_section={sub_section} />
+								) : (
+									<UI_SECTIONS.FormWrapGrid>
+										{sub_section?.fields?.map((field, fieldIndex) => {
+											const newField = _.cloneDeep(field);
+											const customFieldProps = {};
+											if (!newField.visibility) return null;
+											if (newField?.for_type_name) {
 												if (
-													Number(
-														formState?.values?.[newField?.specific_options_for]
-													) >= item.min &&
-													Number(
-														formState?.values?.[newField?.specific_options_for]
-													) <= item.max
-												) {
-													newField.options = item.options;
-													return;
-												}
-											});
-										}
-
-										if (
-											newField?.name === CONST.BRANCH_FIELD_NAME &&
-											!CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
-												formState?.values?.['loan_source']
-											)
-										) {
-											customFieldProps.disabled = false;
-										}
-
-										if (
-											newField?.name === CONST.BRANCH_FIELD_NAME &&
-											CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
-												formState?.values?.['loan_source']
-											)
-										) {
-											customFieldProps.disabled = true;
-										}
-
-										if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
-											customFieldProps.disabled = true;
-										}
-										if (
-											newField.type === 'file' &&
-											newField.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-										) {
-											const selectedDocTypeId =
-												field?.doc_type?.[selectedIncomeType];
-											const errorMessage =
-												(formState?.submit?.isSubmited ||
-													formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name];
-											if (isEditOrViewLoan) {
-												const imd_document_id = prefilledEditOrViewLoanValues(
-													field
-												);
-												editLoanUploadedFile =
-													cacheDocuments?.filter(
-														doc =>
-															`${doc?.document_id}` === `${imd_document_id}`
-													)?.[0] || null;
+													!newField?.for_type.includes(
+														formState?.values?.[newField?.for_type_name]
+													)
+												)
+													return null;
 											}
+											if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
+												newField.options = [
+													...selectedDirectorOptions,
+													...newField.options,
+												];
+											}
+											if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
+												newField.options = connectorOptions;
+											}
+
+											if (newField?.name === CONST.BRANCH_FIELD_NAME) {
+												newField.options = branchOptions;
+											}
+
+											if (
+												newField?.name === CONST.TENURE &&
+												`${formState?.values?.[CONST.LOAN_AMOUNT]}`?.length > 0
+											) {
+												newField?.specific_options?.forEach(item => {
+													if (
+														Number(
+															formState?.values?.[
+																newField?.specific_options_for
+															]
+														) >= item.min &&
+														Number(
+															formState?.values?.[
+																newField?.specific_options_for
+															]
+														) <= item.max
+													) {
+														newField.options = item.options;
+														return;
+													}
+												});
+											}
+
+											if (
+												newField?.name === CONST.BRANCH_FIELD_NAME &&
+												!CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
+													formState?.values?.['loan_source']
+												)
+											) {
+												customFieldProps.disabled = false;
+											}
+
+											if (
+												newField?.name === CONST.BRANCH_FIELD_NAME &&
+												CONST.DISABLE_BRANCH_FIELD_FOR?.includes(
+													formState?.values?.['loan_source']
+												)
+											) {
+												customFieldProps.disabled = true;
+											}
+
+											if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
+												customFieldProps.disabled = true;
+											}
+											if (
+												newField.type === 'file' &&
+												newField.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+											) {
+												const selectedDocTypeId =
+													field?.doc_type?.[selectedIncomeType];
+												const errorMessage =
+													(formState?.submit?.isSubmited ||
+														formState?.touched?.[field.name]) &&
+													formState?.error?.[field.name];
+												if (isEditOrViewLoan) {
+													const imd_document_id = prefilledEditOrViewLoanValues(
+														field
+													);
+													editLoanUploadedFile =
+														cacheDocuments?.filter(
+															doc =>
+																`${doc?.document_id}` === `${imd_document_id}`
+														)?.[0] || null;
+												}
+												return (
+													<UI_SECTIONS.FieldWrapGrid
+														key={`field-${fieldIndex}-${field.name}`}
+													>
+														<InputFieldSingleFileUpload
+															field={newField}
+															uploadedFile={selectedImdDocumentFile}
+															selectedDocTypeId={selectedDocTypeId}
+															clearErrorFormState={clearErrorFormState}
+															addCacheDocumentTemp={addCacheDocumentTemp}
+															removeCacheDocumentTemp={removeCacheDocumentTemp}
+															errorColorCode={errorMessage ? 'red' : ''}
+															isFormSubmited={!!formState?.submit?.isSubmited}
+															category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
+														/>
+														{errorMessage && (
+															<UI_SECTIONS.ErrorMessage>
+																{errorMessage}
+															</UI_SECTIONS.ErrorMessage>
+														)}
+													</UI_SECTIONS.FieldWrapGrid>
+												);
+											}
+
+											let newPrefilledValue = prefilledValues(newField);
+
+											if (newField?.sum_of?.length > 0) {
+												// console.log('field-sum-of-', { newField });
+												let newPrefilledValueSum = 0;
+												newField?.sum_of?.forEach(field_name => {
+													newPrefilledValueSum += formState?.values?.[
+														field_name
+													]
+														? +formState?.values?.[field_name]
+														: 0;
+												});
+												// console.log('field-sum-', { newPrefilledValueSum });
+												newPrefilledValue = newPrefilledValueSum;
+											}
+
+											if (newField?.name === CONST.FIELD_NAME_PURPOSE_OF_LOAN) {
+												newPrefilledValue = selectedProduct?.name || '';
+											}
+
+											if (isViewLoan) {
+												customFieldProps.disabled = true;
+											}
+
+											if (
+												!(
+													`${sectionData?.loan_details?.loan_status_id}` ===
+													`${CONST.IS_IN_DRAFT_OR_APPLICATION_STAGE}`
+												) &&
+												newField?.name === CONST.IMD_COLLECTED_FIELD_NAME
+											) {
+												customFieldProps.disabled = true;
+											}
+
 											return (
 												<UI_SECTIONS.FieldWrapGrid
-													key={`field-${fieldIndex}-${field.name}`}
+													key={`field-${fieldIndex}-${newField.name}`}
 												>
-													<InputFieldSingleFileUpload
-														field={newField}
-														uploadedFile={selectedImdDocumentFile}
-														selectedDocTypeId={selectedDocTypeId}
-														clearErrorFormState={clearErrorFormState}
-														addCacheDocumentTemp={addCacheDocumentTemp}
-														removeCacheDocumentTemp={removeCacheDocumentTemp}
-														errorColorCode={errorMessage ? 'red' : ''}
-														isFormSubmited={!!formState?.submit?.isSubmited}
-														category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
-													/>
-													{errorMessage && (
-														<UI_SECTIONS.ErrorMessage>
-															{errorMessage}
-														</UI_SECTIONS.ErrorMessage>
-													)}
+													{register({
+														...newField,
+														value: newPrefilledValue,
+														...customFieldProps,
+														visibility: 'visible',
+													})}
+													{(formState?.submit?.isSubmited ||
+														formState?.touched?.[newField.name]) &&
+														formState?.error?.[newField.name] && (
+															<UI_SECTIONS.ErrorMessage>
+																{formState?.error?.[newField.name]}
+															</UI_SECTIONS.ErrorMessage>
+														)}
 												</UI_SECTIONS.FieldWrapGrid>
 											);
-										}
-
-										let newPrefilledValue = prefilledValues(newField);
-
-										if (newField?.sum_of?.length > 0) {
-											// console.log('field-sum-of-', { newField });
-											let newPrefilledValueSum = 0;
-											newField?.sum_of?.forEach(field_name => {
-												newPrefilledValueSum += formState?.values?.[field_name]
-													? +formState?.values?.[field_name]
-													: 0;
-											});
-											// console.log('field-sum-', { newPrefilledValueSum });
-											newPrefilledValue = newPrefilledValueSum;
-										}
-
-										if (newField?.name === CONST.FIELD_NAME_PURPOSE_OF_LOAN) {
-											newPrefilledValue = selectedProduct?.name || '';
-										}
-
-										if (isViewLoan) {
-											customFieldProps.disabled = true;
-										}
-
-										if (
-											!(
-												`${sectionData?.loan_details?.loan_status_id}` ===
-												`${CONST.IS_IN_DRAFT_OR_APPLICATION_STAGE}`
-											) &&
-											newField?.name === CONST.IMD_COLLECTED_FIELD_NAME
-										) {
-											customFieldProps.disabled = true;
-										}
-
-										return (
-											<UI_SECTIONS.FieldWrapGrid
-												key={`field-${fieldIndex}-${newField.name}`}
-											>
-												{register({
-													...newField,
-													value: newPrefilledValue,
-													...customFieldProps,
-													visibility: 'visible',
-												})}
-												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[newField.name]) &&
-													formState?.error?.[newField.name] && (
-														<UI_SECTIONS.ErrorMessage>
-															{formState?.error?.[newField.name]}
-														</UI_SECTIONS.ErrorMessage>
-													)}
-											</UI_SECTIONS.FieldWrapGrid>
-										);
-									})}
-								</UI_SECTIONS.FormWrapGrid>
+										})}
+									</UI_SECTIONS.FormWrapGrid>
+								)}
 							</Fragment>
 						);
 					})}
