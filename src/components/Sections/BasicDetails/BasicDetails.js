@@ -1227,12 +1227,13 @@ const BasicDetails = props => {
 			}
 
 			if (
-				dudupeIndividualGenerateOTPApi || selectedDedupeData?.is_otp_required ||
+				dudupeIndividualGenerateOTPApi ||
+				selectedDedupeData?.is_otp_required ||
 				selectedCustomerDudupe?.customer_id
 			) {
 				try {
 					const sendOtpRes = await axios.post(
-						dudupeIndividualGenerateOTPApi || selectedDedupeData?.generate_otp ,
+						dudupeIndividualGenerateOTPApi || selectedDedupeData?.generate_otp,
 						{
 							customer_id: reqCustomerId || customerId || '',
 
@@ -1306,22 +1307,21 @@ const BasicDetails = props => {
 						type: 'error',
 					});
 				}
-				if (fetchDataRes?.data?.status === 'ok' ||fetchDataRes?.data?.statusCode === 200  ) {
+				if (
+					fetchDataRes?.data?.status === 'ok' ||
+					fetchDataRes?.data?.statusCode === 200
+				) {
 					addToast({
 						message: fetchDataRes?.data?.message || 'Data fetched successfull!',
 						type: 'success',
 					});
-					if(selectedProduct?.product_details?.is_individual_dedupe_required ){
-
+					if (selectedProduct?.product_details?.is_individual_dedupe_required) {
 						fetchSectionDetails();
 						fetchDirectors();
 						setIsCustomerVerificationOTPModal(false);
-					}
-					else{
-
+					} else {
 						redirectToProductPageInEditMode(fetchDataRes?.data);
 					}
-					
 				}
 			}
 			// console.log({ fetchDataRes });
@@ -2789,14 +2789,15 @@ const BasicDetails = props => {
 												field
 											);
 										}
-										if(sectionData?.director_details?.existing_customer === 'No'){
+										if (
+											sectionData?.director_details?.existing_customer === 'No'
+										) {
 											customFieldProps.disabled = false;
 										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubfields.disabled = true;
 										}
-										
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubfields.loading = loading;
@@ -3096,11 +3097,8 @@ const BasicDetails = props => {
 										});
 										return;
 									}
-									if (
-										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
-											'Yes' &&
-										!isUdyamNumberPresent
-									) {
+
+									if (showUdyamRegistration() && !isUdyamNumberPresent) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',
