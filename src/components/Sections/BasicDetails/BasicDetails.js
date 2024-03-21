@@ -2959,7 +2959,6 @@ const BasicDetails = props => {
 																	]
 																);
 															};
-															customFieldPropsSubfields.disabled = loading;
 														}
 
 														if (subField?.name === 'check_dedupe') {
