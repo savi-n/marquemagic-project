@@ -2413,9 +2413,6 @@ const BasicDetails = props => {
 		setDedupeModalData([]);
 	};
 
-	const closeModal = () => {
-		setShowModal(false);
-	};
 	const ButtonProceed = (
 		<Button
 			fill
@@ -2536,25 +2533,6 @@ const BasicDetails = props => {
 							)}
 						</section>
 					</Modal>
-					{
-						<Modal
-							show={showModal}
-							onClose={closeModal}
-							customStyle={{ width: '70%' }}
-						>
-							<UI.ImgClose onClick={closeModal} src={imgClose} alt='close' />
-							<ColumnWrapper>
-								<TableHeading>Field</TableHeading>
-								<TableHeading>Value</TableHeading>
-							</ColumnWrapper>
-							{arr?.map(it => (
-								<ColumnWrapper>
-									<TableValues>{it?.placeholder}</TableValues>
-									<TableValues>{formState?.values[it?.name]}</TableValues>
-								</ColumnWrapper>
-							))}
-						</Modal>
-					}
 
 					<UcicSearchModal
 						show={isUcicSearchModalOpen}
@@ -3318,7 +3296,6 @@ const BasicDetails = props => {
 							})}
 						{/* New footer buttons for crisil flow ends
 						 */}
-						<Button onClick={() => setShowModal(!showModal)}>Show Modal</Button>
 					</UI_SECTIONS.Footer>
 				</>
 			)}
