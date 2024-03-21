@@ -982,11 +982,11 @@ const BusinessDetails = props => {
 				setSectionData(fetchRes?.data?.data);
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
 						?.business_data;
 				const loanFetchDataUserResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
 						?.user_details;
 
 				setLoanPreFetchData(loanFetchDataResult);
