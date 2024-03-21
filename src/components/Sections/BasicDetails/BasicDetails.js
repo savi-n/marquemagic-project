@@ -974,7 +974,7 @@ const BasicDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
-			console.log(profileFieldValue,"yashiprofileFieldValue")
+
 
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
