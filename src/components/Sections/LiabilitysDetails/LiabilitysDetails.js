@@ -53,7 +53,7 @@ const LiabilitysDetails = props => {
 			if (fetchRes?.data?.data?.loanfinancials_records?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.loanfinancials_records);
 				const loanFetchDataResult = JSON.parse(
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json || '{}'
+					fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json || '{}'
 				)?.loan_financial_data;
 				setLoanPreFetchData(loanFetchDataResult);
 			} else {

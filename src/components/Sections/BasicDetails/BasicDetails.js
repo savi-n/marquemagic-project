@@ -975,6 +975,7 @@ const BasicDetails = props => {
 				selectedLoanProductId,
 			});
 
+
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
@@ -1227,12 +1228,13 @@ const BasicDetails = props => {
 			}
 
 			if (
-				dudupeIndividualGenerateOTPApi || selectedDedupeData?.is_otp_required ||
+				dudupeIndividualGenerateOTPApi ||
+				selectedDedupeData?.is_otp_required ||
 				selectedCustomerDudupe?.customer_id
 			) {
 				try {
 					const sendOtpRes = await axios.post(
-						dudupeIndividualGenerateOTPApi || selectedDedupeData?.generate_otp ,
+						dudupeIndividualGenerateOTPApi || selectedDedupeData?.generate_otp,
 						{
 							customer_id: reqCustomerId || customerId || '',
 
@@ -1306,22 +1308,21 @@ const BasicDetails = props => {
 						type: 'error',
 					});
 				}
-				if (fetchDataRes?.data?.status === 'ok' ||fetchDataRes?.data?.statusCode === 200  ) {
+				if (
+					fetchDataRes?.data?.status === 'ok' ||
+					fetchDataRes?.data?.statusCode === 200
+				) {
 					addToast({
 						message: fetchDataRes?.data?.message || 'Data fetched successfull!',
 						type: 'success',
 					});
-					if(selectedProduct?.product_details?.is_individual_dedupe_required ){
-
+					if (selectedProduct?.product_details?.is_individual_dedupe_required) {
 						fetchSectionDetails();
 						fetchDirectors();
 						setIsCustomerVerificationOTPModal(false);
-					}
-					else{
-
+					} else {
 						redirectToProductPageInEditMode(fetchDataRes?.data);
 					}
-					
 				}
 			}
 			// console.log({ fetchDataRes });
@@ -1938,7 +1939,7 @@ const BasicDetails = props => {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
 						?.director_data;
 
 				setLoanPreFetchData(loanFetchDataResult);
@@ -2421,6 +2422,12 @@ const BasicDetails = props => {
 		setIsDataDeletionWarningOpen(true);
 	};
 
+	const showUdyamRegistration = () => {
+		return selectedProduct?.product_details?.allow_users_to_enable_udyam_reg?.includes(
+			userDetails?.user_sub_type
+		);
+	};
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData || fetchingGeoLocation ? (
@@ -2783,14 +2790,15 @@ const BasicDetails = props => {
 												field
 											);
 										}
-										if(sectionData?.director_details?.existing_customer === 'No'){
+										if (
+											sectionData?.director_details?.existing_customer === 'No'
+										) {
 											customFieldProps.disabled = false;
 										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 											customFieldPropsSubfields.disabled = true;
 										}
-										
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubfields.loading = loading;
@@ -2839,6 +2847,18 @@ const BasicDetails = props => {
 													)}
 												</UI_SECTIONS.FieldWrapGrid>
 											);
+										}
+
+										if (field?.name === 'udyam_registered') {
+											// if (
+											// 	formState?.values?.['income_type'] === '1' &&
+											// 	showUdyamRegistration()
+											// ) {
+											// 	customFieldProps.disabled = false;
+											// }
+											if (showUdyamRegistration()) {
+												customFieldProps.disabled = false;
+											}
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
@@ -2940,7 +2960,6 @@ const BasicDetails = props => {
 																	]
 																);
 															};
-															customFieldPropsSubfields.disabled = loading;
 														}
 
 														if (subField?.name === 'check_dedupe') {
@@ -3078,11 +3097,8 @@ const BasicDetails = props => {
 										});
 										return;
 									}
-									if (
-										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
-											'Yes' &&
-										!isUdyamNumberPresent
-									) {
+
+									if (showUdyamRegistration() && !isUdyamNumberPresent) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',
