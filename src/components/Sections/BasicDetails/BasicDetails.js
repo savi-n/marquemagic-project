@@ -977,6 +977,7 @@ const BasicDetails = props => {
 				selectedLoanProductId,
 			});
 
+
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
@@ -1954,7 +1955,7 @@ const BasicDetails = props => {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
 						?.director_data;
 
 				setLoanPreFetchData(loanFetchDataResult);
@@ -2437,6 +2438,12 @@ const BasicDetails = props => {
 		setIsDataDeletionWarningOpen(true);
 	};
 
+	const showUdyamRegistration = () => {
+		return selectedProduct?.product_details?.allow_users_to_enable_udyam_reg?.includes(
+			userDetails?.user_sub_type
+		);
+	};
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			{fetchingSectionData || fetchingGeoLocation ? (
@@ -2851,6 +2858,18 @@ const BasicDetails = props => {
 											);
 										}
 
+										if (field?.name === 'udyam_registered') {
+											// if (
+											// 	formState?.values?.['income_type'] === '1' &&
+											// 	showUdyamRegistration()
+											// ) {
+											// 	customFieldProps.disabled = false;
+											// }
+											if (showUdyamRegistration()) {
+												customFieldProps.disabled = false;
+											}
+										}
+
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											if (!customerIdPlaceholder)
 												setCustomerIdPlaceholder(field?.placeholder);
@@ -2950,7 +2969,6 @@ const BasicDetails = props => {
 																	]
 																);
 															};
-															customFieldPropsSubfields.disabled = loading;
 														}
 
 														if (subField?.name === 'check_dedupe') {
@@ -3088,11 +3106,8 @@ const BasicDetails = props => {
 										});
 										return;
 									}
-									if (
-										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
-											'Yes' &&
-										!isUdyamNumberPresent
-									) {
+
+									if (showUdyamRegistration() && !isUdyamNumberPresent) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',
