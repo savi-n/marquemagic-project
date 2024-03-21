@@ -974,6 +974,7 @@ const BasicDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
+			console.log(profileFieldValue,"yashiprofileFieldValue")
 
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
@@ -1938,7 +1939,7 @@ const BasicDetails = props => {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
 						?.director_data;
 
 				setLoanPreFetchData(loanFetchDataResult);
