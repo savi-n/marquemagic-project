@@ -17,6 +17,7 @@ import { isInvalidPan, isInvalidUdyam } from 'utils/validation';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
+import styled from 'styled-components';
 import {
 	setIsDraftLoan,
 	setLoginCreateUserRes,
@@ -111,6 +112,7 @@ const BasicDetails = props => {
 		isGeoTaggingEnabled,
 		permission,
 	} = app;
+
 	const { isCountryIndia } = permission;
 	const {
 		// cacheDocuments,
@@ -975,6 +977,7 @@ const BasicDetails = props => {
 				selectedLoanProductId,
 			});
 
+
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
@@ -1340,6 +1343,20 @@ const BasicDetails = props => {
 		}
 	};
 
+	const ColumnWrapper = styled.div`
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr 2fr;
+		gap: 2px;
+	`;
+	const TableHeading = styled.span`
+		padding-left: 5px;
+		background-color: #8080805e;
+		margin-bottom: 2px;
+	`;
+	const TableValues = styled(TableHeading)`
+		background-color: #8080580e;
+	`;
 	const redirectToProductPageInEditMode = loanData => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
 			addToast({
@@ -1938,7 +1955,7 @@ const BasicDetails = props => {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json)
+					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
 						?.director_data;
 
 				setLoanPreFetchData(loanFetchDataResult);
@@ -2710,13 +2727,6 @@ const BasicDetails = props => {
 										if (!field.visibility || !field.name || !field.type)
 											return null;
 										const newValue = prefilledValues(field);
-										// if (!!field.sub_fields) {
-										// 	console.log(
-										// 		prefilledValues(field.sub_fields[0]),
-										// 		'sub-fields'
-										// 	);
-										// 	console.log(prefilledValues(field, 'fields'));
-										// }
 										let newValueSelectField;
 										if (!!field?.sub_fields) {
 											newValueSelectField = prefilledValues(

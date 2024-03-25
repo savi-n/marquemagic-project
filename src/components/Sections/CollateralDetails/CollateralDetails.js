@@ -123,7 +123,7 @@ const CollateralDetails = () => {
 				setSectionData(fetchRes?.data?.data?.assetsAdditionalRecord);
 				setLoanAssetData(fetchRes?.data?.data?.loanAssetRecord);
 				const loanFetchDataResult = JSON.parse(
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json || '{}'
+					fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json || '{}'
 				)?.collateral_data;
 				// const loanFetchDataResult = demoData?.business_data;
 				setLoanPreFetchData(loanFetchDataResult);

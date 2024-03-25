@@ -64,7 +64,7 @@ const AssetsDetails = props => {
 			if (fetchRes?.data?.data?.loanassets_records?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.loanassets_records);
 				const loanFetchDataResult = JSON.parse(
-					fetchRes?.data?.data?.loan_pre_fetch_data[0]?.initial_json || '{}'
+					fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json || '{}'
 				)?.asset_details;
 				// const loanFetchDataResult = demoData?.business_data;
 				setLoanPreFetchData(loanFetchDataResult);
