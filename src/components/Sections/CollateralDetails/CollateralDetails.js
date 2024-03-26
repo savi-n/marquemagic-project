@@ -545,7 +545,7 @@ const CollateralDetails = () => {
 							{isCreateFormOpen ||
 							isViewLoan ||
 							sectionData?.length >= MAX_ADD_COUNT ||
-							selectedProduct?.product_details?.is_individual_dedupe_required ||
+							(selectedProduct?.product_details?.is_individual_dedupe_required && loanPreFetchdata) ||
 							!!editSectionId ? null : (
 								<>
 									<UI_SECTIONS.PlusRoundButton
