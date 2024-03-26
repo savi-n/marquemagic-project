@@ -234,17 +234,19 @@ const AddressDetails = props => {
 			},
 		};
 	}
-	const selectedPermanentAadhaarField = getSelectedField({
-		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT,
-		selectedSection,
-		isApplicant,
-	});
+	const selectedPermanentAadhaarField =
+		getSelectedField({
+			fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT,
+			selectedSection,
+			isApplicant,
+		}) || {};
 
-	const selectedAsPerDocAadhaarField = getSelectedField({
-		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT,
-		selectedSection,
-		isApplicant,
-	});
+	const selectedAsPerDocAadhaarField =
+		getSelectedField({
+			fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT,
+			selectedSection,
+			isApplicant,
+		}) || {};
 
 	const asPerDocVerifyWithOtpSubField = getSelectedSubField({
 		fields: selectedAsPerDocAadhaarField?.sub_fields || [],
@@ -411,6 +413,21 @@ const AddressDetails = props => {
 					message: 'Please enter valid pincode to get city and state',
 					type: 'error',
 				});
+			}
+
+			// VALIDATE THE LENGTH OF AADHAAR NUMBER
+			if (
+				(Object.keys(selectedAsPerDocAadhaarField).length > 0 &&
+					formState?.values?.[selectedAsPerDocAadhaarField?.name]?.length <
+						12) ||
+				(!(Object.keys(selectedAsPerDocAadhaarField).length > 0) &&
+					formState?.values?.[selectedPermanentAadhaarField?.name]?.length < 12)
+			) {
+				addToast({
+					message: 'Please enter 12 digit aadhaar number',
+					type: 'error',
+				});
+				return;
 			}
 
 			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
