@@ -308,7 +308,6 @@ const AddressProofUpload = props => {
 				});
 				return;
 			}
-			// console.log('---', selectedAddressProofFiles);
 
 			// Front + Back Extract
 			if (selectedAddressProofFiles.length > 1) {
@@ -334,7 +333,10 @@ const AddressProofUpload = props => {
 					''
 				);
 
-				if (front_aadhaar_number?.length == 12) {
+				if (
+					selectedAddressProofId === 'permanent_aadhar' &&
+					front_aadhaar_number?.length === 12
+				) {
 					onChangeFormStateField({
 						name: `${prefix}aadhaar`,
 						value: front_aadhaar_number,
@@ -346,7 +348,6 @@ const AddressProofUpload = props => {
 				const frontForensicRes = frontExtractionRes?.data?.forensicData || {};
 				const frontForensicFlag = frontForensicRes?.flag?.toLowerCase() || '';
 				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
-
 				if (frontExtractionStatus === 'nok') {
 					setAddressProofError(
 						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontExtractionMsg}`
@@ -409,7 +410,10 @@ const AddressProofUpload = props => {
 					''
 				);
 
-				if (back_aadhaar_number?.length == 12) {
+				if (
+					selectedAddressProofId === 'permanent_aadhar' &&
+					back_aadhaar_number?.length === 12
+				) {
 					onChangeFormStateField({
 						name: `${prefix}aadhaar`,
 						value: back_aadhaar_number,
@@ -417,6 +421,7 @@ const AddressProofUpload = props => {
 				}
 
 				if (
+					selectedAddressProofId === 'permanent_aadhar' &&
 					back_aadhaar_number?.length !== 12 &&
 					front_aadhaar_number?.length !== 12
 				) {
@@ -511,6 +516,7 @@ const AddressProofUpload = props => {
 				// prepopulateAddressDetails(newAddressProofExtractionData);
 				return;
 			}
+
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
 			frontOnlyFormData.append('product_id', selectedProduct.id);
@@ -536,6 +542,19 @@ const AddressProofUpload = props => {
 				frontOnlyFormData,
 				clientToken
 			);
+
+			const frontOnly_aadhaar_number = frontOnlyExtractionRes?.data?.data?.Aadhar_number?.replace(
+				/\s/g,
+				''
+			);
+
+			if (selectedAddressProofId === 'permanent_aadhar') {
+				onChangeFormStateField({
+					name: `${prefix}aadhaar`,
+					value: frontOnly_aadhaar_number,
+				});
+			}
+
 			const frontOnlyExtractionStatus =
 				frontOnlyExtractionRes?.data?.status || '';
 			const frontOnlyExtractionMsg =
