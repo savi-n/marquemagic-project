@@ -387,11 +387,11 @@ const AddressProofUpload = props => {
 				backFormData.append('product_id', selectedProduct.id);
 				backFormData.append('director_id', selectedDirector?.directorId);
 				backFormData.append('req_type', SELECTED_REQ_TYPE);
-				backFormData.append(
-					'ref_id',
-					frontExtractionRes?.data?.extractionData?.id
-				);
-				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
+				// backFormData.append(
+				// 	'ref_id',
+				// 	frontExtractionRes?.data?.extractionData?.id
+				// );
+				// backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
 				backFormData.append('process_type', 'extraction');
 				if (
 					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
@@ -467,7 +467,7 @@ const AddressProofUpload = props => {
 				const backFile = {
 					...selectedAddressProofFiles[1],
 					extractionRes: backExtractionRes?.data || {},
-					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
+					doc_ref_id: backExtractionRes?.data?.doc_ref_id,
 					document_key: backExtractionRes?.data.s3.fd,
 					id: selectedAddressProofFiles[1].id,
 					mainType: 'KYC',
