@@ -1041,6 +1041,21 @@ const AddressDetails = props => {
 						'YYYY-MM'
 				  )
 				: '',
+				permanent_country	:sectionData?.director_details?.permanent_address_country,
+				permanent_years_at_current_city: sectionData?.director_details
+				?.permanent_address_years_at_current_city
+				? moment(
+						sectionData?.director_details?.permanent_address_years_at_current_city
+				  ).format('YYYY-MM')
+				: '',
+				present_country:sectionData?.director_details
+				?.country,
+				present_years_at_current_city: sectionData?.director_details
+				?.years_at_current_city
+				? moment(
+						sectionData?.director_details?.years_at_current_city
+				  ).format('YYYY-MM')
+				: '',
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sectionData]);

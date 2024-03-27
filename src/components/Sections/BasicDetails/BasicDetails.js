@@ -2504,9 +2504,7 @@ const BasicDetails = props => {
 						}}
 						details={udyamOrganisationDetails}
 						heading={'Udyam Organisation Details'}
-						errorMessage={
-							'Unable to fetch data. Please retrigger the Udyam number and try again.'
-						}
+						errorMessage={'Server is down, Please try after sometime.'}
 					/>
 
 					<Modal
