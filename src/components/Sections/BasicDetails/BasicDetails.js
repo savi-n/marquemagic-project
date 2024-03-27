@@ -1385,8 +1385,9 @@ const BasicDetails = props => {
 	};
 
 	const removeCacheDocumentTemp = fieldName => {
-		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
+		// console.log('removeCacheDocumentTemp-', fieldName, cacheDocumentsTemp);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		// console.log(newCacheDocumentTemp);
 		if (
 			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
 			0
