@@ -152,6 +152,10 @@ const AssetsDetails = props => {
 									const prefillData = section
 										? {
 												...section,
+												...section?.loan_json?.assets_details?.[0],
+												bank_name :section?.loan_json?.assets_details?.[0]?.bank_name
+												?.value,
+
 												...assetDataLowerCase,
 												director_id:
 													section?.director_id === 0
@@ -302,7 +306,7 @@ const AssetsDetails = props => {
 						{isCreateFormOpen ||
 						isViewLoan ||
 						sectionData?.length >= MAX_ADD_COUNT ||
-						selectedProduct?.product_details?.is_individual_dedupe_required ||
+						(selectedProduct?.product_details?.is_individual_dedupe_required && loanPreFetchdata) ||
 						!!editSectionId ? null : (
 							<>
 								<UI_SECTIONS.PlusRoundButton
