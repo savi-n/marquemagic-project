@@ -3097,7 +3097,6 @@ const BasicDetails = props => {
 									const isIncomeTypeBusiness =
 										`${formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]}` ===
 										`1`;
-									console.log(isIncomeTypeBusiness, 'income business');
 									if (
 										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
 											'Waiver' &&
