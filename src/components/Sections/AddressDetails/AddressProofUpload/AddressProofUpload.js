@@ -232,7 +232,7 @@ const AddressProofUpload = props => {
 		// const dob = extractionData?.DOB || extractionData?.dob;
 
 		const fullAddress = extractionData?.address || extractionData?.Address;
-		const addressArray = fullAddress.split(/[;,]+/);
+		const addressArray = fullAddress?.split(/[;,]+/);
 		if (!!addressArray?.[0]) {
 			onChangeFormStateField({
 				name: `${prefix}address1`,
@@ -334,7 +334,7 @@ const AddressProofUpload = props => {
 				);
 
 				if (
-					selectedAddressProofId === 'permanent_aadhar' &&
+					selectedAddressProofId === `${prefix}aadhar` &&
 					front_aadhaar_number?.length === 12
 				) {
 					onChangeFormStateField({
@@ -387,11 +387,11 @@ const AddressProofUpload = props => {
 				backFormData.append('product_id', selectedProduct.id);
 				backFormData.append('director_id', selectedDirector?.directorId);
 				backFormData.append('req_type', SELECTED_REQ_TYPE);
-				// backFormData.append(
-				// 	'ref_id',
-				// 	frontExtractionRes?.data?.extractionData?.id
-				// );
-				// backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
+				backFormData.append(
+					'ref_id',
+					frontExtractionRes?.data?.extractionData?.id
+				);
+				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
 				backFormData.append('process_type', 'extraction');
 				if (
 					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
@@ -411,7 +411,7 @@ const AddressProofUpload = props => {
 				);
 
 				if (
-					selectedAddressProofId === 'permanent_aadhar' &&
+					selectedAddressProofId === `${prefix}aadhar` &&
 					back_aadhaar_number?.length === 12
 				) {
 					onChangeFormStateField({
@@ -421,7 +421,7 @@ const AddressProofUpload = props => {
 				}
 
 				if (
-					selectedAddressProofId === 'permanent_aadhar' &&
+					selectedAddressProofId === `${prefix}aadhar` &&
 					back_aadhaar_number?.length !== 12 &&
 					front_aadhaar_number?.length !== 12
 				) {
@@ -467,7 +467,7 @@ const AddressProofUpload = props => {
 				const backFile = {
 					...selectedAddressProofFiles[1],
 					extractionRes: backExtractionRes?.data || {},
-					doc_ref_id: backExtractionRes?.data?.doc_ref_id,
+					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
 					document_key: backExtractionRes?.data.s3.fd,
 					id: selectedAddressProofFiles[1].id,
 					mainType: 'KYC',
@@ -548,7 +548,7 @@ const AddressProofUpload = props => {
 				''
 			);
 
-			if (selectedAddressProofId === 'permanent_aadhar') {
+			if (selectedAddressProofId === `${prefix}aadhar`) {
 				onChangeFormStateField({
 					name: `${prefix}aadhaar`,
 					value: frontOnly_aadhaar_number,

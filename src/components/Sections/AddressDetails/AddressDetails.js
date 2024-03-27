@@ -424,7 +424,7 @@ const AddressDetails = props => {
 					formState?.values?.[selectedPermanentAadhaarField?.name]?.length < 12)
 			) {
 				addToast({
-					message: 'Please enter 12 digit aadhaar number',
+					message: 'Please reupload the document',
 					type: 'error',
 				});
 				return;
