@@ -977,7 +977,6 @@ const BasicDetails = props => {
 				selectedLoanProductId,
 			});
 
-
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
@@ -1386,8 +1385,9 @@ const BasicDetails = props => {
 	};
 
 	const removeCacheDocumentTemp = fieldName => {
-		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
+		// console.log('removeCacheDocumentTemp-', fieldName, cacheDocumentsTemp);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		// console.log(newCacheDocumentTemp);
 		if (
 			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
 			0
@@ -1955,8 +1955,9 @@ const BasicDetails = props => {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
-						?.director_data;
+					JSON.parse(
+						fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json
+					)?.director_data;
 
 				setLoanPreFetchData(loanFetchDataResult);
 
@@ -3093,6 +3094,9 @@ const BasicDetails = props => {
 									const isPresentUdyamFile = udyamUploadedFile;
 									const isUdyamNumberPresent =
 										formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME];
+									const isIncomeTypeBusiness =
+										`${formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]}` ===
+										`1`;
 									if (
 										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
 											'Waiver' &&
@@ -3105,7 +3109,11 @@ const BasicDetails = props => {
 										return;
 									}
 
-									if (showUdyamRegistration() && !isUdyamNumberPresent) {
+									if (
+										showUdyamRegistration() &&
+										isIncomeTypeBusiness &&
+										!isUdyamNumberPresent
+									) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',
