@@ -63,7 +63,7 @@ const Product = props => {
 		// isEditLoan,
 		isEditOrViewLoan,
 	} = app;
-	const { leadId } = application;
+	const { leadId ,loanRefId} = application;
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({
 			whiteLabelId,
@@ -154,7 +154,7 @@ const Product = props => {
 			selectedProductRes.product_details.sections = flowDataSections;
 			// }
 
-			if (isEditOrViewLoan && !leadId) {
+			if ((isEditOrViewLoan && !leadId) || loanRefId ) {
 				const tempSections = _.cloneDeep(
 					selectedProductRes?.product_details?.sections
 				);
