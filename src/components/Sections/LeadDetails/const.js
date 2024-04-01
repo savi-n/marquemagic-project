@@ -21,6 +21,10 @@ export const ASSET_TYPE_FIELD_NAME = 'asset_type';
 export const VEHICLE_TYPE_FIELD_NAME = 'vehicle_type_asset';
 export const EQUIPMENT_TYPE_FIELD_NAME = 'equipment_type_asset';
 export const ASSET_MANUFACTURER_FIELD_NAME = 'manufacturer';
+export const ASSET_VEHICLE_CATEGORY_FIELD_NAME = 'vehicle_category';
+export const ASSET_EQUIPMENT_CATEGORY_FIELD_NAME = 'equipment_category';
+
+
 export const ASSET_MODEL_FIELD_NAME = 'model';
 
 export const BRANCH_FIELD_NAME = 'branch';
