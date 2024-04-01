@@ -3094,6 +3094,9 @@ const BasicDetails = props => {
 									const isPresentUdyamFile = udyamUploadedFile;
 									const isUdyamNumberPresent =
 										formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME];
+									const isIncomeTypeBusiness =
+										`${formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]}` ===
+										`1`;
 									if (
 										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
 											'Waiver' &&
@@ -3106,7 +3109,11 @@ const BasicDetails = props => {
 										return;
 									}
 
-									if (showUdyamRegistration() && !isUdyamNumberPresent) {
+									if (
+										showUdyamRegistration() &&
+										isIncomeTypeBusiness &&
+										!isUdyamNumberPresent
+									) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',
