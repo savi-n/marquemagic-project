@@ -66,21 +66,16 @@ const MultipleForm = ({
 							{isAccordianOpen ? null : (
 								<>
 									<UI_SECTIONS.AccordianHeaderData>
-										{/* // NOTE auto Prefill not work for name since director id is hardcoded */}
-										<span>Liability For:</span>
-										<strong>Name</strong>
+										<span>Scheme Type:</span>
+										<strong>{prefillData.type_of_scheme}</strong>
 									</UI_SECTIONS.AccordianHeaderData>
 									<UI_SECTIONS.AccordianHeaderData>
-										<span>Type of Liability:</span>
-										<strong>{prefillData?.fin_type}</strong>
+										<span>Limit Nature:</span>
+										<strong>{prefillData?.nature_of_limit}</strong>
 									</UI_SECTIONS.AccordianHeaderData>
 									<UI_SECTIONS.AccordianHeaderData>
-										<span>Amount:</span>
-										<strong>
-											{!prefillData?.liability_amount &&
-												!prefillData?.outstanding_balance &&
-												!prefillData?.emi_amount}
-										</strong>
+										<span>Limit Applied:</span>
+										<strong>{prefillData?.limit_applied}</strong>
 									</UI_SECTIONS.AccordianHeaderData>
 								</>
 							)}
@@ -142,7 +137,10 @@ const MultipleForm = ({
 								<DynamicForm
 									fields={sub_section?.fields || []}
 									prefillData={prefillData}
-									onSaveOrUpdateSuccessCallback={onSaveOrUpdateSuccessCallback}
+									onSaveOrUpdateSuccessCallback={values => {
+										onSaveOrUpdateSuccessCallback(values);
+										toggleAccordian(sectionId);
+									}}
 									onCancelCallback={onCancelCallback}
 									isEditLoan={isEditLoan}
 									editSectionId={editSectionId}
@@ -163,7 +161,10 @@ const MultipleForm = ({
 								submitCTAName='Save'
 								hideCancelCTA={!(subSectionData?.length > 0)}
 								isEditLoan={true}
-								onSaveOrUpdateSuccessCallback={onSaveOrUpdateSuccessCallback}
+								onSaveOrUpdateSuccessCallback={values => {
+									onSaveOrUpdateSuccessCallback(values);
+									setIsCreateFormOpen(false);
+								}}
 								onCancelCallback={onCancelCallback}
 								isCreateFormOpen={isCreateFormOpen}
 							/>

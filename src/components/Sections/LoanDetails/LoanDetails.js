@@ -21,7 +21,6 @@ import {
 	setCompletedApplicationSection,
 	removeCacheDocument,
 } from 'store/applicationSlice';
-//import { decryptViewDocumentUrl } from 'utils/encrypt';
 import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
@@ -29,13 +28,12 @@ import {
 	getDocumentNameFromLoanDocuments,
 	parseJSON,
 } from 'utils/formatData';
-// import { scrollToTopRootElement } from 'utils/helper';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
-// import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import MultipleForm from './MultipleForm';
+
 const LoanDetails = () => {
 	const { app, application } = useSelector(state => state);
 	const {
@@ -81,12 +79,11 @@ const LoanDetails = () => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
-	//const [loadingFile, setLoadingFile] = useState(false);
+	const [multipleFormSectionData, setMultipleFormSectionData] = useState({});
 
 	//default logged in user's branch id can be taken from session storage userDetails
 
 	// some permanent solution required for this, discussed with savitha, for now we will be using branch_id object that we get from GET API response
-	// const loggedUserBranch = userDetails?.branch_id;
 
 	const branchField =
 		selectedSection?.sub_sections
@@ -146,8 +143,6 @@ const LoanDetails = () => {
 		? ImdDocumentFileOnUpload
 		: selectedImdDocument;
 
-	//console.log(selectedImdDocumentFile);
-
 	const addCacheDocumentTemp = file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
@@ -155,7 +150,6 @@ const LoanDetails = () => {
 	};
 
 	const removeCacheDocumentTemp = fieldName => {
-		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		if (
 			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName).length >
@@ -181,7 +175,6 @@ const LoanDetails = () => {
 				const branchRes = await axios.get(
 					`${API.API_END_POINT}/getBranchList?bankId=${bankRefId}`
 				);
-				// console.log('branchRes-', { branchRes });
 				const newBranchOptions = [];
 				branchRes?.data?.branchList?.map(branch => {
 					newBranchOptions?.push({
@@ -203,7 +196,6 @@ const LoanDetails = () => {
 		try {
 			setLoading(true);
 			const connectorRes = await axios.get(`${API.API_END_POINT}/connectors`);
-			// console.log('connectorRes-', { connectorRes });
 			const newConnectorOptions = [];
 			connectorRes?.data?.data?.map(connector => {
 				newConnectorOptions.push({
@@ -250,7 +242,6 @@ const LoanDetails = () => {
 						});
 						return;
 					}
-					// console.log({ validateLoanAmountRes });
 				} catch (err) {
 					console.error(err.message);
 				}
@@ -315,9 +306,6 @@ const LoanDetails = () => {
 								document_upload: uploadCacheDocumentsTemp,
 							},
 						};
-						// console.log('borrowerDocUploadRedBody-', {
-						// 	borrowerDocUploadRedBody,
-						// });
 						const borrowerDocUploadRes = await axios.post(
 							`${API.BORROWER_UPLOAD_URL}`,
 							borrowerDocUploadRedBody
@@ -325,9 +313,6 @@ const LoanDetails = () => {
 							// 	timeout: CONST_SECTIONS.timeoutForDocumentUpload,
 							// }
 						);
-						// console.log('borrowerDocUploadRes-', {
-						// 	borrowerDocUploadRes,
-						// });
 						const updateDocumentIdToCacheDocuments = [];
 						uploadCacheDocumentsTemp.map(cacheDoc => {
 							const resDoc =
@@ -344,9 +329,6 @@ const LoanDetails = () => {
 							updateDocumentIdToCacheDocuments.push(newDoc);
 							return null;
 						});
-						// console.log('updateDocumentIdToCacheDocuments-', {
-						// 	updateDocumentIdToCacheDocuments,
-						// });
 					}
 				} catch (error) {
 					console.error('error-', error);
@@ -363,14 +345,14 @@ const LoanDetails = () => {
 			);
 
 			loanDetailsReqBody.data.source_details.branch_id = branchObj?.[0] || {};
+			loanDetailsReqBody.data = {
+				...loanDetailsReqBody.data,
+				...multipleFormSectionData,
+			};
 			await axios.post(
 				`${API.API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
 			);
-			// console.log('-loanDetailsRes-', {
-			// 	loanDetailsReqBody,
-			// 	loanDetailsRes,
-			// });
 			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
@@ -502,7 +484,6 @@ const LoanDetails = () => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes)
 			setSectionData(fetchRes?.data?.data || {});
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -515,20 +496,10 @@ const LoanDetails = () => {
 	useEffect(() => {
 		// scrollToTopRootElement();
 		// if (!selectedConnectorId) return;
-		// console.log('useEffect-', {
-		// 	prev: prevSelectedConnectorId?.current,
-		// 	current: selectedConnectorId,
-		// });
 		if (prevSelectedConnectorId?.current !== selectedConnectorId) {
 			const selectedConnector = connectorOptions.filter(
 				connector => `${connector?.value}` === `${selectedConnectorId}`
 			)?.[0];
-			// console.log('useEffect-', {
-			// 	connectorOptions,
-			// 	selectedConnector,
-			// 	prev: prevSelectedConnectorId?.current,
-			// 	current: selectedConnectorId,
-			// });
 			onChangeFormStateField({
 				name: CONST.CONNECTOR_CODE_FIELD_NAME,
 				value: selectedConnector?.user_reference_no,
@@ -566,15 +537,6 @@ const LoanDetails = () => {
 		// eslint-disable-next-line
 	}, [connectorCode]);
 
-	// console.log('loan-details-allstates-', {
-	// 	app,
-	// 	application,
-	// 	selectedDirector,
-	// 	formState,
-	// 	selectedSection,
-	// });
-	//console.log(sectionData?.imd_details?.imd_document?.uploaded_doc_name);
-
 	const deleteImdDoc = async file => {
 		try {
 			if (!file?.document_id)
@@ -585,7 +547,6 @@ const LoanDetails = () => {
 				loan_id: loanId,
 				userid: userId,
 			};
-			// console.log('reqBody-', reqBody);
 			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME);
@@ -595,7 +556,6 @@ const LoanDetails = () => {
 			console.error('error-deleteDocument-', error);
 		}
 	};
-	// console.log(connectorOptions);
 
 	const getConnectorsWithCode = async code => {
 		if (sectionData?.loan_details?.connector_user_id) {
@@ -660,7 +620,24 @@ const LoanDetails = () => {
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
 								{sub_section?.is_dynamic ? (
-									<MultipleForm sub_section={sub_section} />
+									<MultipleForm
+										sub_section={sub_section}
+										selectedProduct={selectedProduct}
+										isViewLoan={isViewLoan}
+										subSectionData={
+											sub_section && multipleFormSectionData[sub_section.id]
+										}
+										onSaveOrUpdateSuccessCallback={values => {
+											setMultipleFormSectionData(prev => {
+												const updatedData = { ...prev };
+												const previousData = updatedData[sub_section.id];
+												updatedData[sub_section.id] = previousData
+													? [...previousData, values]
+													: [values];
+												return updatedData;
+											});
+										}}
+									/>
 								) : (
 									<UI_SECTIONS.FormWrapGrid>
 										{sub_section?.fields?.map((field, fieldIndex) => {
@@ -780,7 +757,6 @@ const LoanDetails = () => {
 											let newPrefilledValue = prefilledValues(newField);
 
 											if (newField?.sum_of?.length > 0) {
-												// console.log('field-sum-of-', { newField });
 												let newPrefilledValueSum = 0;
 												newField?.sum_of?.forEach(field_name => {
 													newPrefilledValueSum += formState?.values?.[
@@ -789,7 +765,6 @@ const LoanDetails = () => {
 														? +formState?.values?.[field_name]
 														: 0;
 												});
-												// console.log('field-sum-', { newPrefilledValueSum });
 												newPrefilledValue = newPrefilledValueSum;
 											}
 

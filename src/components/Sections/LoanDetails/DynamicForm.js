@@ -179,40 +179,8 @@ const DynamicForm = props => {
 				return;
 			}
 			setIsSubmitting(true);
-			const reqBody = formatSectionReqBody({
-				section: selectedSection,
-				values: {
-					...formState.values,
-				},
-				app,
-				selectedDirector,
-				application,
-			});
-			reqBody.data.liability_details.bank_name =
-				reqBody?.data?.liability_details?.financial_institution?.name;
-			if (editSectionId) {
-				reqBody.data.liability_details.id = editSectionId;
-			}
-			if (
-				typeof reqBody?.data?.liability_details?.financial_institution
-					?.value === 'string'
-			) {
-				reqBody.data.liability_details.financial_institution = +reqBody?.data
-					?.liability_details?.financial_institution?.value;
-			}
-			reqBody.data.liability_details = [reqBody.data.liability_details];
-			const submitRes = await axios.post(
-				`${API_END_POINT}/liability_details`,
-				reqBody
-			);
-			if (submitRes?.data?.status === 'ok') {
-				onSaveOrUpdateSuccessCallback();
-				addToast({
-					message: submitRes?.data?.message || 'Success',
-					type: 'success',
-				});
-			}
-			// console.log('submitRes-', submitRes);
+
+			onSaveOrUpdateSuccessCallback(formState?.values);
 		} catch (error) {
 			console.error('error-onSaveOrUpdate-', error);
 			addToast({
