@@ -269,13 +269,14 @@ const DynamicForm = props => {
 						// newField.options.push(entity);
 					}
 
-					if (isViewLoan || isViewLoanApp) {
-						customFieldProps.disabled = true;
-					}
+					
 					if (selectedProduct?.product_details?.disable_fields_if_prefilled) {
 						customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
 							field
 						);
+					}
+					if (isViewLoan || isViewLoanApp) {
+						customFieldProps.disabled = true;
 					}
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>

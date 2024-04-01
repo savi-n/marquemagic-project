@@ -105,7 +105,6 @@ const DynamicForm = props => {
 		};
 		return preData?.[field?.name];
 	};
-
 	const prefilledValues = field => {
 		try {
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
@@ -158,7 +157,7 @@ const DynamicForm = props => {
 		try {
 			setFetchingVehicleData(true);
 			const reqBody = {
-				vehicleNo: formState?.values?.[CONST.FIELD_NAME_VEHICLE_NUMBER],
+				vehicleNo: formState?.values?.[CONST.FIELD_NAME_VEHICLE_NUMBER] ||formState?.values?.[CONST.FIELD_NAME_EQUIPEMENT_REGISTRATION_NUMBER] ,
 			};
 
 			const fetchRes = await axios.get(VEHICLE_RC, {
@@ -188,8 +187,7 @@ const DynamicForm = props => {
 					[CONST.FIELD_NAME_REGISTERED_PLACE]: vehicleData.regAuthority,
 					[CONST.FIELD_NAME_TAX_UPTO]:
 						(vehicleData.vehicleTaxUpto &&
-							moment(vehicleData.vehicleTaxUpto).format('YYYY-MM-DD')) ||
-						'',
+							moment(vehicleData.vehicleTaxUpto, "DD/MM/YYYY").format('YYYY-MM-DD')) || '',
 					[CONST.FIELD_NAME_SEATING_CAPACITY]: vehicleData.vehicleSeatCapacity,
 
 					[CONST.FIELD_NAME_INSURANCE_COMPANY_NAME]:
@@ -204,11 +202,21 @@ const DynamicForm = props => {
 						[CONST.FIELD_NAME_NUMBER_OF_CYLINDER]:vehicleData?.vehicleCylindersNo,
 						[CONST.FIELD_NAME_INSURANCE_VALIDITY]:vehicleData?.vehicleInsuranceUpto,
 						[CONST.FIELD_NAME_MANUFACTURER_REGISTERED_VEHICLE]: vehicleData?.vehicleManufacturerName,
-						[CONST.FIELD_NAME_REGISTRATION_DATE]:vehicleData?.regDate,
+						// [CONST.FIELD_NAME_REGISTRATION_DATE]:(vehicleData.regDate &&
+						// 	moment(vehicleData.regDate).format('YYYY-DD-MM')) || 
+						// '',
+						[CONST.FIELD_NAME_REGISTRATION_DATE]: (vehicleData.regDate &&
+							moment(vehicleData.regDate, "DD/MM/YYYY").format('YYYY-MM-DD')) || '',
+						
+						[CONST.FIELD_NAME_REGISTRATION_DATE_EUPIMENT]: (vehicleData.regDate &&
+							moment(vehicleData.regDate, "DD/MM/YYYY").format('YYYY-MM-DD')) || '',
+						
 						[CONST.FIELD_NAME_MANUFACTURER_MODEL]:vehicleData?.model,
 						[CONST.FIELD_NAME_CUBIC_CAPACITY]:vehicleData?.vehicleCubicCapacity,
 						[CONST.FIELD_NAME_EQUIPMENT_MAKE]:vehicleData?.vehicleManufacturingMonthYear,
 						[CONST.FIELD_NAME_MAKE]:vehicleData?.vehicleManufacturingMonthYear,
+						[CONST.FIELD_WHEELBASE]:vehicleData?.wheelbase,
+						[CONST.FIELD_UNLADDEN_WEIGHT]:vehicleData?.unladenWeight
 
 
 
@@ -421,7 +429,7 @@ const DynamicForm = props => {
 			);
 			if (submitRes?.data?.status === 'ok') {
 				const vehicleRcPayload = {
-					vehicleNo: formState?.values[CONST.FIELD_NAME_VEHICLE_NUMBER],
+					vehicleNo: formState?.values[CONST.FIELD_NAME_VEHICLE_NUMBER]|| formState?.values?.[CONST.FIELD_NAME_EQUIPEMENT_REGISTRATION_NUMBER],
 					loanAssetId: submitRes?.data?.data?.[0]?.id || editSectionId || '',
 				};
 				callVehicleRcApi(vehicleRcPayload);
@@ -474,8 +482,7 @@ const DynamicForm = props => {
 								}
 
 								
-
-								if (field?.name === CONST.FIELD_NAME_VEHICLE_NUMBER) {
+								if (field?.name === CONST.FIELD_NAME_VEHICLE_NUMBER || field?.name === CONST.FIELD_NAME_EQUIPEMENT_REGISTRATION_NUMBER) {
 									customFieldPropsSubFields.loading = fetchingVehicleData;
 									customFieldProps.disabled =
 										fetchingVehicleData ||

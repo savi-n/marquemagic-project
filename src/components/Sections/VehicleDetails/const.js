@@ -30,6 +30,7 @@ export const initialFormState = {
 
 export const SUB_SECTION_NAME_VEHICLE_DETAILS = 'vehicle_details';
 export const FIELD_NAME_VEHICLE_NUMBER = 'registration_number';
+export const FIELD_NAME_EQUIPEMENT_REGISTRATION_NUMBER="equipment_registration_number";
 export const FIELD_NAME_VEHICLE_FOR = 'vehicle_for';
 
 // Fields for fetching and prefilling the data using the vehicle registration number
@@ -63,10 +64,15 @@ export const FIELD_NAME_NUMBER_OF_CYLINDER="number_of_cylinder";
 export const FIELD_NAME_INSURANCE_VALIDITY="insurance_validity"
 export const FIELD_NAME_MANUFACTURER_REGISTERED_VEHICLE ="manufacturer_registered_vehicle";
 export const FIELD_NAME_REGISTRATION_DATE ="registration_date";
+// registration_date_equipment
+export const FIELD_NAME_REGISTRATION_DATE_EUPIMENT ="registration_date_equipment";
+export const FIELD_WHEELBASE="wheelbase";
+
 export const FIELD_NAME_MANUFACTURER_MODEL="manufacturer_model_equipment";
 export const FIELD_NAME_CUBIC_CAPACITY="cubic_capacity";
-export const FIELD_NAME_EQUIPMENT_MAKE="equipment_make"
-export const FIELD_NAME_MAKE="make"
+export const FIELD_NAME_EQUIPMENT_MAKE="equipment_make";
+export const FIELD_NAME_MAKE="make";
+export const FIELD_UNLADDEN_WEIGHT="unladden_weight"
 
 
 export const PREFILL_FIELD_NAMES_ON_FETCH = [
@@ -96,4 +102,6 @@ export const PREFILL_FIELD_NAMES_ON_FETCH = [
 	FIELD_NAME_MAKE,
 	FIELD_NAME_CHASSIS_NUMBER_EQUIPMENT,
 	FIELD_NAME_ENGINE_NUMBER_EQUIPMENT,
+	FIELD_WHEELBASE,
+	FIELD_UNLADDEN_WEIGHT,
 ];
