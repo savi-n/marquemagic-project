@@ -38,5 +38,11 @@ export const LOAN_ASSET_TYPE_ID_PERFORMA_CEQ = '76';
 
 export const PROPERTY_ADDRESS_DETAILS_SUB_SECTION_ID =
 	'property_address_details';
+
+	export const COLLATERAL_DETAILS=
+	"collateral_details";
 export const CITY_FIELD_NAME = 'city';
 export const STATE_FIELD_NAME = 'state';
+export const COLLATERAL_FIELD_GOLD='Gold';
+export const COLLATERAL_FIELD_NSC='NSC';
+

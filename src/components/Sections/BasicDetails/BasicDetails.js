@@ -1342,20 +1342,6 @@ const BasicDetails = props => {
 		}
 	};
 
-	const ColumnWrapper = styled.div`
-		width: 100%;
-		display: grid;
-		grid-template-columns: 1fr 2fr;
-		gap: 2px;
-	`;
-	const TableHeading = styled.span`
-		padding-left: 5px;
-		background-color: #8080805e;
-		margin-bottom: 2px;
-	`;
-	const TableValues = styled(TableHeading)`
-		background-color: #8080580e;
-	`;
 	const redirectToProductPageInEditMode = loanData => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
 			addToast({
@@ -2798,15 +2784,11 @@ const BasicDetails = props => {
 												field
 											);
 										}
-										if (
-											sectionData?.director_details?.existing_customer === 'No'
-										) {
-											customFieldProps.disabled = false;
-										}
-										if (isViewLoan) {
-											customFieldProps.disabled = true;
-											customFieldPropsSubfields.disabled = true;
-										}
+										// if (
+										// 	sectionData?.director_details?.existing_customer === 'No'
+										// ) {
+										// 	customFieldProps.disabled = false;
+										// }
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubfields.loading = loading;
@@ -2821,6 +2803,10 @@ const BasicDetails = props => {
 												!!completedSections?.includes(selectedSectionId);
 										}
 
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
+										}
 										//Udyam Document Upload Handling
 										if (
 											field?.type === 'file' &&
@@ -2858,12 +2844,6 @@ const BasicDetails = props => {
 										}
 
 										if (field?.name === 'udyam_registered') {
-											// if (
-											// 	formState?.values?.['income_type'] === '1' &&
-											// 	showUdyamRegistration()
-											// ) {
-											// 	customFieldProps.disabled = false;
-											// }
 											if (showUdyamRegistration()) {
 												customFieldProps.disabled = false;
 											}
@@ -3094,6 +3074,9 @@ const BasicDetails = props => {
 									const isPresentUdyamFile = udyamUploadedFile;
 									const isUdyamNumberPresent =
 										formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME];
+									const isIncomeTypeBusiness =
+										`${formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]}` ===
+										`1`;
 									if (
 										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
 											'Waiver' &&
@@ -3106,7 +3089,11 @@ const BasicDetails = props => {
 										return;
 									}
 
-									if (showUdyamRegistration() && !isUdyamNumberPresent) {
+									if (
+										showUdyamRegistration() &&
+										isIncomeTypeBusiness &&
+										!isUdyamNumberPresent
+									) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',
