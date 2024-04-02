@@ -184,6 +184,8 @@ const AddressDetails = props => {
 			option => option?.name === 'as_per_document_voter_id'
 		)?.[0]?.doc_type;
 
+	// console.log(Object.values(formState?.values));
+
 	// const selectedAsPerDocFieldDl = selectedSection?.sub_sections
 	// 	?.filter(
 	// 		subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
@@ -204,7 +206,6 @@ const AddressDetails = props => {
 	// 	?.options?.filter(
 	// 		option => option?.name === 'as_per_document_passport'
 	// 	)?.[0]?.doc_type;
-
 	const selectedAsPerDocField =
 		(selectedAsPerDocFieldAadhar &&
 			selectedAsPerDocFieldVoter && [
@@ -234,6 +235,7 @@ const AddressDetails = props => {
 			},
 		};
 	}
+
 	const selectedPermanentAadhaarField =
 		getSelectedField({
 			fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT,
@@ -423,11 +425,22 @@ const AddressDetails = props => {
 				(!(Object.keys(selectedAsPerDocAadhaarField).length > 0) &&
 					formState?.values?.[selectedPermanentAadhaarField?.name]?.length < 12)
 			) {
-				addToast({
-					message:
-						'Please reupload the document to fetch 12 digit aadhar number',
-					type: 'error',
-				});
+				if (
+					Object.values(formState?.values).includes('as_per_document_aadhar') ||
+					Object.values(formState?.values).includes('permanent_aadhar')
+				) {
+					addToast({
+						message:
+							'Please reupload the document to fetch 12 digit aadhar number',
+						type: 'error',
+					});
+				} else {
+					addToast({
+						message: 'Please enter 12 digit aadhar number',
+						type: 'error',
+					});
+				}
+
 				return;
 			}
 
@@ -1296,7 +1309,6 @@ const AddressDetails = props => {
 							biometricRes={biometricRes}
 						/>
 					)}
-
 					{selectedSection?.sub_sections?.map(
 						(sub_section, subSectionIndex) => {
 							// {selectedSection?.sub_sections?.map(
