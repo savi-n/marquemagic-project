@@ -368,6 +368,8 @@ const BasicDetails = props => {
 			if (crimeCheck) {
 				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
 			}
+			basicDetailsReqBody.data.basic_details.additional_cust_id =
+				formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
 			} else if (selectedDirector) {
@@ -983,6 +985,8 @@ const BasicDetails = props => {
 			if (crimeCheck) {
 				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
 			}
+			basicDetailsReqBody.data.basic_details.additional_cust_id =
+				formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
 			} else if (selectedDirector) {
