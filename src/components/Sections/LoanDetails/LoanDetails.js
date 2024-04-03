@@ -386,6 +386,7 @@ const LoanDetails = () => {
 				sectionData?.loan_additional_data?.source_fund_requirements
 			);
 		}
+		console.log("leadAllDetails",leadAllDetails);
 		const preData = {
 			...loanDetails,
 			loan_amount: loanDetails?.loan_amount || leadAllDetails?.loan_amount,

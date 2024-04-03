@@ -95,6 +95,8 @@ const LeadDetails = props => {
 	const [assetModelOptions, setAssetModelOptions] = useState([]);
 	const [sendingOTP, setSendingOTP] = useState(false);
 	const [sendOtpRes, setSendOtpRes] = useState(null);
+	const [assetCategoryOptions, setAssetCategoryOptions] = useState([]);
+
 
 	const [
 		isCustomerVerificationOTPModal,
@@ -661,6 +663,7 @@ const LeadDetails = props => {
 			setLoading(true);
 			setAssetManufacturerOptions([]);
 			setAssetModelOptions([]);
+			setAssetCategoryOptions([]);
 
 			const assetTypeName = assetTypeOptions?.vehicle?.find(
 				type => type?.value === vehicleTypeFormState
@@ -675,6 +678,7 @@ const LeadDetails = props => {
 				getOptionsFromResponse(result, 'Manufacturer')
 			);
 			setAssetModelOptions(getOptionsFromResponse(result, 'VehicleModel'));
+			setAssetCategoryOptions(getOptionsFromResponse(result,'VehicleCategory'));
 		} catch (error) {
 			addToast({
 				message: 'Error obtaining options for Asset Details',
@@ -695,6 +699,7 @@ const LeadDetails = props => {
 			setLoading(true);
 			setAssetManufacturerOptions([]);
 			setAssetModelOptions([]);
+			setAssetCategoryOptions([]);
 
 			const assetTypeName = assetTypeOptions?.equipment?.find(
 				type => type?.value === equipmentTypeFormState
@@ -711,6 +716,8 @@ const LeadDetails = props => {
 				getOptionsFromResponse(result, 'manufacturer')
 			);
 			setAssetModelOptions(getOptionsFromResponse(result, 'equipmentmodel'));
+			setAssetCategoryOptions(getOptionsFromResponse(result,'equipmentcategory'));
+
 		} catch (error) {
 			addToast({
 				message: 'Error obtaining options for Asset Details',
@@ -1299,6 +1306,13 @@ const LeadDetails = props => {
 																		isAssetViewMode;
 																	customFieldProps.options = assetManufacturerOptions;
 																}
+																// assetCategoryOptions
+																if(field?.name === CONST.ASSET_VEHICLE_CATEGORY_FIELD_NAME || field?.name ===CONST.ASSET_EQUIPMENT_CATEGORY_FIELD_NAME){
+																	customFieldProps.disabled =
+																		!assetCategoryOptions.length ||
+																		isAssetViewMode;
+																	customFieldProps.options = assetCategoryOptions;
+																}
 																if (
 																	field?.name === CONST.ASSET_MODEL_FIELD_NAME
 																) {
@@ -1379,6 +1393,12 @@ const LeadDetails = props => {
 															!assetManufacturerOptions.length ||
 															isAssetViewMode;
 														customFieldProps.options = assetManufacturerOptions;
+													}
+													if(field?.name === CONST.ASSET_VEHICLE_CATEGORY_FIELD_NAME || field?.name ===CONST.ASSET_EQUIPMENT_CATEGORY_FIELD_NAME){
+														customFieldProps.disabled =
+															!assetCategoryOptions.length ||
+															isAssetViewMode;
+														customFieldProps.options = assetCategoryOptions;
 													}
 													if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
 														customFieldProps.disabled =

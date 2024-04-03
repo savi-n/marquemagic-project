@@ -61,18 +61,18 @@ const DynamicForm = props => {
 	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
-
+	const [filteredSubSection,setFilteredSubSection]=useState(subSections);
 	// const [collateralDetails, setCollateralDetails] = useState([]);
 
 	const cityField =
-		subSections
+	filteredSubSection
 			?.filter(
 				item => item?.id === CONST.PROPERTY_ADDRESS_DETAILS_SUB_SECTION_ID
 			)?.[0]
 			?.fields?.filter(field => field?.name === CONST.CITY_FIELD_NAME)?.[0] ||
 		{};
 	const stateField =
-		subSections
+	filteredSubSection
 			?.filter(
 				item => item?.id === CONST.PROPERTY_ADDRESS_DETAILS_SUB_SECTION_ID
 			)?.[0]
@@ -93,6 +93,18 @@ const DynamicForm = props => {
 		});
 		return null;
 	});
+// formState?.values?.[CONST.CITY_FIELD_NAME]
+	useEffect(()=>{
+		if(formState?.values?.collateral_type===CONST.COLLATERAL_FIELD_GOLD|| formState?.values?.collateral_type===CONST.COLLATERAL_FIELD_NSC){
+			
+			const propertyAddressSubSection = subSections?.filter(item => item?.id === CONST.COLLATERAL_DETAILS);
+			setFilteredSubSection(propertyAddressSubSection);
+		}
+		else{
+			setFilteredSubSection(subSections);
+		}
+
+	},[formState.values.collateral_type])
 	// for fed use case when the data is fetched from customer id from fed portal
 	const disableFieldIfPrefilledFromThirdPartyData = field => {
 		/*
@@ -222,11 +234,11 @@ const DynamicForm = props => {
 				return;
 			}
 
-			if (
+			if ( (!!cityField &&
 				(cityField?.rules?.required === true &&
-					!formState?.values?.[CONST.CITY_FIELD_NAME]) ||
-				(stateField?.rules?.required === true &&
-					!formState?.values?.[CONST.STATE_FIELD_NAME])
+					!formState?.values?.[CONST.CITY_FIELD_NAME])) ||
+				(!!stateField && (stateField?.rules?.required === true &&
+					!formState?.values?.[CONST.STATE_FIELD_NAME]))
 			) {
 				addToast({
 					message: 'Please enter City and State',
@@ -448,7 +460,9 @@ const DynamicForm = props => {
 
 	return (
 		<React.Fragment>
-			{subSections?.map((subSection, subSectionIndex) => {
+			{filteredSubSection?.map((subSection, subSectionIndex) => {
+
+
 				return (
 					<Fragment key={`subSection-${subSectionIndex}-${subSection?.id}`}>
 						{subSection?.name ? (
@@ -463,9 +477,7 @@ const DynamicForm = props => {
 								}
 								const customFieldProps = {};
 								const newField = _.cloneDeep(field);
-								if (isViewLoan || isViewLoanApp) {
-									customFieldProps.disabled = true;
-								}
+								
 								if (!isCreateFormOpen && field.name === 'select_collateral') {
 									customFieldProps.disabled = true;
 									// customFieldProps.value = '';
@@ -479,6 +491,9 @@ const DynamicForm = props => {
 									customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
 										field
 									);
+								}
+								if (isViewLoan || isViewLoanApp) {
+									customFieldProps.disabled = true;
 								}
 
 								return (
