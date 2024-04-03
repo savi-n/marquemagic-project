@@ -14,7 +14,6 @@ import {
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
-import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
 	const {

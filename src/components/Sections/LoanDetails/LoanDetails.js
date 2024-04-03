@@ -521,6 +521,7 @@ const LoanDetails = () => {
 			name: CONST.LOAN_AMOUNT,
 			value: totalLoanAmount,
 		});
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [multipleFormSectionData[CONST.CREDIT_LIMIT_SUB_SECTION]]);
 
 	// useEffect(() => {
