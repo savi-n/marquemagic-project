@@ -7,6 +7,26 @@ import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 
+const ACCORDIAN_LABEL_LIST = [
+	{
+		id: 'credit_limit_applied',
+		labels: [
+			{
+				label: 'Scheme Type',
+				valueKey: 'type_of_scheme',
+			},
+			{
+				label: 'Limit Nature',
+				valueKey: 'nature_of_limit',
+			},
+			{
+				label: 'Limit Applied',
+				valueKey: 'limit_applied',
+			},
+		],
+	},
+];
+
 const MultipleForm = ({
 	selectedProduct = {},
 	sub_section = {},
@@ -65,18 +85,16 @@ const MultipleForm = ({
 						<UI_SECTIONS.AccordianHeader>
 							{isAccordianOpen ? null : (
 								<>
-									<UI_SECTIONS.AccordianHeaderData>
-										<span>Scheme Type:</span>
-										<strong>{prefillData.type_of_scheme}</strong>
-									</UI_SECTIONS.AccordianHeaderData>
-									<UI_SECTIONS.AccordianHeaderData>
-										<span>Limit Nature:</span>
-										<strong>{prefillData?.nature_of_limit}</strong>
-									</UI_SECTIONS.AccordianHeaderData>
-									<UI_SECTIONS.AccordianHeaderData>
-										<span>Limit Applied:</span>
-										<strong>{prefillData?.limit_applied}</strong>
-									</UI_SECTIONS.AccordianHeaderData>
+									{ACCORDIAN_LABEL_LIST.find(
+										label => label?.id === sub_section?.id
+									)?.labels?.map(label => (
+										<UI_SECTIONS.AccordianHeaderData
+											key={`${sub_section?.id}_${label?.label}`}
+										>
+											<span>{label?.label}:</span>
+											<strong>{prefillData[(label?.valueKey)]}</strong>
+										</UI_SECTIONS.AccordianHeaderData>
+									))}
 								</>
 							)}
 							<UI_SECTIONS.AccordianHeaderData

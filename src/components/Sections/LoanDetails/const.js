@@ -42,6 +42,7 @@ export const SOURCE_DETAILS_SUBSECTION_ID = 'source_details';
 export const TENURE = 'tenure';
 export const LOAN_AMOUNT = 'loan_amount';
 export const LOAN_SOURCE = 'loan_source';
+export const LIMIT_APPLIED_FIELD_NAME = 'limit_applied';
 export const DISABLE_BRANCH_FIELD_FOR = [
 	'Branch',
 	'Connector',
@@ -49,6 +50,8 @@ export const DISABLE_BRANCH_FIELD_FOR = [
 	'',
 ];
 export const LOAN_CREATE_BRANCH_FOR = ['Branch', 'GL Branch'];
+
+export const CREDIT_LIMIT_SUB_SECTION = 'credit_limit_applied';
 
 export const selectedSection = {
 	name: 'Loan Details',

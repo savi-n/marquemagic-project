@@ -509,6 +509,20 @@ const LoanDetails = () => {
 		// eslint-disable-next-line
 	}, [selectedConnectorId]);
 
+	useEffect(() => {
+		const totalLoanAmount = multipleFormSectionData?.[
+			CONST.CREDIT_LIMIT_SUB_SECTION
+		]?.reduce(
+			(total, limit) =>
+				total + parseFloat(limit?.[CONST.LIMIT_APPLIED_FIELD_NAME]),
+			0
+		);
+		onChangeFormStateField({
+			name: CONST.LOAN_AMOUNT,
+			value: totalLoanAmount,
+		});
+	}, [multipleFormSectionData[CONST.CREDIT_LIMIT_SUB_SECTION]]);
+
 	// useEffect(() => {
 	// 	if (formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME]) {
 	// 		const selectedConnector = connectorOptions.filter(
