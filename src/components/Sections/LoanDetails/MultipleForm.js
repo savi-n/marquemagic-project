@@ -34,8 +34,8 @@ const MultipleForm = ({
 	subSectionData = [],
 	onSaveOrUpdateSuccessCallback = () => {},
 }) => {
-	const [openAccordianId, setOpenAccordianId] = useState('');
-	const [editSectionId, setEditSectionId] = useState('');
+	const [openAccordianIndex, setOpenAccordianIndex] = useState('');
+	const [editSectionIndex, setEditSectionIndex] = useState('');
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(
 		!subSectionData?.length
 	);
@@ -43,34 +43,33 @@ const MultipleForm = ({
 	const MAX_ADD_COUNT = sub_section?.max || 10;
 
 	const openCreateForm = () => {
-		setEditSectionId('');
-		setOpenAccordianId('');
+		setEditSectionIndex('');
+		setOpenAccordianIndex('');
 		setIsCreateFormOpen(true);
 	};
 
 	const toggleAccordian = (id, openOrClose) => {
-		if (openOrClose === 'open') return setOpenAccordianId(id);
-		if (openOrClose === 'close') return setOpenAccordianId('');
-		return openAccordianId === id
-			? setOpenAccordianId('')
-			: setOpenAccordianId(id);
+		if (openOrClose === 'open') return setOpenAccordianIndex(id);
+		if (openOrClose === 'close') return setOpenAccordianIndex('');
+		return openAccordianIndex === id
+			? setOpenAccordianIndex('')
+			: setOpenAccordianIndex(id);
 	};
 
 	const onCancelCallback = deleteEditSectionId => {
-		if (deleteEditSectionId) {
-			setEditSectionId('');
+		if (deleteEditSectionId !== undefined) {
+			setEditSectionIndex('');
 		} else {
 			setIsCreateFormOpen(false);
 		}
-		setOpenAccordianId('');
+		setOpenAccordianIndex('');
 	};
 
 	return (
 		<>
 			{subSectionData?.map((section, sectionIndex) => {
-				const sectionId = section?.id;
-				const isAccordianOpen = sectionId === openAccordianId;
-				const isEditLoan = editSectionId === sectionId;
+				const isAccordianOpen = sectionIndex === openAccordianIndex;
+				const isEditLoan = editSectionIndex === sectionIndex;
 
 				const prefillData = section
 					? {
@@ -113,9 +112,9 @@ const MultipleForm = ({
 										alt='edit'
 										onClick={() => {
 											if (isCreateFormOpen || isEditLoan) return;
-											toggleAccordian(sectionId, 'open');
+											toggleAccordian(sectionIndex, 'open');
 											setTimeout(() => {
-												setEditSectionId(sectionId);
+												setEditSectionIndex(sectionIndex);
 											}, 200);
 										}}
 										style={
@@ -132,11 +131,11 @@ const MultipleForm = ({
 									src={expandIcon}
 									alt='toggle'
 									onClick={() => {
-										openAccordianId !== sectionId &&
-											onCancelCallback(openAccordianId);
+										openAccordianIndex !== sectionIndex &&
+											onCancelCallback(openAccordianIndex);
 
 										if (isCreateFormOpen || isEditLoan) return;
-										toggleAccordian(sectionId);
+										toggleAccordian(sectionIndex);
 									}}
 									style={{
 										transform: 'rotate(90deg)',
@@ -156,12 +155,12 @@ const MultipleForm = ({
 									fields={sub_section?.fields || []}
 									prefillData={prefillData}
 									onSaveOrUpdateSuccessCallback={values => {
-										onSaveOrUpdateSuccessCallback(values);
-										toggleAccordian(sectionId);
+										onSaveOrUpdateSuccessCallback(values, sectionIndex);
+										onCancelCallback(sectionIndex);
 									}}
-									onCancelCallback={onCancelCallback}
+									onCancelCallback={() => onCancelCallback(sectionIndex)}
 									isEditLoan={isEditLoan}
-									editSectionId={editSectionId}
+									editSectionIndex={editSectionIndex}
 									isCreateFormOpen={isCreateFormOpen}
 								/>
 							)}
@@ -195,7 +194,7 @@ const MultipleForm = ({
 				isViewLoan ||
 				subSectionData?.length >= MAX_ADD_COUNT ||
 				selectedProduct?.product_details?.is_individual_dedupe_required ||
-				!!editSectionId ? null : (
+				!!editSectionIndex ? null : (
 					<>
 						<UI_SECTIONS.PlusRoundButton
 							src={plusRoundIcon}

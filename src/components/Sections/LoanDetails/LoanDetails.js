@@ -386,7 +386,6 @@ const LoanDetails = () => {
 				sectionData?.loan_additional_data?.source_fund_requirements
 			);
 		}
-		console.log("leadAllDetails",leadAllDetails);
 		const preData = {
 			...loanDetails,
 			loan_amount: loanDetails?.loan_amount || leadAllDetails?.loan_amount,
@@ -642,13 +641,18 @@ const LoanDetails = () => {
 										subSectionData={
 											sub_section && multipleFormSectionData[sub_section.id]
 										}
-										onSaveOrUpdateSuccessCallback={values => {
+										onSaveOrUpdateSuccessCallback={(values, index) => {
 											setMultipleFormSectionData(prev => {
 												const updatedData = { ...prev };
 												const previousData = updatedData[sub_section.id];
-												updatedData[sub_section.id] = previousData
-													? [...previousData, values]
-													: [values];
+												if (index !== undefined) {
+													previousData[index] = values;
+													updatedData[sub_section.id] = [...previousData];
+												} else {
+													updatedData[sub_section.id] = previousData
+														? [...previousData, values]
+														: [values];
+												}
 												return updatedData;
 											});
 										}}

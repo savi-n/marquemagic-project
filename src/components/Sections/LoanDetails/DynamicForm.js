@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 import _ from 'lodash';
 
 import Button from 'components/Button';
@@ -8,7 +7,6 @@ import Button from 'components/Button';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import {
-	formatSectionReqBody,
 	getApiErrorMessage,
 	isDirectorApplicant,
 	isFieldValid,
@@ -27,11 +25,10 @@ const DynamicForm = props => {
 		submitCTAName = 'Update',
 		hideCancelCTA = false,
 		isEditLoan,
-		editSectionId = '',
 		loanPreFetchdata,
 	} = props;
 	const isViewLoan = !isEditLoan;
-	const { app, application } = useSelector(state => state);
+	const { app } = useSelector(state => state);
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
@@ -250,7 +247,7 @@ const DynamicForm = props => {
 						<Button
 							name='Cancel'
 							customStyle={{ maxWidth: 120, marginLeft: 20 }}
-							onClick={() => onCancelCallback(editSectionId)}
+							onClick={() => onCancelCallback()}
 						/>
 					)}
 				</>
