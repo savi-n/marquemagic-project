@@ -85,6 +85,7 @@ const PanUpload = props => {
 	const isFileFromDeviceStorageAllowed =
 		selectedProduct?.product_details?.is_file_from_storage_allowed;
 
+	const downloadable = true;
 	// called for roc starts
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: '',
@@ -593,7 +594,11 @@ const PanUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
-			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+			if (
+				userDetails?.is_other &&
+				isImageFile(file?.doc_name) &&
+				!downloadable
+			) {
 				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
 				setImageSrc(imageURL);
 				setIsImageModalVisible(true);

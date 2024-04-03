@@ -82,7 +82,7 @@ const ProfileUpload = props => {
 	const [isImageModalVisible, setIsImageModalVisible] = useState(false);
 
 	const isSelectedProductTypeBusiness = !!selectedProduct?.isSelectedProductTypeBusiness;
-
+	const downloadable = true;
 	// if is_file_from_storage_allowed is present in product_details, then take the value which is there(either true or false) or else always set is_file_from_storage_allowed to true
 	const isFileFromDeviceStorageAllowed =
 		selectedProduct?.product_details?.is_file_from_storage_allowed;
@@ -98,7 +98,11 @@ const ProfileUpload = props => {
 			// console.log('openDocument-reqBody-', { reqBody, file });
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
-			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+			if (
+				userDetails?.is_other &&
+				isImageFile(file?.doc_name) &&
+				!downloadable
+			) {
 				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
 				setImageSrc(imageURL);
 				setIsImageModalVisible(true);
@@ -509,7 +513,7 @@ const ProfileUpload = props => {
 							e.preventDefault();
 							e.stopPropagation();
 							if (value) {
-								if (userDetails?.is_other) {
+								if (userDetails?.is_other && !downloadable) {
 									setImageSrc(value);
 									setIsImageModalVisible(true);
 									return;
@@ -518,7 +522,7 @@ const ProfileUpload = props => {
 								return;
 							}
 							if (uploadedFile?.preview || selfiePreview?.preview) {
-								if (userDetails?.is_other) {
+								if (userDetails?.is_other && !downloadable) {
 									setImageSrc(uploadedFile?.preview || selfiePreview?.preview);
 									setIsImageModalVisible(true);
 									return;
