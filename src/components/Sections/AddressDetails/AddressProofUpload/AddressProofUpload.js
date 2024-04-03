@@ -862,7 +862,12 @@ const AddressProofUpload = props => {
 			reqBody.loan_id = loanId;
 			reqBody.userid = businessUserId;
 			const docRes = await axios.post(VIEW_DOCUMENT, reqBody);
-			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+			const downloadable = true;
+			if (
+				userDetails?.is_other &&
+				isImageFile(file?.doc_name) &&
+				!downloadable
+			) {
 				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
 				setImageSrc(imageURL);
 				setIsImageModalVisible(true);
