@@ -109,7 +109,6 @@ const BusinessDetails = props => {
 	const [sectionData, setSectionData] = useState({});
 	const [loanPreFetchdata, setLoanPreFetchData] = useState({});
 	const [loanPreFetchUserdata, setLoanPreFetchUserData] = useState({});
-
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
 	// eslint-disable-next-line
@@ -843,8 +842,7 @@ const BusinessDetails = props => {
 		setIsDedupeCheckModalOpen(false);
 		setDedupeModalData([]);
 	};
-
-	// console.log(formState.values, 'form................');
+// console.log(formState.values, 'form................');
 	const prefilledValues = field => {
 		try {
 			// TEST MODE
@@ -1088,7 +1086,7 @@ const BusinessDetails = props => {
 					const panToGstRes = await axios.post(API.PAN_TO_GST, {
 						pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
 					});
-					setGstin(panToGstRes);
+					setGstin(panToGstRes);             
 				}
 			} else {
 				setSectionData({});
@@ -1612,18 +1610,8 @@ fields to determine if the given field should be disabled.
 										// 			onPanEnter(formState.values?.['pan_number']);
 										// 		};
 										// 	}
-										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
-											customFieldPropsSubFields.loading = loading;
-											customFieldProps.disabled =
-												loading ||
-												!!completedSections?.includes(selectedSectionId);
-											customFieldPropsSubFields.disabled =
-												loading ||
-												!!completedSections?.includes(selectedSectionId);
-											customFieldPropsSubFields.onClick = event => {
-												onPanEnter(formState.values?.['pan_number']);
-											};
-										}
+										
+										
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											if (!customerIdPlaceholder)
@@ -1644,10 +1632,19 @@ fields to determine if the given field should be disabled.
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
+											if( formState.values.business_type === "" ){
+												customFieldProps.infoMessage = `${
+													CONST.SELECT_BUSINESS_TYPE_HINT
+												} `;
+											}
+											else{
+												customFieldProps.infoMessage = `${
+													CONST.ENTER_VALID_UCIC_HINT
+												} ${field?.placeholder}`;
+												
+											}
 
-											customFieldProps.infoMessage = `${
-												CONST.ENTER_VALID_UCIC_HINT
-											} ${field?.placeholder}`;
+											
 										}
 										if (field?.name === CONST.BUSINESS_START_DATE) {
 											customFieldPropsSubFields.value =
@@ -1739,6 +1736,7 @@ fields to determine if the given field should be disabled.
 											}
 											// customFieldProps.value=formState.values.email
 										}
+													
 										if (
 											field.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
@@ -1767,8 +1765,20 @@ fields to determine if the given field should be disabled.
 										if (field?.disabled === true) {
 											customFieldProps.disabled = true;
 										}
-										if(sectionData?.business_details?.existing_customer === 'No'){
-											customFieldProps.disabled = false;
+										// if(sectionData?.business_details?.existing_customer === 'No'){
+										// 	customFieldProps.disabled = false;
+										// }
+										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
+											customFieldPropsSubFields.loading = loading;
+											customFieldProps.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.onClick = event => {
+												onPanEnter(formState.values?.['pan_number']);
+											};
 										}
 
 										return (
