@@ -123,12 +123,29 @@ const LeadDetails = props => {
 			)?.options || [],
 	};
 
+	// const selectedDedupeData =
+	// 	dedupeApiData && Array.isArray(dedupeApiData)
+	// 		? dedupeApiData?.filter(item => {
+	// 				return item?.product_id?.includes(selectedProduct?.id);
+	// 		  })?.[0] || {}
+	// 		: {};
+	// 		console.log("selectedDedupeData",selectedDedupeData);
+	console.log("selectedProduct?.id",selectedProduct?.id);
 	const selectedDedupeData =
-		dedupeApiData && Array.isArray(dedupeApiData)
-			? dedupeApiData?.filter(item => {
-					return item?.product_id?.includes(selectedProduct?.id);
-			  })?.[0] || {}
-			: {};
+  dedupeApiData && Array.isArray(dedupeApiData)
+    ? (dedupeApiData.find(item => {
+        if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
+          if (formState?.values && formState?.values?.pan_number) {
+            const userPancard = formState?.values?.pan_number;
+            return item.pan_fourth_digit.includes(userPancard.charAt(3)) && item?.product_id?.includes(selectedProduct?.id);
+          }
+        } else {
+          return item?.product_id?.includes(selectedProduct?.id);
+        }
+        return false; 
+      }) || {})
+    : {};
+console.log("selectedDedupeData",selectedDedupeData);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [branchOptions, setBranchOptions] = useState([]);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
