@@ -95,6 +95,7 @@ const AadhaarOTPModal = props => {
 		prePopulateAddressDetailsFromVerifyOtpRes,
 		formState,
 		setVerifyOtpResponseTemp,
+		doesAddressDetailsHasMoreThanTwoSubsection,
 	} = props;
 	const { application, app } = useSelector(state => state);
 	const { directors, selectedDirectorId } = useSelector(
@@ -179,13 +180,25 @@ const AadhaarOTPModal = props => {
 			// 		res: aadhaarVerifyResponse,
 			// 	})
 			// );
-			if (
-				formState?.values?.[
-					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
-				] ===
-				CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
-			) {
-				prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
+
+			if (doesAddressDetailsHasMoreThanTwoSubsection) {
+				if (
+					formState?.values?.[
+						CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					] ===
+					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
+				) {
+					prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
+				}
+			} else {
+				if (
+					formState?.values?.[
+						CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					] ===
+					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
+				) {
+					prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
+				}
 			}
 
 			if (aadhaarVerifyResponse.status === 'ok') {
