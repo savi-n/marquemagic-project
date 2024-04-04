@@ -12,6 +12,7 @@ import { useToasts } from '../../Toast/ToastProvider';
 import { DDUPE_CHECK, ORIGIN } from '_config/app.config';
 import { useSelector } from 'react-redux';
 import CustomerListModal from 'components/ProductCard/CustomerListModal';
+import { isFieldValid } from 'utils/formatData';
 
 const UcicSearchModal = props => {
 	const {
@@ -149,6 +150,15 @@ const UcicSearchModal = props => {
 									) : null}
 									<UI_SECTIONS.FormWrap>
 										{sub_section?.fields?.map((field, fieldIndex) => {
+											if (
+												!isFieldValid({
+													field,
+													isApplicant: isApplicant,
+													formState,
+												})
+											) {
+												return null;
+											}
 											const newValue = prefilledValues(field);
 
 											return (
@@ -180,7 +190,12 @@ const UcicSearchModal = props => {
 
 						<UI.CustomerDetailsFormModalFooter>
 							<Button
-								disabled={fetchingCustomerDetails}
+								disabled={
+									fetchingCustomerDetails ||
+									(!formState?.values?.['search_customer_id']?.trim() &&
+										!formState?.values?.['pan_no']?.trim() &&
+										!formState?.values?.['mob_no']?.trim())
+								}
 								isLoader={fetchingCustomerDetails}
 								name='Search UCIC Number'
 								onClick={handleProceed}

@@ -50,12 +50,13 @@ const CaptionImg = styled.div`
 	background-repeat: no-repeat;
 `;
 
+let isUseEffectCalledOnce = false;
+
 const ApplicationSubmitted = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedProduct, permission, userToken } = app;
 	const { loanRefId, loanId, leadId } = application;
 	const [count] = useState(0);
-	const isUseEffectCalledOnce = useRef(false);
 	const solutionType = permission?.solution_type || '';
 
 	const data = [
@@ -115,8 +116,8 @@ const ApplicationSubmitted = props => {
 
 	useEffect(() => {
 		scrollToTopRootElement();
-		if (isUseEffectCalledOnce.current) return;
-		isUseEffectCalledOnce.current = true;
+		if (isUseEffectCalledOnce) return;
+		isUseEffectCalledOnce = true;
 		const moveToApplicationStage = () => {
 			try {
 				const applicationStageReqBody = {

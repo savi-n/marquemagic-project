@@ -126,8 +126,18 @@ const DynamicForm = props => {
 				{};
 			const initailLib =
 				currentLoanPrefetchData?.emi_details &&
-				JSON.parse(currentLoanPrefetchData?.emi_details);
+				JSON.parse(currentLoanPrefetchData?.emi_details
+					);
+			const emiDetailsData= initailLib?.liability_details?.[0]||'';
+
 			const libDataLowerCase = Object.entries(initailLib || {}).reduce(
+				(acc, [key, value]) => {
+					acc[key.toLowerCase()] = value;
+					return acc;
+				},
+				{}
+			);
+			const emiDetailsLowerCase = Object.entries(emiDetailsData || {}).reduce(
 				(acc, [key, value]) => {
 					acc[key.toLowerCase()] = value;
 					return acc;
@@ -138,7 +148,7 @@ const DynamicForm = props => {
 			if (
 				(fieldNameArr?.includes(field?.name) &&
 					currentLoanPrefetchData?.[field?.db_key]) ||
-				libDataLowerCase?.[field?.db_key]
+				libDataLowerCase?.[field?.db_key] ||emiDetailsLowerCase?.[field?.db_key]
 			) {
 				return true; // Disable the field if conditions are met
 			}
@@ -283,13 +293,14 @@ const DynamicForm = props => {
 							: selectedDirectorOptions;
 					}
 
-					if (isViewLoan || isViewLoanApp) {
-						customFieldProps.disabled = true;
-					}
+					
 					if (selectedProduct?.product_details?.disable_fields_if_prefilled) {
 						customFieldProps.disabled = disableFieldIfPrefilledFromThirdPartyData(
 							field
 						);
+					}
+					if (isViewLoan || isViewLoanApp) {
+						customFieldProps.disabled = true;
 					}
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>

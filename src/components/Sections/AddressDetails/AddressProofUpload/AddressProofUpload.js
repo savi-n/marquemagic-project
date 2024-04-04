@@ -125,7 +125,6 @@ const AddressProofUpload = props => {
 
 	const prefillDataOnUpload =
 		selectedProduct?.product_details?.prefill_data_on_upload || true;
-	console.log('🚀 ~ prefillDataOnUpload:', prefillDataOnUpload);
 
 	const isFileFromDeviceStorageAllowed =
 		selectedProduct?.product_details?.is_file_from_storage_allowed;
@@ -191,11 +190,11 @@ const AddressProofUpload = props => {
 		// const aadhaarMasked = aadharNum
 		// 	? 'XXXXXXXX' + aadharNum?.splice(8, 4).join('')
 		// 	: '';
-		if (aadhaarUnMasked)
-			onChangeFormStateField({
-				name: `${prefix}aadhaar`,
-				value: aadhaarUnMasked,
-			});
+		// if (aadhaarUnMasked)
+		// 	onChangeFormStateField({
+		// 		name: `${prefix}aadhaar`,
+		// 		value: aadhaarUnMasked,
+		// 	});
 		// -- AADHAAR NUMBER
 
 		// VOTER ID
@@ -233,7 +232,7 @@ const AddressProofUpload = props => {
 		// const dob = extractionData?.DOB || extractionData?.dob;
 
 		const fullAddress = extractionData?.address || extractionData?.Address;
-		const addressArray = fullAddress.split(/[;,]+/);
+		const addressArray = fullAddress?.split(/[;,]+/);
 		if (!!addressArray?.[0]) {
 			onChangeFormStateField({
 				name: `${prefix}address1`,
@@ -329,12 +328,26 @@ const AddressProofUpload = props => {
 				}
 				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
 				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
+				const front_aadhaar_number = frontExtractionRes?.data?.data?.Aadhar_number?.replace(
+					/\s/g,
+					''
+				);
+
+				if (
+					selectedAddressProofId === `${prefix}aadhar` &&
+					front_aadhaar_number?.length === 12
+				) {
+					onChangeFormStateField({
+						name: `${prefix}aadhaar`,
+						value: front_aadhaar_number,
+					});
+				}
+
 				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
 				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
 				const frontForensicRes = frontExtractionRes?.data?.forensicData || {};
 				const frontForensicFlag = frontForensicRes?.flag?.toLowerCase() || '';
 				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
-
 				if (frontExtractionStatus === 'nok') {
 					setAddressProofError(
 						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontExtractionMsg}`
@@ -392,6 +405,35 @@ const AddressProofUpload = props => {
 				backFormData.append('business_id', application?.businessId);
 				backFormData.append('document', selectedAddressProofFiles?.[1]?.file);
 				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
+				const back_aadhaar_number = backExtractionRes?.data?.data?.Aadhar_number?.replace(
+					/\s/g,
+					''
+				);
+
+				if (
+					selectedAddressProofId === `${prefix}aadhar` &&
+					back_aadhaar_number?.length === 12
+				) {
+					onChangeFormStateField({
+						name: `${prefix}aadhaar`,
+						value: back_aadhaar_number,
+					});
+				}
+
+				if (
+					selectedAddressProofId === `${prefix}aadhar` &&
+					back_aadhaar_number?.length !== 12 &&
+					front_aadhaar_number?.length !== 12
+				) {
+					onChangeFormStateField({
+						name: `${prefix}aadhaar`,
+						value:
+							back_aadhaar_number > front_aadhaar_number
+								? back_aadhaar_number
+								: front_aadhaar_number,
+					});
+				}
+
 				const backExtractionStatus = backExtractionRes?.data?.status || '';
 				const backExtractionMsg = backExtractionRes?.data?.message || '';
 				const backForensicRes = backExtractionRes?.data?.forensicData || {};
@@ -474,6 +516,7 @@ const AddressProofUpload = props => {
 				// prepopulateAddressDetails(newAddressProofExtractionData);
 				return;
 			}
+
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
 			frontOnlyFormData.append('product_id', selectedProduct.id);
@@ -499,6 +542,19 @@ const AddressProofUpload = props => {
 				frontOnlyFormData,
 				clientToken
 			);
+
+			const frontOnly_aadhaar_number = frontOnlyExtractionRes?.data?.data?.Aadhar_number?.replace(
+				/\s/g,
+				''
+			);
+
+			if (selectedAddressProofId === `${prefix}aadhar`) {
+				onChangeFormStateField({
+					name: `${prefix}aadhaar`,
+					value: frontOnly_aadhaar_number,
+				});
+			}
+
 			const frontOnlyExtractionStatus =
 				frontOnlyExtractionRes?.data?.status || '';
 			const frontOnlyExtractionMsg =
@@ -806,7 +862,12 @@ const AddressProofUpload = props => {
 			reqBody.loan_id = loanId;
 			reqBody.userid = businessUserId;
 			const docRes = await axios.post(VIEW_DOCUMENT, reqBody);
-			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+			const downloadable = true;
+			if (
+				userDetails?.is_other &&
+				isImageFile(file?.doc_name) &&
+				!downloadable
+			) {
 				let imageURL = decryptViewDocumentUrl(docRes?.data?.signedurl);
 				setImageSrc(imageURL);
 				setIsImageModalVisible(true);
@@ -1069,6 +1130,7 @@ const AddressProofUpload = props => {
 								<UI.OR>or</UI.OR>
 							)}
 							{aadhaarProofOTPField.map((aadharField, fieldIndex) => {
+								// console.log('aadhar-field', aadharField);
 								if (aadharField?.for_type_name) {
 									if (
 										!aadharField?.for_type?.includes(

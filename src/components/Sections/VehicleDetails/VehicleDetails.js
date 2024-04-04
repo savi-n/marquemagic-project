@@ -206,7 +206,6 @@ const VehicleDetails = props => {
 		);
 		if (field?.length > 0) setIsDisplaySectionType(true);
 	};
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -311,7 +310,7 @@ const VehicleDetails = props => {
 													<span>Amount:</span>
 													<strong>
 														{formatINR(
-															prefillData?.value || prefillData?.total_amount
+															prefillData?.value || prefillData?.total_amount || section?.loan_json?.rc_verification?.asset_price
 														)}
 													</strong>
 												</UI_SECTIONS.AccordianHeaderData>

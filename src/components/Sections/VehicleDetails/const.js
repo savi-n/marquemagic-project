@@ -30,6 +30,7 @@ export const initialFormState = {
 
 export const SUB_SECTION_NAME_VEHICLE_DETAILS = 'vehicle_details';
 export const FIELD_NAME_VEHICLE_NUMBER = 'registration_number';
+export const FIELD_NAME_EQUIPEMENT_REGISTRATION_NUMBER="equipment_registration_number";
 export const FIELD_NAME_VEHICLE_FOR = 'vehicle_for';
 
 // Fields for fetching and prefilling the data using the vehicle registration number
@@ -41,7 +42,9 @@ export const FIELD_NAME_EQUIPMENT_TYPE = 'equipment_type';
 export const FIELD_NAME_EQUIPMENT_CATEGORY = 'equipment_category';
 export const FIELD_NAME_EQUIPMENT_MODEL = 'equipment_model';
 export const FIELD_NAME_ENGINE_NUMBER = 'engine_number';
+export const FIELD_NAME_ENGINE_NUMBER_EQUIPMENT = 'engine_number_equipment';
 export const FIELD_NAME_CHASSIS_NUMBER = 'chassis_numer';
+export const FIELD_NAME_CHASSIS_NUMBER_EQUIPMENT="chassis_numer_equipment"
 export const FIELD_NAME_REG_DATE = 'registration_date';
 export const FIELD_NAME_BODY_TYPE = 'body_type';
 export const FIELD_NAME_NORMS_TYPE = 'norms_type';
@@ -55,6 +58,22 @@ export const FIELD_NAME_TONNAGE_CATEGORY = 'tonnage_category';
 export const FIELD_NAME_VALUATION_PRICE = 'valuation_price';
 export const FIELD_NAME_SECTION_CATEGORY_FOR = 'section_category_for';
 export const SELECTD_SECTION_NAME = 'Vehicle/Equipment Details';
+export const FIELD_NAME_GROSS_VEHICLE_WEIGHT="gross_vehicle_weight";
+export const FIELD_NAME_NAME_OF_OWNER="name_of_owner";
+export const FIELD_NAME_NUMBER_OF_CYLINDER="number_of_cylinder";
+export const FIELD_NAME_INSURANCE_VALIDITY="insurance_validity"
+export const FIELD_NAME_MANUFACTURER_REGISTERED_VEHICLE ="manufacturer_registered_vehicle";
+export const FIELD_NAME_REGISTRATION_DATE ="registration_date";
+// registration_date_equipment
+export const FIELD_NAME_REGISTRATION_DATE_EUPIMENT ="registration_date_equipment";
+export const FIELD_WHEELBASE="wheelbase";
+
+export const FIELD_NAME_MANUFACTURER_MODEL="manufacturer_model_equipment";
+export const FIELD_NAME_CUBIC_CAPACITY="cubic_capacity";
+export const FIELD_NAME_EQUIPMENT_MAKE="equipment_make";
+export const FIELD_NAME_MAKE="make";
+export const FIELD_UNLADDEN_WEIGHT="unladden_weight"
+
 
 export const PREFILL_FIELD_NAMES_ON_FETCH = [
 	FIELD_NAME_FUEL_TYPE,
@@ -71,4 +90,18 @@ export const PREFILL_FIELD_NAMES_ON_FETCH = [
 	FIELD_NAME_INSURANCE_COMPANY_NAME,
 	FIELD_NAME_INSURANCE_POLICY_NUMBER,
 	FIELD_NAME_MANUFACTURER_NAME,
+	FIELD_NAME_GROSS_VEHICLE_WEIGHT,
+	FIELD_NAME_NAME_OF_OWNER,
+	FIELD_NAME_NUMBER_OF_CYLINDER,
+	FIELD_NAME_INSURANCE_VALIDITY,
+	FIELD_NAME_MANUFACTURER_REGISTERED_VEHICLE,
+	FIELD_NAME_REGISTRATION_DATE,
+	FIELD_NAME_MANUFACTURER_MODEL,
+	FIELD_NAME_CUBIC_CAPACITY,
+	FIELD_NAME_EQUIPMENT_MAKE,
+	FIELD_NAME_MAKE,
+	FIELD_NAME_CHASSIS_NUMBER_EQUIPMENT,
+	FIELD_NAME_ENGINE_NUMBER_EQUIPMENT,
+	FIELD_WHEELBASE,
+	FIELD_UNLADDEN_WEIGHT,
 ];

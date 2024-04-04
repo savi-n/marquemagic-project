@@ -98,7 +98,7 @@ export default function Pincode(props) {
 			value.length === props.makeApiCall ||
 			value.length === props.make_api_call
 		) {
-			if (isViewLoan) return;
+			if (isViewLoan && !props.avoidFromCache) return;
 			if (processing) return;
 			setProcessing(true);
 			try {

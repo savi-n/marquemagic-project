@@ -17,6 +17,7 @@ import { isInvalidPan, isInvalidUdyam } from 'utils/validation';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
+import styled from 'styled-components';
 import {
 	setIsDraftLoan,
 	setLoginCreateUserRes,
@@ -111,6 +112,7 @@ const BasicDetails = props => {
 		isGeoTaggingEnabled,
 		permission,
 	} = app;
+
 	const { isCountryIndia } = permission;
 	const {
 		// cacheDocuments,
@@ -366,6 +368,8 @@ const BasicDetails = props => {
 			if (crimeCheck) {
 				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
 			}
+			basicDetailsReqBody.data.basic_details.additional_cust_id =
+				formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
 			} else if (selectedDirector) {
@@ -975,13 +979,14 @@ const BasicDetails = props => {
 				selectedLoanProductId,
 			});
 
-
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
 			if (crimeCheck) {
 				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
 			}
+			basicDetailsReqBody.data.basic_details.additional_cust_id =
+				formState?.values?.[CONST.CUSTOMER_ID_FIELD_NAME];
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
 			} else if (selectedDirector) {
@@ -1370,8 +1375,9 @@ const BasicDetails = props => {
 	};
 
 	const removeCacheDocumentTemp = fieldName => {
-		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
+		// console.log('removeCacheDocumentTemp-', fieldName, cacheDocumentsTemp);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		// console.log(newCacheDocumentTemp);
 		if (
 			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
 			0
@@ -1939,8 +1945,9 @@ const BasicDetails = props => {
 				setSectionData(isNullFunction(fetchRes?.data?.data));
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&
-					JSON.parse(fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json)
-						?.director_data;
+					JSON.parse(
+						fetchRes?.data?.data?.loan_pre_fetch_data?.[0]?.initial_json
+					)?.director_data;
 
 				setLoanPreFetchData(loanFetchDataResult);
 
@@ -2487,9 +2494,7 @@ const BasicDetails = props => {
 						}}
 						details={udyamOrganisationDetails}
 						heading={'Udyam Organisation Details'}
-						errorMessage={
-							'Unable to fetch data. Please retrigger the Udyam number and try again.'
-						}
+						errorMessage={'Server is down, Please try after sometime.'}
 					/>
 
 					<Modal
@@ -2713,13 +2718,6 @@ const BasicDetails = props => {
 										if (!field.visibility || !field.name || !field.type)
 											return null;
 										const newValue = prefilledValues(field);
-										// if (!!field.sub_fields) {
-										// 	console.log(
-										// 		prefilledValues(field.sub_fields[0]),
-										// 		'sub-fields'
-										// 	);
-										// 	console.log(prefilledValues(field, 'fields'));
-										// }
 										let newValueSelectField;
 										if (!!field?.sub_fields) {
 											newValueSelectField = prefilledValues(
@@ -2790,15 +2788,11 @@ const BasicDetails = props => {
 												field
 											);
 										}
-										if (
-											sectionData?.director_details?.existing_customer === 'No'
-										) {
-											customFieldProps.disabled = false;
-										}
-										if (isViewLoan) {
-											customFieldProps.disabled = true;
-											customFieldPropsSubfields.disabled = true;
-										}
+										// if (
+										// 	sectionData?.director_details?.existing_customer === 'No'
+										// ) {
+										// 	customFieldProps.disabled = false;
+										// }
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubfields.loading = loading;
@@ -2813,6 +2807,10 @@ const BasicDetails = props => {
 												!!completedSections?.includes(selectedSectionId);
 										}
 
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+											customFieldPropsSubfields.disabled = true;
+										}
 										//Udyam Document Upload Handling
 										if (
 											field?.type === 'file' &&
@@ -2850,12 +2848,6 @@ const BasicDetails = props => {
 										}
 
 										if (field?.name === 'udyam_registered') {
-											// if (
-											// 	formState?.values?.['income_type'] === '1' &&
-											// 	showUdyamRegistration()
-											// ) {
-											// 	customFieldProps.disabled = false;
-											// }
 											if (showUdyamRegistration()) {
 												customFieldProps.disabled = false;
 											}
@@ -3086,6 +3078,9 @@ const BasicDetails = props => {
 									const isPresentUdyamFile = udyamUploadedFile;
 									const isUdyamNumberPresent =
 										formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME];
+									const isIncomeTypeBusiness =
+										`${formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME]}` ===
+										`1`;
 									if (
 										formState?.values?.[CONST.UDYAM_REGISTRATION_FIELD_NAME] ===
 											'Waiver' &&
@@ -3098,7 +3093,11 @@ const BasicDetails = props => {
 										return;
 									}
 
-									if (showUdyamRegistration() && !isUdyamNumberPresent) {
+									if (
+										showUdyamRegistration() &&
+										isIncomeTypeBusiness &&
+										!isUdyamNumberPresent
+									) {
 										addToast({
 											message: 'Udyam Number is mandatory',
 											type: 'error,',

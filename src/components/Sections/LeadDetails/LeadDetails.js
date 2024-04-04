@@ -95,6 +95,8 @@ const LeadDetails = props => {
 	const [assetModelOptions, setAssetModelOptions] = useState([]);
 	const [sendingOTP, setSendingOTP] = useState(false);
 	const [sendOtpRes, setSendOtpRes] = useState(null);
+	const [assetCategoryOptions, setAssetCategoryOptions] = useState([]);
+
 
 	const [
 		isCustomerVerificationOTPModal,
@@ -121,12 +123,29 @@ const LeadDetails = props => {
 			)?.options || [],
 	};
 
+	// const selectedDedupeData =
+	// 	dedupeApiData && Array.isArray(dedupeApiData)
+	// 		? dedupeApiData?.filter(item => {
+	// 				return item?.product_id?.includes(selectedProduct?.id);
+	// 		  })?.[0] || {}
+	// 		: {};
+	// 		console.log("selectedDedupeData",selectedDedupeData);
+	console.log("selectedProduct?.id",selectedProduct?.id);
 	const selectedDedupeData =
-		dedupeApiData && Array.isArray(dedupeApiData)
-			? dedupeApiData?.filter(item => {
-					return item?.product_id?.includes(selectedProduct?.id);
-			  })?.[0] || {}
-			: {};
+  dedupeApiData && Array.isArray(dedupeApiData)
+    ? (dedupeApiData.find(item => {
+        if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
+          if (formState?.values && formState?.values?.pan_number) {
+            const userPancard = formState?.values?.pan_number;
+            return item.pan_fourth_digit.includes(userPancard.charAt(3)) && item?.product_id?.includes(selectedProduct?.id);
+          }
+        } else {
+          return item?.product_id?.includes(selectedProduct?.id);
+        }
+        return false; 
+      }) || {})
+    : {};
+console.log("selectedDedupeData",selectedDedupeData);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [branchOptions, setBranchOptions] = useState([]);
 	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
@@ -661,6 +680,7 @@ const LeadDetails = props => {
 			setLoading(true);
 			setAssetManufacturerOptions([]);
 			setAssetModelOptions([]);
+			setAssetCategoryOptions([]);
 
 			const assetTypeName = assetTypeOptions?.vehicle?.find(
 				type => type?.value === vehicleTypeFormState
@@ -675,6 +695,7 @@ const LeadDetails = props => {
 				getOptionsFromResponse(result, 'Manufacturer')
 			);
 			setAssetModelOptions(getOptionsFromResponse(result, 'VehicleModel'));
+			setAssetCategoryOptions(getOptionsFromResponse(result,'VehicleCategory'));
 		} catch (error) {
 			addToast({
 				message: 'Error obtaining options for Asset Details',
@@ -695,6 +716,7 @@ const LeadDetails = props => {
 			setLoading(true);
 			setAssetManufacturerOptions([]);
 			setAssetModelOptions([]);
+			setAssetCategoryOptions([]);
 
 			const assetTypeName = assetTypeOptions?.equipment?.find(
 				type => type?.value === equipmentTypeFormState
@@ -711,6 +733,8 @@ const LeadDetails = props => {
 				getOptionsFromResponse(result, 'manufacturer')
 			);
 			setAssetModelOptions(getOptionsFromResponse(result, 'equipmentmodel'));
+			setAssetCategoryOptions(getOptionsFromResponse(result,'equipmentcategory'));
+
 		} catch (error) {
 			addToast({
 				message: 'Error obtaining options for Asset Details',
@@ -1299,6 +1323,13 @@ const LeadDetails = props => {
 																		isAssetViewMode;
 																	customFieldProps.options = assetManufacturerOptions;
 																}
+																// assetCategoryOptions
+																if(field?.name === CONST.ASSET_VEHICLE_CATEGORY_FIELD_NAME || field?.name ===CONST.ASSET_EQUIPMENT_CATEGORY_FIELD_NAME){
+																	customFieldProps.disabled =
+																		!assetCategoryOptions.length ||
+																		isAssetViewMode;
+																	customFieldProps.options = assetCategoryOptions;
+																}
 																if (
 																	field?.name === CONST.ASSET_MODEL_FIELD_NAME
 																) {
@@ -1379,6 +1410,12 @@ const LeadDetails = props => {
 															!assetManufacturerOptions.length ||
 															isAssetViewMode;
 														customFieldProps.options = assetManufacturerOptions;
+													}
+													if(field?.name === CONST.ASSET_VEHICLE_CATEGORY_FIELD_NAME || field?.name ===CONST.ASSET_EQUIPMENT_CATEGORY_FIELD_NAME){
+														customFieldProps.disabled =
+															!assetCategoryOptions.length ||
+															isAssetViewMode;
+														customFieldProps.options = assetCategoryOptions;
 													}
 													if (field?.name === CONST.ASSET_MODEL_FIELD_NAME) {
 														customFieldProps.disabled =

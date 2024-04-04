@@ -203,11 +203,10 @@ const DocumentUpload = props => {
 
 	const isSelfieWithCoApplicantRequired =
 		selfieWithCoapplicantField?.rules?.required;
-	// console.log({
-	// 	selfieWithApplicantField,
-	// 	isSelfieWithApplicantOrEntityRequired,
-	// });
-	// ends
+
+	const isSelfieRequiredByAny =
+		isSelfieWithApplicantOrEntityRequired || isSelfieWithCoApplicantRequired;
+
 	const [cacheFile, setCacheFile] = useState({});
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
 
@@ -2165,6 +2164,7 @@ const DocumentUpload = props => {
 			onsiteVerificationMsg &&
 			!prompted &&
 			!isAppCoAppVerificationComplete() &&
+			isSelfieRequiredByAny &&
 			((isEditLoan && isDraftLoan) || !isEditLoan) ? (
 				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
 			) : null}

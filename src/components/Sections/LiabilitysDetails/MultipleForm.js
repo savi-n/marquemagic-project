@@ -64,6 +64,8 @@ const MultipleForm = ({
 				const isAccordianOpen = sectionId === openAccordianId;
 				const isEditLoan = editSectionId === sectionId;
 				const newLiabilityData = JSON.parse(section?.emi_details) || '';
+				const newEmiDetailsData=newLiabilityData?.liability_details?.[0] || '';
+				
 
 				const LiabilitylDataLowerCase = Object.entries(newLiabilityData).reduce(
 					(acc, [key, value]) => {
@@ -72,11 +74,20 @@ const MultipleForm = ({
 					},
 					{}
 				);
+				const emiDetailsData = Object.entries(newEmiDetailsData).reduce(
+					(acc, [key, value]) => {
+						acc[key.toLowerCase()] = value;
+						return acc;
+					},
+					{}
+				);
+				
 
 				const prefillData = section
 					? {
 							...section,
 							...LiabilitylDataLowerCase,
+							...emiDetailsData,
 							...parseJSON(section?.emi_details || '{}'),
 					  }
 					: {};
@@ -216,7 +227,7 @@ const MultipleForm = ({
 				{isCreateFormOpen ||
 				isViewLoan ||
 				sectionData?.length >= MAX_ADD_COUNT ||
-				selectedProduct?.product_details?.is_individual_dedupe_required ||
+				(selectedProduct?.product_details?.is_individual_dedupe_required  && loanPreFetchdata)||
 				!!editSectionId ? null : (
 					<>
 						<UI_SECTIONS.PlusRoundButton

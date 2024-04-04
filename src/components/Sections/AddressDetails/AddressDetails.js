@@ -184,6 +184,8 @@ const AddressDetails = props => {
 			option => option?.name === 'as_per_document_voter_id'
 		)?.[0]?.doc_type;
 
+	// console.log(Object.values(formState?.values));
+
 	// const selectedAsPerDocFieldDl = selectedSection?.sub_sections
 	// 	?.filter(
 	// 		subSection => `${subSection?.aid}` === CONST.AID_AS_PER_DOCUMENT
@@ -204,7 +206,6 @@ const AddressDetails = props => {
 	// 	?.options?.filter(
 	// 		option => option?.name === 'as_per_document_passport'
 	// 	)?.[0]?.doc_type;
-
 	const selectedAsPerDocField =
 		(selectedAsPerDocFieldAadhar &&
 			selectedAsPerDocFieldVoter && [
@@ -234,17 +235,20 @@ const AddressDetails = props => {
 			},
 		};
 	}
-	const selectedPermanentAadhaarField = getSelectedField({
-		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT,
-		selectedSection,
-		isApplicant,
-	});
 
-	const selectedAsPerDocAadhaarField = getSelectedField({
-		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT,
-		selectedSection,
-		isApplicant,
-	});
+	const selectedPermanentAadhaarField =
+		getSelectedField({
+			fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_PERMANENT,
+			selectedSection,
+			isApplicant,
+		}) || {};
+
+	const selectedAsPerDocAadhaarField =
+		getSelectedField({
+			fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP_AS_PER_DOCUMENT,
+			selectedSection,
+			isApplicant,
+		}) || {};
 
 	const asPerDocVerifyWithOtpSubField = getSelectedSubField({
 		fields: selectedAsPerDocAadhaarField?.sub_fields || [],
@@ -403,14 +407,52 @@ const AddressDetails = props => {
 				(!formState?.values?.present_city ||
 					!formState?.values?.present_state ||
 					!formState?.values?.permanent_city ||
-					!formState?.values?.permanent_state)
-				// !formState?.values?.as_per_document_state ||
-				// !formState?.values?.as_per_document_city
+					!formState?.values?.permanent_state ||
+					!formState?.values?.as_per_document_state ||
+					!formState?.values?.as_per_document_city)
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
 					type: 'error',
 				});
+			}
+
+			if (
+				doesAddressDetailsHasMoreThanTwoSubsection &&
+				!formState?.values?.as_per_document_address1
+			) {
+				return addToast({
+					message:
+						'Please upload proper document in As Per Document Address to fetch address!',
+					type: 'error',
+				});
+			}
+
+			// VALIDATE THE LENGTH OF AADHAAR NUMBER
+			if (
+				(Object.keys(selectedAsPerDocAadhaarField).length > 0 &&
+					formState?.values?.[selectedAsPerDocAadhaarField?.name]?.length <
+						12) ||
+				(!(Object.keys(selectedAsPerDocAadhaarField).length > 0) &&
+					formState?.values?.[selectedPermanentAadhaarField?.name]?.length < 12)
+			) {
+				if (
+					Object.values(formState?.values).includes('as_per_document_aadhar') ||
+					Object.values(formState?.values).includes('permanent_aadhar')
+				) {
+					addToast({
+						message:
+							'Please reupload the document to fetch 12 digit aadhar number',
+						type: 'error',
+					});
+				} else {
+					addToast({
+						message: 'Please enter 12 digit aadhar number',
+						type: 'error',
+					});
+				}
+
+				return;
 			}
 
 			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
@@ -1024,6 +1066,22 @@ const AddressDetails = props => {
 						'YYYY-MM'
 				  )
 				: '',
+			permanent_country:
+				sectionData?.director_details?.permanent_address_country,
+			permanent_years_at_current_city: sectionData?.director_details
+				?.permanent_address_years_at_current_city
+				? moment(
+						sectionData?.director_details
+							?.permanent_address_years_at_current_city
+				  ).format('YYYY-MM')
+				: '',
+			present_country: sectionData?.director_details?.country,
+			present_years_at_current_city: sectionData?.director_details
+				?.years_at_current_city
+				? moment(sectionData?.director_details?.years_at_current_city).format(
+						'YYYY-MM'
+				  )
+				: '',
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sectionData]);
@@ -1262,7 +1320,6 @@ const AddressDetails = props => {
 							biometricRes={biometricRes}
 						/>
 					)}
-
 					{selectedSection?.sub_sections?.map(
 						(sub_section, subSectionIndex) => {
 							// {selectedSection?.sub_sections?.map(
@@ -1589,7 +1646,10 @@ const AddressDetails = props => {
 											}
 											const customStyle = {};
 
-											if (field?.type === 'pincode') {
+											if (
+												sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
+												field?.type === 'pincode'
+											) {
 												customFieldProps.avoidFromCache = true;
 											}
 
