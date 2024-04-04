@@ -184,9 +184,9 @@ const AadhaarOTPModal = props => {
 			if (doesAddressDetailsHasMoreThanTwoSubsection) {
 				if (
 					formState?.values?.[
-						CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+						CONST_ADDRESS_DETAILS.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 					] ===
-					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
+					CONST_ADDRESS_DETAILS.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 				) {
 					prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
 				}
