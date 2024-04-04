@@ -63,27 +63,27 @@ const CustomerDetailsFormModal = props => {
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
-	// const selectedDedupeData =
-	// 	dedupeApiData && Array.isArray(dedupeApiData)
-	// 		? dedupeApiData?.filter(item => {
-	// 				return item?.product_id?.includes(productForModal?.id);
-	// 		  })?.[0] || {}
-	// 		: {};
 	const selectedDedupeData =
-	dedupeApiData && Array.isArray(dedupeApiData)
-	  ? (dedupeApiData.find(item => {
-		  if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
-			if (formState?.values && formState?.values?.pan_number) {
-			  const userPancard = formState?.values?.pan_number;
-			  return item.pan_fourth_digit.includes(userPancard.charAt(3)) && item?.product_id?.includes(productForModal?.id);
-			}
-		  } else {
-			return item?.product_id?.includes(productForModal?.id);
-		  }
-		  return false; 
-		}) || {})
-	  : {};
-			console.log("selectedDedupeData",selectedDedupeData);
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(productForModal?.id);
+			  })?.[0] || {}
+			: {};
+	// const selectedDedupeData =
+	// dedupeApiData && Array.isArray(dedupeApiData)
+	//   ? (dedupeApiData.find(item => {
+	// 	  if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
+	// 		if (formState?.values && formState?.values?.pan_number) {
+	// 		  const userPancard = formState?.values?.pan_number;
+	// 		  return item.pan_fourth_digit.includes(userPancard.charAt(3)) && item?.product_id?.includes(productForModal?.id);
+	// 		}
+	// 	  } else {
+	// 		return item?.product_id?.includes(productForModal?.id);
+	// 	  }
+	// 	  return false; 
+	// 	}) || {})
+	//   : {};
+	// 		console.log("selectedDedupeData",selectedDedupeData);
 	// console.log(
 	// 	{ dedupeApiData, product, selectedDedupeData, productForModal },
 	// 	'customerDetailsFormModal.js'
