@@ -802,10 +802,13 @@ const AddressDetails = props => {
 	};
 
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
+		const prefix = doesAddressDetailsHasMoreThanTwoSubsection
+			? CONST_ADDRESS_DETAILS.PREFIX_AS_PER_DOCUMENT
+			: CONST_ADDRESS_DETAILS.PREFIX_PERMANENT;
 		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
 		Object.keys(formatedData || {}).map(key => {
 			onChangeFormStateField({
-				name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+				name: `${prefix}${key}`,
 				value: formatedData?.[key] || '',
 			});
 			return null;
@@ -1308,6 +1311,9 @@ const AddressDetails = props => {
 								prePopulateAddressDetailsFromVerifyOtpRes
 							}
 							setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
+							doesAddressDetailsHasMoreThanTwoSubsection={
+								doesAddressDetailsHasMoreThanTwoSubsection
+							}
 						/>
 					)}
 					{isBiometricModalOpen && (
