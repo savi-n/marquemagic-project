@@ -408,8 +408,8 @@ const AddressDetails = props => {
 					!formState?.values?.present_state ||
 					!formState?.values?.permanent_city ||
 					!formState?.values?.permanent_state ||
-					!formState?.values?.as_per_document_state ||
-					!formState?.values?.as_per_document_city)
+					(!formState?.values?.as_per_document_state && doesAddressDetailsHasMoreThanTwoSubsection) ||
+					(!formState?.values?.as_per_document_city && doesAddressDetailsHasMoreThanTwoSubsection))
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
