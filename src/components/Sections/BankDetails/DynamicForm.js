@@ -20,6 +20,7 @@ import {
 	API_END_POINT,
 	TRIGGER_PENNY_DROP,
 	PENNY_DROP_STATUS_FETCH,
+	IFSC_LIST_FETCH,
 } from '_config/app.config';
 import { useEffect } from 'react';
 import PennyDropStatusModal from './PennyDropStatusModal';
@@ -130,6 +131,23 @@ const DynamicForm = props => {
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
+			const ifscCode = formState?.values?.[CONST.FIELD_NAME_IFSC_SEARCH_BANK];
+			const bankName = formState?.values?.[CONST.FIELD_NAME_BANK_NAME];
+			if (ifscCode?.length < 11) {
+				addToast({
+					message: 'Please enter valid IFSC!',
+					type: 'error',
+				});
+				return;
+			}
+
+			if (!bankName) {
+				addToast({
+					message: 'Please enter valid IFSC to fetch Bank name!',
+					type: 'error',
+				});
+				return;
+			}
 			forceUpdate();
 			setIsSubmitting(true);
 			const reqBody = formatSectionReqBody({
@@ -195,8 +213,61 @@ const DynamicForm = props => {
 	// 	prefillData,
 	// });
 
-	// payload for penny_drop
-	// {loan_id: loanId, acc_number: accNumber, ifsc, fin_type: finType, fin_id: finId}
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const ifscFieldValue =
+					formState.values[CONST.FIELD_NAME_IFSC_SEARCH_BANK] || '';
+				setIfscListLoading(true);
+				const response = await axios.get(IFSC_LIST_FETCH, {
+					params: {
+						ifsc: ifscFieldValue,
+					},
+				});
+				if (response.data.status === 'ok') {
+					if (response?.data?.IFSC_list?.length === 0) {
+						addToast({
+							message: 'Bank details not found for provided IFSC code!',
+							type: 'error',
+						});
+						onChangeFormStateField({
+							name: CONST.FIELD_NAME_BANK_NAME,
+							value: '',
+						});
+						return;
+					}
+					onChangeFormStateField({
+						name: CONST.FIELD_NAME_BANK_NAME,
+						value: response?.data?.IFSC_list?.[0]?.ref_id,
+					});
+				} else {
+					addToast({
+						message: 'Unable to fetch bank details for provided IFSC code!',
+						type: 'error',
+					});
+				}
+			} catch (error) {
+				addToast({
+					message: 'Unable to fetch bank details for provided IFSC code!',
+					type: 'error',
+				});
+				console.error('Error fetching data:', error);
+			} finally {
+				setIfscListLoading(false);
+			}
+		};
+
+		const debounceTimeout = setTimeout(() => {
+			if (formState.values[CONST.FIELD_NAME_IFSC_SEARCH_BANK]?.length === 11) {
+				fetchData();
+			} else {
+				setIfscListLoading(false);
+			}
+		}, 1000);
+
+		return () => clearTimeout(debounceTimeout);
+	}, [formState.values[CONST.FIELD_NAME_IFSC_SEARCH_BANK]]);
+
 	const triggerPennyDrop = async () => {
 		try {
 			setPennyDropApiLoading(true);
