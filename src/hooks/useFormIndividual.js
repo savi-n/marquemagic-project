@@ -16,7 +16,7 @@ import DisabledTextFieldModal from 'components/inputs/GstinField';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import Button from 'components/Button';
 import moment from 'moment';
-import { UDYAM_REGEX } from '_config/app.config';
+import { UDYAM_REGEX, IFSC_REGEX } from '_config/app.config';
 import SearchSelectMainComponent from 'components/inputs/Individual/SearchSelectMainComponent';
 import SearchSelectSubComponent from 'components/inputs/Individual/SearchSelectSubComponent';
 import CheckBox from 'components/inputs/CheckBox';
@@ -114,6 +114,10 @@ const VALIDATION_RULES = {
 	is_udyam: {
 		func: validatePattern(UDYAM_REGEX),
 		message: 'Please Enter A Valid Udyam Number',
+	},
+	is_ifsc_field: {
+		func: validatePattern(IFSC_REGEX),
+		message: 'Please Enter A Valid IFSC',
 	},
 	is_zero_not_allowed_for_first_digit: {
 		func: validatePattern(/^[1-9][0-9]*$/),

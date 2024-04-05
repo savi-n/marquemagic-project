@@ -153,6 +153,7 @@ const ORIGIN = 'nconboarding';
 const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
 // Valid UDYAM number : UDYAM-2_letter_denoting_state_code-2_digits-7_digits
 const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
+const IFSC_REGEX = /^[A-Za-z]{4}0[A-Z0-9]{6}$/;
 
 //-------------------Sails Plaid-------------------------------------
 const VERIFY_KYC = `${ENDPOINT_BANK}/verifyKycData`;
@@ -291,4 +292,5 @@ export {
 	VERIFY_UDYAM_NUMBER,
 	UPDATE_COMPANY_CIN,
 	GET_UDYAM_DETAILS_BUSINESS_ID,
+	IFSC_REGEX,
 };
