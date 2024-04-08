@@ -4,9 +4,9 @@ COPY package.json .
 #RUN npm cache clean --force
 #RUN npm install
 COPY . .
-#RUN npm run build:docker
-ARG BUILD_COMMAND
-RUN ${BUILD_COMMAND}
+RUN npm run build:docker
+# ARG BUILD_COMMAND
+# RUN ${BUILD_COMMAND}
 
 
 FROM nginx:latest
