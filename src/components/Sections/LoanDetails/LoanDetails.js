@@ -498,6 +498,7 @@ const LoanDetails = () => {
 				})}`
 			);
 			setSectionData(fetchRes?.data?.data || {});
+			setBranchId(fetchRes?.data?.data?.loan_details?.branch_id?.id);
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
 			setSectionData({});
@@ -797,7 +798,7 @@ const LoanDetails = () => {
 	useEffect(() => {
 		if (branchId) {
 			fetchBranchDeatils(branchId);
-			getPslClassification(branchId);
+			getPslClassification(50);
 		}
 	}, [branchId]);
 
