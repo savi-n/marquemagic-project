@@ -87,6 +87,8 @@ export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 	'permanent_address_proof_type';
 export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR =
 	'permanent_aadhar';
+export const AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_VALUE_AADHAAR =
+	'as_per_document_aadhar';
 export const PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 	'present_address_proof_type';
 export const AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
