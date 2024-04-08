@@ -566,6 +566,12 @@ export const getAllCompletedSections = data => {
 	) {
 		completedSections = [...completedSections, ...application?.sections];
 	}
+	if (
+		selectedProduct?.isSelectedProductTypeBusiness &&
+		selectedSectionId === CONST_SECTIONS.BUSINESS_ADDRESS_EDI_SECTION_ID
+	) {
+		completedSections = [...completedSections, ...application?.sections];
+	}
 	// if (
 	// 	!addNewDirectorKey &&
 	// 	!selectedDirector?.directorId &&
