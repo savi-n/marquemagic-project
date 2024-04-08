@@ -437,22 +437,35 @@ const AddressDetails = props => {
 					formState?.values?.[selectedPermanentAadhaarField?.name]?.length < 12)
 			) {
 				if (
-					Object.values(formState?.values).includes('as_per_document_aadhar') ||
-					Object.values(formState?.values).includes('permanent_aadhar')
+					(formState?.values?.[
+						CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					] === 'permanent_aadhar' ||
+						formState?.values?.[
+							CONST.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+						] === 'as_per_document_aadhar') &&
+					(selectedAsPerDocAadhaarField?.rules?.required ||
+						selectedPermanentAadhaarField?.rules?.required)
 				) {
 					addToast({
 						message:
 							'Please reupload the document to fetch 12 digit aadhar number',
 						type: 'error',
 					});
-				} else {
+					return;
+				}
+				if (
+					formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME] !==
+						'permanent_aadhar' &&
+					formState?.values?.[
+						CONST.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					] !== 'as_per_document_aadhar'
+				) {
 					addToast({
 						message: 'Please enter 12 digit aadhar number',
 						type: 'error',
 					});
+					return;
 				}
-
-				return;
 			}
 
 			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
