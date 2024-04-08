@@ -188,7 +188,7 @@ const AadhaarOTPModal = props => {
 					formState?.values?.[
 						CONST_ADDRESS_DETAILS.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 					] ===
-					CONST_ADDRESS_DETAILS.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					CONST_ADDRESS_DETAILS.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_VALUE_AADHAAR
 				) {
 					console.log('as per document aadhar prefill 2 >>>>>>>>>>>>');
 
