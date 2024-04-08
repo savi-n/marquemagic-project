@@ -18,3 +18,4 @@ export const FIELD_NAME_BANK_NAME = 'bank_name';
 export const FIELD_NAME_ACCOUNT_NUMBER = 'account_number';
 export const FIELD_NAME_IFSC_CODE = 'ifsc_code';
 export const FIELD_NAME_ACCOUNT_TYPE = 'account_type';
+export const FIELD_NAME_IFSC_SEARCH_BANK = 'ifsc_code_search';

@@ -185,6 +185,7 @@ const BankDetails = () => {
 											ifsc_code: section?.IFSC || '',
 											start_date: section?.outstanding_start_date,
 											end_date: section?.outstanding_end_date,
+											ifsc_code_search: section?.IFSC || '',
 										};
 										return (
 											<UI_SECTIONS.AccordianWrapper>
