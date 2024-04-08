@@ -797,7 +797,7 @@ const LoanDetails = () => {
 	useEffect(() => {
 		if (branchId) {
 			fetchBranchDeatils(branchId);
-			getPslClassification(branchId);
+			getPslClassification(50);
 		}
 	}, [branchId]);
 
