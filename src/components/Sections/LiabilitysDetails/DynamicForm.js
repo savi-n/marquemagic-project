@@ -89,6 +89,8 @@ const DynamicForm = props => {
 			outstanding_loan_amount: prefillData?.outstanding_balance,
 			loan_type: prefillData?.subtype,
 			financial_institution: prefillData?.bank_id,
+			letter_of_credit_no:prefillData?.letter_of_credit_no?.value,
+			receiving_bank:prefillData?.receiving_bank?.value,
 		};
 		return preData?.[field?.name];
 	};
