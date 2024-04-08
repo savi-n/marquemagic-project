@@ -87,7 +87,7 @@ const CategoryFileUpload = props => {
 	) {
 		isCameraCapture = 'camera';
 	}
-
+	const downloadable = true;
 	const openDocument = async file => {
 		try {
 			setOpeningRemovingDocument(file?.document_key || file?.doc_type_id);
@@ -101,7 +101,11 @@ const CategoryFileUpload = props => {
 			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
 			const imgSrc = decryptViewDocumentUrl(docRes?.data?.signedurl) || '';
-			if (userDetails?.is_other && isImageFile(file?.doc_name)) {
+			if (
+				userDetails?.is_other &&
+				isImageFile(file?.doc_name) &&
+				!downloadable
+			) {
 				setImageSrc(imgSrc);
 				setIsImageModalVisible(true);
 				return;

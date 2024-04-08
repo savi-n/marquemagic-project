@@ -10,6 +10,8 @@
 		"start:dev:aws": "env-cmd -f ./env/.env.aws.dev craco start",
 		"start:dev:azure": "env-cmd -f ./env/.env.azure.dev craco start",
 		"build:docker": "env-cmd -f ./env/.env.docker craco build",
+		"build:docker.federal.uat": "env-cmd -f ./env/.env.docker.federal.uat craco build",
+		"build:docker.csb.uat": "env-cmd -f ./env/.env.docker.csb.uat craco build",
 		"build": "env-cmd -f ./env/.env.dev craco build",
 		"build:heap": "node --max_old_space_size=8048 craco build",
 		"build:uat": "env-cmd -f ./env/.env.uat craco build",

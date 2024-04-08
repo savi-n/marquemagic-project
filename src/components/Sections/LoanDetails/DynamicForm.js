@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 import _ from 'lodash';
 
 import Button from 'components/Button';
@@ -8,7 +7,6 @@ import Button from 'components/Button';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import {
-	formatSectionReqBody,
 	getApiErrorMessage,
 	isDirectorApplicant,
 	isFieldValid,
@@ -16,7 +14,6 @@ import {
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
-import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
 	const {
@@ -27,11 +24,10 @@ const DynamicForm = props => {
 		submitCTAName = 'Update',
 		hideCancelCTA = false,
 		isEditLoan,
-		editSectionId = '',
 		loanPreFetchdata,
 	} = props;
 	const isViewLoan = !isEditLoan;
-	const { app, application } = useSelector(state => state);
+	const { app } = useSelector(state => state);
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
@@ -179,40 +175,8 @@ const DynamicForm = props => {
 				return;
 			}
 			setIsSubmitting(true);
-			const reqBody = formatSectionReqBody({
-				section: selectedSection,
-				values: {
-					...formState.values,
-				},
-				app,
-				selectedDirector,
-				application,
-			});
-			reqBody.data.liability_details.bank_name =
-				reqBody?.data?.liability_details?.financial_institution?.name;
-			if (editSectionId) {
-				reqBody.data.liability_details.id = editSectionId;
-			}
-			if (
-				typeof reqBody?.data?.liability_details?.financial_institution
-					?.value === 'string'
-			) {
-				reqBody.data.liability_details.financial_institution = +reqBody?.data
-					?.liability_details?.financial_institution?.value;
-			}
-			reqBody.data.liability_details = [reqBody.data.liability_details];
-			const submitRes = await axios.post(
-				`${API_END_POINT}/liability_details`,
-				reqBody
-			);
-			if (submitRes?.data?.status === 'ok') {
-				onSaveOrUpdateSuccessCallback();
-				addToast({
-					message: submitRes?.data?.message || 'Success',
-					type: 'success',
-				});
-			}
-			// console.log('submitRes-', submitRes);
+
+			onSaveOrUpdateSuccessCallback(formState?.values);
 		} catch (error) {
 			console.error('error-onSaveOrUpdate-', error);
 			addToast({
@@ -282,7 +246,7 @@ const DynamicForm = props => {
 						<Button
 							name='Cancel'
 							customStyle={{ maxWidth: 120, marginLeft: 20 }}
-							onClick={() => onCancelCallback(editSectionId)}
+							onClick={() => onCancelCallback()}
 						/>
 					)}
 				</>

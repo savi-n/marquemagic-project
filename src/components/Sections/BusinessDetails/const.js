@@ -66,6 +66,8 @@ export const TITLE_FIELD = 'title';
 // export const NO_INCOME_TYPE_SELECTED_HINT =
 // 	'Select the business type to fetch the data from Customer ID.';
 export const ENTER_VALID_UCIC_HINT = 'Enter the valid';
+export const SELECT_BUSINESS_TYPE_HINT = 'Select Business Type';
+
 
 export const FIELDS_TO_DISABLE_IF_PREFILLED = [
 	// FIRST_NAME_FIELD_NAME,

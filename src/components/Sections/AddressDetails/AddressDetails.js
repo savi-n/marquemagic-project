@@ -407,12 +407,23 @@ const AddressDetails = props => {
 				(!formState?.values?.present_city ||
 					!formState?.values?.present_state ||
 					!formState?.values?.permanent_city ||
-					!formState?.values?.permanent_state)
-				// !formState?.values?.as_per_document_state ||
-				// !formState?.values?.as_per_document_city
+					!formState?.values?.permanent_state ||
+					(!formState?.values?.as_per_document_state && doesAddressDetailsHasMoreThanTwoSubsection) ||
+					(!formState?.values?.as_per_document_city && doesAddressDetailsHasMoreThanTwoSubsection))
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
+					type: 'error',
+				});
+			}
+
+			if (
+				doesAddressDetailsHasMoreThanTwoSubsection &&
+				!formState?.values?.as_per_document_address1
+			) {
+				return addToast({
+					message:
+						'Please upload proper document in As Per Document Address to fetch address!',
 					type: 'error',
 				});
 			}
@@ -804,10 +815,13 @@ const AddressDetails = props => {
 	};
 
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
+		const prefix = doesAddressDetailsHasMoreThanTwoSubsection
+			? CONST_ADDRESS_DETAILS.PREFIX_AS_PER_DOCUMENT
+			: CONST_ADDRESS_DETAILS.PREFIX_PERMANENT;
 		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
 		Object.keys(formatedData || {}).map(key => {
 			onChangeFormStateField({
-				name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+				name: `${prefix}${key}`,
 				value: formatedData?.[key] || '',
 			});
 			return null;
@@ -1310,6 +1324,9 @@ const AddressDetails = props => {
 								prePopulateAddressDetailsFromVerifyOtpRes
 							}
 							setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
+							doesAddressDetailsHasMoreThanTwoSubsection={
+								doesAddressDetailsHasMoreThanTwoSubsection
+							}
 						/>
 					)}
 					{isBiometricModalOpen && (
@@ -1648,7 +1665,10 @@ const AddressDetails = props => {
 											}
 											const customStyle = {};
 
-											if (field?.type === 'pincode') {
+											if (
+												sub_section?.aid === CONST.AID_AS_PER_DOCUMENT &&
+												field?.type === 'pincode'
+											) {
 												customFieldProps.avoidFromCache = true;
 											}
 
