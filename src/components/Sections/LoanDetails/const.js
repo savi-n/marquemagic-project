@@ -53,6 +53,6 @@ export const DISABLE_BRANCH_FIELD_FOR = [
 	'DSA',
 	'',
 ];
-export const LOAN_CREATE_BRANCH_FOR = ['Branch', 'GL Branch', ''];
+export const LOAN_CREATE_BRANCH_FOR = ['Branch', 'GL Branch'];
 
 export const CREDIT_LIMIT_SUB_SECTION = 'credit_limit_applied';
