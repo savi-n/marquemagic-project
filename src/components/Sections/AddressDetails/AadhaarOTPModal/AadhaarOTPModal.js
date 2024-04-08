@@ -182,21 +182,29 @@ const AadhaarOTPModal = props => {
 			// );
 
 			if (doesAddressDetailsHasMoreThanTwoSubsection) {
+				console.log('as per document aadhar prefill 1 >>>>>>>>>>>>');
+
 				if (
 					formState?.values?.[
 						CONST_ADDRESS_DETAILS.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 					] ===
 					CONST_ADDRESS_DETAILS.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_VALUE_AADHAAR
 				) {
+					console.log('as per document aadhar prefill 2 >>>>>>>>>>>>');
+
 					prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
 				}
 			} else {
+				console.log('permanent aadhar prefill 1 >>>>>>>>>>>>');
+
 				if (
 					formState?.values?.[
 						CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 					] ===
 					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
 				) {
+					console.log('permanent aadhar prefill 2 >>>>>>>>>>>>');
+
 					prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
 				}
 			}

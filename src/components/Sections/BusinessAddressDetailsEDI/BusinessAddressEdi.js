@@ -74,6 +74,8 @@ const BusinessAddressDetailsEdi = props => {
 	const [sectionData, setSectionData] = useState({});
 	const completedSections = getAllCompletedSections({
 		application,
+		selectedProduct,
+		selectedSectionId,
 		selectedDirector,
 		isApplicant,
 	});

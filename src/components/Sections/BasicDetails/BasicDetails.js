@@ -205,12 +205,27 @@ const BasicDetails = props => {
 	const dudupeIndividualVerifyApi = selectedProduct?.product_details?.verify;
 	const dudupeIndividualGenerateOTPApi =
 		selectedProduct?.product_details?.generate_otp;
+	// const selectedDedupeData =
+	// 	dedupeApiData && Array.isArray(dedupeApiData)
+	// 		? dedupeApiData?.filter(item => {
+	// 				return item?.product_id?.includes(selectedProduct?.id);
+	// 		  })?.[0] || {}
+	// 		: {};
 	const selectedDedupeData =
-		dedupeApiData && Array.isArray(dedupeApiData)
-			? dedupeApiData?.filter(item => {
-					return item?.product_id?.includes(selectedProduct?.id);
-			  })?.[0] || {}
-			: {};
+	dedupeApiData && Array.isArray(dedupeApiData)
+	  ? (dedupeApiData.find(item => {
+		  if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
+			if (formState?.values && formState?.values?.pan_number) {
+			  const userPancard = formState?.values?.pan_number;
+			  return item.pan_fourth_digit.includes(userPancard.charAt(3)) && item?.product_id?.includes(selectedProduct?.id);
+			}
+		  } else {
+			return item?.product_id?.includes(selectedProduct?.id);
+		  }
+		  return false; 
+		}) || {})
+	  : {};
+  console.log("selectedDedupeData",selectedDedupeData);
 	const passportData =
 		!!sectionData &&
 		Object.keys(sectionData)?.length > 0 &&

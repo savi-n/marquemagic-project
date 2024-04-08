@@ -42,13 +42,28 @@ const DudupeCheckSearchModal = props => {
 		Object.keys(subProduct).length > 0 ? subProduct : product;
 		const documentMapping = JSON.parse(permission?.document_mapping) || [];
 		const dedupeApiData = documentMapping?.dedupe_api_details || [];
-		const selectedDedupeData =
-			dedupeApiData && Array.isArray(dedupeApiData)
-				? dedupeApiData?.filter(item => {
-						return item?.product_id?.includes(selectedProduct?.id);
-				  })?.[0] || {}
-				: {};
+		// const selectedDedupeData =
+		// 	dedupeApiData && Array.isArray(dedupeApiData)
+		// 		? dedupeApiData?.filter(item => {
+		// 				return item?.product_id?.includes(selectedProduct?.id);
+		// 		  })?.[0] || {}
+		// 		: {};
 
+		const selectedDedupeData =
+		dedupeApiData && Array.isArray(dedupeApiData)
+		  ? (dedupeApiData.find(item => {
+			  if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
+				if (formState?.values &&( formState?.values?.pan_number || formState?.values?.pannumber)) {
+				  const userPancard = formState?.values?.pannumber ||formState?.values?.pan_number;
+				  return item.pan_fourth_digit.includes(userPancard.charAt(3)) && item?.product_id?.includes(selectedProduct?.id);
+				}
+			  } else {
+				return item?.product_id?.includes(selectedProduct?.id);
+			  }
+			  return false; 
+			}) || {})
+		  : {};
+	  console.log("selectedDedupeData",selectedDedupeData);
 
 
 

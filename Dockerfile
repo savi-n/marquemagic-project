@@ -5,6 +5,8 @@ COPY package.json .
 #RUN npm install
 COPY . .
 RUN npm run build:docker
+# ARG BUILD_COMMAND
+# RUN ${BUILD_COMMAND}
 
 
 FROM nginx:latest
