@@ -408,8 +408,8 @@ const AddressDetails = props => {
 					!formState?.values?.present_state ||
 					!formState?.values?.permanent_city ||
 					!formState?.values?.permanent_state ||
-					!formState?.values?.as_per_document_state ||
-					!formState?.values?.as_per_document_city)
+					(!formState?.values?.as_per_document_state && doesAddressDetailsHasMoreThanTwoSubsection) ||
+					(!formState?.values?.as_per_document_city && doesAddressDetailsHasMoreThanTwoSubsection))
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
@@ -437,22 +437,35 @@ const AddressDetails = props => {
 					formState?.values?.[selectedPermanentAadhaarField?.name]?.length < 12)
 			) {
 				if (
-					Object.values(formState?.values).includes('as_per_document_aadhar') ||
-					Object.values(formState?.values).includes('permanent_aadhar')
+					(formState?.values?.[
+						CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					] === 'permanent_aadhar' ||
+						formState?.values?.[
+							CONST.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+						] === 'as_per_document_aadhar') &&
+					(selectedAsPerDocAadhaarField?.rules?.required ||
+						selectedPermanentAadhaarField?.rules?.required)
 				) {
 					addToast({
 						message:
 							'Please reupload the document to fetch 12 digit aadhar number',
 						type: 'error',
 					});
-				} else {
+					return;
+				}
+				if (
+					formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME] !==
+						'permanent_aadhar' &&
+					formState?.values?.[
+						CONST.AS_PER_DOCUMENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					] !== 'as_per_document_aadhar'
+				) {
 					addToast({
 						message: 'Please enter 12 digit aadhar number',
 						type: 'error',
 					});
+					return;
 				}
-
-				return;
 			}
 
 			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
@@ -802,10 +815,13 @@ const AddressDetails = props => {
 	};
 
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
+		const prefix = doesAddressDetailsHasMoreThanTwoSubsection
+			? CONST_ADDRESS_DETAILS.PREFIX_AS_PER_DOCUMENT
+			: CONST_ADDRESS_DETAILS.PREFIX_PERMANENT;
 		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
 		Object.keys(formatedData || {}).map(key => {
 			onChangeFormStateField({
-				name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+				name: `${prefix}${key}`,
 				value: formatedData?.[key] || '',
 			});
 			return null;
@@ -1308,6 +1324,9 @@ const AddressDetails = props => {
 								prePopulateAddressDetailsFromVerifyOtpRes
 							}
 							setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
+							doesAddressDetailsHasMoreThanTwoSubsection={
+								doesAddressDetailsHasMoreThanTwoSubsection
+							}
 						/>
 					)}
 					{isBiometricModalOpen && (

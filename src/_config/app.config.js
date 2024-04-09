@@ -114,6 +114,8 @@ const LEADS_DATA = `${API_END_POINT}/leadsData`;
 const DELETE_CO_APPLICANT = `${API_END_POINT}/delete_director`;
 const DELETE_LOAN_FIN = `${API_END_POINT}/deleteLoanFinancial`;
 const DELETE_COLLATERAL = `${API_END_POINT}/cubCollateral/deleteCollateral`;
+const GET_PSL_CLASSIFICATION = `${API_END_POINT}/getPincodeZone`;
+const GET_DSA_DETAILS = `${API_END_POINT}/getCodeDetails`;
 
 const TRIGGER_PENNY_DROP = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/trigger`;
 const PENNY_DROP_STATUS_FETCH = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/status`;
@@ -153,6 +155,7 @@ const ORIGIN = 'nconboarding';
 const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
 // Valid UDYAM number : UDYAM-2_letter_denoting_state_code-2_digits-7_digits
 const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
+const IFSC_REGEX = /^[A-Za-z]{4}0[A-Z0-9]{6}$/;
 
 //-------------------Sails Plaid-------------------------------------
 const VERIFY_KYC = `${ENDPOINT_BANK}/verifyKycData`;
@@ -291,4 +294,7 @@ export {
 	VERIFY_UDYAM_NUMBER,
 	UPDATE_COMPANY_CIN,
 	GET_UDYAM_DETAILS_BUSINESS_ID,
+	IFSC_REGEX,
+	GET_PSL_CLASSIFICATION,
+	GET_DSA_DETAILS,
 };

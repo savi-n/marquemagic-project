@@ -43,7 +43,7 @@ const CustomerDetailsFormModal = props => {
 		redirectToProductPageInEditModeFromLeadId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { permission, whiteLabelId, userToken } = app;
+	const { permission, whiteLabelId, userToken, isGeoTaggingEnabled } = app;
 	const { leadId, selectedProductIdsFromLead } = application;
 
 	const { register, formState, handleSubmit } = useForm();
@@ -63,27 +63,30 @@ const CustomerDetailsFormModal = props => {
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	// const selectedDedupeData =
+	// 	dedupeApiData && Array.isArray(dedupeApiData)
+	// 		? dedupeApiData?.filter(item => {
+	// 				return item?.product_id?.includes(productForModal?.id);
+	// 		  })?.[0] || {}
+	// 		: {};
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
-			? dedupeApiData?.filter(item => {
-					return item?.product_id?.includes(productForModal?.id);
-			  })?.[0] || {}
+			? dedupeApiData.find(item => {
+					if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
+						if (formState?.values && formState?.values?.pan_number) {
+							const userPancard = formState?.values?.pan_number;
+							return (
+								item.pan_fourth_digit.includes(userPancard.charAt(3)) &&
+								item?.product_id?.includes(productForModal?.id)
+							);
+						}
+					} else {
+						return item?.product_id?.includes(productForModal?.id);
+					}
+					return false;
+			  }) || {}
 			: {};
-	// const selectedDedupeData =
-	// dedupeApiData && Array.isArray(dedupeApiData)
-	//   ? (dedupeApiData.find(item => {
-	// 	  if (item.pan_fourth_digit && Array.isArray(item.pan_fourth_digit)) {
-	// 		if (formState?.values && formState?.values?.pan_number) {
-	// 		  const userPancard = formState?.values?.pan_number;
-	// 		  return item.pan_fourth_digit.includes(userPancard.charAt(3)) && item?.product_id?.includes(productForModal?.id);
-	// 		}
-	// 	  } else {
-	// 		return item?.product_id?.includes(productForModal?.id);
-	// 	  }
-	// 	  return false; 
-	// 	}) || {})
-	//   : {};
-	// 		console.log("selectedDedupeData",selectedDedupeData);
+	console.log('selectedDedupeData', selectedDedupeData);
 	// console.log(
 	// 	{ dedupeApiData, product, selectedDedupeData, productForModal },
 	// 	'customerDetailsFormModal.js'
@@ -140,11 +143,14 @@ const CustomerDetailsFormModal = props => {
 		try {
 			setFetchingCustomerDetails(true);
 			dispatch(setDedupePrefilledValues(formState?.values));
-			const geoRes = await fetchGeoLocation({
-				geoAPI: API.GEO_LOCATION,
-				userToken,
-			});
-			dispatch(setGeoLocation(geoRes));
+			let geoRes = {};
+			if (isGeoTaggingEnabled) {
+				geoRes = await fetchGeoLocation({
+					geoAPI: API.GEO_LOCATION,
+					userToken,
+				});
+				dispatch(setGeoLocation(geoRes));
+			}
 			// setProceedAsNewCustomer(false);
 
 			// console.log(
@@ -371,11 +377,13 @@ const CustomerDetailsFormModal = props => {
 									disabled={fetchingCustomerDetails}
 									isLoader={fetchingCustomerDetails}
 									onClick={async () => {
-										const geoRes = await fetchGeoLocation({
-											geoAPI: API.GEO_LOCATION,
-											userToken,
-										});
-										dispatch(setGeoLocation(geoRes));
+										if (isGeoTaggingEnabled) {
+											const geoRes = await fetchGeoLocation({
+												geoAPI: API.GEO_LOCATION,
+												userToken,
+											});
+											dispatch(setGeoLocation(geoRes));
+										}
 										if (leadId && selectedProductIdsFromLead) {
 											redirectToProductPageInEditModeFromLeadId(product);
 											return;

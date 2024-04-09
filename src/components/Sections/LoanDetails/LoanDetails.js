@@ -80,7 +80,9 @@ const LoanDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const [multipleFormSectionData, setMultipleFormSectionData] = useState({});
-
+	const [branchId, setBranchId] = useState();
+	const [fdglCodeLoading, setFdglCodeLoading] = useState(false);
+	const [dsaCodeFetchLoading, setDsaCodeFetchLoading] = useState(false);
 	//default logged in user's branch id can be taken from session storage userDetails
 
 	// some permanent solution required for this, discussed with savitha, for now we will be using branch_id object that we get from GET API response
@@ -376,6 +378,7 @@ const LoanDetails = () => {
 		const loanDetails = sectionData?.loan_details || {};
 		let estimatedFundRequirements = {};
 		let sourceFundRequirements = {};
+		let loanSourceDetails = {};
 		if (sectionData?.loan_additional_data?.estimated_fund_requirements) {
 			estimatedFundRequirements = parseJSON(
 				sectionData?.loan_additional_data?.estimated_fund_requirements
@@ -384,6 +387,12 @@ const LoanDetails = () => {
 		if (sectionData?.loan_additional_data?.source_fund_requirements) {
 			sourceFundRequirements = parseJSON(
 				sectionData?.loan_additional_data?.source_fund_requirements
+			);
+		}
+		//Source details -dsa/fdgl
+		if (sectionData?.loan_additional_data?.source_codes) {
+			loanSourceDetails = parseJSON(
+				sectionData?.loan_additional_data?.source_codes
 			);
 		}
 		const preData = {
@@ -429,6 +438,10 @@ const LoanDetails = () => {
 				: '',
 			...estimatedFundRequirements,
 			...sourceFundRequirements,
+			psl_classification: loanDetails?.psl_classification || '',
+			dsa_name: loanSourceDetails?.businessname || '',
+			dsa_code: loanSourceDetails?.dsa_code || '',
+			gl_branch: loanSourceDetails?.gl_branch || '',
 		};
 		return preData?.[field?.name];
 	};
@@ -485,6 +498,7 @@ const LoanDetails = () => {
 				})}`
 			);
 			setSectionData(fetchRes?.data?.data || {});
+			setBranchId(fetchRes?.data?.data?.loan_details?.branch_id?.id);
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
 			setSectionData({});
@@ -521,7 +535,7 @@ const LoanDetails = () => {
 			name: CONST.LOAN_AMOUNT,
 			value: totalLoanAmount,
 		});
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [multipleFormSectionData[CONST.CREDIT_LIMIT_SUB_SECTION]]);
 
 	// useEffect(() => {
@@ -616,8 +630,182 @@ const LoanDetails = () => {
 				name: CONST.BRANCH_FIELD_NAME,
 				value: sectionData?.loan_details?.branch_id?.id || '',
 			});
+			setBranchId(sectionData?.loan_details?.branch_id?.id);
 		}
 		//eslint-disable-next-line
+	}, [formState.values[CONST.LOAN_SOURCE]]);
+
+	const getPslClassification = async id => {
+		if (id) {
+			try {
+				setLoading(true);
+				const pslRes = await axios.get(
+					`${API.GET_PSL_CLASSIFICATION}?branch_id=${id}`
+				);
+
+				if (pslRes?.data?.status === 'ok') {
+					onChangeFormStateField({
+						name: CONST.PSL_CLASSIFICATON,
+						value: pslRes?.data?.zone,
+					});
+				}
+			} catch (error) {
+				console.error(error, 'error');
+				console.error('error in fetching psl calssification:LoanDetails', {
+					error: error,
+					res: error?.response,
+					resres: error?.response?.response,
+					resData: error?.response?.data,
+				});
+				addToast({
+					message: getApiErrorMessage(error),
+					type: 'error',
+				});
+			} finally {
+				setLoading(false);
+			}
+		} else {
+			addToast({
+				message: 'No Branch Id Found!',
+				type: 'error',
+			});
+		}
+	};
+
+	const fetchDSAName = async dsaCode => {
+		try {
+			if (dsaCode) {
+				setDsaCodeFetchLoading(true);
+				const dsaRes = await axios.get(
+					`${API.GET_DSA_DETAILS}?dsa_code=${dsaCode?.toLocaleUpperCase()}`
+				);
+
+				if (dsaRes?.data?.status === 'ok') {
+					onChangeFormStateField({
+						name: CONST.DSA_BRANCH_NAME,
+						value: dsaRes?.data?.data?.vendorname,
+					});
+				}
+			}
+		} catch (error) {
+			console.error(error, 'error');
+			console.error('error in fetching dsa data:LoanDetails', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
+		} finally {
+			setDsaCodeFetchLoading(false);
+		}
+	};
+
+	const fetchFDGLName = async fdglCode => {
+		try {
+			if (fdglCode) {
+				setFdglCodeLoading(true);
+				const fdglRes = await axios.get(
+					`${
+						API.API_END_POINT
+					}/getCodeDetails?fdgl_code=${fdglCode?.toLocaleUpperCase()}`
+				);
+				if (fdglRes?.data?.status === 'ok') {
+					onChangeFormStateField({
+						name: CONST.GL_SOURCING_BRANCH,
+						value: fdglRes?.data?.data?.linked_fdglname,
+					});
+				}
+			}
+		} catch (error) {
+			console.error(error, 'error');
+			console.error('error in fetching GL branch Data:LoanDetails', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
+		} finally {
+			setFdglCodeLoading(false);
+		}
+	};
+
+	const fetchBranchDeatils = async id => {
+		try {
+			setLoading(true);
+			const res = await axios.get(
+				`${API.API_END_POINT}/getSourcingDetails?branch_id=${id}`
+			);
+
+			if (res?.data?.status === 'ok') {
+				if (
+					formState?.values?.[formState?.values?.[CONST.LOAN_SOURCE]] !==
+					'GL Branch'
+				)
+					onChangeFormStateField({
+						name: CONST.GL_SOURCING_BRANCH,
+						value: res?.data?.data?.linked_fdglname,
+					});
+
+				const duplicatedBranchOptions = [
+					...branchOptions,
+					{
+						name: res?.data?.data?.sulb_divn_name,
+						value: res?.data?.data?.sulb_divn_code,
+					},
+				];
+
+				const isUniqueOption = (option, index, self) =>
+					index ===
+					self.findIndex(
+						t => t?.name === option?.name && t?.value === option?.value
+					);
+
+				// Filter unique options
+				const uniqueBranchOptions = duplicatedBranchOptions?.filter(
+					isUniqueOption
+				);
+				setBranchOptions(prev => (prev = uniqueBranchOptions));
+
+				onChangeFormStateField({
+					name: CONST.BRANCH_FIELD_NAME,
+					value: res?.data?.data?.sulb_divn_code,
+				});
+			}
+		} catch (error) {
+			console.error(error, 'error');
+			console.error('error in fetching branch Data:LoanDetails', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+	useEffect(() => {
+		if (branchId) {
+			fetchBranchDeatils(branchId);
+			getPslClassification(50);
+		}
+	}, [branchId]);
+
+	useEffect(() => {
+		if (formState.values[CONST.LOAN_SOURCE] === 'GL Branch') {
+			fetchFDGLName(formState?.values?.['fdglcode']);
+		}
 	}, [formState.values[CONST.LOAN_SOURCE]]);
 
 	return (
@@ -663,6 +851,7 @@ const LoanDetails = () => {
 										{sub_section?.fields?.map((field, fieldIndex) => {
 											const newField = _.cloneDeep(field);
 											const customFieldProps = {};
+											const customFieldPropsSubfields = {};
 											if (!newField.visibility) return null;
 											if (newField?.for_type_name) {
 												if (
@@ -810,12 +999,55 @@ const LoanDetails = () => {
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${fieldIndex}-${newField.name}`}
 												>
-													{register({
-														...newField,
-														value: newPrefilledValue,
-														...customFieldProps,
-														visibility: 'visible',
-													})}
+													<div
+														style={{
+															display: 'flex',
+															gap: '10px',
+															alignItems: 'center',
+														}}
+													>
+														<div
+															style={{
+																width: '100%',
+															}}
+														>
+															{register({
+																...newField,
+																value: newPrefilledValue,
+																...customFieldProps,
+																visibility: 'visible',
+															})}
+														</div>
+														{field?.sub_fields?.map(subField => {
+															if (field?.name === 'dsa_code') {
+																customFieldPropsSubfields.onClick = () => {
+																	fetchDSAName(formState?.values?.['dsa_code']);
+																};
+																customFieldPropsSubfields.loading = dsaCodeFetchLoading;
+																customFieldPropsSubfields.disabled = dsaCodeFetchLoading;
+															}
+															if (field?.name === 'fdglcode') {
+																customFieldPropsSubfields.onClick = () => {
+																	fetchFDGLName(
+																		formState?.values?.['fdglcode']
+																	);
+																};
+																customFieldPropsSubfields.loading = fdglCodeLoading;
+																customFieldPropsSubfields.disabled = fdglCodeLoading;
+															}
+
+															return (
+																!subField?.is_prefix &&
+																register({
+																	...subField,
+																	value: '',
+																	visibility: 'visible',
+																	...customFieldProps,
+																	...customFieldPropsSubfields,
+																})
+															);
+														})}
+													</div>
 													{(formState?.submit?.isSubmited ||
 														formState?.touched?.[newField.name]) &&
 														formState?.error?.[newField.name] && (
