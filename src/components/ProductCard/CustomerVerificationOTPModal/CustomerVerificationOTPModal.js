@@ -127,7 +127,7 @@ const CustomerVerificationOTPModal = props => {
 
 	const { app, application } = useSelector(state => state);
 	const { loanId, businessId, geoLocation } = application;
-	const { selectedProduct, whiteLabelId } = app;
+	const { selectedProduct, whiteLabelId, userToken } = app;
 	const [inputCustomerOTP, setInputCustomerOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
 	const [resendOtpTimer, setResendOtpTimer] = useState(
@@ -155,7 +155,9 @@ const CustomerVerificationOTPModal = props => {
 				reference_id: sendOtpRes?.Validate_Customer_Resp?.ReferenceId || '',
 				businesstype:
 					customerDetailsFormData?.businesstype ||
-					customerDetailsFormData?.income_type || dudupeFormdata.businesstype ||dudupeFormdata?.income_type||
+					customerDetailsFormData?.income_type ||
+					dudupeFormdata.businesstype ||
+					dudupeFormdata?.income_type ||
 					'',
 				loan_product_id:
 					product?.product_id?.[`${customerDetailsFormData?.businesstype}`] ||
@@ -166,7 +168,10 @@ const CustomerVerificationOTPModal = props => {
 				white_label_id: whiteLabelId,
 				loan_product_details_id: selectedProduct?.id || '',
 				parent_product_id: selectedProduct?.parent_id || undefined,
-				isApplicant:isApplicantDudupe === 'false' ? false : isApplicantDudupe || isApplicant || true,
+				isApplicant:
+					isApplicantDudupe === 'false'
+						? false
+						: isApplicantDudupe || isApplicant || true,
 				did: selectedDirectorId || undefined,
 				loan_id: loanId,
 				origin: ORIGIN,
@@ -174,27 +179,30 @@ const CustomerVerificationOTPModal = props => {
 				long: geoLocation?.long || '',
 				timestamp: geoLocation?.timestamp || '',
 				business_id: businessId,
-				pan:dudupeFormdata?.pannumber,
+				pan: dudupeFormdata?.pannumber,
 			};
 			const customerVerifyRes = await axios.post(
-				dudupeIndividualVerifyApi || selectedDedupeData?.verify || DDUPE_VERIFY_OTP,
-				reqBody
+				dudupeIndividualVerifyApi ||
+					selectedDedupeData?.verify ||
+					DDUPE_VERIFY_OTP,
+				reqBody,
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
 			);
 			// console.log('customerotpres-', customerVerifyRes);
-			if( customerVerifyRes?.data?.status==='ok'){
-				if(dudupeIndividualVerifyApi)
-				{
+			if (customerVerifyRes?.data?.status === 'ok') {
+				if (dudupeIndividualVerifyApi) {
 					setIsDudupeCheckSearchModalOpen(false);
 					setIsCustomerVerificationOTPModal(false);
 					fetchSectionDetails();
 					fetchDirectors();
-				}
-
-				else {
+				} else {
 					redirectToProductPageInEditMode(customerVerifyRes?.data || {});
 				}
 			}
-			
 		} catch (error) {
 			console.error({ error, res: error?.response });
 			if (
