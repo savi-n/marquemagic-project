@@ -4,6 +4,7 @@ import AppLayout from './components/AppLayout';
 import { AppProvider } from './reducer/appReducer';
 import { ToastProvider } from './components/Toast/ToastProvider';
 import './App.css';
+import { SessionTimeoutProvider } from './components/SessionTimeoutProvider/SessionTimeoutProvider';
 
 const AppWrapper = styled.div`
 	height: 100%;
@@ -13,12 +14,14 @@ const AppWrapper = styled.div`
 
 export default function App() {
 	return (
-		<AppWrapper>
-			<AppProvider>
-				<ToastProvider>
-					<AppLayout />
-				</ToastProvider>
-			</AppProvider>
-		</AppWrapper>
+		<SessionTimeoutProvider>
+			<AppWrapper>
+				<AppProvider>
+					<ToastProvider>
+						<AppLayout />
+					</ToastProvider>
+				</AppProvider>
+			</AppWrapper>
+		</SessionTimeoutProvider>
 	);
 }
