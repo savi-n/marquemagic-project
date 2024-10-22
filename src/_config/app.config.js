@@ -116,6 +116,7 @@ const DELETE_LOAN_FIN = `${API_END_POINT}/deleteLoanFinancial`;
 const DELETE_COLLATERAL = `${API_END_POINT}/cubCollateral/deleteCollateral`;
 const GET_PSL_CLASSIFICATION = `${API_END_POINT}/getPincodeZone`;
 const GET_DSA_DETAILS = `${API_END_POINT}/getCodeDetails`;
+const EMPLOYEE_SEARCH = `${API_END_POINT}/federal_source_user_list`;
 
 const TRIGGER_PENNY_DROP = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/trigger`;
 const PENNY_DROP_STATUS_FETCH = `${COMMON_SERVICES_API_END_POINT}/pennydrop/verification/status`;
@@ -297,4 +298,5 @@ export {
 	IFSC_REGEX,
 	GET_PSL_CLASSIFICATION,
 	GET_DSA_DETAILS,
+	EMPLOYEE_SEARCH,
 };
