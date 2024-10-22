@@ -13,6 +13,7 @@ import Button from 'components/Button';
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
+import EmployeeSearchModal from './EmployeeSearchModal';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -83,6 +84,8 @@ const LoanDetails = () => {
 	const [branchId, setBranchId] = useState();
 	const [fdglCodeLoading, setFdglCodeLoading] = useState(false);
 	const [dsaCodeFetchLoading, setDsaCodeFetchLoading] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [selectedIdField, setSelectedIdField] = useState('');
 	//default logged in user's branch id can be taken from session storage userDetails
 
 	// some permanent solution required for this, discussed with savitha, for now we will be using branch_id object that we get from GET API response
@@ -795,6 +798,22 @@ const LoanDetails = () => {
 			setLoading(false);
 		}
 	};
+
+	const populateEmployeeId = (fieldName, idValue) => {
+		onChangeFormStateField({
+			name: fieldName,
+			value: idValue,
+		});
+	};
+
+	const openEmpModal = fieldName => {
+		setIsModalOpen(true);
+		setSelectedIdField(fieldName);
+	};
+	const closeEmpModal = () => {
+		setIsModalOpen(false);
+		setSelectedIdField('');
+	};
 	useEffect(() => {
 		if (branchId) {
 			fetchBranchDeatils(branchId);
@@ -814,6 +833,13 @@ const LoanDetails = () => {
 				<Loading />
 			) : (
 				<>
+					<EmployeeSearchModal
+						show={isModalOpen}
+						onClose={closeEmpModal}
+						populateEmployeeId={populateEmployeeId}
+						loanOrigin={formState?.values?.['loan_source']}
+						selectedIdField={selectedIdField}
+					/>
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -1034,6 +1060,14 @@ const LoanDetails = () => {
 																};
 																customFieldPropsSubfields.loading = fdglCodeLoading;
 																customFieldPropsSubfields.disabled = fdglCodeLoading;
+															}
+
+															if (subField?.name === 'search') {
+																customFieldPropsSubfields.disabled = !formState
+																	?.values?.['loan_source'];
+																customFieldPropsSubfields.onClick = () => {
+																	openEmpModal(newField?.name);
+																};
 															}
 
 															return (
