@@ -942,6 +942,13 @@ const LoanDetails = () => {
 												customFieldProps.disabled = true;
 											}
 
+											if (
+												newField?.name === CONST.BRANCH_FIELD_NAME &&
+												newField?.enable_branch === true
+											) {
+												customFieldProps.disabled = false;
+											}
+
 											if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
 												customFieldProps.disabled = true;
 											}
