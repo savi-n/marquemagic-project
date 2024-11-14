@@ -1,0 +1,204 @@
+syntax = "proto3";
+
+/**
+   * sp - SBI Perseonal
+   * hs - hdfc SMI
+   * ac - Axis Corporate
+   * ap - Axis Personal
+   * kc - Kotak Corporate
+   */
+
+/**
+   * NC500 - Something went wrong please try after sometime.
+   * NC302 - Wrong Captcha/ Otp / password / username / corporateId.
+   * NC300 - Account already linked to another user.
+   * NC200 - Success
+   * NC201 - Mutiple accounts present-- select one
+   * NC202 - OTP sent
+   * NC203 - Security questions sent
+   */
+
+service UserService {
+   rpc servicestatus(Empty) returns (status) {}
+
+   rpc spGetCaptcha (Phone) returns (captchaResponse) {}
+   rpc spSubmitCaptcha (user) returns (userResponce) {}
+   rpc spSubmitOtp (user) returns (userResponce) {}
+   rpc spSelectAccount (selectedAccount) returns (userAccountResponce) {}
+
+   rpc hsSubmitdetails (hsDetails) returns (hsDetailsResponse) {}
+   rpc hsSubmitOtp (submitOtpReq) returns (hsOtpResponse) {}
+   rpc hsSelectAccount (selectedAccount) returns (captchaResponse) {}
+   rpc hsSubmitCaptcha (hsCaptchaDetails) returns (hsCaptchaDetailsResponse) {}
+
+   rpc acSubmitDetails (acSubmitDetailsReq) returns (axisCorporateResponse) {}
+   rpc acSubmitOtp (submitOtpReq) returns (axisCorporateResponse) {}
+   rpc acSubmitAccount (selectedAccount) returns (axisCorporateResponse) {}
+
+   rpc apSubmitDetails (acSubmitDetailsReq) returns (axisCorporateResponse) {}
+   rpc apSubmitSecurityAnswer (submitOtpReq) returns (axisCorporateResponse) {}
+   rpc apSubmitOtp (submitOtpReq) returns (axisCorporateResponse) {}
+   // rpc apSubmitAccount (selectedAccount) returns (axisCorporateResponse) {} // Need to implement
+
+   rpc kcSubmitDetails (acSubmitDetailsReq) returns (axisCorporateResponse) {}
+   rpc kcSubmitOtp (submitOtpReq) returns (axisCorporateResponse) {}
+   // rpc kcSubmitAccount (selectedAccount) returns (axisCorporateResponse) {} // Need to implement
+
+   // rpc gstGetCaptcha (Phone) returns (captchaResponse) {}
+   // rpc gstSubmitCaptcha (user) returns (gstFiscalDateResponse) {}
+   // rpc gstSubmitYear (gstFiscalYearReq) returns (gstFiscalDateResponse) {}
+   // rpc gstSubmitMonth (gstFiscalMonthReq) returns (gstFiscalDateResponse) {}
+
+   // rpc itrGetCaptcha (Phone) returns (captchaResponse) {}
+   // rpc itrSubmitCaptcha (user) returns (itrResponse) {}
+   // rpc itrSubmitFilings (itrFilingDetails) returns (itrResponse) {}
+
+   rpc isSubmitDetails (acSubmitDetailsReq) returns (axisCorporateResponse) {}
+}
+
+message Empty {
+}
+
+message status {
+   string statusMessage = 1;
+}
+
+message Phone {
+   string request_id = 1;
+}
+message captchaResponse {
+   string statusCode = 1;
+   string message = 2;
+   string imagePath = 3;
+}
+
+message user {
+   string request_id = 1;
+   string userName = 2;  // Pan number for itr
+   string password = 3;  // Ack number for itr
+   string captcha = 4;
+}
+
+message userResponce {
+   string statusCode = 1;
+   int32 noOfAccounts = 3;
+   message Accounts {
+      string Account = 1;
+      string AccountType = 2;
+      string Branch = 3;
+   }
+   repeated Accounts accounts = 4;
+   string message = 5;
+   string imagePath = 8;
+}
+
+message selectedAccount{
+   string request_id = 1;
+   string selectedAccount = 2;
+}
+message userAccountResponce{
+   string message = 1;
+   string statusCode = 3;
+}
+
+message hsDetails {
+   string request_id = 1;
+   string userName = 2;
+   string password = 3;
+   string otpMode = 4; // Mobile or Email
+}
+message hsDetailsResponse {
+   string statusCode = 1;
+   string message = 2;
+   int32 noOfAccounts = 4;
+   repeated string accounts = 5;
+}
+
+message hsOtpResponse {
+   string statusCode = 1; // if wrong otp start from the 1st api call
+   string message = 2;
+   int32 noOfAccounts = 4;
+   repeated string accounts = 5;
+}
+
+message hsCaptchaDetails {
+   string request_id = 1;
+   string captcha = 2;
+}
+message hsCaptchaDetailsResponse {
+   string message = 1;
+   string statusCode = 2; // if it is NC302 ... You need to call third request once again... for latest captcha image...
+}
+
+// Axis Corporate Request and Response
+message acSubmitDetailsReq {
+   string request_id = 1;
+   string corporateId = 2;
+   string userId = 3;
+   string password = 4;
+}
+message submitOtpReq {
+   string request_id = 1;
+   string otp = 2;            // submit OTP or security answer
+}
+
+message axisCorporateResponse {
+   string statusCode = 1;
+   string message = 2;
+   string noOfAccounts = 3;
+   message Accounts {
+      string accountNumber = 1;
+      string accountName = 2;
+      string accountType = 3;
+      string balance = 4;
+   }
+   repeated Accounts accounts = 4;
+}
+
+// Gst
+
+message gstFiscalYearReq {
+   string request_id = 1;
+   string yearValue = 2;
+   string gstNo = 3;
+}
+
+message gstFiscalMonthReq {
+   string request_id = 1;
+   string monthValue = 2;
+   string gstNo = 3;
+}
+
+message gstFiscalDateResponse{
+   message FiscalDate {
+      string value = 1;
+      string label = 2;
+   }
+   string statusCode = 1;
+   repeated FiscalDate fiscalDates = 2;
+   int32 noOfFiscalDates = 3;
+   string message = 4;
+   string gstNo = 5;
+}
+
+//itr
+message itrFilingDetails {
+   string request_id = 1;
+   string ackNumber = 2;
+   string filingDate = 3;
+   string form = 4;
+}
+
+message itrResponse{
+   message FilingDetails {
+      string pan = 1;
+      string AY = 2;
+      string ackNumber = 3;
+      string filingDate = 4;
+      string form = 5;
+   }
+   string statusCode = 1;
+   repeated FilingDetails filings = 2;
+   int32 noOfFilings = 3;
+   string message = 4;
+}

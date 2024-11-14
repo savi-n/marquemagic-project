@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+/**
+   * NC500 - We are unable to proceed right now. Please try after sometime.
+   * NC302 - Wrong Captcha/ Otp / password / username / corporateId.
+   * NC200 - Success
+   */
+
+service UserService {
+   rpc servicestatus(Empty) returns (status) {}
+   rpc closePage(Empty) returns (status) {}
+
+   rpc rocGetCaptcha (rocCaptchaReq) returns (rocResponse) {}
+   rpc rocSubmitCaptcha (rocReq) returns (rocResponse) {}
+   rpc rocGetBasicDetails (rocCaptchaBusReq) returns (rocResponse) {}
+   // rpc rocIcSubmitCaptcha (rocReq) returns (rocResponse) {}
+   // rpc rocLlpGetCaptcha (rocCaptchaReq) returns (rocResponse) {}
+   // rpc rocLlpSubmitCaptcha (rocReq) returns (rocResponse) {}
+
+   rpc gstGetCaptcha (gstCaptchaReq) returns (gstResponse) {}
+   rpc gstSubmitCaptcha (gstReq) returns (gstResponse) {}
+
+   rpc leiGetDetails (leiReq) returns (leiResponse) {}
+
+   rpc esicGetCaptcha (gstCaptchaReq) returns (gstResponse) {}
+   rpc esicGetDistrict (esicReq) returns (gstResponse) {}
+   rpc esicSubmitCaptcha (esicReq) returns (gstResponse) {}
+
+   rpc epfoGetCaptcha (gstCaptchaReq) returns (gstResponse) {}
+   rpc epfoSubmitCaptcha (gstReq) returns (gstResponse) {}
+   rpc epfoSubmitCompany (gstReq) returns (gstResponse) {}
+
+   rpc gstCredGetCaptcha (gstCaptchaReq) returns (gstResponse) {}
+   rpc gstCredSubmitCaptcha (gstCredentils) returns (gstResponse) {}
+
+   rpc udyamGetCaptcha (gstCaptchaReq) returns (gstResponse) {}
+   rpc udyamSubmitCaptcha (gstReq) returns (gstResponse) {}
+
+   rpc trackPassportStatus (trackPassportReq) returns (trackPassportRes) {}
+   rpc udyogAadhaarGetCaptcha (udyogCaptchaReq) returns (udyogCaptchaRes) {}
+   rpc udyogAadhaarSubmitCaptcha (udyogSubmitReq) returns (udyogSubmitRes) {}
+}
+
+message Empty {
+}
+
+message status {
+   string statusMessage = 1;
+}
+
+message rocResponse {
+   string statusCode = 1;
+   string message = 2;
+   string cinNumber = 3;
+   string imageUrl = 4;
+   string result = 5;
+}
+message rocReq{
+   string cinNumber =1;
+   string captcha =2;
+}
+message rocCaptchaReq{
+   string cinNumber =1;
+}
+message rocCaptchaBusReq{
+   string cinNumber =1;
+   string businessId = 2;
+}
+
+message gstResponse {
+   string statusCode = 1;
+   string message = 2;
+   string gstIn = 3;
+   string imageUrl = 4;
+   string businessId = 5;
+   string result = 6;
+}
+message gstReq{
+   string gstIn = 1;
+   string captcha = 2;
+   string businessId = 3;
+}
+message gstCaptchaReq{
+   string gstIn = 1;
+   string businessId = 2;
+}
+
+message leiResponse {
+   string statusCode = 1;
+   string message = 2;
+   string data = 3;
+}
+message leiReq{
+   string leiId = 1;
+   string businessId = 2;
+}
+
+message esicReq{
+   string esicName = 1;
+   string captcha = 2;
+   string state = 3;
+   string district = 4;
+   string businessId = 5;
+}
+
+message gstCredentils{
+   string userName = 1;
+   string password = 2;
+   string captcha = 3;
+   string businessId = 4;
+}
+
+message trackPassportReq{
+   string fileNumber = 1;
+   string dob = 2;
+}
+
+message trackPassportRes{
+   string statusCode = 1;
+   string message = 2;
+   string info = 3;
+}
+
+message udyogCaptchaReq{
+   string uamNo = 1;
+}
+
+message udyogCaptchaRes{
+   string Status = 1;
+   string Info = 2;
+}
+
+message udyogSubmitReq{
+   string uamNo = 1;
+   string captcha = 2;
+}
+
+message udyogSubmitRes{
+   string Status = 1;
+   string Document_Type = 2;
+   string Info = 3;
+}
