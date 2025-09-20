@@ -1,0 +1,15 @@
+{
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"streetsidesoftware.code-spell-checker",
+		"eamodio.gitlens",
+		"rangav.vscode-thunder-client",
+		"tabnine.tabnine-vscode",
+		"aaron-bond.better-comments",
+		"visualstudioexptteam.vscodeintellicode",
+		"sonarsource.sonarlint-vscode",
+		"usernamehw.errorlens"
+	],
+	"unwantedRecommendations": []
+}
