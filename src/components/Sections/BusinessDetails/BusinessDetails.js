@@ -994,6 +994,7 @@ const BusinessDetails = props => {
 				dispatch(
 					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
 				);
+				console.log("----------------------------business details",fetchRes?.data?.data);
 				setSectionData(fetchRes?.data?.data);
 				const loanFetchDataResult =
 					fetchRes?.data?.data?.loan_pre_fetch_data?.length &&

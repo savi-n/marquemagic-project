@@ -103,7 +103,7 @@ const GENERATE_SESSION_ID_AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/ge
 const AADHAAR_REDIRECT = `https://14.142.52.49:9447/FinakycClient/EkycBiometric`;
 
 const HOSTNAME = window.location.hostname;
-const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
+const APP_CLIENT = HOSTNAME === 'localhost' ? 'app.daneioanddeiktis.com' : HOSTNAME;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
 const REDIRECT_CREATE =
 	HOSTNAME === 'localhost' ? '/' : '/onboarding/applyloan';
@@ -153,7 +153,7 @@ const CO_APP_CREATE_RESPONSE = 'co_app-create-response';
 const PINCODE_RESPONSE = 'pincode-response';
 
 const ORIGIN = 'nconboarding';
-const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
+const TEST_DOMAINS = ['localhost', 'app.daneioanddeiktis.com'];
 // Valid UDYAM number : UDYAM-2_letter_denoting_state_code-2_digits-7_digits
 const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
 const IFSC_REGEX = /^[A-Za-z]{4}0[A-Z0-9]{6}$/;

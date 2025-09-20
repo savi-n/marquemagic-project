@@ -264,6 +264,8 @@ const AddressDetails = props => {
 		asPerDocVerifyWithOtpSubField || permanentVerifyWithOtpSubField || {};
 
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
+
+	
 	const onClickVerifyWithOtp = async field => {
 		if (field?.redirect_url) {
 			handleBankRedirection(field.redirect_url);
@@ -696,7 +698,6 @@ const AddressDetails = props => {
 					selectedDirector,
 					application,
 				});
-
 				otherDocsBorrowerApi?.map(doc => {
 					if (doc?.document_id) return null;
 					newOtherUploadedDocumentsTemp.push({
@@ -711,9 +712,8 @@ const AddressDetails = props => {
 						classification_type: doc?.isTagged?.classification_type,
 						classification_sub_type: doc?.isTagged?.classification_sub_type,
 						doc_ref_id:
-							formState?.values?.[`${doc?.prefix}address_proof_id_others`] ||
-							undefined,
-
+						formState?.values?.[`${doc?.prefix}address_proof_id`] ||
+						formState.values[`${doc?.prefix}_address_proof_id_others`],
 						aid: doc?.isTagged?.id?.includes(
 							CONST_ADDRESS_DETAILS.PREFIX_PERMANENT
 						)
@@ -943,11 +943,17 @@ const AddressDetails = props => {
 						? CONST.PRESENT_OTHERS_RADIO
 						: ekycArrayPresentAddress?.classification_type,
 				permanent_address_proof_id_others:
-					ekycArrayPermanentAddress?.length > 0
-						? sectionData?.director_details?.ekyc_data?.filter(item => {
-								return `${item?.aid}` === '2';
-						  })?.[0]?.doc_ref_id
-						: '',
+				ekycArrayPermanentAddress?.length > 0
+				? sectionData?.director_details?.ekyc_data?.find(item => `${item?.aid}` === '2')?.doc_ref_id || ''
+				: '',
+				permanent_address_proof_id : ekycArrayPermanentAddress?.length > 0
+				? sectionData?.director_details?.ekyc_data?.find(item => `${item?.aid}` === '2')?.doc_ref_id || ''
+				: '',
+					// ekycArrayPermanentAddress?.length > 0
+					// 	? sectionData?.director_details?.ekyc_data?.filter(item => {
+					// 			return `${item?.aid}` === '2';
+					// 	  })?.[0]?.doc_ref_id
+					// 	: '',
 
 				permanent_property_tenure: sectionData?.director_details
 					?.permanent_residential_stability
@@ -955,31 +961,41 @@ const AddressDetails = props => {
 							sectionData?.director_details?.permanent_residential_stability
 					  ).format('YYYY-MM')
 					: '',
-				permanent_address_proof_valid_till:
-					ekycArrayPermanentAddress?.length > 0
-						? moment(
-								sectionData?.director_details?.ekyc_data?.filter(item => {
-									return `${item?.aid}` === '2';
-								})?.[0]?.valid_till
-						  ).format('YYYY-MM-DD')
-						: '',
+				permanent_address_proof_valid_till: ekycArrayPermanentAddress?.length > 0
+				? moment(
+					  sectionData?.director_details?.ekyc_data?.find(item => `${item?.aid}` === '2')?.valid_till
+				  ).format('YYYY-MM-DD')
+					: '',
+					// ekycArrayPermanentAddress?.length > 0
+					// 	? moment(
+					// 			sectionData?.director_details?.ekyc_data?.filter(item => {
+					// 				return `${item?.aid}` === '2';
+					// 			})?.[0]?.valid_till
+					// 	  ).format('YYYY-MM-DD')
+					// 	: '',
 
 				permanent_address_proof_issued_on:
-					ekycArrayPermanentAddress?.length > 0
-						? moment(
-								sectionData?.director_details?.ekyc_data?.filter(item => {
-									return `${item?.aid}` === '2';
-								})?.[0]?.issued_on
-						  ).format('YYYY-MM-DD')
-						: '',
+				ekycArrayPermanentAddress?.length > 0
+				? moment(
+					  sectionData?.director_details?.ekyc_data?.find(item => `${item?.aid}` === '2')?.issued_on
+				  ).format('YYYY-MM-DD')
+					: '',
+					// ekycArrayPermanentAddress?.length > 0
+					// 	? moment(
+					// 			sectionData?.director_details?.ekyc_data?.filter(item => {
+					// 				return `${item?.aid}` === '2';
+					// 			})?.[0]?.issued_on
+					// 	  ).format('YYYY-MM-DD')
+					// 	: '',
 
 				present_aadhaar: sectionData?.director_details?.daadhaar,
-				present_address_proof_id_others:
-					ekycArrayPresentAddress?.length > 0
-						? sectionData?.director_details?.ekyc_data?.filter(item => {
-								return `${item?.aid}` === '1';
-						  })?.[0]?.doc_ref_id
-						: '',
+				present_address_proof_id_others: ekycArrayPresentAddress?.length > 0
+				? sectionData?.director_details?.ekyc_data?.find(item => `${item?.aid}` === '1')?.doc_ref_id || '' : '',
+					// ekycArrayPresentAddress?.length > 0
+					// 	? sectionData?.director_details?.ekyc_data?.filter(item => {
+					// 			return `${item?.aid}` === '1';
+					// 	  })?.[0]?.doc_ref_id
+					// 	: '',
 				present_property_tenure: sectionData?.director_details
 					?.residential_stability
 					? moment(sectionData?.director_details?.residential_stability).format(
@@ -987,21 +1003,31 @@ const AddressDetails = props => {
 					  )
 					: '',
 				present_address_proof_issued_on:
-					ekycArrayPresentAddress?.length > 0
-						? moment(
-								sectionData?.director_details?.ekyc_data?.filter(item => {
-									return `${item?.aid}` === '1';
-								})?.[0]?.issued_on
-						  ).format('YYYY-MM-DD')
-						: '',
+				ekycArrayPresentAddress?.length > 0
+				? moment(
+					  sectionData?.director_details?.ekyc_data?.find(item => `${item?.aid}` === '1')?.issued_on
+				  ).format('YYYY-MM-DD')
+					: '',
+					// ekycArrayPresentAddress?.length > 0
+					// 	? moment(
+					// 			sectionData?.director_details?.ekyc_data?.filter(item => {
+					// 				return `${item?.aid}` === '1';
+					// 			})?.[0]?.issued_on
+					// 	  ).format('YYYY-MM-DD')
+					// 	: '',
 				present_address_proof_valid_till:
-					ekycArrayPresentAddress?.length > 0
-						? moment(
-								sectionData?.director_details?.ekyc_data?.filter(item => {
-									return `${item?.aid}` === '1';
-								})?.[0]?.valid_till
-						  ).format('YYYY-MM-DD')
-						: '',
+				ekycArrayPresentAddress?.length > 0
+				? moment(
+					  sectionData?.director_details?.ekyc_data?.find(item => `${item?.aid}` === '1')?.valid_till
+				  ).format('YYYY-MM-DD')
+					: '',
+					// ekycArrayPresentAddress?.length > 0
+					// 	? moment(
+					// 			sectionData?.director_details?.ekyc_data?.filter(item => {
+					// 				return `${item?.aid}` === '1';
+					// 			})?.[0]?.valid_till
+					// 	  ).format('YYYY-MM-DD')
+					// 	: '',
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
@@ -1659,6 +1685,7 @@ const AddressDetails = props => {
 											if (isVerifyWithOtpField) return null;
 
 											const newValue = prefilledValues(field);
+											
 											const customFieldProps = {};
 											if (isViewLoan) {
 												customFieldProps.disabled = true;
