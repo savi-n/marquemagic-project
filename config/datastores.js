@@ -6,7 +6,8 @@ module.exports.datastores = {
     },
     mysql_namastecredit: {
       adapter: 'sails-mysql',
-      url:'mysql://webappuser:Bangalore2018@@namastecredit-dev-env-write.chaqiqb07wh0.ap-southeast-1.rds.amazonaws.com:3306/namastecredit' 
+      url: 'mysql://nodejs:nodejs2024@marquemagic1.cluster-c3a68k68cq2b.ap-south-1.rds.amazonaws.com/namastecredit' 
+      // url:'mysql://webappuser:Bangalore2018@@namastecredit-dev-env-write.chaqiqb07wh0.ap-southeast-1.rds.amazonaws.com:3306/namastecredit' 
   
     }
   };

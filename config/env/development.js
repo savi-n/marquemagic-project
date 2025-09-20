@@ -417,9 +417,13 @@ module.exports = {
 	},
 	aws: {
 		cred: {
-			accessKeyId: 'AKIA5TQLVQP6D4EGMDWY',
-			secretAccessKey: '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',
-			region: 'ap-southeast-1',
+			// NC
+			// accessKeyId: 'AKIA5TQLVQP6D4EGMDWY',
+			// secretAccessKey: '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',
+			// region: 'ap-southeast-1',
+			key: "AKIAWN26J6RWEGP7XAR7",
+			secret: "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",
+			region: "ap-south-1"
 		},
 		bucket: 'testbank-nc',
 	},
@@ -492,6 +496,10 @@ module.exports = {
 			licence: 'http://kycapi.loan2pal.com:5000/licence',
 			passport: 'http://kycapi.loan2pal.com:5000/passport',
 			aadhar_redact: 'http://kycapi.loan2pal.com:5000/aadhar_redact',
+			emiratesid : 'http://52.66.200.178:5003/extract/emiratesid_extraction',
+			trade_licence : 'http://52.66.200.178:5003/extract/tradelicense_extraction',
+			tenancy_contract: 'http://52.66.200.178:5003/extract/tenancycontract_extraction',
+			bank_statement : 'http://52.66.200.178:5003/extract/bankstatement_extraction',	
  			bank: "http://34.93.148.166:5000/detect_bank",
                         salary: "http://34.47.153.177:5001/extraction_data",
                         pnl: "http://34.47.153.177:5001/extraction_data",

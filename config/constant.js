@@ -72,7 +72,7 @@ module.exports = {
         'Warning': 'The uploaded document may potentially be tampered. Please upload an authentic document or proceed with the uploaded document'
     },
     /** This is an array of all the types of request that can come from frontend for type of document upload */
-    requsetTypeArray: ["mask", "voter", "pan", "aadhar", "passport", "license", "DL", "voterid", "others"],
+    requsetTypeArray: ["mask", "voter", "pan", "aadhar", "passport", "license", "DL", "voterid", "others", "emirates_id", "tenancy_contract", "trade_license"],
     /* This is used to convert the types coming from FE to valid request types that are then used in calling ML APIS and storing in DB */
     validRequestTypes: {
         mask: "mask",
@@ -92,7 +92,10 @@ module.exports = {
         pnl: "pnl",
         bs: "bs",
         gst: "gst",
-        cibil: "cibil"
+        cibil: "cibil",
+        emirates_id : "emirates_id",
+        tenancy_contract : "tenancy_contract",
+        trade_licence: "trade_licence"
     },
     /* This is just a capitalized version of requesttypes only to show messages in proper format. */
     jsonType: {
@@ -104,7 +107,10 @@ module.exports = {
         license: "License",
         DL: "License",
         voter: "Voter",
-        others: "Others"
+        others: "Others",
+        emirates_id : "Emirates",
+        tenancy_contract : "Tenancy Contract",
+        trade_licence: "Trade Licence"
     },
     /* subtypes are used in client request document, they are whole capitalised version of request types. Since the enum there is all capitalized. */
     subTypes: {
@@ -208,7 +214,10 @@ module.exports = {
         aadhar: "Aadhar_number",
         voter: "vid",
         license: "dl_no",
-        passport: "passport_no"
+        passport: "passport_no",
+        emirates_id : "id_number",
+        tenancy_contract : "tenant_id",
+        trade_licence: "registered_number"
     },
     clientReqTypes: {
         docQuality: 'DOC_QUALITY'

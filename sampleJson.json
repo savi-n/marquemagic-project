@@ -1,0 +1,71 @@
+{
+    "emirates_id" : {
+        "data": {
+            "card_number": "141373453",
+            "document_number": "7610178M2612018IND<<<<<<<<<",
+            "employer": "Rakez / Ascend Management Consultants FZ-LLC",
+            "id_number": "2406401335",
+            "issuing_place": "Ras Al Khaimah",
+            "name": "NARANGIDAS<DAGA<ALOK<DAG<JUG",
+            "occupation": "Manager",
+            "sequence": "ILA RE1413734531784197693159812"
+        },
+        "status": "success"
+    },
+    "tenancy_contract" :
+    {
+        "data": {
+            "actual_contract_amount": "175,000.00 AED",
+            "contract_amount": "175,000.00 AED",
+            "dewa_premise_no": "921203529",
+            "discount": "0.00 AED",
+            "ejari_license": "10.00 AED",
+            "ejari_license_(vat_5.00%)": "2.75 AED",
+            "emirates_id": "784197693158912",
+            "end_date": "05-04-2025",
+            "grace_end_date": "(not specified)",
+            "grace_start_date": "(not specified)",
+            "innovation_fee": "10.00 AED",
+            "knowledge_fee": "10.00 AED",
+            "land_area": "Al Yelaysi 1",
+            "land_dm_no_(affection_plan)": "921-0",
+            "mobile": "0527183405",
+            "nationality": "India",
+            "owner_id": "5061532",
+            "owner_name": "MUWAFAQ MUSTAFA SALMAN",
+            "passport/expiry": "Z3576540 / 21-03-2026",
+            "plot_number": "791-0",
+            "printed_on": "6/4/2024 05:51 PM",
+            "property_no": "RM12 Mirka Oasis III-389",
+            "receipt_number": "2403279448852",
+            "registered_by": "EJARI",
+            "rent_registration_fee": "100.00 AED",
+            "security_deposit": "8,750.00 AED",
+            "size": "220.36 sq m",
+            "start_date": "06-04-2024",
+            "subtype": "3 bedrooms + hall",
+            "tenant_id": "042022021000576",
+            "tenant_name": "ALOK DAGA JUGALKISHORE NARANGIDAS DAGA",
+            "total_fees": "177.75 AED",
+            "type": "Villa",
+            "uae_g_no": "(not specified)",
+            "usage": "Residential",
+            "visa_no_&_expiry": "20120217551729 / 09-01-2025"
+        },
+        "status": "success"
+    },
+    "trade_licence" :
+    {
+        "data": {
+            "address": "DD-15-134-004 - 007, Level 15, WeWork Hub71, Al Khatem Tower, Abu Dhabi Global Market Square, Al Maryah Island, Abu Dhabi, United Arab Emirates",
+            "authorised_signatory": "Raghuvir Rajkumar Mehra",
+            "business_activities": "Special Purpose Vehicle - holding ownership of equity and non-equity assets, including shares, debentures, bonds, and other forms of security. Holding ownership of real property, intellectual property, and other tangible and intangible assets.",
+            "company_name": "CROWd9 HOLDINGS LIMITED",
+            "expiry_date": "15 July 2025",
+            "incorporation_date": "16 July 2024",
+            "registered_number": "20037",
+            "type_of_legal_entity": "Private Company Limited By Shares"
+        },
+        "status": "success"
+    }
+}
